@@ -1,0 +1,94 @@
+# UIパターン
+
+## DOM操作ユーティリティ（ui-util.js）
+```javascript
+const $=(id)=>document.getElementById(id);
+hideById(id) / showById(id)
+toggleVisibility(target)
+selectedById(ids) / unSelectedById(id)
+```
+
+## EventDelegator（event-delegator.js）
+document-levelのクリック委譲。`data-action`属性でハンドラを呼び分ける。
+```html
+<button data-action="flipHorizontally">Flip</button>
+```
+```javascript
+EventDelegator.register('flipHorizontally',function(el,e){...});
+```
+
+## Toast通知（toast.js）
+```javascript
+createToast(title,messages,time=4000)
+createToastError(title,messages,time=4000)
+```
+- 成功: `toast-nier`テーマ、エラー: `toast-dbd`テーマ
+- Bootstrap Toast APIベース
+
+## モーダル
+HTML動的挿入＋CSSオーバーレイ。パターン:
+- `position:fixed` + `rgba(0,0,0,0.6)` + backdrop blur
+- z-index: `var(--z-modal)` / `var(--z-overlay)`
+- レスポンシブ: `max-width:720px; width:90%; max-height:80vh`
+
+## スライダー（custom-html-component.js）
+```javascript
+setupSlider(slider,classname,addButton=true)
+```
+スライダーにup/downボタンとラベルを自動付与。
+
+## レイヤーパネル更新（layer-management.js）
+`updateLayerPanel()`はデバウンス付き（60ms最小間隔）。
+```
+updateLayerPanel() → 60ms throttle → executeUpdate() → DOM全再構築
+```
+- GUID階層でネスト表示
+- Material Designアイコンでレイヤー種別を識別
+- プレビューサムネイル表示
+
+## CSS変数（root.css）
+```css
+.dark-mode{
+  --color-base:#212121;
+  --color-secondary:#333333;
+  --color-accent:#810000;
+  --color-text-primary:#ffffff;
+  --odd-layer:#262626;
+  --even-layer:#2c2c2c;
+  --layer-active-bg:#3a1a1a;
+  --layer-active-border:#a03030;
+  --btn-bg:rgba(255,255,255,0.07);
+  --btn-hover-bg:rgba(255,255,255,0.15);
+}
+```
+
+## i18n（i18next.js）
+HTML属性での翻訳:
+```html
+<h3 data-i18n="keyName"></h3>
+<input data-i18n-placeholder="keyName">
+```
+JS内:
+```javascript
+getText("keyName")  // i18next.t()のラッパー
+```
+
+## 永続化
+| ストア | 用途 |
+|--------|------|
+| `localforage` | IndexedDB非同期ストレージ（SettingsRepository, auto-save等） |
+| `localStorage` | 設定バックアップ、プロバイダ設定 |
+- `SettingsRepository`: TTL付きget/set対応
+- `localforage.createInstance({name:'xxx'})` で用途別インスタンス
+
+## ModeManager
+操作モード切り替え: SELECT, FREEHAND, KNIFE, PEN各種, CROP
+```javascript
+ModeManager.getCurrent()
+  ModeManager.MODE.SELECT
+
+```
+
+## Simulator panel
+
+The first-round chat simulator is a normal left_area panel toggled through the existing sidebar data-action flow. Its controls use the existing CSS variables and data-i18n keys. Dynamic participant/message rows are owned by NaiComicChatController; canvas mutations still go through the existing history helpers and layer-panel refresh.

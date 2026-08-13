@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title data-i18n="title">Keyboard Shortcuts</title>
+<link rel="stylesheet" href="../common.css">
+<script src="../../third/i18next/i18next.min.js"></script>
+</head>
+<body>
+<div class="container">
+<div class="lang-buttons">
+<button class="lang-btn" onclick="changeLanguage('en')">English</button>
+<button class="lang-btn active" onclick="changeLanguage('ja')">日本語</button>
+<button class="lang-btn" onclick="changeLanguage('ko')">한국어</button>
+<button class="lang-btn" onclick="changeLanguage('zh')">中文</button>
+<button class="lang-btn" onclick="changeLanguage('fr')">Français</button>
+</div>
+
+<h1 data-i18n="title">Keyboard Shortcuts</h1>
+<p data-i18n="description">Available keyboard shortcuts on the canvas.</p>
+
+<div class="card">
+<table>
+<thead>
+<tr>
+<th data-i18n="shortcutKeys">Shortcut</th>
+<th data-i18n="function">Function</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>Ctrl + G</td><td data-i18n="toggleGrid">Toggle grid</td></tr>
+<tr><td>Ctrl(⌘) + Z</td><td data-i18n="undo">Undo</td></tr>
+<tr><td>Ctrl(⌘) + Y</td><td data-i18n="redo">Redo</td></tr>
+<tr><td>Ctrl(⌘) + C</td><td data-i18n="copy">Copy</td></tr>
+<tr><td>Ctrl(⌘) + V</td><td data-i18n="paste">Paste</td></tr>
+<tr><td>Delete / Backspace</td><td data-i18n="deleteLayer">Delete layer</td></tr>
+<tr><td data-i18n="arrowKeys">Arrow Keys</td><td data-i18n="moveObject">Move object</td></tr>
+<tr><td>Ctrl + L</td><td data-i18n="toggleLayerPanel">Toggle layer panel</td></tr>
+<tr><td>Ctrl + K</td><td data-i18n="toggleControls">Toggle controls</td></tr>
+<tr><td>Ctrl + 8</td><td data-i18n="Ctril8">Zoom in</td></tr>
+<tr><td>Ctrl + 9</td><td data-i18n="Ctril9">Zoom out</td></tr>
+<tr><td>Ctrl + 0</td><td data-i18n="Ctril0">Reset zoom</td></tr>
+<tr><td>Escape</td><td data-i18n="deselect">Deselect</td></tr>
+<tr><td>Ctrl(⌘) + ↑</td><td data-i18n="layerUp">Layer forward</td></tr>
+<tr><td>Ctrl(⌘) + ↓</td><td data-i18n="layerDown">Layer backward</td></tr>
+<tr><td data-i18n="shiftArrowKeys">Shift + Arrow</td><td data-i18n="moveObjectFast">Move (10px)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<script>
+const resources = {
+en: {
+translation: {
+"Ctril8": "Zoom in",
+"Ctril9": "Zoom out",
+"Ctril0": "Reset zoom",
+"title": "Keyboard Shortcuts",
+"description": "Available keyboard shortcuts on the canvas.",
+"shortcutKeys": "Shortcut",
+"function": "Function",
+"toggleGrid": "Toggle grid",
+"undo": "Undo",
+"redo": "Redo",
+"copy": "Copy",
+"paste": "Paste",
+"deleteLayer": "Delete layer",
+"arrowKeys": "Arrow Keys",
+"moveObject": "Move object",
+"toggleLayerPanel": "Toggle layer panel",
+"toggleControls": "Toggle controls",
+"deselect": "Deselect",
+"layerUp": "Layer forward",
+"layerDown": "Layer backward",
+"shiftArrowKeys": "Shift + Arrow",
+"moveObjectFast": "Move (10px)"
+}
+},
+ja: {
+translation: {
+"Ctril8": "拡大",
+"Ctril9": "縮小",
+"Ctril0": "ズームリセット",
+"title": "ショートカット一覧",
+"description": "キャンバスで使用できるショートカットキーです。",
+"shortcutKeys": "キー",
+"function": "機能",
+"toggleGrid": "グリッド切替",
+"undo": "元に戻す",
+"redo": "やり直す",
+"copy": "コピー",
+"paste": "ペースト",
+"deleteLayer": "レイヤー削除",
+"arrowKeys": "矢印キー",
+"moveObject": "オブジェクト移動",
+"toggleLayerPanel": "レイヤーパネル切替",
+"toggleControls": "コントロール切替",
+"deselect": "選択解除",
+"layerUp": "レイヤーを前面へ",
+"layerDown": "レイヤーを背面へ",
+"shiftArrowKeys": "Shift + 矢印",
+"moveObjectFast": "移動（10px）"
+}
+},
+ko: {
+translation: {
+"Ctril8": "확대",
+"Ctril9": "축소",
+"Ctril0": "줌 리셋",
+"title": "단축키 목록",
+"description": "캔버스에서 사용 가능한 단축키입니다.",
+"shortcutKeys": "단축키",
+"function": "기능",
+"toggleGrid": "그리드 전환",
+"undo": "실행 취소",
+"redo": "다시 실행",
+"copy": "복사",
+"paste": "붙여넣기",
+"deleteLayer": "레이어 삭제",
+"arrowKeys": "화살표 키",
+"moveObject": "객체 이동",
+"toggleLayerPanel": "레이어 패널 전환",
+"toggleControls": "컨트롤 전환",
+"deselect": "선택 해제",
+"layerUp": "레이어 앞으로",
+"layerDown": "레이어 뒤로",
+"shiftArrowKeys": "Shift + 방향키",
+"moveObjectFast": "이동 (10px)"
+}
+},
+zh: {
+translation: {
+"Ctril8": "放大",
+"Ctril9": "缩小",
+"Ctril0": "重置缩放",
+"title": "快捷键列表",
+"description": "画布上可用的快捷键。",
+"shortcutKeys": "快捷键",
+"function": "功能",
+"toggleGrid": "切换网格",
+"undo": "撤销",
+"redo": "重做",
+"copy": "复制",
+"paste": "粘贴",
+"deleteLayer": "删除图层",
+"arrowKeys": "方向键",
+"moveObject": "移动对象",
+"toggleLayerPanel": "切换图层面板",
+"toggleControls": "切换控件",
+"deselect": "取消选择",
+"layerUp": "图层前移",
+"layerDown": "图层后移",
+"shiftArrowKeys": "Shift + 方向键",
+"moveObjectFast": "移动（10px）"
+}
+},
+fr: {
+translation: {
+"Ctril8": "Zoom avant",
+"Ctril9": "Zoom arrière",
+"Ctril0": "Réinitialiser zoom",
+"title": "Raccourcis clavier",
+"description": "Raccourcis disponibles sur le canevas.",
+"shortcutKeys": "Raccourci",
+"function": "Fonction",
+"toggleGrid": "Basculer grille",
+"undo": "Annuler",
+"redo": "Rétablir",
+"copy": "Copier",
+"paste": "Coller",
+"deleteLayer": "Supprimer calque",
+"arrowKeys": "Flèches",
+"moveObject": "Déplacer objet",
+"toggleLayerPanel": "Basculer panneau",
+"toggleControls": "Basculer contrôles",
+"deselect": "Désélectionner",
+"layerUp": "Calque avant",
+"layerDown": "Calque arrière",
+"shiftArrowKeys": "Shift + Flèches",
+"moveObjectFast": "Déplacer (10px)"
+}
+}
+};
+
+i18next.init({
+lng: 'ja',
+resources: resources
+}, function(err, t) {
+updateContent();
+});
+
+function updateContent() {
+document.title = i18next.t('title');
+document.querySelectorAll('[data-i18n]').forEach(function(elem) {
+elem.textContent = i18next.t(elem.getAttribute('data-i18n'));
+});
+}
+
+function changeLanguage(lng) {
+document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+event.target.classList.add('active');
+i18next.changeLanguage(lng, function(err, t) {
+updateContent();
+});
+}
+</script>
+</body>
+</html>

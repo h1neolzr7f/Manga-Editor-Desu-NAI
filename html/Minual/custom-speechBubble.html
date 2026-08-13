@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title data-i18n="title">Bubble Drawing Tool</title>
+<link rel="stylesheet" href="../common.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/i18next/22.4.9/i18next.min.js"></script>
+</head>
+<body>
+<div class="container">
+<div class="lang-buttons">
+<button class="lang-btn active" onclick="changeLanguage('en')">English</button>
+<button class="lang-btn" onclick="changeLanguage('ja')">日本語</button>
+<button class="lang-btn" onclick="changeLanguage('zh')">中文</button>
+</div>
+
+<h1 data-i18n="title"></h1>
+
+<div class="card">
+<h2 data-i18n="features"></h2>
+<ul>
+<li data-i18n="feature1"></li>
+<li data-i18n="feature2"></li>
+<li data-i18n="feature3"></li>
+<li data-i18n="feature4"></li>
+<li data-i18n="feature5"></li>
+</ul>
+</div>
+
+<div class="card">
+<h2 data-i18n="parameters"></h2>
+<h3 data-i18n="smooth"></h3>
+<p data-i18n="smoothDescription"></p>
+<h3 data-i18n="cornerRoundness"></h3>
+<p data-i18n="cornerRoundnessDescription"></p>
+<h3 data-i18n="coordinateInterval"></h3>
+<p data-i18n="coordinateIntervalDescription"></p>
+</div>
+
+<h2 data-i18n="sampleImages"></h2>
+<h3 data-i18n="coordinateMode"></h3>
+<div class="img-container"><img src="CSB/points.webp" alt="Coordinate Mode"></div>
+<h3 data-i18n="freehandMode"></h3>
+<div class="img-container"><img src="CSB/freehand.webp" alt="Freehand Mode"></div>
+</div>
+
+<script>
+const r = {
+en: {
+translation: {
+title: "Bubble Drawing Tool",
+features: "Features",
+feature1: "Draw bubbles by specifying coordinates.",
+feature2: "Draw speech bubbles freehand.",
+feature3: "Connect speech bubbles by overlapping lines.",
+feature4: "Connect multiple bubbles or add tails later.",
+feature5: "Move or delete any coordinate point.",
+parameters: "Parameters",
+smooth: "Smooth",
+smoothDescription: "Slightly smooths the lines. Generally fine to keep on.",
+cornerRoundness: "Corner Roundness (Times)",
+cornerRoundnessDescription: "Used in coordinate mode. Indicates how many times to apply rounding. In freehand mode, makes lines smoother.",
+coordinateInterval: "Coordinate Interval (px)",
+coordinateIntervalDescription: "Used in freehand mode. Removes points between coordinates. For shaky lines, use smaller values.",
+sampleImages: "Sample Images",
+coordinateMode: "Coordinate Mode",
+freehandMode: "Freehand Mode"
+}
+},
+ja: {
+translation: {
+title: "吹き出し描画ツール",
+features: "この機能でできること",
+feature1: "座標指定で吹き出しを描くことができます。",
+feature2: "フリーハンドで吹き出しを描くことができます。",
+feature3: "描いた吹き出しに線を重ねて連結します。",
+feature4: "複数の吹き出しを連結させたり、後から尻尾を付けられます。",
+feature5: "任意の座標ポイントを移動、削除ができます。",
+parameters: "各パラメータ",
+smooth: "滑らか",
+smoothDescription: "線をやや滑らかにします。常に付けておいても問題ありません。",
+cornerRoundness: "角の丸み(回数)",
+cornerRoundnessDescription: "主に座標モードで使用。角に丸みを付ける処理回数を示します。",
+coordinateInterval: "座標間隔(px)",
+coordinateIntervalDescription: "主にフリーハンドモードで使用。座標間を削除し線の揺らぎを抑制します。",
+sampleImages: "サンプルイメージ",
+coordinateMode: "座標モード",
+freehandMode: "フリーハンドモード"
+}
+},
+zh: {
+translation: {
+title: "气泡绘图工具",
+features: "功能特点",
+feature1: "通过指定坐标来绘制气泡。",
+feature2: "自由手绘气泡。",
+feature3: "通过重叠线条来连接气泡。",
+feature4: "连接多个气泡或后续添加尾部。",
+feature5: "移动或删除任意坐标点。",
+parameters: "参数说明",
+smooth: "平滑",
+smoothDescription: "略微平滑线条。通常可以一直保持开启。",
+cornerRoundness: "圆角度（次数）",
+cornerRoundnessDescription: "主要用于坐标模式。表示对角应用圆角处理的次数。",
+coordinateInterval: "坐标间隔（像素）",
+coordinateIntervalDescription: "主要用于自由手绘模式。删除坐标之间的点以减少抖动。",
+sampleImages: "示例图像",
+coordinateMode: "坐标模式",
+freehandMode: "自由手绘模式"
+}
+}
+};
+
+function changeLanguage(e) {
+document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+event.target.classList.add('active');
+i18next.changeLanguage(e, updateContent);
+}
+
+function updateContent() {
+document.querySelectorAll("[data-i18n]").forEach((e) => {
+e.textContent = i18next.t(e.getAttribute("data-i18n"));
+});
+document.title = i18next.t('title');
+}
+
+i18next.init({ lng: "en", resources: r, fallbackLng: "en" }, function(e, t) {
+if (e) return;
+updateContent();
+});
+</script>
+</body>
+</html>

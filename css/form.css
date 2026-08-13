@@ -1,0 +1,335 @@
+@import url('root.css');
+
+body {
+ background-color: var(--background-color-A);
+ color: var(--text-color-B);
+}
+
+hr {
+ height: 3px;
+ margin: 4px !important;
+ background: var(--text-border);
+}
+
+.ms-auto {
+ margin-right: 10px;
+}
+
+.file-input-label {
+ display: inline-block;
+ padding: 3px 8px;
+ background: var(--btn-bg);
+ color: var(--text-color-B);
+ border: var(--btn-border);
+ border-radius: var(--fjm-button-border-radius);
+ cursor: pointer;
+ transition: var(--btn-transition);
+ font-size: 14px;
+}
+
+.file-input-label:hover {
+ background: var(--btn-hover-bg);
+ border-color: var(--btn-hover-border-color);
+ color: var(--button-text-color);
+}
+
+input[type="file"] {
+ display: none;
+}
+
+
+.toggle-container {
+ display: flex;
+ gap: 0px;
+ padding: 10px;
+ width: 100%;
+}
+
+.toggle-text {
+ font-size: 14px;
+ margin-right: 20px;
+ text-align: center;
+}
+
+.toggle-text2 {
+ font-size: 14px;
+ margin: 0;
+ text-align: center;
+}
+
+.toggle-switch {
+ width: 80px;
+ height: 20px;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ margin-right: 30px;
+}
+
+.toggle-checkbox {
+ display: none;
+}
+
+.toggle-label {
+ display: inline-block;
+ width: 100%;
+ height: 100%;
+ background: var(--toggle-off-background);
+ border-radius: 10px;
+ position: relative;
+ cursor: pointer;
+ transition: background 0.3s ease;
+ box-shadow: inset 1px 1px 3px var(--toggle-button-shadow), inset -1px -1px 3px #ffffff;
+}
+
+.toggle-label::after {
+ content: '';
+ width: 16px;
+ height: 16px;
+ background: var(--toggle-button-color);
+ border-radius: 50%;
+ position: absolute;
+ top: 3px;
+ left: 3px;
+ transition: transform 0.1s ease, background 0.1s ease;
+ box-shadow: 1px 1px 3px var(--toggle-button-shadow), -1px -1px 3px #ffffff;
+}
+
+.toggle-checkbox:checked+.toggle-label {
+ background: var(--toggle-on-background);
+}
+
+.toggle-checkbox:checked+.toggle-label::after {
+ transform: translateX(40px);
+}
+
+
+
+
+select,
+.custom-navbar input[type="text"],
+input[type="file"],
+input[type="date"],
+input[type="month"],
+input[type="week"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="range"],
+input[type="color"],
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+textarea {
+ background: var(--background-color-B);
+ color: var(--text-color-B);
+ border: var(--border-color-1px-solid-B);
+ box-sizing: border-box;
+}
+
+select:focus,
+.custom-navbar input[type="color"]:focus,
+.custom-navbar input[type="number"]:focus,
+input[type="file"]:focus,
+input[type="date"]:focus,
+input[type="month"]:focus,
+input[type="week"]:focus,
+input[type="time"]:focus,
+input[type="datetime-local"]:focus,
+input[type="range"]:focus,
+input[type="color"]:focus,
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="search"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+textarea:focus {
+ outline: none;
+ border-color: var(--color-input-focus-border);
+}
+
+.custom-navbar input[type="color"]:hover,
+.custom-navbar input[type="number"]:hover,
+input[type="text"]:hover,
+input[type="password"]:hover,
+input[type="email"]:hover,
+input[type="number"]:hover,
+input[type="search"]:hover,
+input[type="tel"]:hover,
+input[type="url"]:hover,
+textarea:hover {
+ outline: none;
+ border-color: var(--color-input-focus-border);
+ background: var(--background-color-D);
+}
+
+p,
+i {
+ color: var(--text-color-B);
+}
+
+button {
+ background: var(--btn-bg);
+ color: var(--button-text-color);
+ border: var(--btn-border);
+ border-radius: var(--fjm-button-border-radius);
+ cursor: pointer;
+ padding: var(--padding-button);
+ font-size: var(--font-size-button);
+ margin: var(--margin-button);
+ text-align: left;
+ transition: var(--btn-transition);
+}
+
+button:hover {
+ background: var(--btn-hover-bg);
+ border-color: var(--btn-hover-border-color);
+ color: var(--button-hover-color);
+}
+
+button:active {
+ background: rgba(255,255,255,0.05);
+ transition: none;
+}
+
+button.btn-danger {
+ background: var(--btn-danger-bg);
+ border-color: var(--btn-danger-border-color);
+ color: var(--btn-danger-color);
+}
+
+button.btn-danger:hover {
+ background: var(--btn-danger-hover-bg);
+}
+
+button.btn-action {
+ background: var(--btn-action-bg);
+ border-color: var(--btn-action-border-color);
+ color: var(--btn-action-color);
+}
+
+button.btn-action:hover {
+ background: var(--btn-action-hover-bg);
+}
+
+button.active-button:hover {
+ background-color: var(--btn-active-bg);
+ border-color: var(--btn-active-border-color);
+}
+ 
+
+button .material-icons {
+ font-size: var(--font-size-icon-material);
+ vertical-align: middle;
+}
+
+button .material-symbols-outlined {
+ font-size: var(--font-size-icon-material-outlined);
+ vertical-align: middle;
+ padding: 0px;
+}
+
+
+input[type="checkbox"],
+input[type="radio"] {
+ background: var(--checkbox-background);
+ border: var(--checkbox-border);
+ cursor: pointer;
+}
+
+input[type="checkbox"]:checked {
+ background: var(--checkbox-checked-background);
+}
+
+input[type="radio"]:checked {
+ background: var(--radio-checked-background);
+}
+
+label {
+ color: var(--text-color-B);
+ margin: 5px;
+}
+
+a {
+ margin: 5px;
+}
+
+fieldset {
+ border: var(--border-color-1px-solid-B);
+}
+
+legend {
+ color: var(--text-color-B);
+}
+
+::-webkit-input-placeholder {
+ color: var(--color-dark-grey);
+}
+
+::-moz-placeholder {
+ color: var(--color-dark-grey);
+}
+
+:-ms-input-placeholder {
+ color: var(--color-dark-grey);
+}
+
+:-moz-placeholder {
+ color: var(--color-dark-grey);
+}
+
+table {
+ border-collapse: collapse;
+ background: var(--background-color-A);
+ color: var(--text-color-B);
+}
+
+th,
+td {
+ border: var(--border-color-1px-solid-B);
+}
+
+th {
+ background: var(--button-background);
+ color: var(--text-color-B);
+}
+
+
+span {
+ color: var(--text-color-B);
+ margin-right: 3px;
+ margin-left: 3px;
+}
+
+tr:nth-child(even) {
+ background: var(--background-color-B);
+}
+
+::-webkit-scrollbar-track {
+ background: var(--background-color-A);
+}
+
+::-webkit-scrollbar-thumb {
+ background: var(--color-scrollbar-thumb);
+}
+
+::-webkit-scrollbar-thumb:hover {
+ background: var(--color-input-focus-border);
+}
+
+progress {
+ background: var(--background-color-B);
+ color: var(--text-color-B);
+ border: var(--border-color-1px-solid-B);
+}
+
+meter {
+ background: var(--background-color-B);
+ color: var(--text-color-B);
+ border: var(--border-color-1px-solid-B);
+}

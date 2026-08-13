@@ -1,0 +1,153 @@
+.fabricjs-object-menu {
+position: fixed;
+display: none;
+background-color: var(--fjm-background-color);
+padding: var(--fjm-padding);
+z-index: var(--fjm-z-index);
+border-radius: var(--fjm-border-radius);
+font-family: var(--fjm-font-family);
+font-size: var(--fjm-font-size);
+user-select: none;
+flex-direction: column;
+border: 1px solid var(--fjm-border-color);
+box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+opacity: 0;
+transform: scale(0.95);
+transition: opacity 0.15s ease, transform 0.15s ease;
+pointer-events: none;
+}
+
+.fabricjs-object-menu.active {
+display: flex;
+opacity: 1;
+transform: scale(1);
+pointer-events: auto;
+}
+
+.fabricjs-object-menu button {
+margin: var(--fjm-button-margin);
+cursor: var(--fjm-button-cursor);
+padding: var(--fjm-button-padding);
+background-color: var(--fjm-button-bg-color);
+border: none;
+border-radius: var(--fjm-button-border-radius);
+color: var(--fjm-button-color);
+font-size: var(--fjm-font-size);
+width: var(--fjm-button-width);
+text-align: var(--fjm-button-text-align);
+white-space: var(--fjm-button-white-space);
+transition: background-color 0.12s ease, color 0.12s ease;
+display: flex;
+align-items: center;
+gap: 6px;
+}
+
+.fabricjs-object-menu button:hover {
+background-color: var(--fjm-button-hover-bg-color);
+color: var(--fjm-button-hover-color);
+}
+
+.fabricjs-object-menu button:active {
+background-color: var(--fjm-button-active-bg-color);
+color: var(--fjm-button-hover-color);
+}
+
+.fabricjs-object-menu .menu-btn-icon {
+font-size: 15px;
+line-height: 1;
+flex-shrink: 0;
+width: 15px;
+overflow: hidden;
+}
+
+.fabricjs-object-menu .menu-ai-action {
+background-color: rgba(106,58,180,0.18);
+}
+
+.fabricjs-object-menu .menu-ai-action:hover {
+background-color: rgba(106,58,180,0.35);
+}
+
+.fabricjs-object-menu .menu-ai-action .menu-btn-icon {
+color: #b388ff;
+}
+
+.fabricjs-object-menu .menu-destructive {
+color: #ff6b6b;
+}
+
+.fabricjs-object-menu .menu-destructive:hover {
+background-color: rgba(255,80,80,0.2);
+color: #ff4444;
+}
+
+.fabricjs-object-menu .menu-destructive .menu-btn-icon {
+color: #ff6b6b;
+}
+
+.menu-separator {
+height: 1px;
+background-color: var(--fjm-separator-color);
+margin: 4px 0;
+}
+
+.menu-group {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 1px;
+}
+
+.menu-group-wide {
+grid-column: 1 / -1;
+}
+
+.menu-group .input-container-leftSpace,
+.menu-group .input-group-multi {
+padding: 3px 5px;
+}
+
+.menu-group-header {
+padding: 3px 10px 1px;
+border-top: 1px solid var(--fjm-separator-color);
+margin-top: 2px;
+}
+
+.menu-group-header:first-child {
+border-top: none;
+margin-top: 0;
+}
+
+.menu-group-header span {
+font-size: 10px;
+color: var(--fjm-button-color);
+opacity: 0.7;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+
+.menu-submenu-wrap {
+grid-column: 1 / -1;
+}
+
+.menu-submenu-toggle {
+justify-content: flex-start;
+}
+
+.menu-submenu-arrow {
+font-size: 16px;
+margin-left: auto;
+opacity: 0.6;
+}
+
+.menu-submenu-content {
+padding-left: 8px;
+}
+
+.menu-submenu-content button {
+font-size: 10px;
+padding: 3px 8px;
+}
+
+.menu-submenu-content .menu-btn-icon {
+font-size: 13px;
+}

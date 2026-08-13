@@ -1,0 +1,20 @@
+Manga Editor Desu NAI 魔改版小白一键包
+
+使用方法：
+1. 解压整个文件夹。
+2. 双击“一键启动.bat”。
+3. 浏览器会打开 http://127.0.0.1:8000/index.html。
+4. 进入“设置 / NovelAI 生图设置”，自己填写 NovelAI 访问令牌。
+5. 抠图：点左侧「抠图」。一键启动会同时打开 8765 本地抠图服务。未安装 rembg 时可用颜色抠图；安装 `local_tools/requirements.txt` 后可选动漫/人像模型，并可保存自己的预设。
+6. 自定义笔刷：点左侧「ペン / 笔」，再点「自定义笔刷」。可调大小、间距、硬度、散射、起收笔，导入自己的笔尖图，保存或导出 JSON。
+
+打包说明：
+- 这是桌面快捷方式指向的 NAI 魔改版全量包：
+  C:\Users\tzzcomputer\Desktop\Manga-Editor-Desu\start_manga_editor_nai.bat
+- 已包含前端资源、NovelAI 魔改代码、本地代理、node_modules、outputs、test、roadmap、llm_doc、99_doc 和相关脚本。
+- 已排除真实 .env 和 .git 仓库历史，避免把你的 API、token 或提交历史打包进去。
+- .env.example 只是空模板，没有真实密钥。
+
+如果打不开：
+- 确认电脑已安装 Python，并且命令行能运行 python。
+- 如果 8000 端口被占用，先关闭旧的 Manga Editor Desu 窗口或相关 python 进程，再重新启动。

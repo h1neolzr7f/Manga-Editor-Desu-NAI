@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title data-i18n="title">SD WebUI API Setup</title>
+<link rel="stylesheet" href="../common.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/i18next/22.5.0/i18next.min.js"></script>
+</head>
+<body>
+<div class="container">
+<div class="lang-buttons">
+<button class="lang-btn" data-lang="ja">日本語</button>
+<button class="lang-btn active" data-lang="en">English</button>
+<button class="lang-btn" data-lang="ko">한국어</button>
+<button class="lang-btn" data-lang="fr">Français</button>
+<button class="lang-btn" data-lang="zh">中文</button>
+<button class="lang-btn" data-lang="ru">Русский</button>
+<button class="lang-btn" data-lang="es">Español</button>
+<button class="lang-btn" data-lang="pt">Português</button>
+<button class="lang-btn" data-lang="th">ไทย</button>
+<button class="lang-btn" data-lang="de">Deutsch</button>
+</div>
+
+<h1 data-i18n="title"></h1>
+<p data-i18n="intro"></p>
+
+<div class="card">
+<h2 data-i18n="setup.title"></h2>
+<p data-i18n="setup.description"></p>
+<div class="img-container">
+<img src="sd/API_settings_v2.jpg" alt="Configuration">
+</div>
+<h3 data-i18n="setup.variables"></h3>
+<ul>
+<li><strong data-i18n="setup.recommended.title"></strong>
+<code>COMMANDLINE_ARGS=--api --cors-allow-origins *</code></li>
+<li><strong data-i18n="setup.extension.title"></strong>
+<code>COMMANDLINE_ARGS=--api</code></li>
+</ul>
+</div>
+
+<div class="card">
+<h2 data-i18n="matrix.title"></h2>
+<p class="notice" data-i18n="matrix.note"></p>
+<div class="img-container">
+<img src="sd/StablityMatrix.jpg" alt="Stability Matrix">
+</div>
+</div>
+
+<div class="card">
+<h2 data-i18n="forge.title"></h2>
+<p data-i18n="forge.description"></p>
+<p class="notice" data-i18n="forge.warning"></p>
+<code data-i18n="forge.filepath"></code>
+<div class="diff-container">
+<div class="diff-block">
+<div class="diff-title" data-i18n="forge.before"></div>
+<pre>def configure_cors_middleware(app):
+  from starlette.middleware.cors import CORSMiddleware
+  from modules.shared_cmd_options import cmd_opts
+  cors_options = {
+  "allow_methods": ["*"],
+  "allow_headers": ["*"],
+  "allow_credentials": True,
+  }
+  if cmd_opts.cors_allow_origins:
+    cors_options["allow_origins"] = cmd_opts.cors_allow_origins.split(',')
+  if cmd_opts.cors_allow_origins_regex:
+    cors_options["allow_origin_regex"] = cmd_opts.cors_allow_origins_regex
+<span class="diff-remove">  app.user_middleware.insert(0, starlette.middleware.Middleware(CORSMiddleware, **cors_options))</span></pre>
+</div>
+<div class="diff-block">
+<div class="diff-title" data-i18n="forge.after"></div>
+<pre>def configure_cors_middleware(app):
+  from starlette.middleware.cors import CORSMiddleware
+  from modules.shared_cmd_options import cmd_opts
+  cors_options = {
+  "allow_methods": ["*"],
+  "allow_headers": ["*"],
+  "allow_credentials": True,
+  }
+  if cmd_opts.cors_allow_origins:
+    cors_options["allow_origins"] = cmd_opts.cors_allow_origins.split(',')
+  if cmd_opts.cors_allow_origins_regex:
+    cors_options["allow_origin_regex"] = cmd_opts.cors_allow_origins_regex
+<span class="diff-add"># Clear existing middleware stack
+  app.middleware_stack = None
+  app.add_middleware(CORSMiddleware, **cors_options)
+  app.build_middleware_stack()</span></pre>
+</div>
+</div>
+<p class="notice" data-i18n="forge.note"></p>
+</div>
+</div>
+
+<script>
+const resources={
+en:{translation:{
+title:"Stable Diffusion WebUI API Setup Guide",
+intro:"This guide explains how to configure the API for Stable Diffusion WebUI(or Forge).",
+setup:{
+title:"API Setup Steps",
+description:"Edit the 'webui-user.bat' file in your Stable Diffusion WebUI(or Forge) folder to set the COMMANDLINE_ARGS environment variable.",
+variables:"Environment Variables to Set:",
+recommended:{title:"For Extension, Website, and Local HTML (Recommended)"},
+extension:{title:"For Extension use only"}
+},
+matrix:{
+title:"Stability Matrix",
+note:"Note: When launching from Stability Matrix, set these in Extra Launch Arguments."
+},
+forge:{
+title:"Forge Source Modification (For Web Version)",
+description:"Only Forge requires source modification (as of Nov 25, 2024).",
+warning:"This step is not required if you're using Extensions or running index.html locally.",
+filepath:"Stable Diffusion WebUI Forge\\modules\\initialize_util.py",
+before:"Before",
+after:"After",
+note:"*1: Once the submitted fix is merged into Forge, this source modification will no longer be necessary."
+}
+}},
+ja:{translation:{
+title:"Stable Diffusion WebUI APIの設定方法",
+intro:"このガイドでは、Stable Diffusion WebUI(or Forge)のAPIを使用するための設定を説明します。",
+setup:{
+title:"API設定手順",
+description:"Stable Diffusion WebUI(or Forge)フォルダ内の'webui-user.bat'ファイルを編集してCOMMANDLINE_ARGSに環境変数を設定します。",
+variables:"設定する環境変数:",
+recommended:{title:"Extension、Webサイト、PC上のhtmlをローカル起動の3つで使用する場合（推奨）"},
+extension:{title:"Extensionとしてのみ利用する方"}
+},
+matrix:{
+title:"Stability Matrix",
+note:"注意：Stablity Matrixからの起動ではExtra Launch Argumentsに設定してください。"
+},
+forge:{
+title:"Forgeのソース変更（Web版を使う場合）",
+description:"Forgeのみソースの変更が必要になります（2024/11/25時点）。",
+warning:"Extensionとしての利用、PC上のindex.htmlを起動する場合、WebUIは修正不要ですのでこの項目は実施しないでください。",
+filepath:"Stable Diffusion WebUI Forge\\modules\\initialize_util.py",
+before:"修正前",
+after:"修正後",
+note:"*1: Forgeに修正ソースを送ったため、マージされた場合は上記のソース変更は必要なくなります。"
+}
+}},
+ko:{translation:{
+title:"Stable Diffusion WebUI API 설정 가이드",
+intro:"이 가이드는 Stable Diffusion WebUI(또는 Forge)의 API 설정 방법을 설명합니다.",
+setup:{
+title:"API 설정 단계",
+description:"Stable Diffusion WebUI(또는 Forge) 폴더의 'webui-user.bat' 파일을 수정하여 COMMANDLINE_ARGS 환경 변수를 설정합니다.",
+variables:"설정할 환경 변수:",
+recommended:{title:"확장 기능, 웹사이트 및 로컬 HTML용 (권장)"},
+extension:{title:"확장 기능 전용"}
+},
+matrix:{
+title:"Stability Matrix",
+note:"참고: Stability Matrix에서 시작할 때는 Extra Launch Arguments에 설정하십시오."
+},
+forge:{
+title:"Forge 소스 수정 (웹 버전용)",
+description:"Forge만 소스 수정이 필요합니다 (2024년 11월 25일 기준).",
+warning:"확장 기능을 사용하거나 index.html을 로컬에서 실행하는 경우 이 단계는 필요하지 않습니다.",
+filepath:"Stable Diffusion WebUI Forge\\modules\\initialize_util.py",
+before:"수정 전",
+after:"수정 후",
+note:"*1: Forge에 수정된 소스가 병합되면 이 소스 수정은 더 이상 필요하지 않습니다."
+}
+}},
+zh:{translation:{
+title:"Stable Diffusion WebUI API 配置指南",
+intro:"本指南说明如何配置Stable Diffusion WebUI(或Forge)的API。",
+setup:{
+title:"API配置步骤",
+description:"编辑Stable Diffusion WebUI(或Forge)文件夹中的'webui-user.bat'文件，设置COMMANDLINE_ARGS环境变量。",
+variables:"设置环境变量：",
+recommended:{title:"用于扩展、网站和本地HTML（推荐）"},
+extension:{title:"仅用于扩展"}
+},
+matrix:{
+title:"Stability Matrix",
+note:"注意：从Stability Matrix启动时，请在Extra Launch Arguments中设置。"
+},
+forge:{
+title:"Forge源代码修改（Web版本）",
+description:"仅Forge需要源代码修改（截至2024年11月25日）。",
+warning:"如果您使用扩展或本地运行index.html，则不需要此步骤。",
+filepath:"Stable Diffusion WebUI Forge\\modules\\initialize_util.py",
+before:"修改前",
+after:"修改后",
+note:"*1: 一旦修复提交被合并到Forge中，将不再需要此源代码修改。"
+}
+}},
+ru:{translation:{
+title:"Руководство по настройке API Stable Diffusion WebUI",
+intro:"В этом руководстве объясняется, как настроить API для Stable Diffusion WebUI(или Forge).",
+setup:{
+title:"Шаги настройки API",
+description:"Отредактируйте файл 'webui-user.bat' в папке Stable Diffusion WebUI(или Forge), чтобы установить переменную окружения COMMANDLINE_ARGS.",
+variables:"Переменные окружения для установки:",
+recommended:{title:"Для расширения, веб-сайта и локального HTML (рекомендуется)"},
+extension:{title:"Только для использования расширения"}
+},
+matrix:{
+title:"Stability Matrix",
+note:"Примечание: При запуске из Stability Matrix установите эти параметры в Extra Launch Arguments."
+},
+forge:{
+title:"Модификация исходного кода Forge (для веб-версии)",
+description:"Только Forge требует модификации исходного кода (по состоянию на 25 ноября 2024 г.).",
+warning:"Этот шаг не требуется, если вы используете расширения или локально запускаете index.html.",
+filepath:"Stable Diffusion WebUI Forge\\modules\\initialize_util.py",
+before:"До",
+after:"После",
+note:"*1: После объединения исправления с Forge эта модификация исходного кода больше не будет необходима."
+}
+}},
+es:{translation:{
+title:"Guía de configuración de API de Stable Diffusion WebUI",
+intro:"Esta guía explica cómo configurar la API para Stable Diffusion WebUI(o Forge).",
+setup:{
+title:"Pasos de configuración de API",
+description:"Edite el archivo 'webui-user.bat' en su carpeta de Stable Diffusion WebUI(o Forge) para establecer la variable de entorno COMMANDLINE_ARGS.",
+variables:"Variables de entorno para configurar:",
+recommended:{title:"Para extensión, sitio web y HTML local (recomendado)"},
+extension:{title:"Solo para uso de extensión"}
+},
+matrix:{
+title:"Stability Matrix",
+note:"Nota: Al iniciar desde Stability Matrix, configure estos en Extra Launch Arguments."
+},
+forge:{
+title:"Modificación del código fuente de Forge (para versión web)",
+description:"Solo Forge requiere modificación del código fuente (a partir del 25 de noviembre de 2024).",
+warning:"Este paso no es necesario si está usando extensiones o ejecutando index.html localmente.",
+filepath:"Stable Diffusion WebUI Forge\\modules\\initialize_util.py",
+before:"Antes",
+after:"Después",
+note:"*1: Una vez que la corrección enviada se fusione con Forge, esta modificación del código fuente ya no será necesaria."
+}
+}},
+pt:{translation:{
+title:"Guia de Configuração da API do Stable Diffusion WebUI",
+intro:"Este guia explica como configurar a API para o Stable Diffusion WebUI(ou Forge).",
+setup:{
+title:"Passos de Configuração da API",
+description:"Edite o arquivo 'webui-user.bat' na pasta do Stable Diffusion WebUI(ou Forge) para definir a variável de ambiente COMMANDLINE_ARGS.",
+variables:"Variáveis de ambiente para definir:",
+recommended:{title:"Para extensão, site e HTML local (recomendado)"},
+extension:{title:"Apenas para uso com extensão"}
+},
+matrix:{
+title:"Stability Matrix",
+note:"Nota: Ao iniciar do Stability Matrix, defina isso em Extra Launch Arguments."
+},
+forge:{
+title:"Modificação do Código Fonte do Forge (para versão web)",
+description:"Apenas o Forge requer modificação do código fonte (a partir de 25 de novembro de 2024).",
+warning:"Este passo não é necessário se você estiver usando extensões ou executando index.html localmente.",
+filepath:"Stable Diffusion WebUI Forge\\modules\\initialize_util.py",
+before:"Antes",
+after:"Depois",
+note:"*1: Uma vez que a correção enviada seja mesclada ao Forge, esta modificação do código fonte não será mais necessária."
+}
+}},
+th:{translation:{
+title:"คู่มือการตั้งค่า API Stable Diffusion WebUI",
+intro:"คู่มือนี้อธิบายวิธีการตั้งค่า API สำหรับ Stable Diffusion WebUI(หรือ Forge)",
+setup:{
+title:"ขั้นตอนการตั้งค่า API",
+description:"แก้ไขไฟล์ 'webui-user.bat' ในโฟลเดอร์ Stable Diffusion WebUI(หรือ Forge) เพื่อตั้งค่าตัวแปรสภาพแวดล้อม COMMANDLINE_ARGS",
+variables:"ตัวแปรสภาพแวดล้อมที่ต้องตั้งค่า:",
+recommended:{title:"สำหรับส่วนขยาย, เว็บไซต์ และ HTML ในเครื่อง (แนะนำ)"},
+extension:{title:"สำหรับการใช้ส่วนขยายเท่านั้น"}
+},
+matrix:{
+title:"Stability Matrix",
+note:"หมายเหตุ: เมื่อเริ่มต้นจาก Stability Matrix ให้ตั้งค่าเหล่านี้ใน Extra Launch Arguments"
+},
+forge:{
+title:"การแก้ไขซอร์สโค้ด Forge (สำหรับเวอร์ชันเว็บ)",
+description:"เฉพาะ Forge ที่ต้องการการแก้ไขซอร์สโค้ด (ณ วันที่ 25 พฤศจิกายน 2024)",
+warning:"ขั้นตอนนี้ไม่จำเป็นถ้าคุณใช้ส่วนขยายหรือรัน index.html ในเครื่อง",
+filepath:"Stable Diffusion WebUI Forge\\modules\\initialize_util.py",
+before:"ก่อน",
+after:"หลัง",
+note:"*1: เมื่อการแก้ไขถูกรวมเข้ากับ Forge แล้ว การแก้ไขซอร์สโค้ดนี้จะไม่จำเป็นอีกต่อไป"
+}
+}},
+de:{translation:{
+title:"Stable Diffusion WebUI API Einrichtungsanleitung",
+intro:"Diese Anleitung erklärt, wie Sie die API für Stable Diffusion WebUI(oder Forge) konfigurieren.",
+setup:{
+title:"API-Einrichtungsschritte",
+description:"Bearbeiten Sie die Datei 'webui-user.bat' in Ihrem Stable Diffusion WebUI(oder Forge)-Ordner, um die Umgebungsvariable COMMANDLINE_ARGS festzulegen.",
+variables:"Zu setzende Umgebungsvariablen:",
+recommended:{title:"Für Erweiterung, Website und lokales HTML (empfohlen)"},
+extension:{title:"Nur für Erweiterungsnutzung"}
+},
+matrix:{
+title:"Stability Matrix",
+note:"Hinweis: Beim Start über Stability Matrix setzen Sie diese in Extra Launch Arguments."
+},
+forge:{
+title:"Forge Quellcode-Änderung (für Web-Version)",
+description:"Nur Forge erfordert eine Quellcode-Änderung (Stand: 25. November 2024).",
+warning:"Dieser Schritt ist nicht erforderlich, wenn Sie Erweiterungen verwenden oder index.html lokal ausführen.",
+filepath:"Stable Diffusion WebUI Forge\\modules\\initialize_util.py",
+before:"Vorher",
+after:"Nachher",
+note:"*1: Sobald die eingereichte Korrektur in Forge zusammengeführt wurde, wird diese Quellcode-Änderung nicht mehr benötigt."
+}
+}},
+fr:{translation:{
+title:"Guide de configuration API Stable Diffusion WebUI",
+intro:"Ce guide explique comment configurer l'API pour Stable Diffusion WebUI(ou Forge).",
+setup:{
+title:"Étapes de configuration API",
+description:"Modifiez le fichier 'webui-user.bat' dans votre dossier Stable Diffusion WebUI(ou Forge) pour définir la variable d'environnement COMMANDLINE_ARGS.",
+variables:"Variables d'environnement à définir:",
+recommended:{title:"Pour Extension, Site Web et HTML local (Recommandé)"},
+extension:{title:"Pour utilisation Extension uniquement"}
+},
+matrix:{
+title:"Stability Matrix",
+note:"Note: Lors du lancement depuis Stability Matrix, définissez-les dans Extra Launch Arguments."
+},
+forge:{
+title:"Modification du code source Forge (Pour version Web)",
+description:"Seul Forge nécessite une modification du code source (au 25 novembre 2024).",
+warning:"Cette étape n'est pas requise si vous utilisez les Extensions ou exécutez index.html localement.",
+filepath:"Stable Diffusion WebUI Forge\\modules\\initialize_util.py",
+before:"Avant",
+after:"Après",
+note:"*1: Une fois le correctif soumis fusionné dans Forge, cette modification du code source ne sera plus nécessaire."
+}
+}}
+};
+
+i18next.init({
+resources,
+lng:'en',
+fallbackLng:'en'
+}).then(()=>{
+function updateContent(){
+document.querySelectorAll('[data-i18n]').forEach(element=>{
+const key=element.getAttribute('data-i18n');
+element.textContent=i18next.t(key);
+});
+document.title=i18next.t('title');
+}
+updateContent();
+document.querySelectorAll('.lang-btn').forEach(btn=>{
+btn.addEventListener('click',()=>{
+document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+btn.classList.add('active');
+i18next.changeLanguage(btn.getAttribute('data-lang')).then(updateContent);
+});
+});
+});
+</script>
+</body>
+</html>

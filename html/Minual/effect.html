@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title data-i18n="title">Image Processing</title>
+<link rel="stylesheet" href="../common.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/i18next/22.4.9/i18next.min.js"></script>
+</head>
+<body>
+<div class="container">
+<div class="lang-buttons">
+<button class="lang-btn active" onclick="changeLanguage('en')">English</button>
+<button class="lang-btn" onclick="changeLanguage('ja')">日本語</button>
+<button class="lang-btn" onclick="changeLanguage('zh')">中文</button>
+</div>
+
+<h1 data-i18n="title"></h1>
+
+<div class="menu">
+<div class="menu-item" onclick="showSection('c2bw')" data-i18n="menu.c2bw"></div>
+<div class="menu-item" onclick="showSection('blend')" data-i18n="menu.blend"></div>
+</div>
+
+<div id="c2bw" class="section active">
+<div class="card">
+<h2 data-i18n="c2bw.title"></h2>
+<p data-i18n="c2bw.description"></p>
+<p data-i18n="c2bw.process"></p>
+<ul>
+<li data-i18n="c2bw.ink"></li>
+<li data-i18n="c2bw.brightnessContrast"></li>
+<li data-i18n="c2bw.dotScreen"></li>
+</ul>
+<p data-i18n="c2bw.sampleImages"></p>
+</div>
+<div class="img-container"><img src="SB\Effect\c2bw\01.webp" alt="Sample 1"></div>
+<div class="img-container"><img src="SB\Effect\c2bw\02.webp" alt="Sample 2"></div>
+<div class="img-container"><img src="SB\Effect\c2bw\03.webp" alt="Sample 3"></div>
+<div class="img-container"><img src="SB\Effect\c2bw\04.webp" alt="Sample 4"></div>
+<div class="img-container"><img src="SB\Effect\c2bw\05.webp" alt="Sample 5"></div>
+<div class="img-container"><img src="SB\Effect\c2bw\06.webp" alt="Sample 6"></div>
+</div>
+
+<div id="blend" class="section">
+<div class="card">
+<h2 data-i18n="blend.title"></h2>
+<p data-i18n="blend.description"></p>
+<p data-i18n="blend.requirements"></p>
+</div>
+<div class="img-container"><img src="SB\Effect\25b\layer.webp" alt="Layer"></div>
+<div class="card">
+<p data-i18n="blend.usage"></p>
+</div>
+<div class="img-container"><img src="SB\Effect\25b\cap.webp" alt="Capture"></div>
+</div>
+</div>
+
+<style>
+.section { display: none; }
+.section.active { display: block; }
+.menu-item.active { border-color: var(--accent); background: var(--bg-hover); }
+</style>
+
+<script>
+const r = {
+en: {
+translation: {
+title: "Image Processing Menu",
+menu: { c2bw: "Color to B&W", blend: "25 Blend Modes" },
+c2bw: {
+title: "Color to Black & White",
+description: "Converts color images to black and white toned images.",
+process: "The conversion process involves 3 GLFX processes:",
+ink: "Ink: Thickens the lines.",
+brightnessContrast: "Brightness Contrast: Removes excessive expressions when toning.",
+dotScreen: "Dot Screen: Applies toning.",
+sampleImages: "Samples of original, B&W, and toned color:"
+},
+blend: {
+title: "25 Blend Modes",
+description: "Blend modes similar to Photoshop. For details, refer to online resources.",
+requirements: "Blending requires 2+ images with 2+ circular icons checked in the layer panel.",
+usage: "You can exclude images from blend, add blended images to canvas. Right-click to 'Place in panel'."
+}
+}
+},
+ja: {
+translation: {
+title: "画像処理メニュー",
+menu: { c2bw: "カラーから白黒へ", blend: "25種類のブレンド" },
+c2bw: {
+title: "Color2BlackWhite",
+description: "カラー画像を白黒トーン画像に変換します。",
+process: "変換過程でGLFXの3つの処理を行います：",
+ink: "Ink：線を太くします。",
+brightnessContrast: "Brightness Contrast：トーン化時の過剰な表現を除去。",
+dotScreen: "Dot Screen：トーン化します。",
+sampleImages: "オリジナル、白黒、トーンカラーの見本です："
+},
+blend: {
+title: "25種類のブレンド",
+description: "Photoshopなどで見られるブレンドモードです。詳しくはGoogle先生に。",
+requirements: "ブレンドには2枚以上の画像が必要です。レイヤーパネルの丸いアイコンを2つ以上チェック。",
+usage: "ブレンド対象から外すことも可能。右クリックで'パネル内に配置'を選択。"
+}
+}
+},
+zh: {
+translation: {
+title: "图像处理菜单",
+menu: { c2bw: "彩色转黑白", blend: "25种混合模式" },
+c2bw: {
+title: "彩色转黑白",
+description: "将彩色图像转换为黑白调图像。",
+process: "转换过程涉及3个GLFX处理：",
+ink: "Ink：加粗线条。",
+brightnessContrast: "Brightness Contrast：消除调子化时的过度表现。",
+dotScreen: "Dot Screen：进行调子化。",
+sampleImages: "原始、黑白和色调样本："
+},
+blend: {
+title: "25种混合模式",
+description: "类似于Photoshop的混合模式。详细信息请参考在线资源。",
+requirements: "混合需要2张以上图像，图层面板中需选中2个以上圆形图标。",
+usage: "可从混合目标中排除图像。右键单击选择'放置在面板中'。"
+}
+}
+}
+};
+
+function changeLanguage(e) {
+document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+event.target.classList.add('active');
+i18next.changeLanguage(e, updateContent);
+}
+
+function updateContent() {
+document.querySelectorAll("[data-i18n]").forEach((e) => {
+e.textContent = i18next.t(e.getAttribute("data-i18n"));
+});
+document.title = i18next.t('title');
+}
+
+function showSection(sectionId) {
+document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+document.getElementById(sectionId).classList.add('active');
+event.target.classList.add('active');
+}
+
+i18next.init({ lng: "en", resources: r, fallbackLng: "en" }, function(e, t) {
+if (e) return;
+updateContent();
+document.querySelector('.menu-item').classList.add('active');
+});
+</script>
+</body>
+</html>

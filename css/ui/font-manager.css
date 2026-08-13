@@ -1,0 +1,323 @@
+/* styles.css */
+.fm-fontManagerModal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--color-base);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  z-index: var(--z-font-manager);
+  width: 85%;
+  max-width: 85%;
+  height: 85vh;
+  max-height: 85vh;
+  border-radius: var(--fjm-border-radius);
+  overflow: hidden;
+  color: var(--color-text-secondary);
+}
+
+.fm-modalOverlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: var(--z-overlay);
+  backdrop-filter: blur(4px);
+}
+
+.fm-modalLayout {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+
+.fm-fontInputSection {
+  flex: 1 1 66.666%;
+  padding: 12px;
+  border-right: 1px solid var(--color-secondary);
+  overflow-y: auto;
+  height: 100%;
+  min-width: 0;
+}
+
+.fm-fontListSection {
+  flex: 0 0 33.333%;
+  padding: 12px;
+  height: 100%;
+  overflow-y: auto;
+  min-width: 280px;
+  background: var(--color-base);
+}
+
+.fm-fontInputContainer {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-secondary);
+}
+
+.fm-fontInputContainer:last-child {
+  border-bottom: none;
+}
+
+.fm-fontInputContainer h3 {
+  margin: 0 0 6px 0;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.fm-fontInputContainer h4 {
+  margin: 0 0 6px 0;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+
+.fm-fontInputContainer button {
+  background: #2c5cff;
+  color: var(--color-text-primary);
+  border: none;
+  padding: 6px 12px;
+  border-radius: var(--fjm-button-border-radius);
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.2s;
+}
+
+.fm-fontInputContainer button:hover {
+  background: #1e4aeb;
+}
+
+.fm-fontInputContainer textarea {
+  width: 100%;
+  height: 120px;
+  padding: 6px;
+  border: 1px solid var(--color-tertiary);
+  border-radius: var(--textarea-border-radius);
+  margin-bottom: 6px;
+  resize: vertical;
+  font-family: monospace;
+  font-size: 13px;
+  background: var(--color-secondary);
+  color: var(--color-text-secondary);
+}
+
+.fm-fontInputContainer textarea:focus {
+  outline: none;
+  border-color: #2c5cff;
+  box-shadow: 0 0 0 2px rgba(44, 92, 255, 0.2);
+}
+
+.fm-fontInputContainer textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+#fm-fontFileUpload {
+  display: block;
+  visibility: visible;
+  width: auto;
+  height: auto;
+  opacity: 1;
+}
+
+.fm-modalCloseButton {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  cursor: pointer;
+  font-size: 20px;
+  color: var(--slider-accent);
+  line-height: 1;
+  z-index: 1001;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--fjm-border-radius);
+  transition: background 0.2s;
+}
+
+.fm-modalCloseButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-text-primary);
+}
+
+.fm-sectionTitle {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin: 0 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--color-secondary);
+  position: sticky;
+  top: 0;
+  background: inherit;
+  z-index: 1;
+  font-weight: 500;
+}
+
+.fm-fontTagContainer {
+  width: 100%;
+}
+
+.fm-fontTag {
+  margin: 2px;
+  background: var(--color-secondary);
+  color: var(--color-text-secondary);
+}
+
+.fm-uploadInstructions {
+  font-size: 11px;
+  color: var(--slider-accent);
+  margin-top: 4px;
+}
+
+.fm-textEditorContainer {
+  padding: 16px;
+  background: var(--color-base);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .fm-modalLayout {
+    flex-direction: row;
+  }
+
+  .fm-fontInputSection {
+    flex: 1 1 60%;
+  }
+
+  .fm-fontListSection {
+    flex: 0 0 40%;
+    min-width: 200px;
+  }
+
+  .fm-fontManagerModal {
+    width: 92%;
+    height: 92vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .fm-fontInputSection {
+    flex: 1 1 50%;
+  }
+
+  .fm-fontListSection {
+    flex: 0 0 50%;
+    min-width: 140px;
+  }
+}
+
+
+
+
+
+
+
+
+.fm-font-dropdown {
+background: var(--color-tertiary);
+position: relative;
+width: 180px;
+}
+.fabricjs-object-menu .fm-font-dropdown {
+width: 100%;
+}
+
+.fm-dropdown-trigger {
+  background: var(--color-tertiary);
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--color-tertiary);
+  border-radius: var(--fjm-button-border-radius);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fm-dropdown-trigger:hover {
+  border-color: var(--color-accent-hover);
+  background: var(--color-secondary);
+  color: var(--color-text-primary);
+}
+
+.fm-dropdown-content {
+display: none;
+position: fixed;
+background: var(--color-secondary);
+border: 1px solid var(--fjm-border-color);
+border-radius: var(--fjm-button-border-radius);
+box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+overflow-y: auto;
+z-index: var(--z-font-manager);
+color: var(--color-text-primary);
+font-size: 16px;
+}
+
+.fm-dropdown-content.fm-show {
+  display: block;
+}
+
+.fm-font-category {
+  margin: 0;
+  border-bottom: 1px solid var(--color-tertiary);
+  color: var(--color-text-primary);
+}
+
+.fm-font-category:last-child {
+  border-bottom: none;
+}
+
+.fm-category-title {
+  font-weight: bold;
+  color: var(--color-text-primary);
+  padding: 6px 8px;
+  background: var(--color-secondary);
+  font-size: 0.9em;
+  border-left: 3px solid var(--color-tertiary);
+}
+
+.fm-font-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  padding: 4px;
+  background: var(--color-secondary);
+  color: var(--color-text-primary);
+}
+
+.fm-font-option {
+  padding: 2px 4px;
+  cursor: pointer;
+  background: var(--color-secondary);
+  border: 1px solid var(--color-tertiary);
+  font-size: 1.1em;
+  color: var(--color-text-primary);
+}
+
+.fm-font-option:hover {
+  background: var(--color-tertiary);
+  border-color: var(--color-accent-hover);
+  color: var(--color-text-primary);
+}
+
+.fm-dropdown-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.fm-dropdown-content::-webkit-scrollbar-track {
+  background: var(--color-secondary);
+}
+
+.fm-dropdown-content::-webkit-scrollbar-thumb {
+  background: var(--color-tertiary);
+  border-radius: 4px;
+}

@@ -1,0 +1,322 @@
+var generationTaskMap=new Map();
+
+var aiTaskMap=new Map();
+var aiTaskOrderCounter=0;
+
+function registerAiTask(layerGuid,taskType){
+var taskId='aitask-'+(++aiTaskOrderCounter);
+var task={
+taskId:taskId,
+canvasGuid:getCanvasGUID(),
+layerGuid:layerGuid,
+taskType:taskType,
+status:'waiting',
+order:aiTaskOrderCounter,
+stepValue:0,
+stepMax:0
+};
+aiTaskMap.set(taskId,task);
+generationTaskLogger.debug("registerAiTask",taskId,task);
+updateLayerPanel();
+return{id:taskId};
+}
+
+function getAiTask(taskId){
+return aiTaskMap.get(taskId)||null;
+}
+
+function updateAiTaskCancelInfo(taskId,info){
+var task=aiTaskMap.get(taskId);
+if(!task)return;
+if(info.queueName!==undefined)task.queueName=info.queueName;
+if(info.queueItemId!==undefined)task.queueItemId=info.queueItemId;
+if(info.promptId!==undefined)task.promptId=info.promptId;
+if(info.jobId!==undefined)task.jobId=info.jobId;
+generationTaskLogger.debug("updateAiTaskCancelInfo",taskId,info);
+}
+
+function removeAiTask(taskId){
+if(aiTaskMap.has(taskId)){
+aiTaskMap.delete(taskId);
+renumberAiTasks();
+generationTaskLogger.debug("removeAiTask",taskId);
+updateLayerPanel();
+}
+}
+
+function renumberAiTasks(){
+var tasks=[];
+aiTaskMap.forEach(function(task){tasks.push(task);});
+tasks.sort(function(a,b){return a.order-b.order;});
+for(var i=0;i<tasks.length;i++){
+tasks[i].order=i+1;
+}
+aiTaskOrderCounter=tasks.length;
+}
+
+function getAiTaskDisplayOrder(taskId){
+var task=aiTaskMap.get(taskId);
+if(!task)return 0;
+var tasks=getAiTasksForLayer(task.layerGuid,task.canvasGuid);
+for(var i=0;i<tasks.length;i++){
+if(tasks[i].taskId===taskId)return i+1;
+}
+return task.order;
+}
+
+function updateAiTaskStatus(taskId,status){
+var task=aiTaskMap.get(taskId);
+if(task){
+task.status=status;
+refreshAiTaskIndicator(taskId);
+}
+}
+
+function updateAiTaskProgress(taskId,value,max){
+var task=aiTaskMap.get(taskId);
+if(task){
+task.stepValue=value;
+task.stepMax=max;
+refreshAiTaskIndicator(taskId);
+}
+}
+
+function getAiTasksForLayer(layerGuid,canvasGuid){
+var tasks=[];
+aiTaskMap.forEach(function(task){
+if(task.layerGuid===layerGuid&&task.canvasGuid===canvasGuid){
+tasks.push(task);
+}
+});
+tasks.sort(function(a,b){return a.order-b.order;});
+return tasks;
+}
+
+function clearAllAiTasks(){
+aiTaskMap.clear();
+aiTaskOrderCounter=0;
+updateLayerPanel();
+}
+
+function refreshAiTaskIndicator(taskId){
+var task=aiTaskMap.get(taskId);
+if(!task)return;
+var el=document.querySelector('[data-ai-task-id="'+taskId+'"]');
+if(!el)return;
+if(task.status==='running'){
+el.classList.remove('ai-task-waiting');
+el.classList.add('ai-task-running');
+}
+var textEl=el.querySelector('.ai-task-text');
+if(textEl){
+var text=task.order+'. '+task.taskType;
+if(task.status==='running'&&task.stepMax>0){
+text+=' '+task.stepValue+'/'+task.stepMax;
+}
+textEl.textContent=text;
+}
+}
+
+async function registerGenerationTask(canvasGuid,taskInfo){
+if(!btmProjectsMap.has(canvasGuid)){
+await btmSaveProjectFile(canvasGuid,false);
+}
+var info={
+canvasGuid:canvasGuid,
+layerGuid:taskInfo.layerGuid||null,
+layerType:taskInfo.layerType||'unknown',
+centerX:taskInfo.centerX||0,
+centerY:taskInfo.centerY||0,
+targetLayerGuid:taskInfo.targetLayerGuid||null
+};
+generationTaskMap.set(canvasGuid,info);
+generationTaskLogger.debug("registerGenerationTask",canvasGuid,info);
+return info;
+}
+
+function getGenerationTask(canvasGuid){
+return generationTaskMap.get(canvasGuid);
+}
+
+function removeGenerationTask(canvasGuid){
+generationTaskMap.delete(canvasGuid);
+}
+
+function isPageChanged(canvasGuid){
+return canvasGuid!==getCanvasGUID();
+}
+
+async function applyGeneratedImageToOriginalPage(canvasGuid,fabricImage){
+var task=generationTaskMap.get(canvasGuid);
+if(!task){
+generationTaskLogger.error("Task not found:",canvasGuid);
+return false;
+}
+var projectData=btmProjectsMap.get(canvasGuid);
+if(!projectData||!projectData.blob){
+generationTaskLogger.error("Original page data not found:",canvasGuid);
+return false;
+}
+try{
+var result=await processImageOnOffscreenCanvas(projectData.blob,task,fabricImage);
+if(result.success){
+btmProjectsMap.set(canvasGuid,{
+imageLink:result.previewLink,
+blob:result.blob
+});
+var thumbnail=document.querySelector('.btm-image[data-index="'+canvasGuid+'"]');
+if(thumbnail&&result.previewLink){
+thumbnail.src=result.previewLink.href;
+}
+}
+return result.success;
+}catch(error){
+generationTaskLogger.error("Error applying image:",error);
+return false;
+}finally{
+removeGenerationTask(canvasGuid);
+}
+}
+
+async function processImageOnOffscreenCanvas(lz4Blob,task,fabricImage){
+var container=document.createElement('div');
+container.style.cssText='position:absolute;left:-9999px;top:-9999px;visibility:hidden;';
+var canvasEl=document.createElement('canvas');
+container.appendChild(canvasEl);
+document.body.appendChild(container);
+var offCanvas=new fabric.Canvas(canvasEl,{renderOnAddRemove:false});
+try{
+var files=await lz4Compressor.unLz4Files(lz4Blob);
+var localImageMap=new Map();
+var localStateStack=[];
+var canvasInfoBuffer=getDataByName(files,"canvas_info.json");
+var canvasInfo=canvasInfoBuffer?JSON.parse(ArrayBufferUtils.fromArrayBufferToString(canvasInfoBuffer)):{width:750,height:850};
+var basePromptBuffer=getDataByName(files,"text2img_basePrompt.json");
+var basePromptData=basePromptBuffer?JSON.parse(ArrayBufferUtils.fromArrayBufferToString(basePromptBuffer)):{};
+offCanvas.setWidth(canvasInfo.width);
+offCanvas.setHeight(canvasInfo.height);
+var sortedFiles=files.sort((a,b)=>{
+var numA=a.name.match(/(\d+)/)?parseInt(a.name.match(/(\d+)/)[0]):-1;
+var numB=b.name.match(/(\d+)/)?parseInt(b.name.match(/(\d+)/)[0]):-1;
+return numA===numB?a.name.localeCompare(b.name):numA-numB;
+});
+for(var file of sortedFiles){
+if(file.name.endsWith(".img")){
+localImageMap.set(file.name.split('.')[0],ArrayBufferUtils.fromArrayBufferToString(file.data));
+}
+}
+for(var file of sortedFiles){
+if(file.name.endsWith(".json")&&file.name!=="text2img_basePrompt.json"&&file.name!=="canvas_info.json"){
+localStateStack.push(JSON.parse(ArrayBufferUtils.fromArrayBufferToString(file.data)));
+}
+}
+if(localStateStack.length===0){
+throw new Error("No state found");
+}
+var lastState=localStateStack[localStateStack.length-1];
+var restored=restoreImageLocal(lastState,localImageMap);
+await new Promise(resolve=>{
+offCanvas.loadFromJSON(restored,function(){
+offCanvas.renderAll();
+resolve();
+});
+});
+var targetLayer=task.targetLayerGuid?offCanvas.getObjects().find(obj=>obj.guid===task.targetLayerGuid):null;
+placeImageLocal(offCanvas,fabricImage,task,targetLayer);
+offCanvas.renderAll();
+var newState=customToJSONLocal(offCanvas,localImageMap);
+localStateStack.push(JSON.stringify(newState));
+var previewDataUrl=offCanvas.toDataURL({format:'jpeg',quality:0.8});
+var fileBufferList=await generateProjectFileBufferListCore(localStateStack,localImageMap,canvasInfo,basePromptData,previewDataUrl);
+var newBlob=await lz4Compressor.buffersToLz4Blob(fileBufferList);
+return{success:true,blob:newBlob,previewLink:{href:previewDataUrl}};
+}finally{
+offCanvas.dispose();
+container.remove();
+}
+}
+
+function restoreImageLocal(jsonOrStr,localImageMap){
+var parsed=typeof jsonOrStr==='string'?JSON.parse(jsonOrStr):jsonOrStr;
+parsed.objects=parsed.objects.map(obj=>{
+if(obj.type==='image'&&localImageMap.has(obj.src)){
+obj.src=localImageMap.get(obj.src);
+}
+if(obj.speechBubbleGrid&&typeof obj.speechBubbleGrid==='string'){
+var hash=obj.speechBubbleGrid.replace('GUID:','');
+var gridData=localImageMap.get(hash);
+if(gridData){
+try{obj.speechBubbleGrid=JSON.parse(gridData);}catch(e){obj.speechBubbleGrid=gridData;}
+}
+}
+if(obj.textBaseline==='alphabetical'){
+obj.textBaseline='alphabetic';
+}
+return obj;
+});
+return parsed;
+}
+
+function customToJSONLocal(offCanvas,localImageMap){
+var json=offCanvas.toJSON(commonProperties);
+json.objects=json.objects.map(obj=>{
+if(obj.type==='image'&&obj.src&&typeof obj.src==='string'&&(obj.src.startsWith('data:')||obj.src.startsWith('blob:'))){
+var hash=generateHash(obj.src);
+if(!localImageMap.has(hash)){
+localImageMap.set(hash,obj.src);
+}
+obj.src=hash;
+}
+if(obj.speechBubbleGrid&&typeof obj.speechBubbleGrid==='object'){
+var gridStr=JSON.stringify(obj.speechBubbleGrid);
+var hash=generateHash(gridStr);
+if(!localImageMap.has(hash)){
+localImageMap.set(hash,gridStr);
+}
+obj.speechBubbleGrid="GUID:"+hash;
+}
+return obj;
+});
+return json;
+}
+
+function placeImageLocal(offCanvas,img,task,targetFrame){
+offCanvas.add(img);
+if(targetFrame){
+var frameBounds=targetFrame.getBoundingRect?targetFrame.getBoundingRect(true):{
+left:targetFrame.left,
+top:targetFrame.top,
+width:targetFrame.width*targetFrame.scaleX,
+height:targetFrame.height*targetFrame.scaleY
+};
+var frameCenterX=frameBounds.left+frameBounds.width/2;
+var frameCenterY=frameBounds.top+frameBounds.height/2;
+var scaleX=frameBounds.width/img.width;
+var scaleY=frameBounds.height/img.height;
+var scale=Math.max(scaleX,scaleY)*1.02;
+img.set({
+left:frameCenterX-(img.width*scale)/2,
+top:frameCenterY-(img.height*scale)/2,
+scaleX:scale,
+scaleY:scale
+});
+if(targetFrame.points){
+img.clipPath=new fabric.Polygon(targetFrame.points,{
+left:targetFrame.left,
+top:targetFrame.top,
+scaleX:targetFrame.scaleX,
+scaleY:targetFrame.scaleY,
+angle:targetFrame.angle||0,
+absolutePositioned:true
+});
+}
+if(!targetFrame.guids)targetFrame.guids=[];
+var imgGuid=img.guid||generateGUID();
+img.guid=imgGuid;
+targetFrame.guids.push(imgGuid);
+img.relatedPoly=targetFrame;
+if(targetFrame.name)img.name=targetFrame.name+" In Image";
+}else{
+img.set({left:50,top:50,scaleX:0.5,scaleY:0.5});
+}
+}

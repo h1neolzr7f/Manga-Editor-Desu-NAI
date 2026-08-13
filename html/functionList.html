@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Feature List</title>
+<link rel="stylesheet" href="common.css">
+<style>
+.category {
+background: var(--accent);
+color: #fff;
+cursor: pointer;
+font-weight: 600;
+}
+.category:hover { opacity: 0.9; }
+.group {
+background: rgba(124, 77, 255, 0.2);
+font-style: italic;
+}
+.feature td:first-child { padding-left: 24px; }
+.arrow {
+display: inline-block;
+margin-right: 8px;
+transition: transform 0.2s;
+}
+.rotate { transform: rotate(90deg); }
+.hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="lang-buttons">
+<button class="lang-btn active" id="btn-ja">日本語</button>
+<button class="lang-btn" id="btn-en">English</button>
+</div>
+
+<h1 id="page-title">機能一覧</h1>
+
+<div class="card">
+<table id="featureTable">
+<thead>
+<tr id="table-header">
+<th>機能</th>
+<th>対応</th>
+<th>詳細</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+
+<script>
+const features = {
+"漫画機能": {
+"コマ": {
+"初期配置されたコマセット": { "対応": "〇", "詳細": "縦型、横型のパネルセットあり。40種～" },
+"初期設定サイズ：A4, A5, 各SNS": { "対応": "〇", "詳細": "" },
+"Webtoonサイズ": { "対応": "△", "詳細": "10,000px以上はパフォーマンスの問題あり" },
+"コマの配置": { "対応": "〇", "詳細": "" },
+"コマの縮尺・傾きの変更": { "対応": "〇", "詳細": "" },
+"コマの枠線の色・太さ": { "対応": "〇", "詳細": "" },
+"コマの塗り・不透明度": { "対応": "〇", "詳細": "" },
+"コマの分割ツール": { "対応": "〇", "詳細": "ナイフツール有り" },
+"コマの頂点変更": { "対応": "〇", "詳細": "頂点変更で台形などに変化可能" },
+"コマ枠内への画像配置": { "対応": "〇", "詳細": "" },
+"コマ枠内のみの画像描画": { "対応": "〇", "詳細": "" },
+"コマ変更時の枠内画像の追従": { "対応": "〇", "詳細": "" },
+"コマ枠外への画像配置": { "対応": "〇", "詳細": "" },
+"透過画像サポート": { "対応": "〇", "詳細": "" }
+},
+"フキダシ": {
+"初期設定されたフキダシセット": { "対応": "〇", "詳細": "35種～" },
+"フキダシの縮尺・傾きの変更": { "対応": "〇", "詳細": "" },
+"フキダシの枠線の色・太さ": { "対応": "△", "詳細": "直観とやや異なる効果になることがあります" },
+"フキダシの塗り・不透明度": { "対応": "△", "詳細": "" },
+"フキダシ内のテキスト描画": { "対応": "△", "詳細": "Group化は未対応" }
+},
+"テキスト": {
+"フォント": { "対応": "〇", "詳細": "29種類" },
+"色、アウトライン色": { "対応": "〇", "詳細": "" },
+"サイズ、アウトラインサイズ": { "対応": "〇", "詳細": "" },
+"横書き": { "対応": "〇", "詳細": "" },
+"縦書き": { "対応": "△", "詳細": "ポップアップ上で操作" },
+"左揃え・中央揃え・右揃え": { "対応": "〇", "詳細": "" },
+"エフェクト": { "対応": "△", "詳細": "シャドウ・グラデーション・ネオン" }
+},
+"ペン": {
+"ペンツール": { "対応": "〇", "詳細": "" },
+"鉛筆、円、クレヨン、インク、マーカー": { "対応": "〇", "詳細": "" },
+"消しゴム、モザイク": { "対応": "〇", "詳細": "" },
+"サイズ、色、スタイル": { "対応": "〇", "詳細": "通常線、ドット線、ダッシュ線" },
+"シャドウ": { "対応": "〇", "詳細": "" }
+},
+"アイコン": {
+"フラットなアイコンセット": { "対応": "〇", "詳細": "Google Material Icon 2000種" },
+"スタイル指定": { "対応": "〇", "詳細": "" },
+"線幅、線色、塗り、不透明度": { "対応": "〇", "詳細": "" },
+"シャドウ": { "対応": "〇", "詳細": "" }
+}
+},
+"基本機能": {
+"テーマ": {
+"ダークモード": { "対応": "〇", "詳細": "" },
+"ライトモード": { "対応": "〇", "詳細": "" }
+},
+"ファイル": {
+"プロジェクト保存/読み込み": { "対応": "〇", "詳細": "Zip形式" },
+"設定保存/読み込み": { "対応": "〇", "詳細": "ブラウザストレージ" },
+"画像ダウンロード/コピー": { "対応": "〇", "詳細": "PNG" },
+"SVGダウンロード": { "対応": "〇", "詳細": "" }
+},
+"キャンバス": {
+"背景色": { "対応": "〇", "詳細": "" },
+"グリッドライン": { "対応": "〇", "詳細": "" },
+"余白設定": { "対応": "〇", "詳細": "" }
+},
+"言語": {
+"対応言語": { "対応": "〇", "詳細": "日英韓中仏露西葡泰" }
+},
+"レイヤー": {
+"Objectごとの管理": { "対応": "〇", "詳細": "" },
+"Group化": { "対応": "〇", "詳細": "" },
+"レイヤー順序変更": { "対応": "〇", "詳細": "" },
+"個別画像ダウンロード": { "対応": "〇", "詳細": "" }
+},
+"操作履歴": {
+"Undo/Redo": { "対応": "〇", "詳細": "無限履歴" }
+}
+},
+"生成AI": {
+"対応API": {
+"SD WebUI / Forge": { "対応": "〇", "詳細": "" }
+},
+"基本機能": {
+"IP/Port設定": { "対応": "〇", "詳細": "" },
+"Base Prompt": { "対応": "〇", "詳細": "" },
+"Text2Image / Image2Image": { "対応": "〇", "詳細": "" },
+"Model / Sampler選択": { "対応": "〇", "詳細": "" },
+"Controlnet / Adetailer": { "対応": "×", "詳細": "実装中" },
+"Upscaler": { "対応": "〇", "詳細": "" },
+"Remove Background": { "対応": "〇", "詳細": "" },
+"プロンプトプレビュー": { "対応": "〇", "詳細": "" },
+"プロンプト検索・置換": { "対応": "〇", "詳細": "" },
+"CLIP / DeepDanbooru": { "対応": "〇", "詳細": "" }
+}
+},
+"画像操作": {
+"基本操作": {
+"角度、縮尺、位置、傾き": { "対応": "〇", "詳細": "" },
+"不透明度": { "対応": "〇", "詳細": "" }
+},
+"高速処理": {
+"上下/左右反転": { "対応": "〇", "詳細": "" },
+"輪郭シャドウ": { "対応": "〇", "詳細": "" },
+"セピア、グレイスケール": { "対応": "〇", "詳細": "" },
+"色調、明るさ、ぼかし、ピクセル化": { "対応": "〇", "詳細": "" }
+},
+"GLFX処理": {
+"Brightness/Contrast, Hue/Saturation": { "対応": "〇", "詳細": "" },
+"Sepia, Unsharp Mask, Vibrance, Vignette": { "対応": "〇", "詳細": "" },
+"Lens/Triangle/Zoom Blur": { "対応": "〇", "詳細": "" },
+"Color Halftone, Dot Screen, Edge Work": { "対応": "〇", "詳細": "" },
+"Hexagonal Pixelate, Ink, Swirl": { "対応": "〇", "詳細": "" }
+}
+}
+};
+
+const features_en = {
+"Manga Features": {
+"Panels": {
+"Initial Panel Set": { "対応": "〇", "詳細": "40+ vertical/horizontal sets" },
+"Size: A4, A5, SNS": { "対応": "〇", "詳細": "" },
+"Webtoon Size": { "対応": "△", "詳細": "Performance issues above 10,000px" },
+"Panel Placement/Scale/Tilt": { "対応": "〇", "詳細": "" },
+"Border Color/Thickness": { "対応": "〇", "詳細": "" },
+"Fill/Opacity": { "対応": "〇", "詳細": "" },
+"Split Tool": { "対応": "〇", "詳細": "Knife tool" },
+"Vertex Edit": { "対応": "〇", "詳細": "" },
+"Image in Panel": { "対応": "〇", "詳細": "" },
+"Transparent Image": { "対応": "〇", "詳細": "" }
+},
+"Speech Bubbles": {
+"Initial Bubble Set": { "対応": "〇", "詳細": "35+ types" },
+"Scale/Tilt": { "対応": "〇", "詳細": "" },
+"Border/Fill": { "対応": "△", "詳細": "" },
+"Text in Bubble": { "対応": "△", "詳細": "No grouping yet" }
+},
+"Text": {
+"Font": { "対応": "〇", "詳細": "29 types" },
+"Color/Outline": { "対応": "〇", "詳細": "" },
+"Horizontal/Vertical": { "対応": "〇", "詳細": "" },
+"Alignment": { "対応": "〇", "詳細": "" },
+"Effects": { "対応": "△", "詳細": "Shadow, Gradient, Neon" }
+},
+"Pen": {
+"Pen Tools": { "対応": "〇", "詳細": "Pencil, Circle, Crayon, Ink, Marker" },
+"Eraser/Mosaic": { "対応": "〇", "詳細": "" },
+"Size/Color/Style": { "対応": "〇", "詳細": "" },
+"Shadow": { "対応": "〇", "詳細": "" }
+},
+"Icons": {
+"Icon Set": { "対応": "〇", "詳細": "Google Material Icon 2000+" },
+"Style/Shadow": { "対応": "〇", "詳細": "" }
+}
+},
+"Basic Functions": {
+"Theme": {
+"Dark/Light Mode": { "対応": "〇", "詳細": "" }
+},
+"File": {
+"Project Save/Load": { "対応": "〇", "詳細": "Zip format" },
+"Settings Save/Load": { "対応": "〇", "詳細": "Browser storage" },
+"Image Download/Copy": { "対応": "〇", "詳細": "PNG" },
+"SVG Download": { "対応": "〇", "詳細": "" }
+},
+"Canvas": {
+"Background Color": { "対応": "〇", "詳細": "" },
+"Grid Lines": { "対応": "〇", "詳細": "" }
+},
+"Language": {
+"Supported": { "対応": "〇", "詳細": "9 languages" }
+},
+"Layers": {
+"Object Management": { "対応": "〇", "詳細": "" },
+"Grouping": { "対応": "〇", "詳細": "" },
+"Layer Order": { "対応": "〇", "詳細": "" }
+},
+"History": {
+"Undo/Redo": { "対応": "〇", "詳細": "Unlimited" }
+}
+},
+"AI Generation": {
+"API": {
+"SD WebUI / Forge": { "対応": "〇", "詳細": "" }
+},
+"Features": {
+"IP/Port Settings": { "対応": "〇", "詳細": "" },
+"Text2Image / Image2Image": { "対応": "〇", "詳細": "" },
+"Model / Sampler": { "対応": "〇", "詳細": "" },
+"Controlnet / Adetailer": { "対応": "×", "詳細": "In development" },
+"Upscaler": { "対応": "〇", "詳細": "" },
+"Remove Background": { "対応": "〇", "詳細": "" },
+"Prompt Preview/Search": { "対応": "〇", "詳細": "" },
+"CLIP / DeepDanbooru": { "対応": "〇", "詳細": "" }
+}
+},
+"Image Processing": {
+"Basic": {
+"Angle/Scale/Position/Tilt": { "対応": "〇", "詳細": "" },
+"Opacity": { "対応": "〇", "詳細": "" }
+},
+"Fast Processing": {
+"Flip V/H": { "対応": "〇", "詳細": "" },
+"Shadow/Sepia/Grayscale": { "対応": "〇", "詳細": "" },
+"Color/Brightness/Blur/Pixelate": { "対応": "〇", "詳細": "" }
+},
+"GLFX": {
+"Adjustments": { "対応": "〇", "詳細": "Brightness, Contrast, Hue, etc." },
+"Blur Effects": { "対応": "〇", "詳細": "Lens, Triangle, Zoom" },
+"Stylize": { "対応": "〇", "詳細": "Halftone, Dot Screen, Ink, etc." }
+}
+}
+};
+
+function renderFeatures(data) {
+const tbody = document.querySelector('#featureTable tbody');
+let html = '';
+for (const [cat, groups] of Object.entries(data)) {
+html += `<tr class="category"><td colspan="3"><span class="arrow">▶</span>${cat}</td></tr>`;
+for (const [group, items] of Object.entries(groups)) {
+html += `<tr class="group"><td colspan="3">${group}</td></tr>`;
+for (const [item, d] of Object.entries(items)) {
+const cls = d.対応 === '〇' ? 'status-yes' : d.対応 === '△' ? 'status-partial' : 'status-no';
+html += `<tr class="feature"><td>${item}</td><td class="${cls}">${d.対応}</td><td>${d.詳細 || '-'}</td></tr>`;
+}
+}
+}
+tbody.innerHTML = html;
+document.querySelectorAll('.category').forEach(row => {
+row.addEventListener('click', function() {
+this.querySelector('.arrow').classList.toggle('rotate');
+let next = this.nextElementSibling;
+while (next && !next.classList.contains('category')) {
+next.classList.toggle('hidden');
+next = next.nextElementSibling;
+}
+});
+});
+}
+
+function setLang(lang) {
+const header = document.getElementById('table-header');
+const title = document.getElementById('page-title');
+if (lang === 'ja') {
+header.innerHTML = '<th>機能</th><th>対応</th><th>詳細</th>';
+title.textContent = '機能一覧';
+renderFeatures(features);
+} else {
+header.innerHTML = '<th>Feature</th><th>Status</th><th>Details</th>';
+title.textContent = 'Feature List';
+renderFeatures(features_en);
+}
+}
+
+document.getElementById('btn-ja').addEventListener('click', function() {
+document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+this.classList.add('active');
+setLang('ja');
+});
+
+document.getElementById('btn-en').addEventListener('click', function() {
+document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+this.classList.add('active');
+setLang('en');
+});
+
+setLang('ja');
+</script>
+</body>
+</html>

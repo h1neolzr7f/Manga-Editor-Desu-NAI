@@ -1,0 +1,42 @@
+.cutout-panel,
+.custom-brush-panel{
+display:flex;
+flex-direction:column;
+gap:8px;
+padding:10px;
+}
+
+.cutout-check{
+display:flex;
+gap:6px;
+align-items:center;
+font-size:12px;
+}
+
+.cutout-preview,
+.custom-brush-actions{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:8px;
+}
+
+.cutout-preview img{
+width:100%;
+max-height:140px;
+object-fit:contain;
+background:repeating-conic-gradient(#cbd5e1 0 25%,#94a3b8 0 50%) 0/14px 14px;
+border:1px solid rgba(148,163,184,.35);
+}
+
+.custom-brush-tip-preview{
+width:48px;
+height:48px;
+border-radius:50%;
+border:1px solid rgba(148,163,184,.4);
+background:#111827;
+}
+
+#CustomBrushButton img,
+#tool-buttons #CustomBrushButton{
+min-height:72px;
+}
