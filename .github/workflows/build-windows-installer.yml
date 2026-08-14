@@ -72,7 +72,7 @@ jobs:
 
       - name: Install Inno Setup
         shell: pwsh
-        run: choco install innosetup --yes --no-progress
+        run: choco install innosetup --version=6.7.3 --yes --no-progress
 
       - name: Compile installer
         shell: pwsh
@@ -86,8 +86,8 @@ jobs:
         run: |
           $setup = Get-ChildItem .\dist\Manga-Editor-Desu-NAI-Setup-*.exe | Select-Object -First 1
           $installDir = Join-Path $env:RUNNER_TEMP "desu-nai-installed"
-          & $setup.FullName /VERYSILENT /SUPPRESSMSGBOXES /NORESTART "/DIR=$installDir"
-          if ($LASTEXITCODE -ne 0) { throw "Silent install failed with code $LASTEXITCODE" }
+          $install = Start-Process -FilePath $setup.FullName -ArgumentList @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/DIR=$installDir") -Wait -PassThru
+          if ($install.ExitCode -ne 0) { throw "Silent install failed with code $($install.ExitCode)" }
 
           $python = Join-Path $installDir "runtime\python\python.exe"
           $node = Join-Path $installDir "runtime\node\node.exe"
