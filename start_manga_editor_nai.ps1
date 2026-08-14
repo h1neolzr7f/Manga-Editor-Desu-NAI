@@ -1,35 +1,72 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Port = 8000
 $Url = "http://127.0.0.1:$Port/index.html"
-$Python = "python"
+function Resolve-Python {
+    $candidates = @(
+        (Join-Path $env:LOCALAPPDATA "Programs\Python\Python313\python.exe"),
+        (Join-Path $env:LOCALAPPDATA "Programs\Python\Python312\python.exe"),
+        (Join-Path $env:LOCALAPPDATA "Programs\Python\Python311\python.exe")
+    )
+    foreach ($candidate in $candidates) {
+        if ($candidate -and (Test-Path -LiteralPath $candidate)) { return $candidate }
+    }
+    try {
+        $fromPy = & py -3 -c "import sys; print(sys.executable)" 2>$null
+        if ($fromPy -and (Test-Path -LiteralPath $fromPy.Trim())) { return $fromPy.Trim() }
+    } catch {
+    }
+    $cmd = Get-Command python -ErrorAction SilentlyContinue
+    if ($cmd -and $cmd.Source -and $cmd.Source -notmatch 'WindowsApps') { return $cmd.Source }
+    return "python"
+}
+
+$Python = Resolve-Python
+$LogPath = Join-Path $Root "user_data\start.log"
 
 Set-Location $Root
 
+function Write-StartLog($Message) {
+    try {
+        $dir = Split-Path $LogPath
+        if (-not (Test-Path -LiteralPath $dir)) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }
+        Add-Content -LiteralPath $LogPath -Encoding UTF8 -Value ("[{0}] {1}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"), $Message)
+    } catch {
+    }
+}
+
 function Show-Notice($Message, $Icon = "Warning") {
     Add-Type -AssemblyName PresentationFramework
-    [System.Windows.MessageBox]::Show($Message, "Manga Editor Desu", "OK", $Icon) | Out-Null
+    [System.Windows.MessageBox]::Show($Message, "Manga Editor Desu · nai学长魔改版", "OK", $Icon) | Out-Null
 }
 
 function Test-AppReady {
     try {
-        $response = Invoke-WebRequest -Uri $Url -UseBasicParsing -TimeoutSec 3
-        return ($response.StatusCode -eq 200 -and $response.Content -like "*Manga Editor*")
+        $request = [System.Net.WebRequest]::Create($Url)
+        $request.Proxy = [System.Net.GlobalProxySelection]::GetEmptyWebProxy()
+        $request.Timeout = 3000
+        $response = $request.GetResponse()
+        $reader = New-Object System.IO.StreamReader($response.GetResponseStream())
+        $body = $reader.ReadToEnd()
+        $reader.Close()
+        $response.Close()
+        return ($body -like "*nai学长魔改*")
     } catch {
         return $false
     }
 }
 
-function Stop-ExistingLocalServer {
-    $servers = @(Get-CimInstance Win32_Process | Where-Object {
-        $_.CommandLine -and $_.CommandLine -match '(^|[\\/\s"])99_server\.py($|[\s"])'
-    })
-    foreach ($server in $servers) {
-        try {
-            Stop-Process -Id $server.ProcessId -Force -ErrorAction Stop
-        } catch {
-        }
+function Test-LocalPortOpen([int]$ListenPort) {
+    try {
+        $client = New-Object System.Net.Sockets.TcpClient
+        $async = $client.BeginConnect("127.0.0.1", $ListenPort, $null, $null)
+        $ok = $async.AsyncWaitHandle.WaitOne(250)
+        if ($ok) { $client.EndConnect($async) | Out-Null }
+        $client.Close()
+        return [bool]$ok
+    } catch {
+        return $false
     }
 }
 
@@ -115,40 +152,56 @@ try {
 } catch {
 }
 Use-LocalProxyFallback
+$env:NO_PROXY = "127.0.0.1,localhost,::1"
 
-Stop-ExistingLocalServer
-Start-Sleep -Milliseconds 300
+$nl = [Environment]::NewLine
 
-$listeners = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
-if ($listeners) {
-    $ownerPid = ($listeners | Select-Object -First 1).OwningProcess
-    Show-Notice "Port $Port is already used by another program. Close it, then start Manga Editor Desu again.`n`nPID: $ownerPid"
-    exit 1
-}
+try {
+    Write-StartLog "start python=$Python root=$Root"
 
-$process = Start-Process -FilePath $Python -ArgumentList "99_server.py" -WorkingDirectory $Root -WindowStyle Hidden -PassThru
-$toolsScript = Join-Path $Root "local_tools\server.py"
-if (Test-Path -LiteralPath $toolsScript) {
-    $existingTools = @(Get-CimInstance Win32_Process | Where-Object {
-        $_.CommandLine -and $_.CommandLine -match 'local_tools[\\/]server\.py'
-    })
-    if (-not $existingTools) {
+    if (Test-AppReady) {
+        Write-StartLog "already running, open browser"
+        Start-Process $Url
+        exit 0
+    }
+
+    if (Test-LocalPortOpen $Port) {
+        Start-Sleep -Milliseconds 400
+        if (Test-AppReady) {
+            Write-StartLog "port open, app became ready"
+            Start-Process $Url
+            exit 0
+        }
+        Show-Notice "8000 端口已被其他程序占用。请关掉占用该端口的程序后，再双击启动。"
+        exit 1
+    }
+
+    $process = Start-Process -FilePath $Python -ArgumentList "99_server.py" -WorkingDirectory $Root -WindowStyle Hidden -PassThru
+    Write-StartLog "spawned 99_server pid=$($process.Id)"
+    $toolsScript = Join-Path $Root "local_tools\server.py"
+    if (Test-Path -LiteralPath $toolsScript) {
         Start-Process -FilePath $Python -ArgumentList "`"$toolsScript`"" -WorkingDirectory (Join-Path $Root "local_tools") -WindowStyle Hidden | Out-Null
     }
-}
 
-$ready = $false
-for ($i = 0; $i -lt 30; $i++) {
-    Start-Sleep -Milliseconds 300
-    if (Test-AppReady) {
-        $ready = $true
-        break
+    $ready = $false
+    for ($i = 0; $i -lt 30; $i++) {
+        Start-Sleep -Milliseconds 300
+        if (Test-AppReady) {
+            $ready = $true
+            break
+        }
     }
-}
 
-if (-not $ready) {
-    Show-Notice "Local service failed to start. Check whether Python is available.`n`nPID: $($process.Id)" "Error"
+    if (-not $ready) {
+        Write-StartLog "health check failed pid=$($process.Id)"
+        Show-Notice ("本地服务没能启动。请确认已安装 Python 3。" + $nl + $nl + "Python: " + $Python + $nl + "日志: " + $LogPath) "Error"
+        exit 1
+    }
+
+    Write-StartLog "ready, open $Url"
+    Start-Process $Url
+} catch {
+    Write-StartLog ("error: " + $_.Exception.Message)
+    Show-Notice ("启动失败：" + $nl + $_.Exception.Message + $nl + $nl + "日志：" + $LogPath) "Error"
     exit 1
 }
-
-Start-Process $Url

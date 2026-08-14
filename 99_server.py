@@ -1,3 +1,4 @@
+"""Manga Editor Desu · nai学长魔改版 local HTTP server v1.0.0."""
 from concurrent.futures import ThreadPoolExecutor
 from http.server import SimpleHTTPRequestHandler
 import socketserver
@@ -13,6 +14,7 @@ import threading
 import time
 import uuid
 import socket
+import base64
 try:
     import winreg
 except ImportError:
@@ -155,6 +157,93 @@ def _strip_bearer(token):
         return token[7:].strip()
     return token
 
+USER_ASSET_MAX_BYTES = 8 * 1024 * 1024
+
+def safe_imported_asset_name(value):
+    name = os.path.basename(str(value or 'asset'))
+    cleaned = ''.join(ch if ch.isalnum() or ch in '._-' else '_' for ch in name).strip('._') or 'asset'
+    return cleaned[:80]
+
+def imported_asset_relative_path(asset_id, name):
+    safe_id = safe_imported_asset_name(asset_id or uuid.uuid4().hex)
+    safe_name = safe_imported_asset_name(name)
+    return 'user_data/asset_packs/imported/%s_%s' % (safe_id[:32], safe_name)
+
+def save_imported_asset(body):
+    ensure_user_data_dirs()
+    payload = body if isinstance(body, dict) else {}
+    data = str(payload.get('data') or '')
+    if data.startswith('data:') and ',' in data:
+        data = data.split(',', 1)[1]
+    try:
+        raw = base64.b64decode(data)
+    except Exception:
+        return None, 'Invalid base64'
+    if not raw:
+        return None, 'Empty file'
+    if len(raw) > USER_ASSET_MAX_BYTES:
+        return None, 'File too large (max 8MB)'
+    rel = imported_asset_relative_path(payload.get('id'), payload.get('name'))
+    abs_path = os.path.join(os.getcwd(), rel.replace('/', os.sep))
+    os.makedirs(os.path.dirname(abs_path), exist_ok=True)
+    with open(abs_path, 'wb') as handle:
+        handle.write(raw)
+    return rel.replace('\\', '/'), None
+
+def ensure_user_data_dirs():
+    root = os.path.join(os.getcwd(), 'user_data')
+    for relative in (
+        'asset_packs/private',
+        'asset_packs/generated',
+        'asset_packs/imported',
+        'asset_packs/public',
+        'projects',
+        'cache',
+        'exports',
+        'models',
+    ):
+        os.makedirs(os.path.join(root, relative), exist_ok=True)
+
+def is_blocked_static_path(request_path):
+    path = urllib.parse.unquote(request_path or '').replace('\\', '/')
+    parts = [part for part in path.split('/') if part]
+    blocked_names = {
+        '.env', '.git', '.gitignore', '.gitattributes',
+        'credentials.json', 'secrets.json', 'id_rsa', 'id_dsa'
+    }
+    blocked_suffixes = ('.pem', '.key', '.p12', '.pfx')
+    for part in parts:
+        lower = part.lower()
+        if lower.startswith('.') and lower not in ('.well-known',):
+            return True
+        if lower in blocked_names or lower.startswith('.env'):
+            return True
+        if lower.endswith(blocked_suffixes):
+            return True
+    return False
+
+def cors_allow_origin(origin):
+    origin = (origin or '').strip()
+    if not origin:
+        return 'http://127.0.0.1:8000'
+    if origin == 'null':
+        return 'null'
+    try:
+        parsed = urllib.parse.urlsplit(origin)
+        host = (parsed.hostname or '').lower()
+        if parsed.scheme in ('http', 'https') and host in ('127.0.0.1', 'localhost', '::1'):
+            return origin
+    except Exception:
+        return ''
+    return ''
+
+def resolve_nai_token(authorization_header, environ=None):
+    header = (authorization_header or '').strip()
+    if header:
+        return header
+    env = environ if environ is not None else os.environ
+    return (env.get('NOVELAI_API_KEY') or '').strip()
+
 def _env_int(name, fallback):
     try:
         return int(os.environ.get(name, fallback))
@@ -240,7 +329,7 @@ def _start_tool_job(kind, token, args):
 
     def run_job():
         env = os.environ.copy()
-        resolved_token = _strip_bearer(token) or os.environ.get('NOVELAI_API_KEY', '')
+        resolved_token = _strip_bearer(token) or _strip_bearer(os.environ.get('NOVELAI_API_KEY', ''))
         if resolved_token:
             env['NOVELAI_API_KEY'] = _strip_bearer(resolved_token)
         proxy_url = _get_proxy_url()
@@ -301,7 +390,10 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
     
     def end_headers(self):
-        self.send_header('Access-Control-Allow-Origin', '*')
+        origin = cors_allow_origin(self.headers.get('Origin'))
+        if origin:
+            self.send_header('Access-Control-Allow-Origin', origin)
+            self.send_header('Vary', 'Origin')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Authorization, Content-Type, Accept, X-Director-Api-Url')
         self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate')
@@ -355,7 +447,7 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         return json.dumps(data, ensure_ascii=False).encode('utf-8')
 
     def _proxy_novelai(self, method, upstream_path, body=None):
-        token = os.environ.get('NOVELAI_API_KEY', '') or self.headers.get('Authorization', '')
+        token = resolve_nai_token(self.headers.get('Authorization', ''))
         if token and not token.lower().startswith('bearer '):
             token = 'Bearer ' + token
         if not token:
@@ -537,7 +629,7 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             self._proxy_tagger()
             return
         if self.path == '/nai-tools/start-material-previews':
-            token = os.environ.get('NOVELAI_API_KEY', '') or self.headers.get('Authorization', '')
+            token = resolve_nai_token(self.headers.get('Authorization', ''))
             if not token:
                 self._send_json({'error': 'Missing Authorization header'}, 401)
                 return
@@ -568,12 +660,24 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             self._send_json({'job_id': job['id'], 'status': job['status']})
             return
         if self.path == '/nai-tools/start-comic-demo':
-            token = os.environ.get('NOVELAI_API_KEY', '') or self.headers.get('Authorization', '')
+            token = resolve_nai_token(self.headers.get('Authorization', ''))
             if not token:
                 self._send_json({'error': 'Missing Authorization header'}, 401)
                 return
             job = _start_tool_job('comic-demo', token, ['comic'])
             self._send_json({'job_id': job['id'], 'status': job['status']})
+            return
+        if self.path == '/user-assets':
+            length = int(self.headers.get('Content-Length', '0') or '0')
+            if length > int(USER_ASSET_MAX_BYTES * 1.4) + 8192:
+                self._send_json({'error': 'Payload too large'}, 413)
+                return
+            body = self._read_json_body()
+            path, error = save_imported_asset(body)
+            if error:
+                self._send_json({'error': error}, 400)
+                return
+            self._send_json({'ok': True, 'path': path})
             return
         self.send_error(404, 'Not Found')
         
@@ -582,7 +686,7 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             self._proxy_director_models()
             return
         if self.path.startswith('/nai-proxy/health'):
-            token = os.environ.get('NOVELAI_API_KEY', '') or self.headers.get('Authorization', '')
+            token = resolve_nai_token(self.headers.get('Authorization', ''))
             if token and not token.lower().startswith('bearer '):
                 token = 'Bearer ' + token
             if not token:
@@ -610,7 +714,7 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
                 self._send_json({'ok': False, 'error': f'{type(error).__name__}: {error}'}, 502)
             return
         if self.path.startswith('/nai-proxy/safe-status'):
-            token = os.environ.get('NOVELAI_API_KEY', '') or self.headers.get('Authorization', '')
+            token = resolve_nai_token(self.headers.get('Authorization', ''))
             if token and not token.lower().startswith('bearer '):
                 token = 'Bearer ' + token
             if not token:
@@ -662,6 +766,10 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             except Exception as error:
                 self._send_json({'error': str(error)}, 500)
             return
+        parsed = urllib.parse.urlsplit(self.path)
+        if is_blocked_static_path(parsed.path):
+            self.send_error(403, 'Forbidden')
+            return
         self.directory = os.getcwd()
         return SimpleHTTPRequestHandler.do_GET(self)
         
@@ -678,13 +786,14 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     timeout = 60
 
 if __name__ == '__main__':
+    ensure_user_data_dirs()
     PORT = 8000
-    ADDRESS = ""
+    ADDRESS = (os.environ.get('NAI_BIND') or '127.0.0.1').strip() or '127.0.0.1'
     socketserver.TCPServer.allow_reuse_address = True
     
     with ThreadedTCPServer((ADDRESS, PORT), CORSRequestHandler) as httpd:
         with ThreadPoolExecutor(max_workers=500) as executor:
-            print(f"Server running at http://localhost:{PORT}")
+            print(f"Server running at http://{ADDRESS or '127.0.0.1'}:{PORT}")
             try:
                 httpd.serve_forever()
             except KeyboardInterrupt:

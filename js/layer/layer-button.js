@@ -136,15 +136,15 @@ promptButton.onclick=function (e) {
 e.stopPropagation();
 if (layer.tempPrompt) {
 layer.text2img_prompt=layer.tempPrompt;
-createToast("Apply Prompt",layer.text2img_prompt);
+createToast("已套用提示词",layer.text2img_prompt);
 } else {
-createToastError("Nothing Prompt","");
+createToastError("没有可套用的提示词","");
 }
 if (layer.tempNegative) {
 layer.text2img_negative=layer.tempNegative;
-createToast("Apply Negative Prompt",layer.text2img_negative);
+createToast("已套用反向提示词",layer.text2img_negative);
 } else {
-createToastError("Nothing Negative Prompt","");
+createToastError("没有可套用的反向提示词","");
 }
 };
 
@@ -236,9 +236,9 @@ seedButton.onclick=function (e) {
 e.stopPropagation();
 if (layer.tempSeed) {
 layer.text2img_seed=layer.tempSeed;
-createToast("Recycling Seed",layer.text2img_seed);
+createToast("已套用种子",layer.text2img_seed);
 } else {
-createToastError("Nothing Seed","");
+createToastError("没有可套用的种子","");
 }
 };
 

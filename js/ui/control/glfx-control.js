@@ -389,7 +389,7 @@ glfxOriginalImage=activeObject.getElement();
 }
 
 if (!activeObject) {
-createToastError("Select Image!");
+createToastError("请先选中一张图片");
 return;
 }
 

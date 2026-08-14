@@ -127,7 +127,7 @@ var row=document.createElement('div');
 row.className='simulator-chat-message';
 var header=document.createElement('div');
 header.className='simulator-chat-message-header';
-var type=select([{value:'text',label:'文字消息'},{value:'image',label:'图片消息'},{value:'system',label:'系统提示'}],message.type,'simulator-chat-input');
+var type=select([{value:'text',label:'文字消息'},{value:'aside',label:'内心独白'},{value:'image',label:'图片消息'},{value:'system',label:'系统提示'},{value:'narrator',label:'旁白'},{value:'hint',label:'提示'},{value:'choice',label:'选项'},{value:'title',label:'标题'}],message.type,'simulator-chat-input');
 type.addEventListener('change',function(){message.type=type.value;renderMessages();markDirty();});
 var speaker=select(options,message.speaker,'simulator-chat-input');
 speaker.disabled=message.type==='system';
@@ -182,6 +182,8 @@ var title=el('simulatorChatTitleInput');
 if(title)title.value=scene.title;
 var theme=el('simulatorChatTheme');
 if(theme)theme.value=scene.theme&&scene.theme.background==='#f8fafc'?'light':'dark';
+var template=el('simulatorChatTemplate');
+if(template)template.value=scene.templateId||'generic-chat-dark';
 renderParticipants();
 renderMessages();
 updateValidation();
@@ -198,15 +200,17 @@ background:'#111827',headerBackground:'#0f172a',primaryColor:'#f8fafc',secondary
 
 function findSelectedSimulatorGroup(){
 var current=getCanvas();
-if(!current||typeof current.getActiveObject!=='function')return selectedGroup;
-var object=current.getActiveObject();
+var object=current&&typeof current.getActiveObject==='function'?current.getActiveObject():null;
+var factory=root.NaiComicExtraRendererFactory;
+var resolved=factory&&typeof factory.resolvePage==='function'?factory.resolvePage(object,current):null;
+if(resolved){selectedGroup=resolved;return resolved;}
 if(object&&object.customType==='simulatorChat')return object;
 if(object&&object.group&&object.group.customType==='simulatorChat')return object.group;
 return selectedGroup&&selectedGroup.canvas?selectedGroup:null;
 }
 
 function setActiveGroup(group){
-if(!group||group.customType!=='simulatorChat')return false;
+if(!group||(group.customType!=='simulatorChat'&&group.customType!=='simulatorChatPart'&&!group.simulatorScene))return false;
 selectedGroup=group;
 try{
 scene=root.NaiComicChatScene.deserialize(group.simulatorScene||group.simulatorSceneObject);
@@ -236,24 +240,29 @@ setStatus('此模板属于本地资源包，当前未安装。',true);
 return null;
 }
 var group=await renderer.renderScene(validation.scene,template);
-renderer.fitGroupToCanvas(group,current);
+var factory=root.NaiComicExtraRendererFactory;
 var previous=findSelectedSimulatorGroup();
-if(previous&&previous.canvas===current){
 if(typeof changeDoNotSaveHistory==='function')changeDoNotSaveHistory();
-current.remove(previous);
-current.add(group);
-if(typeof changeDoSaveHistory==='function')changeDoSaveHistory();
+var placed;
+if(factory&&typeof factory.placeOnCanvas==='function'){
+placed=factory.placeOnCanvas(group,current,{previous:previous});
 }else{
-if(typeof changeDoNotSaveHistory==='function')changeDoNotSaveHistory();
+renderer.fitGroupToCanvas(group,current);
+if(previous&&previous.canvas===current)current.remove(previous);
 current.add(group);
-if(typeof changeDoSaveHistory==='function')changeDoSaveHistory();
+placed={root:group,objects:[group]};
 }
-selectedGroup=group;
-current.setActiveObject(group);
+if(typeof changeDoSaveHistory==='function')changeDoSaveHistory();
+selectedGroup=placed.root;
+if(root.NaiBeginnerGuide&&typeof root.NaiBeginnerGuide.onTemplateInserted==='function'){
+root.NaiBeginnerGuide.onTemplateInserted(current,placed);
+}else{
+current.setActiveObject(placed.root);
 current.renderAll();
+}
 saveHistory();
-setStatus('聊天模板已插入画布，可继续编辑或保存项目。',false);
-return group;
+setStatus('聊天模板已拆成可拖动零件。直接拖、双击改字。Esc 回到移动。',false);
+return placed.root;
 }
 
 function loadSelected(){
@@ -267,7 +276,9 @@ var current=getCanvas();
 var group=findSelectedSimulatorGroup();
 if(!current||!group){setStatus('请先选中一个通用聊天对象。',true);return false;}
 if(typeof changeDoNotSaveHistory==='function')changeDoNotSaveHistory();
-current.remove(group);
+var factory=root.NaiComicExtraRendererFactory;
+if(group.simulatorPageId&&factory&&typeof factory.removePage==='function')factory.removePage(current,group.simulatorPageId);
+else current.remove(group);
 if(typeof changeDoSaveHistory==='function')changeDoSaveHistory();
 selectedGroup=null;
 saveHistory();
@@ -296,6 +307,22 @@ var title=el('simulatorChatTitleInput');
 if(title)title.addEventListener('input',function(){scene.title=title.value;markDirty();});
 var theme=el('simulatorChatTheme');
 if(theme)theme.addEventListener('change',function(){scene.theme=themeValue(theme.value);markDirty();});
+var template=el('simulatorChatTemplate');
+if(template&&root.NaiComicTemplateRegistry){
+root.NaiComicTemplateRegistry.list('chat').forEach(function(item){
+var option=document.createElement('option');
+option.value=item.id;
+option.textContent=item.name;
+template.appendChild(option);
+});
+template.value=scene.templateId||'generic-chat-dark';
+template.addEventListener('change',function(){
+scene.templateId=template.value;
+var definition=root.NaiComicTemplateRegistry.get(scene.templateId);
+if(definition&&definition.theme)scene.theme=root.NaiComicChatScene.clone(definition.theme);
+markDirty();
+});
+}
 var addParticipant=el('simulatorChatAddParticipantButton');
 if(addParticipant)addParticipant.addEventListener('click',function(){
 var index=scene.participants.length+1;

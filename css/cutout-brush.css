@@ -37,6 +37,7 @@ background:#111827;
 }
 
 #CustomBrushButton img,
+#pen-tool-buttons #CustomBrushButton,
 #tool-buttons #CustomBrushButton{
 min-height:72px;
 }

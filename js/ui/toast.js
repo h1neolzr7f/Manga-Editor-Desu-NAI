@@ -114,8 +114,7 @@ if(isImage(activeObject)){
 return true;
 }
 }
-let text=getText("nothingImage");
-createToastError(text,"",2000);
+createToastError('特效需要先选中图片','请在画布上点一张图，再点左侧效果。马上能看见变化。',2800);
 return false;
 }
 function checkPanelImage() {

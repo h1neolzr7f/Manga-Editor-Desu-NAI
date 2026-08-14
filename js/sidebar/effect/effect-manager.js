@@ -100,6 +100,7 @@ effectLogger.error("unknown type",type);
 addEffectEventListener();
 clearActiveEffectButton();
 $(type+'Button').classList.add('active-button');
+if(typeof createToast==='function')createToast('特效','已套用。不喜欢按 Ctrl+Z 撤销。',2600);
 }
 
 function switchMangaEffectUi(type) {
@@ -176,7 +177,7 @@ if (selectedObject) {
 effectLogger.debug("enhanceDarkImage","start");
 enhanceDarkImage();
 } else {
-createToastError("Check image!")
+createToastError("请先选中图片")
 }
 }
 });
@@ -205,7 +206,7 @@ selectedObject.set({shadow: null});
 }
 canvas.renderAll();
 } else {
-createToastError("Check image!")
+createToastError("请先选中图片")
 }
 }
 });

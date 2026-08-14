@@ -21,7 +21,14 @@ const registry=context.NaiComicTemplateRegistry;
 const scenes=context.NaiComicChatScene;
 
 assert.equal(registry.get('generic-chat-dark').category,'chat');
-assert.equal(registry.list('chat').length,1);
+assert.equal(registry.list('chat').length,8);
+assert.equal(registry.get('story-log-dark').layout,'story-log');
+assert.equal(registry.get('discord-chat-dark').layout,'discord');
+assert.equal(registry.get('instant-chat-light').category,'chat');
+assert.equal(registry.get('sms-chat-light').layout,'sms');
+assert.equal(registry.get('night-radio-dark').layout,'story-log');
+assert.equal(registry.get('newspaper-clip').name,'剪报栏');
+assert.equal(registry.get('terminal-green').theme.primaryColor,'#4ade80');
 
 const scene=scenes.createDefaultScene();
 assert.equal(scenes.validate(scene).ok,true);

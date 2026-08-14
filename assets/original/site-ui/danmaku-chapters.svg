@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 44" width="420" height="44">
+<rect x="0" y="0" width="420" height="44" fill="#0b1220" rx="8" ry="8"/>
+<rect x="12" y="18" width="396" height="8" fill="#1b2a40" rx="4" ry="4"/>
+<circle cx="43.68" cy="22" r="5" fill="#22d3ee"/>
+<circle cx="118.92" cy="22" r="5" fill="#22d3ee"/>
+<circle cx="194.16" cy="22" r="5" fill="#e11d48"/>
+<circle cx="293.15999999999997" cy="22" r="5" fill="#22d3ee"/>
+<circle cx="360.48" cy="22" r="5" fill="#22d3ee"/>
+<text x="12" y="12" fill="#94a3b8" font-size="10" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">章节</text>
+</svg>

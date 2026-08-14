@@ -9,6 +9,8 @@ pencilModeClear(type);
 currentPaths=[];
 clearPenActiveButton();
 nonActiveClearButton();
+nowPencil='';
+syncBrushSidebar();
 return;
 } else {
 pencilModeClear(type);
@@ -71,6 +73,8 @@ clearPenActiveButton();
 
 $(type+'Button').classList.add('active-button');
 applyBrushSettings();
+syncBrushSidebar();
+if(type===MODE_PEN_CUSTOM)renderBrushPresetGrid();
 }
 
 var drawingColor=null;
@@ -450,7 +454,7 @@ return enhanceBrush(mosaicBrush,false);
 
 function getEraserBrush() {
 const eraserBrush=new fabric.EraserBrush(canvas);
-eraserBrush.width=parseInt(drawingWidth.value,10)||10;
+eraserBrush.width=parseInt(drawingWidth&&drawingWidth.value,10)||24;
 return eraserBrush;
 }
 
@@ -609,6 +613,7 @@ var preset=collectCustomBrushSettings();
 var saved=window.NaiBrushPresets.saveUserPreset(preset);
 $("tool-settings").innerHTML=renderCustomBrushSettings();
 bindCustomBrushSettings();
+renderBrushPresetGrid();
 var next=document.getElementById("customBrushPresetSelect");
 if(next)next.value=saved.id;
 fillCustomBrushForm(saved);
@@ -622,6 +627,7 @@ if(!preset||preset.builtin)return;
 window.NaiBrushPresets.removeUserPreset(preset.id);
 $("tool-settings").innerHTML=renderCustomBrushSettings();
 bindCustomBrushSettings();
+renderBrushPresetGrid();
 applyCustomBrushLive();
 });
 var exportButton=document.getElementById("customBrushExportButton");
@@ -642,6 +648,7 @@ file.text().then(function(text){
 window.NaiBrushPresets.importPack(text);
 $("tool-settings").innerHTML=renderCustomBrushSettings();
 bindCustomBrushSettings();
+renderBrushPresetGrid();
 applyCustomBrushLive();
 });
 });
@@ -649,7 +656,134 @@ applyCustomBrushLive();
 
 document.addEventListener("DOMContentLoaded",function () {
 fabric.Object.prototype.transparentCorners=false;
+renderBrushPresetGrid();
 });
+
+function openToolArea(){
+var panel=$("tool-area");
+if(panel&&panel.style.display==="none"&&typeof toggleVisibility==="function")toggleVisibility("tool-area");
+}
+
+function syncBrushSidebar(){
+var drawing=typeof canvas!=="undefined"&&canvas&&canvas.isDrawingMode;
+var brushWrap=document.querySelector('#sidebar .icon-wrapper[data-target="tool-area"]');
+if(brushWrap){
+brushWrap.classList.toggle("is-brush-active",!!drawing);
+var brushIcon=brushWrap.querySelector("i");
+if(brushIcon)brushIcon.classList.toggle("active",!!drawing);
+}
+document.querySelectorAll("#pen-tool-buttons [data-brush]").forEach(function(button){
+button.classList.toggle("is-brush-active",drawing&&button.getAttribute("data-brush")===nowPencil);
+});
+var move=document.querySelector("#sidebar .icon-wrapper[data-action='selectMove']");
+if(move){
+var moveOn=!drawing&&!(typeof cropFrame!=="undefined"&&cropFrame);
+move.classList.toggle("is-brush-active",moveOn);
+var moveIcon=move.querySelector("i");
+if(moveIcon)moveIcon.classList.toggle("active",moveOn);
+}
+var eraser=document.querySelector("#sidebar .icon-wrapper[data-action='selectEraser']");
+if(eraser){
+var eraserOn=!!drawing&&nowPencil===MODE_PEN_ERASER;
+eraser.classList.toggle("is-brush-active",eraserOn);
+var eraserIcon=eraser.querySelector("i");
+if(eraserIcon)eraserIcon.classList.toggle("active",eraserOn);
+}
+var marquee=document.querySelector("#sidebar .icon-wrapper[data-action='selectMarquee']");
+if(marquee){
+var marqueeOn=window.NaiPsTools&&window.NaiPsTools.current&&window.NaiPsTools.current()==='marquee';
+marquee.classList.toggle("is-brush-active",marqueeOn);
+var marqueeIcon=marquee.querySelector("i");
+if(marqueeIcon)marqueeIcon.classList.toggle("active",marqueeOn);
+}
+var cropBtn=document.querySelector("#sidebar .icon-wrapper[data-action='selectCrop']");
+if(cropBtn){
+var cropOn=typeof cropFrame!=="undefined"&&!!cropFrame;
+cropBtn.classList.toggle("is-brush-active",cropOn);
+var cropIcon=cropBtn.querySelector("i");
+if(cropIcon)cropIcon.classList.toggle("active",cropOn);
+}
+document.querySelectorAll(".brush-preset-chip").forEach(function(chip){
+chip.classList.toggle("is-active",drawing&&nowPencil===MODE_PEN_CUSTOM&&chip.getAttribute("data-preset-id")===(document.getElementById("customBrushPresetSelect")||{}).value);
+});
+if(window.NaiBeginnerGuide&&typeof window.NaiBeginnerGuide.updateHud==="function")window.NaiBeginnerGuide.updateHud();
+}
+
+function selectMoveTool(){
+if(typeof cropModeClear==="function")cropModeClear();
+if(typeof cropThenCutout!=="undefined")cropThenCutout=false;
+if(typeof pencilModeClear==="function")pencilModeClear("");
+if(typeof canvas!=="undefined"&&canvas)canvas.isDrawingMode=false;
+nowPencil="";
+currentPaths=[];
+clearPenActiveButton();
+if(typeof nonActiveClearButton==="function")nonActiveClearButton();
+if(typeof changeDefaultCursor==="function")changeDefaultCursor();
+syncBrushSidebar();
+}
+
+function selectEraserTool(){
+if(typeof cropModeClear==="function")cropModeClear();
+selectSidebarBrush(MODE_PEN_ERASER);
+}
+
+function selectMarqueeTool(cutoutAfter){
+if(typeof selectMoveTool==="function"){
+if(typeof pencilModeClear==="function")pencilModeClear("");
+if(typeof canvas!=="undefined"&&canvas)canvas.isDrawingMode=false;
+nowPencil="";
+syncBrushSidebar();
+}
+var current=typeof canvas!=="undefined"?canvas:null;
+var active=current&&typeof current.getActiveObject==="function"?current.getActiveObject():null;
+if(active&&active.naiCropFrame&&typeof cropActiveObject!=="undefined")active=cropActiveObject;
+if(cutoutAfter){
+if(typeof startCutoutRegionMode==="function")startCutoutRegionMode(active);
+else if(typeof startCropMode==="function")startCropMode(active,true);
+}else if(typeof startCropMode==="function"){
+startCropMode(active);
+}
+syncBrushSidebar();
+}
+
+function selectSidebarBrush(type,panelId){
+if(!type)return;
+if(panelId)openToolArea();
+else openToolArea();
+switchPencilType(type);
+if(type===MODE_PEN_CUSTOM)renderBrushPresetGrid();
+}
+
+function renderBrushPresetGrid(){
+var grid=document.getElementById("brushPresetGrid");
+if(!grid||!window.NaiBrushPresets)return;
+var current=(document.getElementById("customBrushPresetSelect")||{}).value;
+grid.innerHTML="";
+window.NaiBrushPresets.list().forEach(function(preset){
+var button=document.createElement("button");
+button.type="button";
+button.className="brush-preset-chip"+(preset.id===current?" is-active":"");
+button.setAttribute("data-preset-id",preset.id);
+button.textContent=preset.name;
+button.title=preset.builtin?"内置漫画笔刷":"我的笔刷";
+button.addEventListener("click",function(){activateBrushPreset(preset.id);});
+grid.appendChild(button);
+});
+}
+
+function activateBrushPreset(id){
+openToolArea();
+if(nowPencil!==MODE_PEN_CUSTOM)switchPencilType(MODE_PEN_CUSTOM);
+var select=document.getElementById("customBrushPresetSelect");
+var preset=window.NaiBrushPresets&&window.NaiBrushPresets.get(id);
+if(select&&preset){
+select.value=id;
+fillCustomBrushForm(preset);
+applyCustomBrushLive();
+}
+renderBrushPresetGrid();
+syncBrushSidebar();
+}
 
 function updatePreview() {
 if (isMosaicBrushActive&&canvas.freeDrawingBrush) {

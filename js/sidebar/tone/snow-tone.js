@@ -4,7 +4,8 @@ var isDrawingSnowTone=false;
 var nowSnowTone=null;
 
 function snowToneStart() {
-var activeObject=getLastObject();
+var activeObject=typeof mangaToneRequireTarget==='function'?mangaToneRequireTarget():getLastObject();
+if(!activeObject)return false;
 tmpCanvasSnowTone=document.createElement("canvas");
 
 if (isPanel(activeObject)) {
@@ -13,12 +14,13 @@ var canvasY=(activeObject.height*activeObject.scaleY);
 tmpCanvasSnowTone.width=canvasX*3;
 tmpCanvasSnowTone.height=canvasY*3;
 }else{
-tmpCanvasSnowTone.width=canvas.width*3;
-tmpCanvasSnowTone.height=canvas.height*3;
+tmpCanvasSnowTone.width=Math.max(1,(activeObject.width||1)*(activeObject.scaleX||1))*3;
+tmpCanvasSnowTone.height=Math.max(1,(activeObject.height||1)*(activeObject.scaleY||1))*3;
 }
 
 tmpCtxSnowTone=tmpCanvasSnowTone.getContext("2d");
 tmpCtxSnowTone.scale(3,3);
+return true;
 }
 
 function snowToneEnd() {
@@ -157,19 +159,22 @@ nowSnowTone=null;
 
 const dataURL=tmpCanvasSnowTone.toDataURL({format: "png"});
 fabric.Image.fromURL(dataURL,function (img) {
-var activeObject=getLastObject();
+var activeObject=typeof mangaToneTarget==='function'?mangaToneTarget():getLastObject();
 if (isPanel(activeObject)) {
 var canvasX=activeObject.left+(activeObject.width*activeObject.scaleX)/2;
 var canvasY=activeObject.top+(activeObject.height*activeObject.scaleY)/2;
 putImageInFrame(img,canvasX,canvasY,true,false,true,activeObject);
-img.name='Snow Tone';
+img.name='雪网点';
 nowSnowTone=img;
-}else{
-img.scaleToWidth(canvas.width);
-img.name='Snow Tone';
+}else if(activeObject&&typeof isImage==='function'&&isImage(activeObject)){
+img.set({left:activeObject.left,top:activeObject.top});
+img.scaleToWidth(Math.max(8,(activeObject.width||1)*(activeObject.scaleX||1)));
+img.name='雪网点';
 canvas.add(img);
 canvas.renderAll();
 nowSnowTone=img;
+}else if(typeof createToast==='function'){
+createToast('网点贴在格子上','请先点一个分镜格子或一张图，再点雪点。整页氛围请用「更多 → 页面」的画面效果。',4500);
 }
 isDrawingSnowTone=false;
 });

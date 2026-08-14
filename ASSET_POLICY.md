@@ -42,7 +42,13 @@ user_data/
 
 缺少文件时必须在 UI 中显示丢失状态；禁止静默替换成不相关图片。模板可以使用空头像、纯色背景等源码内占位值，不依赖私人素材才能启动。
 
-## 来源与许可
+## 公开入门包
+
+`assets/original/starter/` 是随包发布的原创几何装饰（集中线、情绪符号、剪影、框）。`assets/original/site-ui/` 是原创站点界面零件（深色影片站、弹幕播放页、图区），只仿布局配色，不含真实站名和商标。素材库启动时按稳定 id 写入索引，刷新后从相对路径加载，不依赖内存里的 File。
+
+`assets/public/` 只放已确认可以随项目公开发布的第三方素材，目前包括 Kenney CC0 UI/图标/纸纹/粒子、Heroicons（MIT）、Tabler Icons 子集（MIT），以及 David Revoy 的气泡模板（CC BY 4.0，需署名）。用 `node scripts/vendor-free-public-assets.cjs` 重新拉取。
+
+不要把第三方角色立绘、平台 Logo 或权利不明的图片放进这个目录。不收录微信 / Discord / 明日方舟等官方或粉丝素材。
 
 - `public/` 只放已确认可以随项目公开发布的代码、素材或明确许可资源。
 - `private/` 可以放个人收集素材，但只供本机或私下使用，不进入 Git。

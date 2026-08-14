@@ -57,8 +57,18 @@ searchInitialIcons();
 });
 
 
+var ICON_ZH={
+'心':'favorite','爱心':'favorite','星':'star','星星':'star','家':'home','房子':'home',
+'人':'person','用户':'person','设置':'settings','齿轮':'settings','搜索':'search','放大镜':'search',
+'警告':'warning','错误':'error','闪电':'bolt','笑':'mood','相机':'photo_camera','图':'image',
+'对话':'chat','气泡':'chat_bubble','书':'menu_book','笔':'edit','剪':'content_cut','刀':'content_cut',
+'雨':'water_drop','雪':'ac_unit','太阳':'wb_sunny','月亮':'nightlight','火':'local_fire_department',
+'花':'local_florist','音乐':'music_note','锁':'lock','旗':'flag','云':'cloud','箭头':'arrow_forward'
+};
+
 function searchIcon() {
-const query=$('svg_icon_searchInput').value.toLowerCase();
+const raw=$('svg_icon_searchInput').value.trim();
+const query=raw.toLowerCase();
 const resultsDiv=$('svg_icon_results');
 resultsDiv.innerHTML='';
 const style=$('svg_icon_iconStyle').value;
@@ -68,37 +78,59 @@ searchInitialIcons();
 return;
 }
 
-const matchedIcons=iconList.filter(iconName=>iconName.includes(query));
+const alias=ICON_ZH[raw]||ICON_ZH[query];
+const matchedIcons=iconList.filter(iconName=>iconName.includes(query)||(alias&&iconName===alias)||(alias&&iconName.includes(alias)));
 
 if (matchedIcons.length>0) {
-matchedIcons.forEach(iconName=>{
+matchedIcons.slice(0,48).forEach(iconName=>{
 const iconURL=getIconURL(iconName,style);
 fetchIconSvg(iconName,style)
 .then(svgContent=>{
 if (svgContent) {
-//   console.log(`Fetched SVG content (${iconName}):`, svgContent);
 displaySVG(svgContent,iconURL,iconName);
 }
 });
 });
 } else {
 const noResultsDiv=document.createElement('div');
-noResultsDiv.textContent='No icons found!';
+noResultsDiv.textContent='没有找到。试试英文名，或中文：心、星、家、雨。断网时用形状面板里的基本形状。';
 resultsDiv.appendChild(noResultsDiv);
 }
 }
 
 
+function sanitizeSvgMarkup(svgContent){
+if(typeof DOMParser==='undefined')return null;
+var parsed=new DOMParser().parseFromString(String(svgContent||''),'image/svg+xml');
+if(parsed.querySelector('parsererror'))return null;
+var svg=parsed.documentElement;
+if(!svg||String(svg.nodeName).toLowerCase()!=='svg')return null;
+Array.prototype.forEach.call(svg.querySelectorAll('script, foreignObject'),function(node){node.parentNode.removeChild(node);});
+Array.prototype.forEach.call(svg.querySelectorAll('*'),function(el){
+Array.prototype.slice.call(el.attributes||[]).forEach(function(attr){
+var name=String(attr.name||'').toLowerCase();
+var value=String(attr.value||'');
+if(name.indexOf('on')===0||((name==='href'||name==='xlink:href')&&/^\s*javascript:/i.test(value))){
+el.removeAttribute(attr.name);
+}
+});
+});
+return svg;
+}
+
 function displaySVG(svgContent,iconURL,iconName) {
 
 const resultsDiv=$('svg_icon_results');
 const svgElement=document.createElement('div');
-svgElement.innerHTML=svgContent;
+const sanitized=sanitizeSvgMarkup(svgContent);
+if(sanitized)svgElement.appendChild(document.importNode(sanitized,true));
+else svgElement.textContent='图标无法安全显示';
 svgElement.className='icon-result';
 svgElement.addEventListener('click',()=>addToCanvas(iconURL,iconName));
 resultsDiv.appendChild(svgElement);
 
 const svg=svgElement.querySelector('svg');
+if(!svg)return;
 removeUnnecessaryElements(svg);
 updateSVGElementStyles(svg);
 }

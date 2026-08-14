@@ -1,7 +1,7 @@
 {
-  "name": "Manga Editor Desu! Pro Edition",
-  "short_name": "Manga Editor",
-  "description": "The Premier Standalone Manga Editing Platform for SD WebUI, Forge, ComfyUI",
+  "name": "Manga Editor Desu · nai学长魔改版",
+  "short_name": "DESU NAI",
+  "description": "Manga Editor Desu unofficial fork: local manga editor + NovelAI",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",

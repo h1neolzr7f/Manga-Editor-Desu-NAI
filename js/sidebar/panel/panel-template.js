@@ -3,7 +3,7 @@ async function loadBookSize(width,height,addPanel,newPage=false) {
 panelLogger.info("[loadBookSize] START w="+width+" h="+height+" addPanel="+addPanel+" newPage="+newPage);
 panelLogger.info("[loadBookSize] stateStack.length="+stateStack.length+" btmProjectsMap.size="+btmProjectsMap.size+" canvasGUID="+getCanvasGUID()+" objectCount="+getObjectCount());
 const loading=OP_showLoading({
-icon: 'process',step: 'Step1',substep: 'Next Project',progress: 0
+icon: 'process',step: '正在新建页面',substep: '准备',progress: 0
 });
 try{
 var shouldSave=(addPanel||newPage)&&stateStack.length>=2;
@@ -11,7 +11,7 @@ panelLogger.info("[loadBookSize] shouldSave="+shouldSave+" (addPanel||newPage)="
 if (shouldSave) {
 panelLogger.info("[loadBookSize] IF branch: saving current page to bottom bar");
 OP_updateLoadingState(loading,{
-icon: 'process',step: 'Step2',substep: 'Zip Start',progress: 40
+icon: 'process',step: '正在新建页面',substep: '保存当前页',progress: 40
 });
 
 await btmSaveProjectFile().then(()=>{
@@ -20,7 +20,7 @@ setCanvasGUID();
 panelLogger.info("[loadBookSize] new canvasGUID="+getCanvasGUID());
 });
 OP_updateLoadingState(loading,{
-icon: 'process',step: 'Step2',substep: 'Next Project End',progress: 90
+icon: 'process',step: '正在新建页面',substep: '完成',progress: 90
 });
 
 changeDoNotSaveHistory();
@@ -50,6 +50,7 @@ panelLogger.info("[loadBookSize] ELSE branch done. stateStack.length="+stateStac
 }
 }finally{
 OP_hideLoading(loading);
+if(window.NaiBeginnerGuide&&typeof window.NaiBeginnerGuide.updateHud==='function')window.NaiBeginnerGuide.updateHud();
 }
 
 }
@@ -249,14 +250,14 @@ var scale=Math.min(scaleX,scaleY);
 
 options.strokeWidth=2*(canvas.width/700);
 options.strokeUniform=true;
-options.stroke="black";
+options.stroke=options.stroke||"black";
 options.objectCaching=false;
 options.transparentCorners=false;
 options.isPanel=true;
 options.left=options.left||50;
 options.top=options.top||50;
-options.scaleX=scale;
-options.scaleY=scale;
+if(options.scaleX===undefined)options.scaleX=scale;
+if(options.scaleY===undefined)options.scaleY=scale;
 
 var shape=new fabric.Polygon(points,options);
 setText2ImageInitPrompt(shape);
@@ -267,6 +268,10 @@ updateLayerPanel();
 }
 
 function addSquare() {
+if(window.NaiPsTools&&typeof window.NaiPsTools.beginShape==='function'){
+window.NaiPsTools.beginShape('square');
+return;
+}
 var points=[
 {x: 0,y: 0},
 {x: 200,y: 0},
@@ -277,6 +282,10 @@ addShape(points);
 }
 
 function addPentagon() {
+if(window.NaiPsTools&&typeof window.NaiPsTools.beginShape==='function'){
+window.NaiPsTools.beginShape('pentagon');
+return;
+}
 var side=150;
 var angle=54;
 var points=[];
@@ -289,6 +298,10 @@ addShape(points);
 }
 
 function addTallRect() {
+if(window.NaiPsTools&&typeof window.NaiPsTools.beginShape==='function'){
+window.NaiPsTools.beginShape('tall');
+return;
+}
 var points=[
 {x: 0,y: 0},
 {x: 100,y: 0},
@@ -309,6 +322,10 @@ addShape(points);
 }
 
 function addWideRect() {
+if(window.NaiPsTools&&typeof window.NaiPsTools.beginShape==='function'){
+window.NaiPsTools.beginShape('wide');
+return;
+}
 var points=[
 {x: 0,y: 0},
 {x: 400,y: 0},
@@ -339,6 +356,10 @@ addShape(points);
 }
 
 function addTriangle() {
+if(window.NaiPsTools&&typeof window.NaiPsTools.beginShape==='function'){
+window.NaiPsTools.beginShape('triangle');
+return;
+}
 var points=[
 {x: 100,y: 0},
 {x: 200,y: 200},
@@ -367,6 +388,10 @@ updateLayerPanel();
 }
 
 function addHexagon() {
+if(window.NaiPsTools&&typeof window.NaiPsTools.beginShape==='function'){
+window.NaiPsTools.beginShape('hexagon');
+return;
+}
 var side=100;
 var points=[];
 for (var i=0;i<6;i++) {
@@ -408,6 +433,10 @@ addShape(points);
 }
 
 function addStar() {
+if(window.NaiPsTools&&typeof window.NaiPsTools.beginShape==='function'){
+window.NaiPsTools.beginShape('star');
+return;
+}
 var points=[];
 var outerRadius=100;
 var innerRadius=50;
@@ -423,6 +452,10 @@ addShape(points);
 }
 
 function addHeart() {
+if(window.NaiPsTools&&typeof window.NaiPsTools.beginShape==='function'){
+window.NaiPsTools.beginShape('heart');
+return;
+}
 var points=[];
 var numPoints=30;
 for (var i=0;i<numPoints;i++) {

@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh" class="dark-mode">
+<!-- Manga Editor Desu · nai学长魔改版 1.0.0 — unofficial modified build (GPL-3.0). Upstream: https://github.com/new-sankaku/manga-editor-desu -->
 <!-- ========== Head ========== -->
 <head>
-    <title>Manga Editor Desu! Pro Edition: The Premier Standalone Manga Editing Platform</title>
+    <title>Manga Editor Desu · nai学长魔改版 1.0</title>
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#121111">
@@ -10,14 +11,12 @@
     <link rel="icon" href="03_images/icon/icon_full_192_192.png">
     <link rel="shortcut icon" href="03_images/icon/icon_full_192_192.png">
 
-    <meta property="og:title" content="Manga Editor DESU!" />
+    <meta property="og:title" content="Manga Editor Desu · nai学长魔改版" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://new-sankaku.github.io/SP-MangaEditer/" />
-    <meta property="og:image" content="https://raw.githubusercontent.com/new-sankaku/SP-MangaEditer/main/03_images/PagePreview/Git/Preview.png" />
-    <meta property="og:description" content="Manga Editor DESU : NovelAI API" />
+    <meta property="og:image" content="03_images/PagePreview/Git/Preview.png" />
+    <meta property="og:description" content="Manga Editor Desu · nai学长魔改版：致敬原作的非官方 NovelAI 一键包。" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@hypersankaku2" />
-    <meta property="og:site_name" content="Manga Editor" />
+    <meta property="og:site_name" content="Manga Editor Desu" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:locale:alternate" content="ja_JP" />
     <meta property="og:locale:alternate" content="ko_KR" />
@@ -30,16 +29,18 @@
     <meta property="og:locale:alternate" content="de_DE" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Manga Editor Preview Image" />
+    <meta property="og:image:alt" content="Manga Editor Desu · nai学长魔改版" />
     <meta charset="UTF-8">
     <meta name="description"
-        content="Discover Manga Editor Desu! Pro Edition, your ultimate online manga editing tool. Customize and enhance your manga with user-friendly panels, speech bubbles, and dynamic text effects. Perfect for both beginners and professional artists.">
+        content="Manga Editor Desu · nai学长魔改版：基于原作的非官方修改，本地漫画编辑 + NovelAI 出图。与上游无附属关系。">
     <meta name="keywords"
-        content="manga editing, manga editor online, manga creation tool, comic editing software, digital manga editor, NovelAI API, manga layout, comic panels">
+        content="Manga Editor Desu, nai学长魔改版, NovelAI, manga-editor-desu fork, comic panels">
     <!-- Google Analytics removed for offline use -->
     <!-- Google Fonts replaced with local fallbacks for offline use -->
     <style>
-    @font-face { font-family: 'Klee One'; src: local('Klee One'); }
+    @font-face { font-family: 'Klee One'; src: url('font/Klee_One/KleeOne-Regular.ttf') format('truetype'), local('Klee One'); }
+    @font-face { font-family: 'DotGothic16'; src: url('font/DotGothic16/DotGothic16-Regular.ttf') format('truetype'), local('DotGothic16'); }
+    @font-face { font-family: 'Bangers'; src: url('font/Bangers/Bangers-Regular.ttf') format('truetype'), local('Bangers'); }
     @font-face { font-family: 'M PLUS 1p'; src: local('M PLUS 1p'); }
     @font-face { font-family: 'Noto Sans JP'; src: local('Noto Sans JP'), local('Yu Gothic UI'), local('Microsoft YaHei'); }
     @font-face { font-family: 'Zen Maru Gothic'; src: local('Zen Maru Gothic'); }
@@ -48,8 +49,6 @@
     @font-face { font-family: 'ZCOOL XiaoWei'; src: local('ZCOOL XiaoWei'); }
     @font-face { font-family: 'Noto Sans KR'; src: local('Noto Sans KR'), local('Malgun Gothic'); }
     @font-face { font-family: 'Comic Neue'; src: local('Comic Neue'), local('Comic Sans MS'); }
-    @font-face { font-family: 'DotGothic16'; src: local('DotGothic16'); }
-    @font-face { font-family: 'Bangers'; src: local('Bangers'); }
     @font-face { font-family: 'Creepster'; src: local('Creepster'); }
     @font-face { font-family: 'Permanent Marker'; src: local('Permanent Marker'); }
     @font-face { font-family: 'Rubik Mono One'; src: local('Rubik Mono One'); }
@@ -57,7 +56,16 @@
     @font-face { font-family: 'Bungee Shade'; src: local('Bungee Shade'); }
     @font-face { font-family: 'Do Hyeon'; src: local('Do Hyeon'); }
     @font-face { font-family: 'East Sea Dokdo'; src: local('East Sea Dokdo'); }
-    @font-face { font-family: 'IBM Plex Sans KR'; src: local('IBM Plex Sans KR'); }
+    @font-face { font-family: 'Anton'; src: local('Anton'), local('Impact'); }
+    @font-face { font-family: 'Russo One'; src: local('Russo One'), local('Arial Black'); }
+    @font-face { font-family: 'Black Ops One'; src: local('Black Ops One'), local('Impact'); }
+    @font-face { font-family: 'Luckiest Guy'; src: local('Luckiest Guy'), local('Comic Sans MS'); }
+    @font-face { font-family: 'Yu Gothic'; src: local('Yu Gothic'), local('Microsoft YaHei'); }
+    @font-face { font-family: 'Meiryo'; src: local('Meiryo'), local('Yu Gothic'); }
+    @font-face { font-family: 'STXingkai'; src: local('STXingkai'), local('KaiTi'); }
+    @font-face { font-family: 'LiSu'; src: local('LiSu'), local('SimHei'); }
+    @font-face { font-family: 'YouYuan'; src: local('YouYuan'), local('Microsoft YaHei'); }
+    @font-face { font-family: 'FZShuTi'; src: local('FZShuTi'), local('KaiTi'); }
     </style>
 
     <div id="a" style="display:none"></div>
@@ -143,22 +151,9 @@ const b = `<svg viewBox="0 0 100 100" width="100%" height="100%" style="position
 
 
 
-// ========== Analytics ==========
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-YWPRKY7WKV', {
-'cookie_domain': 'new-sankaku.github.io'
-});
-
-        function trackCustomEvent(eventCategory, eventAction, eventLabel, eventValue, additionalParams) {
-            gtag('event', eventAction, {
-                'event_category': eventCategory,
-                'event_label': eventLabel,
-                'value': eventValue,
-                ...additionalParams
-            });
-        }
+// ========== Analytics disabled (fork; do not send to upstream GA) ==========
+        function gtag() {}
+        function trackCustomEvent() {}
 
 document.addEventListener('click', function (event) {
     var element = event.target;
@@ -207,20 +202,22 @@ function getElementClasses(element) {
         });
     </script>
 <!-- ========== CSS Stylesheets ========== -->
-<link rel="stylesheet" href="css/core/main-component.css?v=7.5">
+<link rel="stylesheet" href="css/core/main-component.css?v=8.0">
 <link rel="stylesheet" href="css/css2.css?v=7.2">
-<link rel="stylesheet" href="css/icon.css?v=7.5">
+<link rel="stylesheet" href="css/icon.css?v=7.8">
 <link rel="stylesheet" href="css/controls-mini.css?v=8.6">
-<link rel="stylesheet" href="css/simulator-chat.css?v=1.0">
+  <link rel="stylesheet" href="css/simulator-chat.css?v=2.0">
+<script src="js/assets/boot-guard.js?v=1.0"></script>
     <link rel="stylesheet" href="css/cutout-brush.css?v=1.0">
-<link rel="stylesheet" href="css/common.css?v=7.5">
+<link rel="stylesheet" href="css/common.css?v=7.8">
 <link rel="stylesheet" href="css/components.css?v=7.2">
-<link rel="stylesheet" href="css/layout.css?v=7.2">
+<link rel="stylesheet" href="css/layout.css?v=7.9">
+  <link rel="stylesheet" href="css/visual-studio.css?v=1.6">
 <link rel="stylesheet" href="css/image-control-manager.css?v=7.2">
-<link rel="stylesheet" href="css/layout-layer.css?v=7.2">
+<link rel="stylesheet" href="css/layout-layer.css?v=7.5">
 <link rel="stylesheet" href="css/toast.css?v=7.2">
 <link rel="stylesheet" href="css/ui/mode-change.css?v=7.2">
-<link rel="stylesheet" href="css/ui/object-menu.css?v=7.2">
+<link rel="stylesheet" href="css/ui/object-menu.css?v=7.3">
 <link rel="stylesheet" href="css/ui/share.css?v=7.2" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="css/ui/floating-window.css?v=7.2">
 <link rel="stylesheet" href="css/ui/image-prompt-helper.css?v=7.9">
@@ -232,7 +229,7 @@ function getElementClasses(element) {
 <link rel="stylesheet" href="css/form.css?v=7.2">
 <link rel="stylesheet" href="cdn-local/flag-icons.min.css">
 <link rel="stylesheet" href="css/ui/blend.css?v=7.2" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="css/ui/bottom-bar.css?v=7.3">
+<link rel="stylesheet" href="css/ui/bottom-bar.css?v=7.4">
 <link rel="stylesheet" href="css/ui/custom-html-components.css?v=7.2">
 <link rel="stylesheet" href="css/tagify.css?v=7.2" media="print" onload="this.media='all'">
 
@@ -244,22 +241,22 @@ function getElementClasses(element) {
 <link href="cdn-local/tagify.min.css" rel="stylesheet" type="text/css" />
 <script src="cdn-local/masonry.pkgd.min.js" defer></script>
 
-<link rel="stylesheet" href="css/responsive.css?v=7.5">
+<link rel="stylesheet" href="css/responsive.css?v=7.8">
 
 </head>
 <!-- ========== Body ========== -->
 <body>
 
     <div itemscope itemtype="http://schema.org/SoftwareApplication">
-        <meta itemprop="name" content="Manga Editor Desu">
+        <meta itemprop="name" content="Manga Editor Desu · nai学长魔改版">
         <meta itemprop="description"
-            content="Discover Manga Editor Desu! Pro Edition, your ultimate online manga editing tool. Customize and enhance your manga with user-friendly panels, speech bubbles, and dynamic text effects.">
+            content="Manga Editor Desu unofficial fork · nai学长魔改版，NovelAI 出图。">
         <meta itemprop="applicationCategory" content="Multimedia">
 
 
 <!-- ========== Navbar ========== -->
         <nav id="desu-nav" class="navbar navbar-expand custom-navbar" style="display: none;">
-<span class="navbar-logo-text" id="navbar-logo">DESU<br><span class="navbar-logo-ver">v1</span></span>
+<span class="navbar-logo-text" id="navbar-logo">DESU<br><span class="navbar-logo-ver">nai学长魔改</span></span>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
                 aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -269,61 +266,58 @@ function getElementClasses(element) {
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownFile" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
-                            <span data-i18n="file">File</span>
+                            <span data-i18n="file">文件</span>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdownFile">
-                            <label data-i18n="fileProject"></label>
+                            <label data-i18n="fileProject">项目</label>
                             <li>
                                 <a class="dropdown-item" href="#" id="projectSave">
                                     <i class="material-icons">folder_zip</i>
-                                    <span data-i18n="projectSave">Project Save</span>
+                                    <span data-i18n="projectSave">保存项目</span>
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="#" id="projectLoad">
-                                    <i class="material-icons">folder_zip</i> <span data-i18n="projectLoad">Project
-                                        Load</span>
+                                    <i class="material-icons">folder_zip</i> <span data-i18n="projectLoad">打开项目</span>
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="#" id="settingsSave">
-                                    <i class="material-icons">settings</i> <span data-i18n="settingsSave">Settings
-                                        Save</span> (Ctrl+Shift+S)
+                                    <i class="material-icons">settings</i> <span data-i18n="settingsSave">保存设置</span> (Ctrl+Shift+S)
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="#" id="settingsReset" onclick="resetAllSettings()">
-                                    <i class="material-icons">restart_alt</i> <span data-i18n="settingsReset">Settings Reset</span>
+                                    <i class="material-icons">restart_alt</i> <span data-i18n="settingsReset">重置设置</span>
                                 </a>
                             </li>
-                            <label data-i18n="fileImage"></label>
+                            <label data-i18n="fileImage">图片</label>
                             <li>
                                 <a class="dropdown-item" href="#" onclick="inputImageFile()">
                                     <span class="material-symbols-outlined">image</span>
-                                    <span data-i18n="imageImport">画像インポート</span>
+                                    <span data-i18n="imageImport">导入图片</span>
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="#" id="imageDownload" onclick="cropAndDownload()">
-                                    <span class="material-symbols-outlined">imagesmode</span> <span
-                                        data-i18n="imageDownload">Image Download</span> (Ctrl+D)
+                                    <span class="material-symbols-outlined">imagesmode</span>                                     <span
+                                        data-i18n="imageDownload">下载图片</span> (Ctrl+D)
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="#" id="imageCopy" onclick="clipCopy()">
-                                    <i class="material-icons">content_copy</i> <span data-i18n="imageCopy">Image
-                                        Copy</span>
+                                    <i class="material-icons">content_copy</i> <span data-i18n="imageCopy">复制图片</span>
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="#" id="svgDownload">
                                     <span class="material-symbols-outlined">polyline</span>
-                                    <span data-i18n="SvgDownload">Svg Download</span>
+                                    <span data-i18n="SvgDownload">下载 SVG</span>
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="#" onclick="allRemove()">
-                                    <i class="material-icons">delete</i> <span data-i18n="allRemove">All Remove</span>
+                                    <i class="material-icons">delete</i> <span data-i18n="allRemove">清空画布</span>
                                 </a>
                             </li>
                         </ul>
@@ -333,25 +327,25 @@ function getElementClasses(element) {
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button"
                             data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                            <span data-i18n="settingsMenu">Settings</span>
+                            <span data-i18n="settingsMenu">设置</span>
                         </a>
                         <ul class="dropdown-menu">
-                            <label data-i18n="20260214155000_001"></label>
+                            <label data-i18n="20260214155000_001">自动保存</label>
                             <li>
                                 <div style="padding:4px 10px;white-space:nowrap;font-size:11px;">
                                     <label style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;">
                                         <input type="checkbox" id="autoSaveCheckbox" checked>
-                                        <span data-i18n="autoSave">Auto Save</span>
+                                        <span data-i18n="autoSave">自动保存</span>
                                     </label>
                                     <input type="number" id="autoSaveInterval" value="60" min="10" max="600" style="width:50px;margin-left:8px;">
-                                    <span data-i18n="autoSaveSeconds">sec</span>
+                                    <span data-i18n="autoSaveSeconds">秒</span>
                                 </div>
                             </li>
                             <li>
                                 <div style="padding:4px 10px;white-space:nowrap;font-size:11px;">
                                     <label style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;">
                                         <input type="checkbox" id="settingsAutoSaveCheckbox" checked>
-                                        <span data-i18n="settingsAutoSave">設定値自動保存</span>
+                                        <span data-i18n="settingsAutoSave">设置自动保存</span>
                                     </label>
                                 </div>
                             </li>
@@ -359,9 +353,14 @@ function getElementClasses(element) {
                                 <div style="padding:4px 10px;white-space:nowrap;font-size:11px;">
                                     <label style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;">
                                         <input type="checkbox" id="apiHeartbeatCheckbox" checked>
-                                        <span data-i18n="aiCheck">AI接続確認</span>
+                                        <span data-i18n="aiCheck">AI 连接确认</span>
                                     </label>
                                 </div>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="if(window.unifiedSettingsWindow)unifiedSettingsWindow.open();return false;">
+                                    <i class="material-icons">tune</i> NovelAI 设置
+                                </a>
                             </li>
                         </ul>
                     </li>
@@ -370,25 +369,25 @@ function getElementClasses(element) {
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownView" role="button"
                             data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                            <span data-i18n="viewMenu">表示</span>
+                            <span data-i18n="viewMenu">视图</span>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdownView">
-                            <label data-i18n="viewPanel"></label>
+                            <label data-i18n="viewPanel">面板</label>
                             <li>
                                 <div style="padding:2px 10px 2px 18px;white-space:nowrap;font-size:11px;">
                                     <label style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;">
                                         <input type="checkbox" id="view_layers_checkbox" checked>
                                         <i class="material-icons" style="font-size:16px;">layers</i>
-                                        <span data-i18n="view_Layer">レイヤー</span> (Ctrl+L)
+                                        <span data-i18n="view_Layer">图层</span> (Ctrl+L)
                                     </label>
                                 </div>
                             </li>
                             <li>
                                 <div style="padding:2px 10px 4px 18px;white-space:nowrap;font-size:11px;">
                                     <label style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;">
-                                        <input type="checkbox" id="view_controls_checkbox" checked>
+                                        <input type="checkbox" id="view_controls_checkbox">
                                         <i class="material-icons" style="font-size:16px;">smart_toy</i>
-                                        <span data-i18n="view_AI">AI</span> (Ctrl+K)
+                                        <span data-i18n="view_AI">AI 面板</span> (Ctrl+K)
                                     </label>
                                 </div>
                             </li>
@@ -397,7 +396,7 @@ function getElementClasses(element) {
                                     <label style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;">
                                         <input type="checkbox" id="view_prompt_checkbox">
                                         <i class="material-icons" style="font-size:16px;">document_scanner</i>
-                                        <span data-i18n="promptView">Prompt View</span> (Ctrl+P)
+                                        <span data-i18n="promptView">显示提示词</span> (Ctrl+P)
                                     </label>
                                 </div>
                             </li>
@@ -408,19 +407,18 @@ function getElementClasses(element) {
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPrompt" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
-                            <span data-i18n="prompt">Prompt</span>
+                            <span data-i18n="prompt">提示词</span>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdownPrompt">
                             <li>
                                 <a class="dropdown-item" onclick="openPromptChangeFloatingWindow()">
-                                    <i class="material-icons">manage_search</i> <span data-i18n="searchReplace">Search &
-                                        Replace</span>
+                                    <i class="material-icons">manage_search</i> <span data-i18n="searchReplace">查找替换</span>
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" onclick="createImagePromptHelperFlotingWindow()">
                                     <i class="material-icons">medical_information</i> <span
-                                        data-i18n="PromptHelper">Prompt Helper</span>
+                                        data-i18n="PromptHelper">提示词助手</span>
                                 </a>
                             </li>
                         </ul>
@@ -430,37 +428,35 @@ function getElementClasses(element) {
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownCanvas" role="button"
                             data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                            <span data-i18n="canvas">Canvas</span>
+                            <span data-i18n="canvas">画布</span>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdownCanvas">
-                            <label data-i18n="canvasDisplay"></label>
+                            <label data-i18n="canvasDisplay">显示</label>
                             <a class="dropdown-item">
                                 <i class="material-icons">format_color_fill</i>
-                                <span data-i18n="canvasBG">Canvas BG</span>
+                                <span data-i18n="canvasBG">画布背景</span>
                                 <input id="bg-color" class="jscolor-color-picker" data-initial-color="rgba(255,255,255,1)" >
                             </a>
 
                             <a class="dropdown-item">
-                                <i class="material-icons">photo_size_select_large</i> <span
-                                    data-i18n="downloadDpi">Download Dpi</span>
+                                <i class="material-icons">photo_size_select_large</i>
+                                <span data-i18n="downloadDpi">下载 DPI</span>
                                 <input type="number" id="outputDpi" class="dropdown-item-mini-text" value="300" min="96"
                                     step="1">
                             </a>
-                            <label data-i18n="canvasGrid"></label>
+                            <label data-i18n="canvasGrid">网格</label>
                             <a class="dropdown-item" href="#" id="toggleGridButton">
                                 <i class="material-icons">grid_4x4</i>
-                                <span data-i18n="gridLine">Grid Line (Ctrl+G)</span>
+                                <span data-i18n="gridLine">网格线 (Ctrl+G)</span>
                             </a>
                             <a class="dropdown-item">
-                                <i class="material-icons">format_line_spacing</i> <span data-i18n="gridLineSize">Grid
-                                    Line Size</span>
+                                <i class="material-icons">format_line_spacing</i> <span data-i18n="gridLineSize">网格大小</span>
                                 <input type="number" id="gridSizeInput" class="dropdown-item-mini-text" value="10"
                                     min="1">
                             </a>
-                            <label data-i18n="canvasLayout"></label>
+                            <label data-i18n="canvasLayout">版面</label>
                             <a class="dropdown-item">
-                                <i class="material-icons">fit_screen</i> <span data-i18n="marginFromPanel">Margin From
-                                    Panel</span>
+                                <i class="material-icons">fit_screen</i> <span data-i18n="marginFromPanel">格子边距</span>
                                 <input type="number" id="marginFromPanel" class="dropdown-item-mini-text" value="20"
                                     step="1" min="0" max="100">
                             </a>
@@ -468,44 +464,41 @@ function getElementClasses(element) {
                     </li>
                 </ul>
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="openDashboardModal();return false;">
-                            <span data-i18n="dashboard">Dashboard</span>
-                        </a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownHelp" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
-                            <span data-i18n="help">Help</span>
+                            <span data-i18n="help">帮助</span>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdownHelp">
-                            <label data-i18n="helpGuide"></label>
+                            <label data-i18n="helpGuide">入门</label>
                             <a id="Intro_Tutorial" class="dropdown-item" href="#" target="_blank">
                                 <i class="material-icons">volunteer_activism</i>
-                                <span data-i18n="Tutorial">Tutorial</span>
+                                <span data-i18n="Tutorial">新手教程</span>
                             </a>
                             <a class="dropdown-item" href="#" onclick="openShortcutModal()" id="shortcutPage">
                                 <i class="material-icons">switch_access_shortcut</i>
-                                <span data-i18n="shortcutPage">Shortcut Page</span> (F1)
+                                <span data-i18n="shortcutPage">快捷键</span> (F1)
                             </a>
                             <a class="dropdown-item" href="html/functionList.html" target="_blank">
                                 <i class="material-icons">functions</i>
-                                <span data-i18n="functionList">Function List</span>
+                                <span data-i18n="functionList">功能一览</span>
                             </a>
-                            <label data-i18n="helpManual"></label>
+                            <a class="dropdown-item" href="#" onclick="openDashboardModal();return false;">
+                                <i class="material-icons">insights</i>
+                                <span data-i18n="dashboard">使用统计</span>
+                            </a>
+                            <label data-i18n="helpManual">手册</label>
                             <a class="dropdown-item" href="html/Minual/custom-speechBubble.html" target="_blank">
                                 <i class="material-icons">reviews</i>
-                                <span>Custom Bubble</span>
+                                <span>自由气泡</span>
                             </a>
                             <a class="dropdown-item" href="html/Minual/screen-tone.html" target="_blank">
                                 <i class="material-icons">blur_linear</i>
-                                <span>Screen Tone</span>
+                                <span>格子网点</span>
                             </a>
                             <a class="dropdown-item" href="html/Minual/effect.html" target="_blank">
                                 <i class="material-icons">filter_b_and_w</i>
-                                <span>Effect</span>
+                                <span>特效</span>
                             </a>
                         </ul>
                     </li>
@@ -514,54 +507,40 @@ function getElementClasses(element) {
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownLinks" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
-                            <span id="intro_links" data-i18n="links">Links</span>
+                            <span id="intro_links" data-i18n="links">链接</span>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdownLinks">
-                            <label data-i18n="linksTools"></label>
-                            <a class="dropdown-item" href="https://new-sankaku.github.io/SP-MangaEditer/"
-                                target="_blank">
-                                <i class="material-icons">emoji_people</i>
-                                <span>MANGA EDITOR DESU!(Web)</span>
+                            <label data-i18n="linksTools">说明</label>
+                            <a class="dropdown-item" href="使用说明.txt" target="_blank">
+                                <i class="material-icons">menu_book</i>
+                                <span>使用说明</span>
                             </a>
-                            <a class="dropdown-item" href="https://new-sankaku.github.io/ImageTagSearcher/"
-                                target="_blank">
-                                <i class="material-icons">emoji_people</i>
-                                <span>Danbooru Tag Check</span>
+                            <a class="dropdown-item" href="README.md" target="_blank">
+                                <i class="material-icons">description</i>
+                                <span>仓库说明</span>
                             </a>
-
-                            <a class="dropdown-item" href="https://new-sankaku.github.io/desu-lz4-viewer/"
-                            target="_blank">
-                            <i class="material-icons">emoji_people</i>
-                            <span>Project File Viewer</span>
-                        </a>
-
-                            
-
-                            <label data-i18n="linksCommunity"></label>
-                            <a class="dropdown-item" href="https://discord.gg/zuU96TqNUb" target="_blank">
-                                <i class="material-icons">forum</i>
-                                <span data-i18n="discord">Discord</span>
-                            </a>
+                            <label data-i18n="linksCommunity">源码</label>
                             <a class="dropdown-item"
-                                href="https://github.com/new-sankaku/stable-diffusion-webui-simple-manga-maker"
+                                href="https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI"
                                 target="_blank">
                                 <i class="material-icons">code</i>
-                                <span data-i18n="github">GitHub</span>
+                                <span>本仓库</span>
+                            </a>
+                            <a class="dropdown-item"
+                                href="https://github.com/new-sankaku/manga-editor-desu"
+                                target="_blank">
+                                <i class="material-icons">favorite</i>
+                                <span>致敬原项目 Desu</span>
                             </a>
 
-                            <label data-i18n="20260214150000_000"></label>
+                            <label data-i18n="20260214150000_000">法律信息</label>
                             <a class="dropdown-item" href="html/PrivacyPolicy/i18n-privacy-dark-complete.html" target="_blank">
                                 <i class="material-icons">verified_user</i>
-                                <span>Privacy Policy</span>
+                                <span>隐私政策</span>
                             </a>
                             <a class="dropdown-item" href="html/TermsOfService/terms-of-service.html" target="_blank">
                                 <i class="material-icons">verified_user</i>
-                                <span data-i18n="terms_of_service">Terms of Service</span>
-                            </a>
-                            <label data-i18n="Share"></label>
-                            <a class="dropdown-item" target="_blank" onclick="snsTweet()">
-                                <i class="material-icons">share</i>
-                                <span>Twitter</span>
+                                <span data-i18n="terms_of_service">使用条款</span>
                             </a>
                         </ul>
                     </li>
@@ -570,7 +549,7 @@ function getElementClasses(element) {
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownDonate" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
-                            <span data-i18n="DevelopmentDonations"></span>
+                            <span data-i18n="DevelopmentDonations">赞助原作者</span>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdownDonate">
                             <a class="dropdown-item"
@@ -578,16 +557,6 @@ function getElementClasses(element) {
                                 target="_blank">
                                 <i class="material-icons">favorite</i>
                                 <span>GitHub Sponsors</span>
-                            </a>
-                            <a class="dropdown-item"
-                                href="https://sankaku-desu.booth.pm/items/6399546"
-                                target="_blank">
-                                <span>[Japan] Booth</span>
-                            </a>
-                            <a class="dropdown-item"
-                                href="https://note.com/vivid_walrus6061/n/n40e38122c45b?from=notice"
-                                target="_blank">
-                                <span>[Japan] Note</span>
                             </a>
                         </ul>
                     </li>
@@ -597,7 +566,7 @@ function getElementClasses(element) {
 
                 <ul class="navbar-nav ms-auto d-flex align-items-center py-2">
                     <li class="nav-item d-flex" >
-                     <button data-i18n="pwa_install" id="pwa-install-button" class="btn btn-outline-secondary me-2" style="margin-top: 5px; padding-top: 0px; padding-bottom: 0px; padding-left: 10px;padding-right: 10px;"></button>
+                     <button data-i18n="pwa_install" id="pwa-install-button" class="btn btn-outline-secondary me-2" style="margin-top: 5px; padding-top: 0px; padding-bottom: 0px; padding-left: 10px;padding-right: 10px;">安装网页应用</button>
                     </li>
                     <li class="nav-item d-flex align-items-center my-2 d-none">
                      <i class="material-icons">light_mode</i>
@@ -617,146 +586,166 @@ function getElementClasses(element) {
 <!-- ========== Sidebar ========== -->
         <div id="head-id" style="display: none; flex-grow: 1;">
             <div id="sidebar">
+                <div class="sidebar-group-label">开始</div>
                 <div class="icon-wrapper" data-action="toggleVisibility" data-target="svg-container-template">
                  <i class="material-icons" id="intro_svg-container-template">auto_awesome_mosaic</i>
-                 <span class="icon-label" data-i18n="side-label-template">ひな形</span>
+                 <span class="icon-label" data-i18n="side-label-template">模板</span>
                 </div>
-                <hr>
-                <div class="icon-wrapper" data-action="toggleVisibility" data-target="panel-manager-area">
-                 <i class="material-icons" id="intro_page-manager-area">dashboard_customize</i>
-                 <span class="icon-label" data-i18n="side-label-page-manager">ページ管理</span>
-                </div>
-                <hr>
-                 <div class="icon-wrapper" data-action="toggleVisibility" data-target="auto-generate-area">
-                  <i class="material-icons" id="intro_auto-generate-area">smart_toy</i>
-                  <span class="icon-label" data-i18n="auto_generate">自動生成</span>
-                 </div>
-                 <hr>
                  <div class="icon-wrapper" data-action="toggleVisibility" data-target="simulator-chat-area">
                   <i class="material-icons" id="intro_simulator-chat-area">forum</i>
-                  <span class="icon-label" data-i18n="simulatorChatTitle">聊天模拟器</span>
+                  <span class="icon-label" data-i18n="simulatorChatTitle">剧情</span>
                  </div>
-                 <hr>
-
+                 <div class="icon-wrapper" data-action="openSimulatorStudio" title="对话皮肤、影片站、弹幕页、图区">
+                  <i class="material-icons" id="intro_simulator-studio">web_asset</i>
+                  <span class="icon-label">模拟器</span>
+                 </div>
                  <div class="icon-wrapper" data-action="toggleVisibility" data-target="asset-library-area">
                   <i class="material-icons" id="intro_asset-library-area">collections</i>
-                  <span class="icon-label">素材库</span>
+                  <span class="icon-label">素材</span>
                  </div>
-                 <hr>
-                 <div class="icon-wrapper" data-action="toggleVisibility" data-target="prompt-manager-area">
+                <div class="sidebar-group-label">出图</div>
+                 <div class="icon-wrapper" data-action="toggleVisibility" data-target="auto-generate-area">
+                  <i class="material-icons" id="intro_auto-generate-area">smart_toy</i>
+                  <span class="icon-label" data-i18n="auto_generate">生成</span>
+                 </div>
+                 <div class="icon-wrapper sidebar-icon-hidden" data-action="toggleVisibility" data-target="prompt-manager-area" hidden>
                  <i class="material-icons" id="intro_prompt-manager-area">assignment</i>
-                 <span class="icon-label" data-i18n="prompt">プロンプト</span>
+                 <span class="icon-label" data-i18n="prompt">提示词</span>
                  </div>
-                <hr>
-  
-                <div class="icon-wrapper" data-action="toggleVisibility" data-target="speech-bubble-area1">
+                <div class="sidebar-group-label">编辑</div>
+                <div class="icon-wrapper" data-action="selectMove" title="移动 V">
+                 <i class="material-icons" id="intro_move-tool">near_me</i>
+                 <span class="icon-label">移动</span>
+                </div>
+                <div class="icon-wrapper" data-action="selectMarquee" data-ps-tool="marquee" title="框选图层 M">
+                 <i class="material-icons" id="intro_marquee-tool">select_all</i>
+                 <span class="icon-label">框选</span>
+                </div>
+                <div class="icon-wrapper" data-action="selectCrop" data-ps-tool="crop" title="裁剪 / 框选抠图 C">
+                 <i class="material-icons" id="intro_crop-tool">crop</i>
+                 <span class="icon-label">裁剪</span>
+                </div>
+                <div class="icon-wrapper" data-action="toggleVisibility" data-target="tool-area" title="笔刷 B">
+                 <i class="material-icons" id="intro_tool-area">brush</i>
+                 <span class="icon-label">笔刷</span>
+                </div>
+                <div class="icon-wrapper" data-action="selectEraser" title="橡皮 E">
+                 <i class="material-icons" id="intro_eraser-tool">auto_fix_off</i>
+                 <span class="icon-label">橡皮</span>
+                </div>
+                <div class="icon-wrapper" data-action="selectKnife" data-ps-tool="knife" title="切割格子 K">
+                 <i class="material-icons" id="intro_knife-tool">content_cut</i>
+                 <span class="icon-label">刀</span>
+                </div>
+                <div class="icon-wrapper" data-action="toggleVisibility" data-target="ps-tools-area" title="套索 / 渐变 / 油漆桶 / 仿制">
+                 <i class="material-icons" id="intro_ps-tools-area">palette</i>
+                 <span class="icon-label">画具</span>
+                </div>
+                <div class="icon-wrapper" data-action="toggleVisibility" data-target="speech-bubble-area">
                  <i class="material-icons" id="intro_speech-bubble-area1">chat_bubble</i>
-                 <span class="icon-label" data-i18n="side-label-template-bubble">ひな形💭</span>
+                 <span class="icon-label" data-i18n="side-label-template-bubble">气泡</span>
                 </div>
-                <hr>
-                <div class="icon-wrapper" data-action="toggleVisibility" data-target="speech-bubble-area2">
-                 <i class="material-icons" id="intro_speech-bubble-area2">reviews</i>
-                 <span class="icon-label" data-i18n="side-label-free-bubble">自由💭</span>
-                </div>
-                <hr>
                 <div class="icon-wrapper" data-action="toggleVisibility" data-target="text-area">
                  <i class="material-icons" id="intro_text-area">text_format</i>
-                 <span class="icon-label" data-i18n="side-label-text">テキスト</span>
+                 <span class="icon-label" data-i18n="side-label-text">文本</span>
                 </div>
-                <hr>
-                <div class="icon-wrapper" data-action="toggleVisibility" data-target="text-area2">
-                 <i class="material-icons" id="intro_text-area2">text_increase</i>
-                 <span class="icon-label" data-i18n="side-label-image-text">画像テキスト</span>
+                <div class="sidebar-group-label">画材</div>
+                <div class="icon-wrapper" data-action="toggleVisibility" data-target="manga-tone-area" title="网点">
+                 <i class="material-icons" id="intro_manga-tone-area">blur_linear</i>
+                 <span class="icon-label" data-i18n="side-label-tone">网点</span>
                 </div>
-                <hr>
-                <div class="icon-wrapper" data-action="toggleVisibility" data-target="tool-area">
-                 <i class="material-icons" id="intro_tool-area">brush</i>
-                 <span class="icon-label" data-i18n="side-label-pen">ペン</span>
+                <div class="icon-wrapper" data-action="toggleVisibility" data-target="shape-area" title="形状">
+                 <i class="material-icons" id="intro_shape-area">interests</i>
+                 <span class="icon-label" data-i18n="side-label-shape">形状</span>
                 </div>
-                <hr>
-                <div class="icon-wrapper" data-action="toggleVisibility" data-target="cutout-area">
-                 <i class="material-icons" id="intro_cutout-area">content_cut</i>
+                <div class="icon-wrapper" data-action="toggleVisibility" data-target="cutout-area" title="抠图">
+                 <i class="material-icons" id="intro_cutout-area">filter_center_focus</i>
                  <span class="icon-label">抠图</span>
                 </div>
-                <hr>
-                <div class="icon-wrapper" data-action="toggleVisibility" data-target="manga-tone-area">
-                 <i class="material-icons" id="intro_manga-tone-area">blur_linear</i>
-                 <span class="icon-label" data-i18n="side-label-tone">トーン</span>
-                </div>
-                <hr>
-                <div class="icon-wrapper" data-action="toggleVisibility" data-target="manga-effect-area">
+                <div id="sidebarMore" hidden>
+                <div class="icon-wrapper" data-action="toggleVisibility" data-target="manga-effect-area" title="特效">
                  <i class="material-icons" id="intro_manga-effect-area">filter_b_and_w</i>
-                 <span class="icon-label" data-i18n="side-label-effect">効果</span>
+                 <span class="icon-label" data-i18n="side-label-effect">特效</span>
                 </div>
-                <hr>
-
-
-                
+                <div class="icon-wrapper" data-action="toggleVisibility" data-target="text-area2" title="图文拟声词">
+                 <i class="material-icons" id="intro_text-area2">text_increase</i>
+                 <span class="icon-label" data-i18n="side-label-image-text">图文</span>
+                </div>
+                <div class="icon-wrapper" data-action="toggleVisibility" data-target="panel-manager-area">
+                 <i class="material-icons" id="intro_page-manager-area">dashboard_customize</i>
+                 <span class="icon-label" data-i18n="side-label-page-manager">页面</span>
+                </div>
                 <div class="icon-wrapper" data-action="toggleVisibility" data-target="control-area">
                  <i class="material-icons" id="intro_control-area">videogame_asset</i>
                  <span class="icon-label" data-i18n="side-label-control">操作</span>
                 </div>
-                <hr>
-                <div class="icon-wrapper" data-action="toggleVisibility" data-target="shape-area">
-                 <i class="material-icons" id="intro_shape-area">interests</i>
-                 <span class="icon-label" data-i18n="side-label-shape">図形</span>
                 </div>
+                <button type="button" id="sidebarMoreToggle" class="sidebar-more-toggle" aria-expanded="false" aria-controls="sidebarMore">更多 ▼</button>
                </div>
 
 <!-- ========== Panel: Template ========== -->
             <div class="left_area" id="svg-container-template" style="display: none;">
                 <div class="area-header template-header">
-                    <span data-i18n="panelsTemplate">パネル</span>
+                    <span data-i18n="panelsTemplate">分镜模板</span>
                     <label class="template-orientation-toggle">
                         <input type="checkbox" id="template-orientation-toggle" onchange="switchTemplateOrientation()">
                         <span class="template-toggle-label">
-                            <span class="template-toggle-v"><i class="material-icons">crop_portrait</i><span data-i18n="templateVertical">縦</span></span>
+                            <span class="template-toggle-v"><i class="material-icons">crop_portrait</i><span data-i18n="templateVertical">竖</span></span>
                             <span class="template-toggle-sep">/</span>
                             <span class="template-toggle-h"><i class="material-icons">crop_16_9</i><span data-i18n="templateHorizontal">横</span></span>
                         </span>
                     </label>
                 </div>
+                <div class="simulator-chat-help">点下面一个分镜。默认会换成当前页；也可加为新页，或叠到当前页再拖开。</div>
+                <label class="template-place-mode">放到
+                    <select id="naiTemplatePlaceMode" class="simulator-chat-input">
+                        <option value="replace">换成当前页</option>
+                        <option value="newpage">加为新页</option>
+                        <option value="overlay">叠到当前页</option>
+                    </select>
+                </label>
                 <div id="svg-preview-area-vertical"></div>
                 <div id="svg-preview-area-landscape" style="display:none;"></div>
             </div>
 
 <!-- ========== Panel: Page Manager ========== -->
             <div class="left_area" id="panel-manager-area" style="display: none;">
-                <div class="area-header" data-i18n="pageManager">Page Manager</div>
+                <div class="area-header" data-i18n="pageManager">页面管理</div>
                 <div id="panel-manager-items">
 
                     <div class="param-group">
-                        <div class="param-group-header" data-i18n="sectionPageAdd"></div>
+                        <div class="param-group-header" data-i18n="sectionPageAdd">添加页面</div>
+                        <div class="simulator-chat-help">竖页/横页按 A4 约 200dpi 建底图（约 1654×2339），用来拼 NovelAI 格子。出图单格仍限制在 1024×1024 / 最长边 1536，底图变大不会多花积分。小于 400 的数字会按毫米换算。</div>
                         <button id="page-portrait">
                             <i class="material-icons">crop_portrait</i>
-                            <span data-i18n="pagePortrait">縦ページ</span>
+                            <span data-i18n="pagePortrait">竖页 A4</span>
                         </button>
                         <button id="page-landscape">
                             <i class="material-icons">crop_landscape</i>
-                            <span data-i18n="pageLandscape">横ページ</span>
+                            <span data-i18n="pageLandscape">横页 A4</span>
                         </button>
                         <button id="CustomPanelButton">
                             <i class="material-icons">crop_landscape</i>
-                            <span data-i18n="customPanel">Custom Page</span>
+                            <span data-i18n="customPanel">自定义页面</span>
                         </button>
                         <div class="input-group">
-                            <label for="customPanelSizeX" data-i18n="customPanelSizeX">Width</label>
+                            <label for="customPanelSizeX" data-i18n="customPanelSizeX">宽</label>
                             <input type="number" id="customPanelSizeX" name="customPanelSizeX" min="1" max="4096" step="1"
-                                value="1380">
+                                value="1654">
                         </div>
                         <div class="input-group">
-                            <label for="customPanelSizeY" data-i18n="customPanelSizeY">Height</label>
+                            <label for="customPanelSizeY" data-i18n="customPanelSizeY">高</label>
                             <input type="number" id="customPanelSizeY" name="customPanelSizeY" min="1" max="4096" step="1"
-                                value="4000">
+                                value="2339">
                         </div>
                     </div>
 
                     <div class="param-group">
-                        <div class="param-group-header" data-i18n="sectionPanelSplit"></div>
+                        <div class="param-group-header" data-i18n="sectionPanelSplit">切割格子</div>
                         <div class="input-group">
                             <button id="knifeModeButton">
                                 <i class="material-icons">content_cut</i>
-                                <span data-i18n="knifeMode">Knife Mode: OFF</span>
+                                <span data-i18n="knifeMode">切割格子</span>
                             </button>
                         </div>
                         <div class="input-container-leftSpace" data-i18n-label="spaceSizeLabel">
@@ -765,13 +754,13 @@ function getElementClasses(element) {
                     </div>
 
                     <div class="param-group">
-                        <div class="param-group-header" data-i18n="sectionPanelSettings"></div>
+                        <div class="param-group-header" data-i18n="sectionPanelSettings">格子线框</div>
                         <div class="input-group">
-                            <label for="panelStrokeColor" data-i18n="line">Line:</label>
+                            <label for="panelStrokeColor" data-i18n="line">线:</label>
                             <input id="panelStrokeColor" class="jscolor-color-picker" data-initial-color="rgba(0,0,0,1)" oninput="changePanelStrokeColor(this.value)">
                         </div>
                         <div class="input-group">
-                            <label for="panelFillColor" data-i18n="fill">Fill:</label>
+                            <label for="panelFillColor" data-i18n="fill">填充:</label>
                             <input id="panelFillColor" class="jscolor-color-picker" data-initial-color="rgba(255,255,255,1)" oninput="changePanelFillColor(this.value)">
                         </div>
                         <div class="input-container-leftSpace" data-i18n-label="lineWidth">
@@ -781,45 +770,114 @@ function getElementClasses(element) {
                             <input type="range" id="panelOpacity" name="panelOpacity" min="0" max="100" step="1" value="100" oninput="changePanelOpacity(this.value)">
                         </div>
                         <button id="add" onclick="panelAllChange()"><i class="material-icons">border_all</i> <span
-                                data-i18n="all_change">All Change</span></button>
+                                data-i18n="all_change">应用到全部格子</span></button>
                         <button id="edit" onclick="Edit()"><i class="material-icons">edit_square</i> <span
-                                data-i18n="editModeOn">Panel Edit Mode ON</span></button>
+                                data-i18n="editModeOn">打开格子编辑</span></button>
+                        <div class="page-studio-presets">
+                            <button type="button" class="nai-character-mini-button" data-panel-border="manga">标准框</button>
+                            <button type="button" class="nai-character-mini-button" data-panel-border="thick">粗框</button>
+                            <button type="button" class="nai-character-mini-button" data-panel-border="thin">细框</button>
+                            <button type="button" class="nai-character-mini-button" data-panel-border="dashed">虚线</button>
+                            <button type="button" class="nai-character-mini-button" data-panel-border="dotted">点线</button>
+                            <button type="button" class="nai-character-mini-button" data-panel-border="none">无框</button>
+                        </div>
                     </div>
 
                     <div class="param-group">
-                        <div class="param-group-header" data-i18n="sectionShapeAdd"></div>
+                        <div class="param-group-header">底页</div>
+                        <div class="simulator-chat-help">把最底层那张白纸换成纸纹或图片。勾选「分镜透明」只会改格子填充，可再取消勾选恢复原来的填充。不会自动改边框。</div>
+                        <div id="pagePaperSwatches" class="page-studio-presets"></div>
+                        <div class="input-group">
+                            <label for="pagePaperPreset">纸纹</label>
+                            <select id="pagePaperPreset" class="simulator-chat-input"></select>
+                        </div>
+                        <div class="simulator-chat-actions">
+                            <button id="pagePaperApply" type="button" class="nai-character-mini-button">套用底页</button>
+                            <label class="nai-character-mini-button" for="pagePaperFile">上传底图</label>
+                            <input id="pagePaperFile" type="file" accept="image/*" hidden>
+                            <button id="pagePaperClear" type="button" class="nai-character-mini-button">清除底页</button>
+                        </div>
+                        <label class="cutout-check"><input id="pagePaperReveal" type="checkbox"> 分镜透明以露出底页</label>
+                    </div>
+
+                    <div class="param-group">
+                        <div class="param-group-header">整页画面效果</div>
+                        <div class="simulator-chat-help">下雨、飘雪铺满当前整页。格子里的网点请用侧栏「网点」。两者不会互相覆盖。</div>
+                        <div class="page-studio-presets">
+                            <button type="button" class="nai-character-mini-button" data-page-effect="rain">下雨</button>
+                            <button type="button" class="nai-character-mini-button" data-page-effect="snow">飘雪</button>
+                            <button type="button" class="nai-character-mini-button" data-page-effect="fog">雾气</button>
+                            <button type="button" class="nai-character-mini-button" data-page-effect="speed">速度线</button>
+                            <button type="button" class="nai-character-mini-button" data-page-effect="vignette">暗角</button>
+                            <button type="button" class="nai-character-mini-button" data-page-effect="sparkle">闪光</button>
+                        </div>
+                        <div class="input-group">
+                            <label for="pageEffectPreset">自定义效果</label>
+                            <select id="pageEffectPreset" class="simulator-chat-input"></select>
+                        </div>
+                        <div class="input-container-leftSpace">
+                            <label for="pageEffectDensity">密度</label>
+                            <input type="range" id="pageEffectDensity" min="1" max="2000" value="420">
+                        </div>
+                        <div class="input-container-leftSpace">
+                            <label for="pageEffectAngle">角度</label>
+                            <input type="range" id="pageEffectAngle" min="0" max="180" value="18">
+                        </div>
+                        <div class="input-container-leftSpace">
+                            <label for="pageEffectLength">长度</label>
+                            <input type="range" id="pageEffectLength" min="2" max="400" value="42">
+                        </div>
+                        <div class="input-container-leftSpace">
+                            <label for="pageEffectOpacity">不透明度</label>
+                            <input type="range" id="pageEffectOpacity" min="5" max="100" value="55">
+                        </div>
+                        <div class="input-group">
+                            <label for="pageEffectColor">颜色</label>
+                            <input id="pageEffectColor" type="color" value="#9eb6c9">
+                        </div>
+                        <label class="cutout-check"><input id="pageEffectBehind" type="checkbox"> 效果放在分镜后面（只露装订空隙）</label>
+                        <div class="simulator-chat-actions">
+                            <button id="pageEffectApply" type="button" class="nai-character-mini-button">应用自定义效果</button>
+                            <button id="pageEffectClear" type="button" class="nai-character-mini-button">清除效果</button>
+                        </div>
+                    </div>
+
+                    <div class="param-group">
+                        <div class="param-group-header" data-i18n="sectionShapeAdd">形状</div>
+                        <div class="visual-shape-grid">
                         <button id="addSquare" onclick="addSquare()">
                             <i class="material-icons">add_box</i>
-                            <span data-i18n="square">Square</span>
+                            <span data-i18n="square">正方形</span>
                         </button>
                         <button id="addTallRect" onclick="addTallRect()">
                             <i class="material-icons">vertical_split</i>
-                            <span data-i18n="tallRect">Tall Rectangle</span>
+                            <span data-i18n="tallRect">竖长方形</span>
                         </button>
                         <button id="addWideRect" onclick="addWideRect()">
                             <i class="material-icons">horizontal_split</i>
-                            <span data-i18n="wideRect">Wide Rectangle</span>
+                            <span data-i18n="wideRect">横长方形</span>
                         </button>
                         <button id="addTriangle" onclick="addTriangle()">
                             <i class="material-icons">change_history</i>
-                            <span data-i18n="triangle">Triangle</span>
+                            <span data-i18n="triangle">三角形</span>
                         </button>
                         <button id="addPentagon" onclick="addPentagon()">
                             <i class="material-icons">pentagon</i>
-                            <span data-i18n="pentagon">Pentagon</span>
+                            <span data-i18n="pentagon">五边形</span>
                         </button>
                         <button id="addHexagon" onclick="addHexagon()">
                             <i class="material-icons">hexagon</i>
-                            <span data-i18n="hexagon">Hexagon</span>
+                            <span data-i18n="hexagon">六边形</span>
                         </button>
                         <button id="addStar" onclick="addStar()">
                             <i class="material-icons">star</i>
-                            <span data-i18n="star">Star</span>
+                            <span data-i18n="star">星形</span>
                         </button>
                         <button id="addHeart" onclick="addHeart()">
                             <i class="material-icons">favorite</i>
-                            <span data-i18n="heartShape">Heart</span>
+                            <span data-i18n="heartShape">心形</span>
                         </button>
+                        </div>
                     </div>
 
                 </div>
@@ -838,30 +896,41 @@ function getElementClasses(element) {
 
 <!-- ========== Panel: Auto Generate ========== -->
             <div class="left_area" id="auto-generate-area" style="display: none;">
-                <div class="area-header" data-i18n="auto_generate">Auto Generate</div>
+                <div class="area-header" data-i18n="auto_generate">自动生成 / 导演</div>
                 <div class="prompt-manager-items">
+                    <div class="param-group nai-director-hub">
+                        <div class="param-group-header">导演</div>
+                        <div class="simulator-chat-help">上面「创建空白分镜页」只摆格子，<strong>不花积分</strong>。出图前先看画布顶栏是否已填 Token，再点最下面「生成所有页面（花积分）」。</div>
+                        <div class="simulator-chat-actions">
+                            <button type="button" class="nai-character-mini-button" onclick="createImagePromptHelperFlotingWindow()">
+                                <span data-i18n="prompt_gallery">提示词画廊</span>
+                            </button>
+                        </div>
+                    </div>
                     <div class="param-group">
-                        <div class="param-group-header" data-i18n="secMultiPage"></div>
+                        <div class="param-group-header">空白分镜页</div>
+                        <div class="simulator-chat-help">只创建空格子，不会调用 NovelAI。</div>
                         <div class="input-group">
                             <button id="multiPageGenerate">
-                                <span data-i18n="multiPageGenerate">Multi Page Generate</span>
+                                <span data-i18n="multiPageGenerate">创建空白分镜页</span>
                             </button>
                         </div>
                         <div class="input-container-leftSpace" data-i18n-label="pageCount">
-                            <input type="range" id="pageCount" name="pageCount" min="2" max="50" step="1" value="18">
+                            <input type="range" id="pageCount" name="pageCount" min="2" max="50" step="1" value="3">
                         </div>
                         <div class="input-group-multi" data-group="multiPageType">
                             <button id="mPortraitButton" data-value="mPortrait" onclick="changeSelected(this)" class="selected" >
-                                <i class="material-icons">crop_portrait</i><span data-i18n="pagePortrait">縦ページ</span>
+                                <i class="material-icons">crop_portrait</i><span data-i18n="pagePortrait">竖页</span>
                             </button>
                             <button id="mLandscapeButton" data-value="mLandscape" onclick="changeSelected(this)">
-                                <i class="material-icons">crop_landscape</i><span data-i18n="pageLandscape">横ページ</span>
+                                <i class="material-icons">crop_landscape</i><span data-i18n="pageLandscape">横页</span>
                             </button>
                         </div>
                     </div>
 
+                    <details class="simulator-advanced beginner-advanced">
+                    <summary>高级：分镜切分、随机切割</summary>
                     <div class="param-group">
-                        <div class="param-group-header">分镜切分</div>
                         <div class="input-group-multi" data-group="panelLayoutMode">
                             <button type="button" id="panelLayoutModeTemplate" data-value="template" onclick="changeSelected(this)" class="selected">
                                 <span>常见模板</span>
@@ -881,10 +950,12 @@ function getElementClasses(element) {
                             <select id="panelLayoutTemplateSelect" class="panel-layout-template-select"></select>
                             <div class="nai-batch-director-help">用“原漫画预设”分镜数 + 日漫风多样模板（每页不同节奏、大小不一，像日本漫画）。勾选“每页用不同日漫风分镜” + 灵活生成尺寸（上方的W/H输入，应用到本页）。NAI自动夹紧限制。打败竞品的关键：灵活 > 死板！</div>
                             <button type="button" id="panelLayoutTemplateButton" class="nai-character-mini-button">套用模板到当前页</button>
+                            <button type="button" id="panelLayoutRecommendButton" class="nai-character-mini-button">根据当前分镜推荐</button>
+                            <div id="panelLayoutRecommendList" class="page-studio-presets"></div>
                         </div>
                         <div class="input-group">
                             <button id="panelRandomCutButton">
-                                <span data-i18n="panelRandamCut">Random Cut</span>
+                                <span data-i18n="panelRandamCut">随机切割</span>
                             </button>
                         </div>
                         <div class="input-container-leftSpace" data-i18n-label="verticalRandomPanelCount">
@@ -900,7 +971,10 @@ function getElementClasses(element) {
                             <input type="range" id="cutChangeRate" name="cutChangeRate" min="0" max="45" step="1" value="10">
                         </div>
                     </div>
+                    </details>
 
+                    <details class="simulator-advanced beginner-advanced">
+                    <summary>高级：生成尺寸、导入漫画重绘</summary>
                     <!-- 灵活生成大小（NSFW产品经理要求：打破死板，每页/每分镜可不同，适配日本漫画节奏 + NAI限制） -->
                     <div class="param-group">
                         <div class="param-group-header">灵活生成尺寸 (NAI自适应)</div>
@@ -956,9 +1030,10 @@ function getElementClasses(element) {
                         </div>
                         <div class="manga-import-status" id="mangaImportStatus">等待导入漫画页。</div>
                     </div>
+                    </details>
 
                     <div class="param-group">
-                        <div class="param-group-header" data-i18n="secAutoPrompt"></div>
+                        <div class="param-group-header" data-i18n="secAutoPrompt">AI 导演</div>
                         <div class="input-group">
                             <label>AI 导演批量需求</label>
                         </div>
@@ -967,15 +1042,17 @@ function getElementClasses(element) {
                             <input type="checkbox" id="naiBatchDirectorEnabled" checked>
                             <span>生成所有页面前自动运行 AI 导演</span>
                         </label>
+                        <details class="simulator-advanced beginner-advanced">
+                        <summary>高级：验收格、角色卡、破甲（可跳过）</summary>
                         <label class="nai-batch-director-check">
-                            <input type="checkbox" id="naiBatchAcceptanceGate" checked>
+                            <input type="checkbox" id="naiBatchAcceptanceGate">
                             <span>验收格：先过第一格再批量</span>
                         </label>
                         <label class="nai-batch-director-check">
                             <input type="checkbox" id="naiBatchAutoGenerateAfterPrompts">
                             <span>批量写 prompt 后自动生图</span>
                         </label>
-                        <div class="nai-batch-director-help">破甲角色卡 system 会优先进入官方 DeepSeek API。流程：验收格 → 批量写提示词 →（可选）自动生图 → **自动审查优先**（成功即通过，减少人工）→ 可选人工确认。语言已锁定中文。</div>
+                        <div class="nai-batch-director-help">默认不必验收。想先试一格再全书，再勾「验收格」。破甲角色卡仅给进阶用户。</div>
                         <label class="nai-batch-director-check">
                             <input type="checkbox" id="naiMarkPanelsForManualReview" checked>
                             <span>额外：生图后也标记「待人工改」（自动审查已为主流程）</span>
@@ -984,7 +1061,6 @@ function getElementClasses(element) {
                             <button type="button" id="naiGoNextReviewPanelButton" class="nai-character-mini-button">下一格待改</button>
                             <button type="button" id="naiExportAllPagesPngButton" class="nai-character-mini-button">导出全书 PNG</button>
                         </div>
-                        <div class="nai-batch-director-help">自动审查：生图成功后默认「自动审查通过」。仍可手调/I2I/重生成 → 图层条「确认本格」（可选）。导出全书PNG。语言锁定中文，避免误触。</div>
                         <div class="nai-batch-director-actions">
                             <button type="button" id="naiBatchAcceptanceButton" class="nai-character-mini-button">验收格（第 1 分镜）</button>
                             <button type="button" id="naiBatchAcceptanceConfirmButton" class="nai-character-mini-button">确认验收通过</button>
@@ -995,7 +1071,7 @@ function getElementClasses(element) {
                                 <span>角色设定卡</span>
                                 <button type="button" id="naiCharacterAddCard" class="nai-character-mini-button">新增</button>
                             </div>
-                            <div class="nai-character-card-help">破甲正文贴到「破甲 system」；露骨 Danbooru tag 放「固定正向」。导演消息模式选「破甲优先」+ 官方 DeepSeek API。</div>
+                            <div class="nai-character-card-help">角色名、外观写在这里。进阶：破甲正文贴到「破甲 system」。</div>
                             <div id="naiCharacterCardList" class="nai-character-card-list"></div>
                             <div class="nai-character-material-picker">
                                 <select id="naiCharacterTargetSelect"></select>
@@ -1004,6 +1080,7 @@ function getElementClasses(element) {
                                 <button type="button" id="naiCharacterAddMaterial" class="nai-character-mini-button">加入锚点</button>
                             </div>
                         </div>
+                        </details>
                         <div class="input-group">
                             <label data-i18n="scenario"></label>
                         </div>
@@ -1017,14 +1094,26 @@ function getElementClasses(element) {
                     </div>
 
                     <div class="param-group">
-                        <div class="param-group-header" data-i18n="secBatchGenerate"></div>
+                        <div class="param-group-header" data-i18n="secBatchGenerate">批量出图</div>
                         <div class="input-container-leftSpace" data-i18n-label="onePanelGenerateNumber">
                             <input type="range" id="onePanelGenerateNumber" name="onePanelGenerateNumber" min="1" max="10" step="1" value="1">
                         </div>
                         <button id="naiBatchDirectorGenerateButton" onclick="autoMultiGenerate()">
                             <i class="material-icons">all_inbox</i>
-                            <span>生成所有页面</span>
+                            <span>生成所有页面（花积分）</span>
                         </button>
+                    </div>
+                    <div id="nai-scene-plan-section" class="simulator-chat-section nai-scene-plan-section">
+                        <div class="simulator-chat-section-title">场景计划</div>
+                        <div class="simulator-chat-help">会调用构图导演写英文提示词（未配置 API 时用本地导演）。「应用」会创建可生图的漫画分镜。不会自动花 NovelAI 积分。</div>
+                        <textarea id="naiScenePlanInput" class="simulator-chat-textarea" rows="3" placeholder="例如：用视觉小说做雨夜对白。角色A：你终于来了。角色B：我就在楼下。选项：跟着下去|先发消息"></textarea>
+                        <div class="simulator-chat-actions"><button id="naiScenePlanGenerate" type="button" class="nai-character-mini-button">生成计划</button><button id="naiScenePlanPreview" type="button" class="nai-character-mini-button">预览</button><button id="naiScenePlanApply" type="button" class="nai-character-mini-button">应用到项目</button></div>
+                        <details class="simulator-advanced">
+                            <summary>高级：计划 JSON</summary>
+                            <textarea id="naiScenePlanJson" class="simulator-chat-textarea" rows="10" spellcheck="false"></textarea>
+                        </details>
+                        <div class="simulator-chat-actions"><button id="naiScenePlanRollback" type="button" class="nai-character-mini-button">回滚</button><button id="naiScenePlanRetry" type="button" class="nai-character-mini-button">重试首步骤</button></div>
+                        <div id="naiScenePlanStatus" class="simulator-chat-status">等待场景计划。</div>
                     </div>
                 </div>
             </div>
@@ -1033,12 +1122,81 @@ function getElementClasses(element) {
 
 <!-- ========== Panel: Simulator ========== -->
             <div class="left_area" id="simulator-chat-area" style="display: none;">
-                <div class="area-header" data-i18n="simulatorChatTitle">通用聊天模拟器</div>
+                <div class="area-header" data-i18n="simulatorChatTitle">剧情</div>
                 <div class="prompt-manager-items simulator-chat-panel">
-                    <div class="simulator-chat-help" data-i18n="simulatorChatHelp">场景数据与模板样式分离。插入后仍保留 Fabric 子对象，可保存、读取、撤销和重做。</div>
+                    <div class="simulator-workspace-tabs" id="simulatorWorkspaceTabs" role="tablist">
+                        <button type="button" class="simulator-workspace-tab is-active" data-sim-tab="edit">编辑</button>
+                        <button type="button" class="simulator-workspace-tab" data-sim-tab="play">播放</button>
+                        <button type="button" class="simulator-workspace-tab" data-sim-tab="advanced">高级</button>
+                    </div>
+                    <div data-sim-panel="edit">
+                    <div class="simulator-chat-help">写对白后有两条路：① 左侧「模拟器」做聊天/假网页。②「生成漫画分镜」才拆成可出图的格子。左侧「模板」点分镜也行。</div>
+                    <div class="simulator-chat-section" id="story-composer-section">
+                        <div class="simulator-chat-section-title">剧情编辑器</div>
+                        <div class="simulator-chat-field">
+                            <label for="storyComposerTitle">剧情标题</label>
+                            <input id="storyComposerTitle" class="simulator-chat-input" type="text" value="未命名剧情">
+                        </div>
+                        <div id="storyComposerCharacters" class="story-character-row"></div>
+                        <div id="storyComposerTypes" class="story-type-row"></div>
+                        <textarea id="storyComposerInput" class="simulator-chat-textarea" rows="3" placeholder="输入对白，Ctrl+Enter 发送。也可粘贴「角色名：台词」剧本后点解析。"></textarea>
+                        <div class="simulator-chat-actions">
+                            <button id="storyComposerSend" type="button" class="nai-character-mini-button">发送</button>
+                            <button id="storyComposerPlusOne" type="button" class="nai-character-mini-button" title="把上一条对白再复制一条">重复上一条</button>
+                            <button id="storyComposerParse" type="button" class="nai-character-mini-button">解析剧本</button>
+                            <button id="storyComposerAddCharacter" type="button" class="nai-character-mini-button">新增角色</button>
+                        </div>
+                        <div id="storyComposerNodes" class="story-node-list"></div>
+                        <div class="simulator-chat-field">
+                            <label for="storyComposerTemplate">对话模板（聊天皮肤，不是漫画格子）</label>
+                            <select id="storyComposerTemplate" class="simulator-chat-input"></select>
+                        </div>
+                        <div class="simulator-chat-actions">
+                            <button id="storyComposerInsert" type="button" class="nai-character-mini-button">套用对话模板</button>
+                            <button id="storyComposerManga" type="button" class="nai-character-mini-button">生成漫画分镜</button>
+                        </div>
+                        <details class="simulator-advanced beginner-advanced">
+                            <summary>更多：选中整页、导演需求、导入导出</summary>
+                            <div class="simulator-chat-actions">
+                                <button id="storyComposerSelectPage" type="button" class="nai-character-mini-button">选中整页</button>
+                                <button id="storyComposerFillPrompt" type="button" class="nai-character-mini-button">写入导演需求</button>
+                                <button id="storyComposerLoad" type="button" class="nai-character-mini-button">读取选中</button>
+                                <button id="storyComposerExportJson" type="button" class="nai-character-mini-button">导出剧情 JSON</button>
+                            </div>
+                        </details>
+                        <div class="simulator-chat-help">「生成漫画分镜」会按对白拆格并写提示词，不会自动花积分。出图请到「自动生成」。</div>
+                        <div id="storyComposerStatus" class="simulator-chat-status">等待编辑剧情。</div>
+                    </div>
+                    </div>
+                    <div data-sim-panel="play" hidden>
+            <div id="simulator-playback-section" class="simulator-chat-section simulator-playback-section">
+                <div class="simulator-chat-section-title">播放与长截图</div>
+                <div class="simulator-chat-actions">
+                    <button id="simulatorPlaybackPrevious" type="button" class="nai-character-mini-button">上一步</button>
+                    <button id="simulatorPlaybackNext" type="button" class="nai-character-mini-button">下一步</button>
+                    <button id="simulatorPlaybackPlay" type="button" class="nai-character-mini-button">自动播放</button>
+                    <button id="simulatorPlaybackStop" type="button" class="nai-character-mini-button">停止</button>
+                </div>
+                <div class="simulator-chat-status">事件 <span id="simulatorPlaybackIndex">0</span> / <span id="simulatorPlaybackTotal">0</span></div>
+                <div class="simulator-chat-field"><label for="simulatorPlaybackInterval">间隔 ms</label><input id="simulatorPlaybackInterval" class="simulator-chat-input" type="number" min="100" value="900"></div>
+                <div class="simulator-chat-field"><label for="simulatorPlaybackPageHeight">分页高度</label><input id="simulatorPlaybackPageHeight" class="simulator-chat-input" type="number" min="200" value="1800"></div>
+                <div class="simulator-chat-actions">
+                    <button id="simulatorPlaybackExportKeyframes" type="button" class="nai-character-mini-button">导出关键帧</button>
+                    <button id="simulatorPlaybackExportPages" type="button" class="nai-character-mini-button">导出长图分页</button>
+                </div>
+                <div id="simulatorPlaybackStatus" class="simulator-chat-status">请选择模拟器对象开始播放。</div>
+            </div>
+                    </div>
+                    <div data-sim-panel="advanced" hidden>
+                    <details class="simulator-advanced">
+                        <summary>旧版聊天表单</summary>
                     <div class="simulator-chat-field">
                         <label for="simulatorChatTitleInput" data-i18n="simulatorChatSceneTitle">场景标题</label>
                         <input id="simulatorChatTitleInput" class="simulator-chat-input" type="text" value="夜间对话">
+                    </div>
+                    <div class="simulator-chat-field">
+                        <label for="simulatorChatTemplate">聊天皮肤</label>
+                        <select id="simulatorChatTemplate" class="simulator-chat-input"></select>
                     </div>
                     <div class="simulator-chat-field">
                         <label for="simulatorChatTheme" data-i18n="simulatorChatTheme">主题</label>
@@ -1071,13 +1229,48 @@ function getElementClasses(element) {
                         </div>
                     </div>
                     <div id="simulatorChatStatus" class="simulator-chat-status" role="status">场景可用。</div>
+                    </details>
+            <div id="simulator-extra-section" class="simulator-chat-section simulator-extra-section">
+                <div class="simulator-chat-section-title">其他模拟器模板</div>
+                <div class="simulator-chat-help">对话皮肤、影片站、弹幕页、图区已单独放到左侧「模拟器」。这里只留给要手改 JSON 的情况。</div>
+                <div class="simulator-chat-actions">
+                    <button type="button" class="nai-character-mini-button" data-action="openSimulatorStudio">打开模拟器工作台</button>
+                </div>
+                <select id="simulatorExtraTemplate" class="simulator-chat-input"></select>
+                <details class="simulator-advanced">
+                    <summary>高级：手改场景 JSON</summary>
+                    <textarea id="simulatorExtraSceneJson" class="simulator-chat-textarea" rows="8" spellcheck="false"></textarea>
+                </details>
+                <div class="simulator-chat-actions">
+                    <button id="simulatorExtraLoadButton" type="button" class="nai-character-mini-button">载入示例</button>
+                    <button id="simulatorExtraInsertButton" type="button" class="nai-character-mini-button">插入/更新</button>
+                    <button id="simulatorExtraLoadSelectedButton" type="button" class="nai-character-mini-button">读取选中</button>
+                    <button id="simulatorExtraExportButton" type="button" class="nai-character-mini-button">导出 PNG</button>
+                </div>
+                <div id="simulatorExtraStatus" class="simulator-chat-status">可选择视觉小说、社交、手机、论坛、直播、影片站、弹幕页或图区模板。</div>
+            </div>
+            <div id="image2-section" class="simulator-chat-section image2-section">
+                <div class="simulator-chat-section-title">Image2 素材接口</div>
+                <div class="simulator-chat-help">预留的可插拔素材接口。本包没有接入真实 Image2 Provider，请用「自动生成」的 NovelAI。</div>
+                <div class="simulator-chat-help">仅记录任务和素材元数据；未配置 Provider 时不会发起任何外部请求。</div>
+                <textarea id="image2Prompt" class="simulator-chat-textarea" rows="3" placeholder="原创通用素材提示词"></textarea>
+                <textarea id="image2Negative" class="simulator-chat-textarea" rows="2" placeholder="负面提示词"></textarea>
+                <div class="simulator-chat-field"><label for="image2Provider">Provider</label><select id="image2Provider" class="simulator-chat-input"><option value="">未配置</option></select></div>
+                <div class="simulator-chat-field"><label for="image2AssetName">素材名</label><input id="image2AssetName" class="simulator-chat-input" value="generated_asset"></div>
+                <div class="simulator-chat-field"><label for="image2Tags">标签</label><input id="image2Tags" class="simulator-chat-input" value="original,generated"></div>
+                <div class="simulator-chat-actions"><input id="image2Width" class="simulator-chat-input" type="number" value="1024" min="64"><input id="image2Height" class="simulator-chat-input" type="number" value="1024" min="64"><label><input id="image2Transparent" type="checkbox"> 透明背景</label></div>
+                <button id="image2RunButton" type="button" class="nai-character-mini-button">提交 Image2 任务</button>
+                <div id="image2Status" class="simulator-chat-status">等待任务。</div>
+                <div id="image2JobList" class="asset-library-list"></div>
+            </div>
+                    </div>
                 </div>
             </div>
 
             <div class="left_area" id="cutout-area" style="display: none;">
                 <div class="area-header">本地抠图</div>
                 <div class="prompt-manager-items cutout-panel">
-                    <div class="simulator-chat-help">参考 rembg / rembg-ui 工作流。可自定义模型、边缘和预设；未装 rembg 时仍可用颜色抠图。只连接 127.0.0.1:8765。</div>
+                    <div class="simulator-chat-help">本地抠图，不花 NovelAI 积分。神经网络抠图需要本机服务；没开服务时会自动改用浏览器颜色抠图（白底/绿幕）。</div>
                     <div class="simulator-chat-field">
                         <label for="cutoutServiceUrl">服务地址</label>
                         <input id="cutoutServiceUrl" class="simulator-chat-input" type="text" value="http://127.0.0.1:8765">
@@ -1161,74 +1354,43 @@ function getElementClasses(element) {
             <div class="left_area" id="asset-library-area" style="display: none;">
                 <div class="area-header">素材库</div>
                 <div class="prompt-manager-items asset-library-panel">
-                    <div class="simulator-chat-help">本地素材索引、缩略图、搜索和许可证状态；原始私人素材不会写入 Git。</div>
+                    <div class="simulator-chat-help">站点零件点「添加」后可双击改字。对话模拟器和假网页请点左侧「模拟器」，或下面「打开模拟器工作台」。Kenney 图标很多，点对应分类才会加载。</div>
+                    <div class="simulator-chat-actions">
+                        <button type="button" class="nai-character-mini-button" data-action="openSimulatorStudio">打开模拟器工作台</button>
+                    </div>
                     <input id="assetLibraryInput" type="file" accept="image/*,.svg" multiple>
                     <div class="simulator-chat-actions">
+                        <button id="assetLibraryRestoreButton" type="button" class="nai-character-mini-button">恢复入门包</button>
                         <button id="assetLibraryExportButton" type="button" class="nai-character-mini-button">导出素材索引</button>
                         <button id="assetLibraryImportButton" type="button" class="nai-character-mini-button">导入素材索引</button>
                         <input id="assetLibraryPackInput" type="file" accept="application/json" hidden>
                     </div>
-                    <input id="assetLibrarySearch" class="simulator-chat-input" type="search" placeholder="搜索名称、路径或标签">
-                    <input id="assetLibraryTags" class="simulator-chat-input" type="text" placeholder="标签过滤：chat,dark">
+                    <div id="assetLibraryGroups" class="asset-library-groups" role="tablist">
+                        <button type="button" class="asset-library-group" data-group="recent">最近</button>
+                        <button type="button" class="asset-library-group" data-group="all">全部</button>
+                        <button type="button" class="asset-library-group is-active" data-group="site-ui">站点界面</button>
+                        <button type="button" class="asset-library-group" data-group="tube">影片站</button>
+                        <button type="button" class="asset-library-group" data-group="danmaku">弹幕页</button>
+                        <button type="button" class="asset-library-group" data-group="board">图区</button>
+                        <button type="button" class="asset-library-group" data-group="manga">漫画装饰</button>
+                        <button type="button" class="asset-library-group" data-group="kenney">Kenney</button>
+                        <button type="button" class="asset-library-group" data-group="icon">图标</button>
+                        <button type="button" class="asset-library-group" data-group="bubble">气泡</button>
+                        <button type="button" class="asset-library-group" data-group="paper">纸纹</button>
+                        <button type="button" class="asset-library-group" data-group="imported">我导入的</button>
+                    </div>
+                    <input id="assetLibrarySearch" class="simulator-chat-input" type="search" placeholder="搜索：播放器、弹幕、图区、kenney">
+                    <input id="assetLibraryTags" class="simulator-chat-input" type="text" placeholder="标签：site-ui, tube, danmaku, board">
                     <div id="assetLibraryStatus" class="simulator-chat-status">素材库已就绪。</div>
-                    <div id="assetLibraryList" class="asset-library-list"></div>
+                    <div id="assetLibraryPager" class="asset-library-pager" hidden>
+                        <button type="button" id="assetLibraryPrev" class="simulator-chat-small-button">上一页</button>
+                        <span id="assetLibraryPageLabel">1 / 1</span>
+                        <button type="button" id="assetLibraryNext" class="simulator-chat-small-button">下一页</button>
+                    </div>
+                    <div id="assetLibraryList" class="asset-library-list is-grid"></div>
                 </div>
             </div>
 
-            <div id="simulator-extra-section" class="simulator-chat-section simulator-extra-section">
-                <div class="simulator-chat-section-title">其他模拟器模板</div>
-                <select id="simulatorExtraTemplate" class="simulator-chat-input"></select>
-                <textarea id="simulatorExtraSceneJson" class="simulator-chat-textarea" rows="8" spellcheck="false"></textarea>
-                <div class="simulator-chat-actions">
-                    <button id="simulatorExtraLoadButton" type="button" class="nai-character-mini-button">载入示例</button>
-                    <button id="simulatorExtraInsertButton" type="button" class="nai-character-mini-button">插入/更新</button>
-                    <button id="simulatorExtraLoadSelectedButton" type="button" class="nai-character-mini-button">读取选中</button>
-                    <button id="simulatorExtraExportButton" type="button" class="nai-character-mini-button">导出 PNG</button>
-                </div>
-                <div id="simulatorExtraStatus" class="simulator-chat-status">可选择视觉小说、社交动态、手机、论坛或直播模板。</div>
-            </div>
-
-            <div id="simulator-playback-section" class="simulator-chat-section simulator-playback-section">
-                <div class="simulator-chat-section-title">播放与长截图</div>
-                <div class="simulator-chat-actions">
-                    <button id="simulatorPlaybackPrevious" type="button" class="nai-character-mini-button">上一步</button>
-                    <button id="simulatorPlaybackNext" type="button" class="nai-character-mini-button">下一步</button>
-                    <button id="simulatorPlaybackPlay" type="button" class="nai-character-mini-button">自动播放</button>
-                    <button id="simulatorPlaybackStop" type="button" class="nai-character-mini-button">停止</button>
-                </div>
-                <div class="simulator-chat-status">事件 <span id="simulatorPlaybackIndex">0</span> / <span id="simulatorPlaybackTotal">0</span></div>
-                <div class="simulator-chat-field"><label for="simulatorPlaybackInterval">间隔 ms</label><input id="simulatorPlaybackInterval" class="simulator-chat-input" type="number" min="100" value="900"></div>
-                <div class="simulator-chat-field"><label for="simulatorPlaybackPageHeight">分页高度</label><input id="simulatorPlaybackPageHeight" class="simulator-chat-input" type="number" min="200" value="1800"></div>
-                <div class="simulator-chat-actions">
-                    <button id="simulatorPlaybackExportKeyframes" type="button" class="nai-character-mini-button">导出关键帧</button>
-                    <button id="simulatorPlaybackExportPages" type="button" class="nai-character-mini-button">导出长图分页</button>
-                </div>
-                <div id="simulatorPlaybackStatus" class="simulator-chat-status">请选择模拟器对象开始播放。</div>
-            </div>
-
-            <div id="image2-section" class="simulator-chat-section image2-section">
-                <div class="simulator-chat-section-title">Image2 素材接口</div>
-                <div class="simulator-chat-help">仅记录任务和素材元数据；未配置 Provider 时不会发起任何外部请求。</div>
-                <textarea id="image2Prompt" class="simulator-chat-textarea" rows="3" placeholder="原创通用素材提示词"></textarea>
-                <textarea id="image2Negative" class="simulator-chat-textarea" rows="2" placeholder="负面提示词"></textarea>
-                <div class="simulator-chat-field"><label for="image2Provider">Provider</label><select id="image2Provider" class="simulator-chat-input"><option value="">未配置</option></select></div>
-                <div class="simulator-chat-field"><label for="image2AssetName">素材名</label><input id="image2AssetName" class="simulator-chat-input" value="generated_asset"></div>
-                <div class="simulator-chat-field"><label for="image2Tags">标签</label><input id="image2Tags" class="simulator-chat-input" value="original,generated"></div>
-                <div class="simulator-chat-actions"><input id="image2Width" class="simulator-chat-input" type="number" value="1024" min="64"><input id="image2Height" class="simulator-chat-input" type="number" value="1024" min="64"><label><input id="image2Transparent" type="checkbox"> 透明背景</label></div>
-                <button id="image2RunButton" type="button" class="nai-character-mini-button">提交 Image2 任务</button>
-                <div id="image2Status" class="simulator-chat-status">等待任务。</div>
-                <div id="image2JobList" class="asset-library-list"></div>
-            </div>
-
-            <div id="nai-scene-plan-section" class="simulator-chat-section nai-scene-plan-section">
-                <div class="simulator-chat-section-title">AI 导演 ScenePlan</div>
-                <div class="simulator-chat-help">自然语言只生成待确认计划；预览和应用分离，应用后支持回滚与单步骤重试。原 AI 导演入口保持不变。</div>
-                <textarea id="naiScenePlanInput" class="simulator-chat-textarea" rows="3" placeholder="例如：做一页校园对话，第四格使用手机聊天界面"></textarea>
-                <div class="simulator-chat-actions"><button id="naiScenePlanGenerate" type="button" class="nai-character-mini-button">生成计划</button><button id="naiScenePlanPreview" type="button" class="nai-character-mini-button">预览</button><button id="naiScenePlanApply" type="button" class="nai-character-mini-button">应用到项目</button></div>
-                <textarea id="naiScenePlanJson" class="simulator-chat-textarea" rows="10" spellcheck="false"></textarea>
-                <div class="simulator-chat-actions"><button id="naiScenePlanRollback" type="button" class="nai-character-mini-button">回滚</button><button id="naiScenePlanRetry" type="button" class="nai-character-mini-button">重试首步骤</button></div>
-                <div id="naiScenePlanStatus" class="simulator-chat-status">等待 ScenePlan。</div>
-            </div>
 
 <!-- ========== Panel: Prompt Manager ========== -->
 <div class="left_area" id="prompt-manager-area" style="display: none;">
@@ -1236,7 +1398,7 @@ function getElementClasses(element) {
     <div class="prompt-manager-items">
      <div class="input-group">
       <button onclick="createImagePromptHelperFlotingWindow()">
-       <span data-i18n="prompt_gallery">Prompt Gallery</span>
+       <span data-i18n="prompt_gallery">提示词画廊</span>
       </button>
      </div>
     </div>
@@ -1262,15 +1424,22 @@ function getElementClasses(element) {
 
 
 <!-- ========== Panel: Speech Bubble Template ========== -->
-            <div class="left_area" id="speech-bubble-area1" style="display: none;">
-                <div class="area-header" data-i18n="bubble">Bubble</div>
+            <div class="left_area" id="speech-bubble-area" style="display: none;">
+                <div class="area-header" data-i18n="bubble">气泡</div>
+                <div class="simulator-workspace-tabs" id="speechBubbleTabs" role="tablist">
+                    <button type="button" class="simulator-workspace-tab is-active" data-bubble-tab="template">模板气泡</button>
+                    <button type="button" class="simulator-workspace-tab" data-bubble-tab="free" id="intro_speech-bubble-area2">自由气泡</button>
+                </div>
+            <div id="speech-bubble-area1">
+                <div class="area-header">气泡模板</div>
+                <div class="simulator-chat-help">点气泡缩略图放到画布，再双击里面的字。线色和填充会马上反映到预览上。</div>
                 <div id="speech-bubble-svg-preview-area1">
                     <div class="input-group">
-                        <label data-i18n="line">Line</label>
+                        <label data-i18n="line">线色</label>
                         <input id="bubbleStrokeColor" class="jscolor-color-picker" data-initial-color="rgba(0,0,0,1)" oninput="changeSpeechBubble()">
                     </div>
                     <div class="input-group">
-                        <label data-i18n="background">Background</label>
+                        <label data-i18n="background">填充</label>
                         <input id="bubbleFillColor" class="jscolor-color-picker" data-initial-color="rgba(255,255,255,1)"  oninput="changeSpeechBubble()">
                     </div>
 
@@ -1306,21 +1475,21 @@ function getElementClasses(element) {
             </div>
 
 <!-- ========== Panel: Custom Speech Bubble ========== -->
-            <div class="left_area" id="speech-bubble-area2" style="display: none;">
+            <div id="speech-bubble-area2" hidden>
                 <div class="area-header">
                     <a href="html/Minual/custom-speechBubble.html" target="_blank" data-i18n="custom_bubble">
-                        Custom Bubble (Help)
+                        自由气泡（说明）
                     </a>
                 </div>
                 <div id="speech-bubble-svg-preview-area2">
                     <div class="param-group">
-                        <div class="param-group-header" data-i18n="secDrawMode"></div>
+                        <div class="param-group-header" data-i18n="secDrawMode">绘制方式</div>
                         <div class="input-group">
-                            <button id="sbSelectButton" data-i18n="sbSelectmode">Select Mode</button>
-                            <button id="sbPointButton" data-i18n="sbPointMode">Point Mode</button>
-                            <button id="sbFreehandButton" data-i18n="sbFreehandMode">Free Hand</button>
-                            <button id="sbMoveButton" data-i18n="sbMoveMode">Move Point</button>
-                            <button id="sbDeleteButton" data-i18n="sbDeleteMode">Delete Point</button>
+                            <button id="sbSelectButton" data-i18n="sbSelectmode">选择</button>
+                            <button id="sbPointButton" data-i18n="sbPointMode">加点</button>
+                            <button id="sbFreehandButton" data-i18n="sbFreehandMode">手绘</button>
+                            <button id="sbMoveButton" data-i18n="sbMoveMode">移点</button>
+                            <button id="sbDeleteButton" data-i18n="sbDeleteMode">删点</button>
                         </div>
                         <div class="input-group-multi" data-group="sbFreehandTextGroup">
                             <button id="sbFreehandNothingText" onclick="sbFreehandTextChange('Nothing', this)" data-value="Nothing">
@@ -1339,17 +1508,17 @@ function getElementClasses(element) {
                     </div>
 
                     <div class="param-group">
-                        <div class="param-group-header" data-i18n="secBubbleStyle"></div>
+                        <div class="param-group-header" data-i18n="secBubbleStyle">气泡样式</div>
                         <div class="input-group">
-                            <label for="sbStrokeColor" data-i18n="line">Line</label>
+                            <label for="sbStrokeColor" data-i18n="line">线色</label>
                             <input id="sbStrokeColor" class="jscolor-color-picker" data-initial-color="rgba(0,0,0,1)" oninput="changePanelStrokeColor(this.value)">
                         </div>
                         <div class="input-group">
-                            <label for="sbFillColor" data-i18n="fill">Fill</label>
+                            <label for="sbFillColor" data-i18n="fill">填充</label>
                             <input id="sbFillColor" class="jscolor-color-picker" data-initial-color="rgba(255,255,255,1)" oninput="changePanelStrokeColor(this.value)">
                         </div>
                         <div class="input-group">
-                            <label for="sbSmoothing" data-i18n="smooth">Smooth</label>
+                            <label for="sbSmoothing" data-i18n="smooth">平滑</label>
                             <input type="checkbox" id="sbSmoothing" checked>
                         </div>
                         <div class="input-container-leftSpace" data-i18n-label="lineWidth">
@@ -1370,7 +1539,7 @@ function getElementClasses(element) {
                     </div>
 
                     <div class="param-group">
-                        <div class="param-group-header" data-i18n="secLinePreset"></div>
+                        <div class="param-group-header" data-i18n="secLinePreset">线型预设</div>
                         <button id="sb_aButton" onclick="switchSBLine('sb_a')">
                             <img src="03_images/preset/line/a.png">
                         </button>
@@ -1395,47 +1564,51 @@ function getElementClasses(element) {
                     </div>
                 </div>
             </div>
+            </div>
 
 <!-- ========== Panel: Text ========== -->
             <div class="left_area" id="text-area" style="display: none;">
-                <div class="area-header" data-i18n="text">Text</div>
+                <div class="area-header">文本</div>
                 <div id="text-preview-area">
+                    <div class="simulator-chat-help">点横排或竖排，字会放到画布上。选中后再改颜色、描边、对齐，画布会马上跟着变。</div>
 
                     <div class="param-group">
-                        <div class="param-group-header" data-i18n="secTextAdd"></div>
+                        <div class="param-group-header" data-i18n="secTextAdd">添加文字</div>
+                        <div class="visual-text-grid">
                         <button onclick="createTextbox()">
                             <i class="material-icons">text_fields</i>
                             <i class="material-icons">east</i>
-                            <span data-i18n="HorizontalText"></span>
+                            <span data-i18n="HorizontalText">横排字</span>
                         </button>
                         <button id="verticalText">
                             <i class="material-icons">text_fields</i>
                             <i class="material-icons">south</i>
-                            <span data-i18n="VerticalText"></span>
+                            <span data-i18n="VerticalText">竖排字</span>
                         </button>
+                        </div>
                     </div>
 
                     <div class="param-group">
-                        <div class="param-group-header" data-i18n="secFontSettings"></div>
+                        <div class="param-group-header" data-i18n="secFontSettings">字体与颜色</div>
                         <div class="input-group">
                             <div id="fontSelector"></div>
                         </div>
                         <div class="input-group-multi" data-group="bold_group">
                             <button id="bold-toggle-btn" onclick="toggleBoldWithUI(this)">
                                 <i class="material-icons">format_bold</i>
-                                <span data-i18n="bold">Bold</span>
+                                <span data-i18n="bold">加粗</span>
                             </button>
                         </div>
                         <div class="input-group">
-                            <label data-i18n="textColor">Text</label>
+                            <label data-i18n="textColor">文字颜色</label>
                             <input id="textColorPicker" class="jscolor-color-picker" data-initial-color="rgba(0,0,0,1)" oninput="changeTextColor(this.value)">
                         </div>
                         <div class="input-group">
-                            <label data-i18n="outlineColor">Outline</label>
+                            <label data-i18n="outlineColor">描边颜色</label>
                             <input id="textOutlineColorPicker" class="jscolor-color-picker" data-initial-color="rgba(0,0,0,1)" oninput="changeOutlineTextColor(this.value)">
                         </div>
                         <div class="input-group">
-                            <label data-i18n="com-bgColor">Background</label>
+                            <label data-i18n="com-bgColor">背景颜色</label>
                             <input id="textBgColorPicker" class="jscolor-color-picker" data-initial-color="rgba(255,255,255,1)" oninput="changeTextBgColor(this.value)">
                         </div>
                         <div class="input-container-leftSpace" data-i18n-label="fontSize">
@@ -1458,9 +1631,9 @@ function getElementClasses(element) {
                     </div>
 
                     <div class="param-group">
-                        <div class="param-group-header" data-i18n="secFontAdd"></div>
+                        <div class="param-group-header" data-i18n="secFontAdd">添加字体</div>
                         <div class="input-group">
-                            <button onclick="fontManager.openUserFontManager()" data-i18n="add_font">add font</button>
+                            <button onclick="fontManager.openUserFontManager()" data-i18n="add_font">添加字体</button>
                         </div>
                     </div>
                 </div>
@@ -1469,66 +1642,80 @@ function getElementClasses(element) {
 
 <!-- ========== Panel: Image Text ========== -->
             <div class="left_area" id="text-area2" style="display: none;">
-                <div class="area-header" data-i18n="image_text">
-                    <a href="html/Minual/custom-text.html" target="_blank">
-                        Custom Text(Help)
-                    </a>
-                </div>
+                <div class="area-header" data-i18n="image_text">图文 / 拟声词</div>
 
-                <div id="tool-buttons">
+                <div class="sfx-palette">
+                    <div class="simulator-chat-section-title">拟声词</div>
+                    <div class="simulator-chat-help">点一下插入到当前图片文字样式。也可自己加词。</div>
+                    <div id="sfxPaletteList" class="sfx-palette-list"></div>
+                    <div class="simulator-chat-actions">
+                        <input id="sfxPaletteInput" class="simulator-chat-input" type="text" placeholder="自定义拟声词，例如 轰隆">
+                        <select id="sfxPaletteStyle" class="simulator-chat-input">
+                            <option value="wild">爆炸</option>
+                            <option value="broken">碎裂</option>
+                            <option value="scratch">刮痕</option>
+                            <option value="thrill">震动</option>
+                            <option value="layered">层叠</option>
+                            <option value="cloud">云朵</option>
+                            <option value="zebra">条纹</option>
+                        </select>
+                        <button id="sfxPaletteAdd" type="button" class="nai-character-mini-button">加入自定义</button>
+                    </div>
+                </div>
+                <div id="image-text-tool-buttons">
                     <div class="text-preview-area2">
                         <button id="shadowButton" onclick="switchText2('shadow')">
-                            <span data-i18n="shadow">Shadow</span>
-                            <img src="03_images/preset/text/t2_shadow.webp" style="width: 100%;">
+                            <span>阴影字</span>
+                            <img src="03_images/preset/text/t2_shadow.webp" alt="阴影字">
                         </button>
                     </div>
                     <div class="text-preview-area2">
                         <button id="wildButton" onclick="switchText2('wild')">
-                            <span data-i18n="wild">wild</span>
-                            <img src="03_images/preset/text/t2_wild.webp" style="width: 100%;">
+                            <span>爆炸字</span>
+                            <img src="03_images/preset/text/t2_wild.webp" alt="爆炸字">
                         </button>
                     </div>
                     <div class="text-preview-area2">
                         <button id="scratchButton" onclick="switchText2('scratch')">
-                            <span data-i18n="scratch">scratch</span>
-                            <img src="03_images/preset/text/t2_scratch.webp" style="width: 100%;">
+                            <span>刮痕字</span>
+                            <img src="03_images/preset/text/t2_scratch.webp" alt="刮痕字">
                         </button>
                     </div>
                     <div class="text-preview-area2">
                         <button id="brokenButton" onclick="switchText2('broken')">
-                            <span data-i18n="broken">broken</span>
-                            <img src="03_images/preset/text/t2_broken.webp" style="width: 100%;">
+                            <span>碎裂字</span>
+                            <img src="03_images/preset/text/t2_broken.webp" alt="碎裂字">
                         </button>
                     </div>
                     <div class="text-preview-area2">
                         <button id="cloudButton" onclick="switchText2('cloud')">
-                            <span data-i18n="cloud">cloud</span>
-                            <img src="03_images/preset/text/t2_cloud.webp" style="width: 100%;">
+                            <span>云朵字</span>
+                            <img src="03_images/preset/text/t2_cloud.webp" alt="云朵字">
                         </button>
                     </div>
                     <div class="text-preview-area2">
                         <button id="layeredButton" onclick="switchText2('layered')">
-                            <span data-i18n="layered">layered</span>
-                            <img src="03_images/preset/text/t2_layered.webp" style="width: 100%;">
+                            <span>层叠字</span>
+                            <img src="03_images/preset/text/t2_layered.webp" alt="层叠字">
                         </button>
                     </div>
                     <div class="text-preview-area2">
                         <button id="meshButton" onclick="switchText2('mesh')">
-                            <span data-i18n="mesh">mesh</span>
-                            <img src="03_images/preset/text/t2_mesh.webp" style="width: 100%;">
+                            <span>网点字</span>
+                            <img src="03_images/preset/text/t2_mesh.webp" alt="网点字">
                         </button>
                     </div>
 
                     <div class="text-preview-area2">
                         <button id="thrillButton" onclick="switchText2('thrill')">
-                            <span data-i18n="thrill">thrill</span>
-                            <img src="03_images/preset/text/t2_thrill.webp" style="width: 100%;">
+                            <span>震动字</span>
+                            <img src="03_images/preset/text/t2_thrill.webp" alt="震动字">
                         </button>
                     </div>
                     <div class="text-preview-area2">
                         <button id="zebraButton" onclick="switchText2('zebra')">
-                            <span data-i18n="zebra">zebra</span>
-                            <img src="03_images/preset/text/t2_zebra.webp" style="width: 100%;">
+                            <span>条纹字</span>
+                            <img src="03_images/preset/text/t2_zebra.webp" alt="条纹字">
                         </button>
                     </div>
                 </div>
@@ -1541,54 +1728,51 @@ function getElementClasses(element) {
 
 
 <!-- ========== Panel: Manga Effect ========== -->
-            <div class="left_area" id="manga-effect-area">
-                <div class="area-header">
-                    <a href="html/Minual/effect.html" target="_blank">
-                        Fast Effect (Help)
-                    </a>
-                </div>
+            <div class="left_area" id="manga-effect-area" style="display: none;">
+                <div class="area-header">特效</div>
+                <div class="simulator-chat-help">先在画布点选一张图，再点效果。能马上看到变化，不喜欢就 Ctrl+Z。</div>
                 <div id="manga-effect-buttons">
 
                     <button id="Color2BlackWhiteLightButton" onclick="switchMangaEffect('Color2BlackWhiteLight')">
-                        <span data-i18n="Color2BlackWhiteLight">Color2BlackWhiteLight</span>
-                        <img src="03_images/preset/effect/color2monoLight.webp" style="width: 100%;">
+                        <span>浅色网点化</span>
+                        <img src="03_images/preset/effect/color2monoLight.webp" alt="浅色网点化">
                     </button>
                     <button id="Color2BlackWhiteDarkButton" onclick="switchMangaEffect('Color2BlackWhiteDark')">
-                        <span data-i18n="Color2BlackWhiteDark">Color2BlackWhiteDark</span>
-                        <img src="03_images/preset/effect/color2monoDark.webp" style="width: 100%;">
+                        <span>深色网点化</span>
+                        <img src="03_images/preset/effect/color2monoDark.webp" alt="深色网点化">
                     </button>
                     <button id="Color2BlackWhiteNoDotButton" onclick="switchMangaEffect('Color2BlackWhiteRough')">
-                        <span data-i18n="Color2BlackWhiteRough">Color2BlackWhiteRough</span>
-                        <img src="03_images/preset/effect/color2monoRough.webp" style="width: 100%;">
+                        <span>粗网点化</span>
+                        <img src="03_images/preset/effect/color2monoRough.webp" alt="粗网点化">
                     </button>
                     <button id="Color2BlackWhiteSimpleButton" onclick="switchMangaEffect('Color2BlackWhiteSimple')">
-                        <span data-i18n="Color2BlackWhiteSimple">Color2BlackWhiteSimple</span>
-                        <img src="03_images/preset/effect/color2monoSimple.webp" style="width: 100%;">
+                        <span>简网点化</span>
+                        <img src="03_images/preset/effect/color2monoSimple.webp" alt="简网点化">
                     </button>
 
                     <button id="Color2BlackLightColorButton" onclick="switchMangaEffect('Color2BlackLightColor')">
-                        <span data-i18n="Color2BlackLightColor">Color2BlackLightColor</span>
-                        <img src="03_images/preset/effect/Color2BlackLightColor.webp" style="width: 100%;">
+                        <span>浅色去色</span>
+                        <img src="03_images/preset/effect/Color2BlackLightColor.webp" alt="浅色去色">
                     </button>
 
 
                     <button id="EnhanceDarkButton" onclick="switchMangaEffect('EnhanceDark')">
-                        <span data-i18n="EnhanceDark">EnhanceDark</span>
-                        <img src="03_images/preset/effect/enhanceDark.webp" style="width: 100%;">
+                        <span>压暗增强</span>
+                        <img src="03_images/preset/effect/enhanceDark.webp" alt="压暗增强">
                     </button>
 
 
                     <button id="blendButton" onclick="switchMangaEffect('EffectBlend')">
-                        <span data-i18n="25blends"></span>
-                        <img src="03_images/preset/effect/25_blend.webp" style="width: 100%;">
+                        <span>混合</span>
+                        <img src="03_images/preset/effect/25_blend.webp" alt="混合">
                     </button>
                     <button id="EffectGlowButton" onclick="switchMangaEffect('EffectGlow')">
-                        <span data-i18n="Glow"></span>
-                        <img src="03_images/preset/effect/glow.webp" style="width: 100%;">
+                        <span>发光</span>
+                        <img src="03_images/preset/effect/glow.webp" alt="发光">
                     </button>
                     <button id="EffectGLFXButton" onclick="switchMangaEffect('EffectGLFX')">
-                        <span data-i18n="GLFX"></span>
-                        <img src="03_images/preset/effect/glfx.webp" style="width: 100%;">
+                        <span>滤镜</span>
+                        <img src="03_images/preset/effect/glfx.webp" alt="滤镜">
                     </button>
                 </div>
                 <hr>
@@ -1604,47 +1788,65 @@ function getElementClasses(element) {
 
 
 
+<!-- ========== Panel: Visual paint tools ========== -->
+            <div class="left_area" id="ps-tools-area" style="display: none;">
+                <div class="area-header">画具</div>
+                <div class="simulator-chat-help">这些都能直接在画布上拖着看。不花 NovelAI 积分。局部重绘请用仿制/油漆桶/套索，右键「生成」才会花积分。</div>
+                <div class="visual-shape-grid">
+                    <button type="button" onclick="window.NaiPsTools&&NaiPsTools.placeLasso()"><i class="material-icons">gesture</i><span>套索 L</span></button>
+                    <button type="button" onclick="window.NaiPsTools&&NaiPsTools.placeGradient()"><i class="material-icons">gradient</i><span>渐变 G</span></button>
+                    <button type="button" onclick="window.NaiPsTools&&NaiPsTools.placeBucket()"><i class="material-icons">format_color_fill</i><span>油漆桶</span></button>
+                    <button type="button" onclick="window.NaiPsTools&&NaiPsTools.placeClone()"><i class="material-icons">healing</i><span>仿制图章</span></button>
+                    <button type="button" onclick="window.NaiPsTools&&NaiPsTools.placeGuide()"><i class="material-icons">straighten</i><span>参考线</span></button>
+                    <button type="button" onclick="window.NaiPsTools&&NaiPsTools.toggleHistory()"><i class="material-icons">history</i><span>历史</span></button>
+                    <button type="button" onclick="window.NaiPsTools&&NaiPsTools.applyLayerStyle('shadow')"><i class="material-icons">filter_none</i><span>投影</span></button>
+                    <button type="button" onclick="window.NaiPsTools&&NaiPsTools.applyLayerStyle('glow')"><i class="material-icons">wb_sunny</i><span>外发光</span></button>
+                    <button type="button" onclick="window.NaiPsTools&&NaiPsTools.applyLayerStyle('stroke')"><i class="material-icons">border_color</i><span>描边</span></button>
+                    <button type="button" onclick="window.NaiPsTools&&NaiPsTools.applyLayerStyle('clear')"><i class="material-icons">layers_clear</i><span>清除样式</span></button>
+                </div>
+            </div>
+
 <!-- ========== Panel: Pen Tools ========== -->
             <div class="left_area" id="tool-area" style="display: none;">
-                <div class="area-header" data-i18n="tools">Tools</div>
-                <div id="tool-buttons">
-                    <button id="MarkerButton" onclick="switchPencilType('Marker')">
-                        <span data-i18n="Marker">Marker</span>
-                        <img src="03_images/preset/brush/Marker.webp" alt="Marker Icon" style="width: 100%;">
+                <div class="area-header">笔刷</div>
+                <div class="simulator-chat-help">先点下面一种笔再画。画的时候点一下图层就会退回移动。也可 Esc / V。橡皮 E，框选图层 M，裁剪 C。</div>
+                <div id="brushPresetGrid" class="brush-preset-grid"></div>
+                <div id="pen-tool-buttons">
+                    <button id="MarkerButton" type="button" data-action="selectBrush" data-brush="Marker">
+                        <span>马克笔</span>
+                        <img src="03_images/preset/brush/Marker.webp" alt="马克笔" style="width: 100%;">
                     </button>
-                    <button id="InkButton" onclick="switchPencilType('Ink')">
-                        <span data-i18n="ink">Ink</span>
-                        <img src="03_images/preset/brush/Ink.webp" alt="Ink Icon" style="width: 100%;">
+                    <button id="InkButton" type="button" data-action="selectBrush" data-brush="Ink">
+                        <span>墨水</span>
+                        <img src="03_images/preset/brush/Ink.webp" alt="墨水" style="width: 100%;">
                     </button>
-                    <button id="CrayonButton" onclick="switchPencilType('Crayon')">
-                        <span data-i18n="crayon">Crayon</span>
-                        <img src="03_images/preset/brush/Crayon.webp" alt="Crayon Icon" style="width: 100%;">
+                    <button id="CrayonButton" type="button" data-action="selectBrush" data-brush="Crayon">
+                        <span>蜡笔</span>
+                        <img src="03_images/preset/brush/Crayon.webp" alt="蜡笔" style="width: 100%;">
                     </button>
-                    <button id="PencilButton" onclick="switchPencilType('Pencil')">
-                        <span data-i18n="Pencil">Pencil</span>
-                        <img src="03_images/preset/brush/Pencil.webp" alt="Pencil Icon" style="width: 100%;">
+                    <button id="PencilButton" type="button" data-action="selectBrush" data-brush="Pencil">
+                        <span>铅笔</span>
+                        <img src="03_images/preset/brush/Pencil.webp" alt="铅笔" style="width: 100%;">
                     </button>
-                    <button id="OutlinePenButton" onclick="switchPencilType('OutlinePen')">
-                        <span data-i18n="OutlinePen">OutlinePen</span>
-                        <img src="03_images/preset/brush/OutlinePen.webp" alt="OutlinePen Icon" style="width: 100%;">
+                    <button id="OutlinePenButton" type="button" data-action="selectBrush" data-brush="OutlinePen">
+                        <span>描边</span>
+                        <img src="03_images/preset/brush/OutlinePen.webp" alt="描边" style="width: 100%;">
                     </button>
-                    <button id="CircleButton" onclick="switchPencilType('Circle')">
-                        <span data-i18n="Circle">Circle</span>
-                        <img src="03_images/preset/brush/Circle.webp" alt="Circle Icon" style="width: 100%;">
+                    <button id="CircleButton" type="button" data-action="selectBrush" data-brush="Circle">
+                        <span>圆点</span>
+                        <img src="03_images/preset/brush/Circle.webp" alt="圆点" style="width: 100%;">
                     </button>
-
-                    <button id="MosaicButton" onclick="switchPencilType('Mosaic')">
-                        <span data-i18n="Mosaic">Mosaic</span>
-                        <img src="03_images/preset/brush/Mosaic1.webp" alt="Mosaic Icon" style="width: 100%;">
+                    <button id="MosaicButton" type="button" data-action="selectBrush" data-brush="Mosaic">
+                        <span>马赛克</span>
+                        <img src="03_images/preset/brush/Mosaic1.webp" alt="马赛克" style="width: 100%;">
                     </button>
-                    <button id="EraserButton" onclick="switchPencilType('Eraser')">
-                        <span data-i18n="Eraser">Eraser</span>
-                        <img src="03_images/preset/brush/Eraser.webp" alt="Mosaic Icon" style="width: 100%;">
+                    <button id="EraserButton" type="button" data-action="selectBrush" data-brush="Eraser">
+                        <span>橡皮</span>
+                        <img src="03_images/preset/brush/Eraser.webp" alt="橡皮" style="width: 100%;">
                     </button>
-                    <button id="CustomBrushButton" onclick="switchPencilType('CustomBrush')">
+                    <button id="CustomBrushButton" type="button" data-action="selectBrush" data-brush="CustomBrush">
                         <span>自定义笔刷</span>
                     </button>
-
                 </div>
                 <hr>
                 <div id="tool-settings"></div>
@@ -1655,32 +1857,33 @@ function getElementClasses(element) {
 
 
 <!-- ========== Panel: Manga Tone ========== -->
-            <div class="left_area" id="manga-tone-area">
-                <div class="area-header">
-                    <a href="html/Minual/screen-tone.html" target="_blank">
-                        Screen Tone (Help)
-                    </a>
-                </div>
+            <div class="left_area" id="manga-tone-area" style="display: none;">
+                <div class="area-header">网点</div>
+                <div class="simulator-chat-help">点一种网点，画布上马上出现。再拖左侧滑条改疏密、方向，效果会跟着变。</div>
                 <div id="manga-tone-buttons">
                     <button id="ToneButton" onclick="switchMangaTone('Tone')">
-                        <span data-i18n="Tone">Tone</span>
-                        <img src="03_images/preset/tone/Tone.webp" style="width: 100%;">
+                        <span>网点</span>
+                        <img src="03_images/preset/tone/Tone.webp" alt="网点">
                     </button>
                     <button id="ToneNoiseButton" onclick="switchMangaTone('ToneNoise')">
-                        <span data-i18n="ToneNoise">Noise Tone</span>
-                        <img src="03_images/preset/tone/ToneNoise.webp" style="width: 100%;">
+                        <span>噪点</span>
+                        <img src="03_images/preset/tone/ToneNoise.webp" alt="噪点">
                     </button>
                     <button id="ToneSnowButton" onclick="switchMangaTone('ToneSnow')">
-                        <span data-i18n="ToneSnow">Snow Tone</span>
-                        <img src="03_images/preset/tone/ToneSnow.webp" style="width: 100%;">
+                        <span>雪点</span>
+                        <img src="03_images/preset/tone/ToneSnow.webp" alt="雪点">
+                    </button>
+                    <button id="ToneRainButton" onclick="switchMangaTone('ToneRain')">
+                        <span>雨线</span>
+                        <img src="03_images/preset/tone/ToneRain.svg" alt="雨线">
                     </button>
                     <button id="SpeedLineButton" onclick="switchMangaTone('SpeedLine')">
-                        <span data-i18n="SpeedLine">Speed Line</span>
-                        <img src="03_images/preset/tone/SpeedLine.webp" style="width: 100%;">
+                        <span>速度线</span>
+                        <img src="03_images/preset/tone/SpeedLine.webp" alt="速度线">
                     </button>
                     <button id="FocusingLineButton" onclick="switchMangaTone('FocusingLine')">
-                        <span data-i18n="FocusingLine">Focusing Line</span>
-                        <img src="03_images/preset/tone/FocusingLine.webp" style="width: 100%;">
+                        <span>集中线</span>
+                        <img src="03_images/preset/tone/FocusingLine.webp" alt="集中线">
                     </button>
                 </div>
                 <hr>
@@ -1692,10 +1895,10 @@ function getElementClasses(element) {
 
 <!-- ========== Panel: Controls ========== -->
             <div class="left_area" id="control-area" style="display: none;">
-                <div class="area-header" data-i18n="Controle">Controle</div>
+                <div class="area-header">操作</div>
                 <div id="control-preview-area">
                     <div class="param-group">
-                        <div class="param-group-header" data-i18n="secInfoDisplay"></div>
+                        <div class="param-group-header" data-i18n="secInfoDisplay">显示信息</div>
                         <div class="input-group">
                             <label>
                                 <input type="checkbox" id="InformationFPS" checked>
@@ -1711,7 +1914,7 @@ function getElementClasses(element) {
                     </div>
 
                     <div class="param-group">
-                        <div class="param-group-header" data-i18n="secTransform"></div>
+                        <div class="param-group-header" data-i18n="secTransform">变形</div>
                         <div class="input-container-leftSpace" data-i18n-label="angle">
                             <input type="range" id="angle-control" min="0" max="360" value="0">
                         </div>
@@ -1736,7 +1939,7 @@ function getElementClasses(element) {
                     </div>
 
                     <div class="param-group">
-                        <div class="param-group-header" data-i18n="secFlip"></div>
+                        <div class="param-group-header" data-i18n="secFlip">翻转</div>
                         <div class="input-group-multi">
                             <button data-action="flipHorizontally">
                                 <i class="material-icons">swap_horiz</i>
@@ -1758,35 +1961,46 @@ function getElementClasses(element) {
 
 <!-- ========== Panel: Shape ========== -->
             <div class="left_area" id="shape-area" style="display: none;">
-                <div class="area-header" data-i18n="shape">Shape</div>
+                <div class="area-header">形状</div>
                 <div id="shape-preview-area">
+                    <div class="simulator-chat-help">点一种形状，再在画布上拖出大小。点一下不拖就放默认大小。和 Photoshop 形状工具一样。</div>
+                    <div class="visual-shape-grid">
+                        <button type="button" onclick="addSquare()"><i class="material-icons">add_box</i><span>正方形</span></button>
+                        <button type="button" onclick="addTallRect()"><i class="material-icons">vertical_split</i><span>竖长方形</span></button>
+                        <button type="button" onclick="addWideRect()"><i class="material-icons">horizontal_split</i><span>横长方形</span></button>
+                        <button type="button" onclick="addTriangle()"><i class="material-icons">change_history</i><span>三角形</span></button>
+                        <button type="button" onclick="addPentagon()"><i class="material-icons">pentagon</i><span>五边形</span></button>
+                        <button type="button" onclick="addHexagon()"><i class="material-icons">hexagon</i><span>六边形</span></button>
+                        <button type="button" onclick="addStar()"><i class="material-icons">star</i><span>星形</span></button>
+                        <button type="button" onclick="addHeart()"><i class="material-icons">favorite</i><span>心形</span></button>
+                    </div>
                     <div class="param-group">
-                        <div class="param-group-header" data-i18n="secIconSearch"></div>
+                        <div class="param-group-header">图标库（可选）</div>
                         <div class="input-group">
-                            <input type="text" id="svg_icon_searchInput" placeholder="Enter icon name"
+                            <input type="text" id="svg_icon_searchInput" placeholder="搜图标名字，回车"
                                 data-i18n="svg_icon_search_placeholder"
                                 onkeydown="if (event.key === 'Enter') searchIcon();">
-                            <button onclick="searchIcon()" data-i18n="svg_icon_search_button">Search</button>
+                            <button onclick="searchIcon()">搜索</button>
                         </div>
                         <div class="input-group">
-                            <label for="svg_icon_iconStyle" data-i18n="svg_icon_icon_style">Style</label>
+                            <label for="svg_icon_iconStyle" data-i18n="svg_icon_icon_style">风格</label>
                             <select id="svg_icon_iconStyle" onchange="searchInitialIcons()">
-                                <option value="filled" data-i18n="svg_icon_filled">Filled</option>
-                                <option value="outlined" data-i18n="svg_icon_outlined">Outlined</option>
-                                <option value="rounded" data-i18n="svg_icon_rounded">Rounded</option>
-                                <option value="twotone" data-i18n="svg_icon_twotone">Two-tone</option>
+                                <option value="filled" data-i18n="svg_icon_filled">填充</option>
+                                <option value="outlined" data-i18n="svg_icon_outlined">线框</option>
+                                <option value="rounded" data-i18n="svg_icon_rounded">圆角</option>
+                                <option value="twotone" data-i18n="svg_icon_twotone">双色</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="param-group">
-                        <div class="param-group-header" data-i18n="secIconStyle"></div>
+                        <div class="param-group-header" data-i18n="secIconStyle">图标样式</div>
                         <div class="input-group">
-                            <label for="svg_icon_lineColor" data-i18n="svg_icon_line_color">Line</label>
+                            <label for="svg_icon_lineColor" data-i18n="svg_icon_line_color">线条</label>
                             <input id="svg_icon_lineColor" class="jscolor-color-picker" data-initial-color="rgba(0,0,0,1)"  oninput="updateSVGStyles()">
                         </div>
                         <div class="input-group">
-                            <label for="svg_icon_fillColor" data-i18n="svg_icon_fill_color">Fill</label>
+                            <label for="svg_icon_fillColor" data-i18n="svg_icon_fill_color">填充</label>
                             <input id="svg_icon_fillColor" class="jscolor-color-picker" data-initial-color="rgba(255,255,255,1)" oninput="updateSVGStyles()">
                         </div>
                         <div class="input-container-leftSpace" data-i18n-label="svg_icon_line_width">
@@ -1798,9 +2012,9 @@ function getElementClasses(element) {
                     </div>
 
                     <div class="param-group">
-                        <div class="param-group-header" data-i18n="secIconShadow"></div>
+                        <div class="param-group-header" data-i18n="secIconShadow">图标阴影</div>
                         <div class="input-group">
-                            <label for="svg_icon_shadowColor" data-i18n="svg_icon_shadow_color">Color</label>
+                            <label for="svg_icon_shadowColor" data-i18n="svg_icon_shadow_color">阴影色</label>
                             <input id="svg_icon_shadowColor" class="jscolor-color-picker" data-initial-color="rgba(255,255,255,1)" oninput="updateSVGStyles(this.value)">
                         </div>
                         <div class="input-container-leftSpace" data-i18n-label="svg_icon_shadow_blur">
@@ -1815,7 +2029,7 @@ function getElementClasses(element) {
                     </div>
 
                     <div class="param-group">
-                        <div class="param-group-header" data-i18n="secIconPreset"></div>
+                        <div class="param-group-header" data-i18n="secIconPreset">图标结果</div>
                         <div id="svg_icon_results"></div>
                     </div>
 
@@ -1831,28 +2045,80 @@ function getElementClasses(element) {
 
                     <input type="file" id="imageInput" multiple style="display: none;" accept="image/*">
 
-                    <button id="clearMode" onclick="operationModeClear()">
+                    <button id="clearMode" onclick="operationModeClear()" hidden>
                         <span class="material-symbols-outlined">cancel_presentation</span>
                         <label data-i18n="exitModeButton" style="margin:0px;">
-                            モード解除
+                            退出画笔
                         </label>
                     </button>
-                    <button id="zoomIn" onclick="zoomIn()">
+                    <button id="zoomIn" onclick="zoomIn()" title="放大">
                         <span class="material-symbols-outlined">zoom_in</span>
                     </button>
-                    <button id="zoomOut" onclick="zoomOut()">
+                    <button id="zoomOut" onclick="zoomOut()" title="缩小">
                         <span class="material-symbols-outlined">zoom_out</span>
                     </button>
-                    <button id="zoomFit" onclick="zoomFit()">
-                        <span class="material-symbols-outlined">1x_mobiledata_badge</span>
+                    <button id="zoomFit" onclick="zoomFit()" title="适应窗口" aria-label="适应窗口">
+                        <span class="material-symbols-outlined">fit_screen</span>
                     </button>
+                    <span id="naiZoomLabelHeader" class="nai-zoom-label-header" title="当前画布缩放。Ctrl + 滚轮也可缩放">100%</span>
+                    <span id="beginnerToolHud" class="beginner-tool-hud">当前：移动 · Esc退出画笔</span>
+                    <span id="naiPageSizeBadge" class="nai-page-size-badge" title="组装漫画用的页面分辨率">底图</span>
+                    <button type="button" id="naiTokenBadge" class="nai-token-badge is-missing" title="填写 NovelAI Token 才能出图">未填 Token</button>
+                    <button type="button" id="toggleAiPanelButton" title="显示或隐藏右侧提示词面板">AI面板</button>
                     <span id="canvas-help-text" class="canvas-help-text"></span>
+                </div>
+                <div id="naiToolOptionsBar" class="nai-tool-options-bar">
+                    <div id="naiToolOptionsMain" class="nai-tool-options-main">移动 · 拖图层对齐格子。点左侧模板、气泡、网点都能直接看到效果。</div>
+                    <div id="naiPropStrip" class="nai-prop-strip" hidden>
+                        <label>填充 <input id="naiPropFill" type="color" value="#ffffff"></label>
+                        <label>描边 <input id="naiPropStroke" type="color" value="#111827"></label>
+                        <label>线宽 <input id="naiPropStrokeW" type="range" min="0" max="20" value="2"></label>
+                        <label>透明 <input id="naiPropOpacity" type="range" min="0" max="100" value="100"></label>
+                        <label class="nai-prop-check"><input id="naiPropShadow" type="checkbox"> 投影</label>
+                        <span class="nai-prop-align" title="对齐到画布">
+                            <button type="button" data-align="left">左</button>
+                            <button type="button" data-align="center">中</button>
+                            <button type="button" data-align="right">右</button>
+                            <button type="button" data-align="top">顶</button>
+                            <button type="button" data-align="middle">竖中</button>
+                            <button type="button" data-align="bottom">底</button>
+                        </span>
+                    </div>
+                    <div id="naiToolOptionsControls" class="nai-tool-options-controls"></div>
+                    <div id="naiZoomTools" class="nai-zoom-tools" role="group" aria-label="画布与对象缩放">
+                        <span class="nai-zoom-tools-label">画布</span>
+                        <button id="naiZoomOutBtn" class="nai-icon-btn" type="button" title="缩小画布（Ctrl + 滚轮）" aria-label="缩小画布">−</button>
+                        <span id="naiZoomLabel" class="nai-zoom-label">100%</span>
+                        <button id="naiZoomInBtn" class="nai-icon-btn" type="button" title="放大画布（Ctrl + 滚轮）" aria-label="放大画布">+</button>
+                        <button id="naiZoomFitBtn" class="nai-icon-btn" type="button" title="画布适应窗口" aria-label="画布适应窗口">⤢</button>
+                        <span class="nai-zoom-tools-sep" aria-hidden="true"></span>
+                        <span class="nai-zoom-tools-label">对象</span>
+                        <button id="naiObjectSmallerBtn" class="nai-icon-btn" type="button" title="缩小当前选中的模拟器或图层" aria-label="缩小对象">↘</button>
+                        <button id="naiObjectBiggerBtn" class="nai-icon-btn" type="button" title="放大当前选中的模拟器或图层" aria-label="放大对象">↗</button>
+                        <button id="naiObjectFitBtn" class="nai-icon-btn" type="button" title="把当前模拟器贴合到分镜或画布" aria-label="贴合对象">▣</button>
+                    </div>
+                </div>
+                <div id="naiHistoryPanel" class="nai-history-panel" hidden>
+                    <div class="nai-history-head">历史 <button type="button" id="naiHistoryClose">关闭</button></div>
+                    <div id="naiHistoryList" class="nai-history-list"></div>
                 </div>
 
                 <div id="intro_content" class="content">
                     <div class="resizable-container" id="resizable-container">
                         <div class="canvas-container" id="canvas-container">
                             <canvas id="mangaImageCanvas"></canvas>
+                        </div>
+                    </div>
+                    <div id="canvasEmptyHint" class="canvas-empty-hint">
+                        <strong>画布还是空的</strong>
+                        <ol>
+                            <li>点左侧「模板」，选一个分镜铺到这一页</li>
+                            <li>聊天或假网页：点左侧「模拟器」</li>
+                            <li>要出图：填好 Token，再点「生成」（会花积分）</li>
+                        </ol>
+                        <div class="canvas-empty-hint-actions">
+                            <button type="button" id="canvasEmptyHintTemplate">去选分镜</button>
+                            <button type="button" id="canvasEmptyHintSimulator" class="is-secondary">打开模拟器</button>
                         </div>
                     </div>
                 </div>
@@ -1863,11 +2129,12 @@ function getElementClasses(element) {
 <!-- ========== Layer Panel ========== -->
             <div id="layer-panel">
                 <div class="area-header" >
-                        <label data-i18n="layers">Layers</label>
+                        <label data-i18n="layers">图层</label>
+                        <button type="button" id="layerSelectPageButton" class="layer-header-page-btn" title="选中当前整页">选中整页</button>
                         <button onclick="LayersUp()"><i class="material-icons">arrow_upward</i></button>
                         <button onclick="LayersDown()"><i class="material-icons">arrow_downward</i></button>
-                        <button id="undo" onclick="undo()"><i class="material-icons">undo</i></button>
-                        <button id="redo" onclick="redo()"><i class="material-icons">redo</i></button>
+                        <button id="undo" onclick="undo()" title="撤销"><i class="material-icons">undo</i></button>
+                        <button id="redo" onclick="redo()" title="重做"><i class="material-icons">redo</i></button>
                 </div>
                 <div id="layer-content"></div>
 
@@ -1875,7 +2142,7 @@ function getElementClasses(element) {
 
 
 <!-- ========== AI Controls ========== -->
-            <div id="controls">
+            <div id="controls" style="display:none;">
 
                 <div class="panel" id="esApiControlsPanel">
                     <div class="area-header" data-i18n="esApiControls" onclick='changeHiddenById("esApi-controls-mini", "esApiControls", "esApiControlsByClose")'>
@@ -1974,7 +2241,7 @@ function getElementClasses(element) {
         <div class="shortcut-modal-overlay" onclick="closeShortcutModal()"></div>
         <div class="shortcut-modal-content">
             <div class="shortcut-modal-header">
-                <h2 data-i18n="shortcutTitle">Keyboard Shortcuts</h2>
+                <h2 data-i18n="shortcutTitle">快捷键</h2>
                 <button class="shortcut-modal-close" onclick="closeShortcutModal()">&times;</button>
             </div>
             <div class="shortcut-modal-body">
@@ -2040,8 +2307,15 @@ function getElementClasses(element) {
 </tr>
 <tr>
 <td class="us-field-label">访问令牌</td>
-<td><input type="password" id="novelaiApiKey" value="" placeholder="NovelAI Persistent API Token" autocomplete="off"></td>
+<td><input type="password" id="novelaiApiKey" value="" placeholder="粘贴 NovelAI 访问令牌" autocomplete="off"></td>
 <td><button id="novelaiApiKeyToggle" class="us-btn-s" data-i18n="usBtnShow">显示</button></td>
+</tr>
+<tr>
+<td></td>
+<td colspan="2">
+<label class="nai-inline-check"><input type="checkbox" id="novelaiRememberToken" checked> 本机记住 Token（只存在这台电脑，关闭浏览器后不用重填）</label>
+<div class="nai-batch-director-help">请用 http://127.0.0.1:8000 打开本页。不勾选则只保存在本次会话。</div>
+</td>
 </tr>
 <tr>
 <td class="us-field-label">模型</td>
@@ -2162,7 +2436,7 @@ function getElementClasses(element) {
 </tr>
 <tr>
 <td class="us-field-label">安全策略</td>
-<td><div class="nai-safety-list"><span>单次只取 1 张</span><span>总像素不超过 1024×1024</span><span>按分镜比例等比缩放</span><span>素材预览 512×512</span></div><div class="nai-setting-help">这是为了贴合 NovelAI 会员免费生图规则；真正生成时前端和本地代理都会再次校验。</div></td>
+<td><div class="nai-safety-list"><span>单次只取 1 张</span><span>出图单格总像素不超过 1024×1024</span><span>最长边不超过 1536</span><span>底图组装分辨率独立（默认 A4 约 1654×2339）</span><span>素材预览 512×512</span></div><div class="nai-setting-help">出图限制是为了贴合 NovelAI 会员免费生图规则；底图变大只影响拼页，前端和本地代理仍会再次校验出图尺寸。</div></td>
 <td><button id="naiHealthCheck" class="us-btn-s" type="button">检查 NAI</button></td>
 </tr>
 <tr>
@@ -2219,64 +2493,68 @@ function getElementClasses(element) {
     <script src="js/sidebar/pen/fabric/brushes/spray_brush.js?v=7.2"></script>
     <script src="js/sidebar/pen/fabric/brushes/drip.js?v=7.2"></script>
     <script src="js/sidebar/pen/fabric/brushes/stroke.js?v=7.2"></script>
-    <script src="js/core/settings.js?v=8.6" defer></script>
+    <script src="js/core/manga-page-size.js?v=1.0" defer></script>
+    <script src="js/core/settings.js?v=8.8" defer></script>
     <script src="js/core/debug.js?v=7.2" defer></script>
     <script src="js/core/logger.js?v=7.2" defer></script>
     <script src="js/ui/util/focus-trap.js?v=7.2" defer></script>
-    <script src="js/core/global-error-handler.js?v=7.2" defer></script>
+    <script src="js/core/global-error-handler.js?v=7.3" defer></script>
 
     <script src="js/ui/glfx-ui.js?v=7.2" defer></script>
-    <script src="js/ui/canvas-object-menu.js?v=7.5" defer></script>
+    <script src="js/ui/canvas-object-menu.js?v=7.7" defer></script>
     <script src="js/ui/third/intro.js?v=7.2" defer></script>
-    <script src="js/ui/tutorial.js?v=7.5" defer></script>
-    <script src="js/ui/toast.js?v=7.2" defer></script>
+    <script src="js/ui/tutorial.js?v=7.7" defer></script>
+    <script src="js/ui/beginner-guide.js?v=1.8" defer></script>
+    <script src="js/ui/visual-studio.js?v=1.5" defer></script>
+    <script src="js/ui/visual-ps-tools.js?v=1.2" defer></script>
+    <script src="js/ui/toast.js?v=7.3" defer></script>
     <script src="js/ui/util/ui-util.js?v=7.2" defer></script>
-    <script src="js/ui/util/event-delegator.js?v=7.2" defer></script>
+    <script src="js/ui/util/event-delegator.js?v=7.6" defer></script>
     <script src="js/ui/third/tippy.js?v=7.5" defer></script>
 
-    <script src="js/ui/third/base-translation/base-zh.js?v=7.8" defer></script>
-    <script src="js/ui/third/i18next.js?v=8.0" defer></script>
+    <script src="js/ui/third/base-translation/base-zh.js?v=8.1" defer></script>
+    <script src="js/ui/third/i18next.js?v=8.4" defer></script>
     <script src="js/dashboard/performance-storage.js?v=7.5" defer></script>
     <script src="js/dashboard/prompt-frequency-storage.js?v=7.3" defer></script>
     <script src="js/dashboard/dashboard-ui.js?v=8.11" defer></script>
 
-    <script src="js/ui/util/mode-change.js?v=7.2" defer></script>
-    <script src="js/ui/util/mode-manager.js?v=7.2" defer></script>
+    <script src="js/ui/util/mode-change.js?v=7.5" defer></script>
+    <script src="js/ui/util/mode-manager.js?v=7.4" defer></script>
     <script src="js/ui/util/tagify-util.js?v=7.2" defer></script>
     <script src="js/ui/imagePromptHelper/prompt-helper.js?v=7.2" defer></script>
     <script src="js/ui/imagePromptHelper/hc-image-prompt-helper.js?v=8.11" defer></script>
     <script src="js/ui/imagePromptHelper/image-prompt-helper.js?v=8.11" defer></script>
     <script src="js/ai/prompt/auto/character-card-manager.js?v=8.6" defer></script>
     <script src="js/ui/ai/auto-prompt-ui.js?v=8.1" defer></script>
-    <script src="js/ui/overlay-progress.js?v=7.2" defer></script>
+    <script src="js/ui/overlay-progress.js?v=7.3" defer></script>
     <script src="js/ui/custom-html-component.js?v=7.2" defer></script>
 
     <script src="js/core/util/load-util.js?v=7.2" defer></script>
     <script src="js/core/util/js-util.js?v=7.2" defer></script>
     <script src="js/core/util/fabric-util.js?v=8.9" defer></script>
     <script src="js/core/util/html-canvas-util.js?v=7.2" defer></script>
-    <script src="js/core/util/image-util.js?v=7.2" defer></script>
+    <script src="js/core/util/image-util.js?v=7.5" defer></script>
     <script src="js/core/util/anime-util.js?v=7.2" defer></script>
-    <script src="js/core/util/share-util.js?v=7.2" defer></script>
+    <script src="js/core/util/share-util.js?v=7.3" defer></script>
     <script src="js/core/util/log-util.js?v=7.2" defer></script>
     <script src="js/core/util/image-analyzer-util.js?v=7.2" defer></script>
-    <script src="js/canvas-manager.js?v=7.2" defer></script>
-    <script src="js/project-management.js?v=8.9" defer></script>
-    <script src="js/shortcut.js?v=8.9" defer></script>
-    <script src="js/panel/grid.js?v=7.2" defer></script>
-    <script src="js/panel/layout-templates.js?v=8.9" defer></script>
-    <script src="js/panel/random-cut.js?v=8.8" defer></script>
-    <script src="js/sidebar/panel/panel-manager.js?v=8.7" defer></script>
-    <script src="js/sidebar/panel/panel-template.js?v=8.10" defer></script>
+    <script src="js/canvas-manager.js?v=7.6" defer></script>
+    <script src="js/project-management.js?v=8.14" defer></script>
+    <script src="js/shortcut.js?v=8.12" defer></script>
+    <script src="js/panel/grid.js?v=7.3" defer></script>
+    <script src="js/panel/layout-templates.js?v=8.12" defer></script>
+    <script src="js/panel/random-cut.js?v=8.9" defer></script>
+    <script src="js/sidebar/panel/panel-manager.js?v=8.9" defer></script>
+    <script src="js/sidebar/panel/panel-template.js?v=8.14" defer></script>
     <script src="js/ui/prompt-manager.js?v=7.2" defer></script>
     <script src="js/ai/role/ai-roles.js?v=7.2" defer></script>
     <script src="js/ai/provider/ai-provider.js?v=7.3" defer></script>
     <script src="js/ai/provider/provider-registry.js?v=7.3" defer></script>
-    <script src="js/ai/director/scene-plan-schema.js?v=1.0" defer></script>
-    <script src="js/ai/director/scene-plan-service.js?v=1.0" defer></script>
-    <script src="js/ai/director/scene-plan-controller.js?v=1.0" defer></script>
+    <script src="js/ai/director/scene-plan-schema.js?v=1.3" defer></script>
+    <script src="js/ai/director/scene-plan-service.js?v=1.3" defer></script>
+    <script src="js/ai/director/scene-plan-controller.js?v=1.4" defer></script>
     <script src="js/ai/prompt/novelai-composition-director.js?v=8.10" defer></script>
-    <script src="js/ai/provider/novelai-provider.js?v=8.10" defer></script>
+    <script src="js/ai/provider/novelai-provider.js?v=8.11" defer></script>
     <script src="js/ai/queue/spinner.js?v=7.5" defer></script>
     <script src="js/ai/queue/task-queue.js?v=7.2" defer></script>
     <script src="js/ai/queue/generation-task-manager.js?v=8.7" defer></script>
@@ -2284,59 +2562,76 @@ function getElementClasses(element) {
     <script src="js/ai/ai-management.js?v=7.6" defer></script>
     <script src="js/ai/role/role-assignment-ui.js?v=7.6" defer></script>
     <script src="js/ai/ui/unified-settings-window.js?v=7.5" defer></script>
-    <script src="js/ai/ui/ai-ui-util.js?v=7.5" defer></script>
+    <script src="js/ai/ui/ai-ui-util.js?v=7.6" defer></script>
     <script src="js/ai/novelai-only-mode.js?v=7.8" defer></script>
     <script src="js/ai/prompt/base-event-listener.js?v=7.5" defer></script>
     <script src="js/layer/floating-window-management.js?v=7.2" defer></script>
-    <script src="js/layer/layer-button.js?v=7.5" defer></script>
-    <script src="js/layer/layer-management.js?v=8.9" defer></script>
-     <script src="js/layer/image-history-management.js?v=7.2" defer></script>
+    <script src="js/layer/layer-button.js?v=7.6" defer></script>
+    <script src="js/layer/layer-management.js?v=9.2" defer></script>
+     <script src="js/layer/image-history-management.js?v=7.5" defer></script>
      <script src="js/assets/asset-manifest.js?v=1.0" defer></script>
      <script src="js/assets/asset-scanner.js?v=1.0" defer></script>
-     <script src="js/assets/asset-store.js?v=1.0" defer></script>
+     <script src="js/assets/asset-blob-store.js?v=1.0" defer></script>
+     <script src="js/assets/asset-store.js?v=1.3" defer></script>
+     <script src="js/assets/original-starter-pack.js?v=1.0" defer></script>
+     <script src="js/assets/site-ui-pack.js?v=1.0" defer></script>
+     <script src="js/assets/github-free-pack.js?v=1.1" defer></script>
      <script src="js/assets/asset-pack.js?v=1.0" defer></script>
-     <script src="js/assets/asset-library-controller.js?v=1.0" defer></script>
+     <script src="js/assets/asset-library-controller.js?v=1.8" defer></script>
      <script src="js/assets/image2-job-store.js?v=1.0" defer></script>
      <script src="js/assets/image2-client.js?v=1.0" defer></script>
-     <script src="js/assets/image2-controller.js?v=1.0" defer></script>
-     <script src="js/simulator/template-registry.js?v=1.0" defer></script>
-     <script src="js/simulator/chat-scene.js?v=1.0" defer></script>
-     <script src="js/simulator/chat-renderer.js?v=1.0" defer></script>
+     <script src="js/assets/image2-controller.js?v=1.1" defer></script>
+     <script src="js/simulator/template-registry.js?v=1.3" defer></script>
+     <script src="js/simulator/chat-scene.js?v=1.2" defer></script>
+     <script src="js/simulator/story-engine.js?v=1.3" defer></script>
+     <script src="js/simulator/story-to-manga.js?v=1.0" defer></script>
+     <script src="js/simulator/chat-renderer.js?v=1.4" defer></script>
      <script src="js/simulator/scene-serializer.js?v=1.0" defer></script>
-     <script src="js/simulator/extra-renderer-factory.js?v=1.0" defer></script>
-     <script src="js/simulator/renderers/visual-novel-renderer.js?v=1.0" defer></script>
+     <script src="js/simulator/extra-renderer-factory.js?v=1.6" defer></script>
+     <script src="js/simulator/renderers/visual-novel-renderer.js?v=1.2" defer></script>
      <script src="js/simulator/renderers/social-feed-renderer.js?v=1.0" defer></script>
-     <script src="js/simulator/renderers/phone-renderer.js?v=1.0" defer></script>
+     <script src="js/simulator/renderers/phone-renderer.js?v=1.2" defer></script>
      <script src="js/simulator/renderers/forum-renderer.js?v=1.0" defer></script>
      <script src="js/simulator/renderers/livestream-renderer.js?v=1.0" defer></script>
-     <script src="js/simulator/simulator-controller.js?v=1.0" defer></script>
-     <script src="js/simulator/timeline.js?v=1.0" defer></script>
+     <script src="js/simulator/renderers/video-tube-renderer.js?v=1.1" defer></script>
+     <script src="js/simulator/renderers/danmaku-player-renderer.js?v=1.1" defer></script>
+     <script src="js/simulator/renderers/image-board-renderer.js?v=1.1" defer></script>
+     <script src="js/simulator/site-ui-parts.js?v=1.0" defer></script>
+     <script src="js/simulator/story-adapters.js?v=1.4" defer></script>
+     <script src="js/simulator/story-composer-controller.js?v=2.0" defer></script>
+     <script src="js/simulator/simulator-controller.js?v=1.4" defer></script>
+     <script src="js/simulator/timeline.js?v=1.2" defer></script>
      <script src="js/simulator/longshot-exporter.js?v=1.0" defer></script>
-     <script src="js/simulator/playback-controller.js?v=1.0" defer></script>
+     <script src="js/simulator/playback-controller.js?v=1.6" defer></script>
+     <script src="js/simulator/page-edit-controller.js?v=1.2" defer></script>
      <script src="js/local-tools/local-tools-client.js?v=1.1" defer></script>
      <script src="js/local-tools/cutout-presets.js?v=1.1" defer></script>
-     <script src="js/local-tools/background-removal-client.js?v=1.1" defer></script>
-     <script src="js/simulator/chat-controller.js?v=1.0" defer></script>
+     <script src="js/local-tools/background-removal-client.js?v=1.4" defer></script>
+     <script src="js/simulator/chat-controller.js?v=1.4" defer></script>
+     <script src="js/simulator/simulator-studio.js?v=1.3" defer></script>
      <script src="js/layer/blend/blend.js?v=7.2" defer></script>
     
     <script src="js/sidebar/sidebar-ui.js?v=7.2" defer></script>
-    <script src="js/sidebar/sidebar.js?v=7.2" defer></script>
+    <script src="js/sidebar/sidebar.js?v=7.5" defer></script>
     <script src="js/sidebar/text/text-effect.js?v=7.2" defer></script>
-    <script src="js/sidebar/text/vertical-text.js?v=7.2" defer></script>
-    <script src="js/sidebar/text/vertical-textbox.js?v=7.2"></script>
-    <script src="js/sidebar/speechBubble/speech-bubble-effect.js?v=7.2" defer></script>
-    <script src="js/sidebar/speechBubble/speech-bubble-freehand.js?v=7.2" defer></script>
+    <script src="js/sidebar/text/vertical-textbox.js?v=7.3" defer></script>
+    <script src="js/sidebar/text/vertical-text.js?v=7.3" defer></script>
+    <script src="js/sidebar/speechBubble/speech-bubble-effect.js?v=7.6" defer></script>
+    <script src="js/sidebar/speechBubble/speech-bubble-freehand.js?v=7.3" defer></script>
     <script src="js/sidebar/speechBubble/speech-bubble-text.js?v=7.2" defer></script>    
     <script src="js/sidebar/pen/original-brush.js?v=7.2" defer></script>
-    <script src="js/sidebar/pen/brush-presets.js?v=1.1" defer></script>
+    <script src="js/sidebar/pen/brush-presets.js?v=1.3" defer></script>
     <script src="js/sidebar/pen/custom-brush.js?v=1.1" defer></script>
-    <script src="js/sidebar/pen/pen-tools.js?v=7.3" defer></script>
-    <script src="js/sidebar/tone/tone-manager.js?v=7.2" defer></script>
+    <script src="js/sidebar/pen/pen-tools.js?v=7.7" defer></script>
+    <script src="js/sidebar/tone/tone-manager.js?v=7.5" defer></script>
     <script src="js/sidebar/tone/speedline.js?v=7.2" defer></script>
     <script src="js/sidebar/tone/focusline.js?v=7.2" defer></script>
-    <script src="js/sidebar/tone/tone.js?v=7.2" defer></script>
-    <script src="js/sidebar/tone/tone-noise.js?v=7.2" defer></script>
-    <script src="js/sidebar/tone/snow-tone.js?v=7.2" defer></script>
+    <script src="js/sidebar/tone/tone.js?v=7.3" defer></script>
+    <script src="js/sidebar/tone/tone-noise.js?v=7.3" defer></script>
+    <script src="js/sidebar/tone/snow-tone.js?v=7.3" defer></script>
+    <script src="js/sidebar/tone/rain-tone.js?v=1.3" defer></script>
+    <script src="js/sidebar/page/page-studio.js?v=1.4" defer></script>
+    <script src="js/sidebar/text/sfx-palette.js?v=1.4" defer></script>
     <script src="js/sidebar/text/text-2-manager.js?v=7.2" defer></script>
     <script src="js/sidebar/text/custom/custom-text-util.js?7.0" defer></script>
     <script src="js/sidebar/text/custom/optimized-aurora-text.js?v=7.2" defer></script>
@@ -2349,7 +2644,7 @@ function getElementClasses(element) {
     <script src="js/sidebar/text/custom/optimized-thrill-text.js?v=7.2" defer></script>
     <script src="js/sidebar/text/custom/optimized-wild-text.js?v=7.2" defer></script>
     <script src="js/sidebar/text/custom/optimized-zebra-text.js?v=7.2" defer></script>
-    <script src="js/sidebar/effect/effect-manager.js?v=7.2" defer></script>
+    <script src="js/sidebar/effect/effect-manager.js?v=7.4" defer></script>
     <script src="js/sidebar/effect/c2bw_tone.js?v=7.2" defer></script>
     <script src="js/sidebar/effect/c2c.js?v=7.2" defer></script>
     <script src="js/sidebar/panel/knife/knife-constants.js?v=7.2" defer></script>
@@ -2363,22 +2658,22 @@ function getElementClasses(element) {
     <script src="js/ui/control/common-control-management.js?v=7.2" defer></script>
     <script src="js/ui/control/image-control-manager.js?v=7.2" defer></script>
     <script src="js/ui/control/information-control.js?v=7.2" defer></script>
-    <script src="js/ui/control/glfx-control.js?v=7.2" defer></script>
-    <script src="js/fabric/fabric-management.js?v=7.2" defer></script>
+    <script src="js/ui/control/glfx-control.js?v=7.3" defer></script>
+    <script src="js/fabric/fabric-management.js?v=7.3" defer></script>
     <script src="js/core/svg/google-icon-names.js?v=7.2"></script>
-    <script src="js/core/svg/google-icon-helper.js?v=8.10"></script>
-    <script src="js/ui/bottom-bar.js?v=7.2" defer></script>
+    <script src="js/core/svg/google-icon-helper.js?v=8.13"></script>
+    <script src="js/ui/bottom-bar.js?v=7.4" defer></script>
 
     <script src="js/ai/prompt/auto/prompt-map.js?v=7.2" defer></script>
     <script src="js/ai/prompt/auto/story-prompt-map.js?v=7.2" defer></script>
-    <script src="js/ai/prompt/auto/auto-prompt-util.js?v=8.6" defer></script>
+    <script src="js/ai/prompt/auto/auto-prompt-util.js?v=8.7" defer></script>
     <script src="js/ai/panel-pipeline-review.js?v=8.9" defer></script>
-    <script src="js/ai/prompt/auto/auto-generation.js?v=8.9" defer></script>
-    <script src="js/ai/manga-importer.js?v=8.16" defer></script>
+    <script src="js/ai/prompt/auto/auto-generation.js?v=9.1" defer></script>
+    <script src="js/ai/manga-importer.js?v=8.17" defer></script>
 
     <script src="js/db/user-font-repository.js?v=7.2" defer></script>
     <script src="js/ui/font/user-font-manager.js?v=7.6" defer></script>
-    <script src="js/core/font/font-manager-core.js?v=7.2" defer></script>
+    <script src="js/core/font/font-manager-core.js?v=7.5" defer></script>
     <script src="js/core/font/font-dropdown.js?v=7.2" defer></script>
 
     <script src="service-worker.js?v=8.11" defer></script>
@@ -2426,52 +2721,52 @@ setAutoSizeingControlMini();
 <button id="dashboard-close-btn" class="dashboard-modal-close-btn">&#10005;</button>
 <div class="dashboard-container">
 <div class="dashboard-header">
-<h3 data-i18n="dashboardTitle">Performance Dashboard</h3>
-<button class="dashboard-clear-btn" id="dashboardClearStats" data-i18n="dashboardClearAll">Clear All</button>
+<h3 data-i18n="dashboardTitle">使用统计</h3>
+<button class="dashboard-clear-btn" id="dashboardClearStats" data-i18n="dashboardClearAll">全部清除</button>
 </div>
 <div class="dashboard-summary">
 <div class="summary-card">
 <div class="summary-value" id="dashboardTotalGenerations">0</div>
-<div class="summary-label" data-i18n="dashboardTotal">Total</div>
+<div class="summary-label" data-i18n="dashboardTotal">生成</div>
 </div>
 <div class="summary-card">
 <div class="summary-value" id="dashboardGlobalAvg">-</div>
-<div class="summary-label" data-i18n="dashboardAvg">AVG</div>
+<div class="summary-label" data-i18n="dashboardAvg">平均</div>
 </div>
 <div class="summary-card">
 <div class="summary-value" id="dashboardGlobalMin">-</div>
-<div class="summary-label" data-i18n="dashboardMin">MIN</div>
+<div class="summary-label" data-i18n="dashboardMin">最小</div>
 </div>
 <div class="summary-card">
 <div class="summary-value" id="dashboardGlobalMax">-</div>
-<div class="summary-label" data-i18n="dashboardMax">MAX</div>
+<div class="summary-label" data-i18n="dashboardMax">最大</div>
 </div>
 <div class="summary-card">
 <div class="summary-value" id="dashboardUniqueTags">0</div>
-<div class="summary-label" data-i18n="dashboardTags">Tags</div>
+<div class="summary-label" data-i18n="dashboardTags">标签</div>
 </div>
 <div class="summary-card">
 <div class="summary-value" id="dashboardLaunchCount">0</div>
-<div class="summary-label" data-i18n="dashboardLaunch">Launch</div>
+<div class="summary-label" data-i18n="dashboardLaunch">启动</div>
 </div>
 <div class="summary-card">
 <div class="summary-value" id="dashboardFirstLaunch">-</div>
-<div class="summary-label" data-i18n="dashboardSince">Since</div>
+<div class="summary-label" data-i18n="dashboardSince">首次</div>
 </div>
 </div>
 <div class="dashboard-section">
 <div class="section-header">
-<h4 data-i18n="dashboardModeStats">Mode Statistics</h4>
+<h4 data-i18n="dashboardModeStats">模式统计</h4>
 </div>
 <div class="stats-table-container">
 <table class="stats-table">
 <thead>
 <tr>
-<th data-i18n="dashboardMode">Mode</th>
-<th data-i18n="dashboardCount">Count</th>
-<th data-i18n="dashboardAvgMs">AVG (ms)</th>
-<th data-i18n="dashboardMinMs">MIN (ms)</th>
-<th data-i18n="dashboardMaxMs">MAX (ms)</th>
+<th data-i18n="dashboardMode">模式</th>
+<th data-i18n="dashboardCount">次数</th>
+<th data-i18n="dashboardAvgMs">平均 (ms)</th>
+<th data-i18n="dashboardMinMs">最小 (ms)</th>
+<th data-i18n="dashboardMaxMs">最大 (ms)</th>
 </tr>
 </thead>
 <tbody id="dashboardStatsTable"></tbody>
@@ -2480,7 +2775,7 @@ setAutoSizeingControlMini();
 </div>
 <div class="dashboard-section">
 <div class="section-header">
-<h4 data-i18n="dashboardTimeGraph">Generation Time Graph</h4>
+<h4 data-i18n="dashboardTimeGraph">生成时间图表</h4>
 <select id="dashboardModeSelector" class="mode-selector">
 <option value="T2I">T2I</option>
 <option value="I2I">I2I</option>
@@ -2492,17 +2787,17 @@ setAutoSizeingControlMini();
 </div>
 <div class="dashboard-section">
 <div class="section-header">
-<h4 data-i18n="dashboardHourlyHeatmap">Hourly Activity Heatmap</h4>
+<h4 data-i18n="dashboardHourlyHeatmap">时段活动热力图</h4>
 </div>
 <div class="heatmap-container" id="dashboardHeatmap"></div>
 </div>
 <div class="dashboard-section">
 <div class="section-header">
-<h4 data-i18n="dashboardTrendGraph">Generation Trend</h4>
+<h4 data-i18n="dashboardTrendGraph">生成趋势</h4>
 <select id="dashboardTrendSelector" class="mode-selector">
-<option value="daily" data-i18n="dashboardDaily">Daily</option>
-<option value="weekly" data-i18n="dashboardWeekly">Weekly</option>
-<option value="monthly" data-i18n="dashboardMonthly">Monthly</option>
+<option value="daily" data-i18n="dashboardDaily">按日</option>
+<option value="weekly" data-i18n="dashboardWeekly">按周</option>
+<option value="monthly" data-i18n="dashboardMonthly">按月</option>
 </select>
 </div>
 <div class="chart-container">
@@ -2511,17 +2806,17 @@ setAutoSizeingControlMini();
 </div>
 <div class="dashboard-section">
 <div class="section-header">
-<h4 data-i18n="dashboardTopTags">Most Used Tags</h4>
-<button class="dashboard-clear-btn-small" id="dashboardClearTags" data-i18n="dashboardClearTags">Clear Tags</button>
+<h4 data-i18n="dashboardTopTags">常用标签</h4>
+<button class="dashboard-clear-btn-small" id="dashboardClearTags" data-i18n="dashboardClearTags">清除标签</button>
 </div>
 <div class="top-tags-container" id="dashboardTopTags">
-<div class="no-tags" data-i18n="dashboardNoTags">No tags recorded</div>
+<div class="no-tags" data-i18n="dashboardNoTags">暂无标签</div>
 </div>
 </div>
 <div class="dashboard-section">
 <div class="section-header">
-<h4 data-i18n="dashboardWordcloud">Word Cloud</h4>
-<button class="dashboard-download-btn" id="dashboardDownloadWordcloud" data-i18n="dashboardDownload">Download</button>
+<h4 data-i18n="dashboardWordcloud">词云</h4>
+<button class="dashboard-download-btn" id="dashboardDownloadWordcloud" data-i18n="dashboardDownload">下载</button>
 </div>
 <div class="wordcloud-container">
 <canvas id="dashboardWordcloud" width="600" height="300"></canvas>
@@ -2529,58 +2824,58 @@ setAutoSizeingControlMini();
 </div>
 <div class="dashboard-section">
 <div class="section-header">
-<h4 data-i18n="dashboardStreak">Streak</h4>
+<h4 data-i18n="dashboardStreak">连续记录</h4>
 </div>
 <div class="streak-session-row">
 <div class="streak-card">
 <div class="streak-icon">&#x1F525;</div>
 <div class="streak-value" id="dashboardCurrentStreak">0</div>
-<div class="streak-label" data-i18n="dashboardCurrentStreak">Current</div>
+<div class="streak-label" data-i18n="dashboardCurrentStreak">当前</div>
 </div>
 <div class="streak-card">
 <div class="streak-icon">&#x1F3C6;</div>
 <div class="streak-value" id="dashboardLongestStreak">0</div>
-<div class="streak-label" data-i18n="dashboardLongestStreak">Longest</div>
+<div class="streak-label" data-i18n="dashboardLongestStreak">最长</div>
 </div>
 <div class="streak-card">
 <div class="streak-icon">&#x1F4C5;</div>
 <div class="streak-value" id="dashboardTodayCount">0</div>
-<div class="streak-label" data-i18n="dashboardToday">Today</div>
+<div class="streak-label" data-i18n="dashboardToday">今日</div>
 </div>
 </div>
 </div>
 <div class="dashboard-section">
 <div class="section-header">
-<h4 data-i18n="dashboardSessionStats">Session</h4>
+<h4 data-i18n="dashboardSessionStats">会话</h4>
 </div>
 <div class="streak-session-row">
 <div class="streak-card">
 <div class="streak-value" id="dashboardCurrentSession">0m</div>
-<div class="streak-label" data-i18n="dashboardCurrentSession">This Session</div>
+<div class="streak-label" data-i18n="dashboardCurrentSession">本次</div>
 </div>
 <div class="streak-card">
 <div class="streak-value" id="dashboardSessionGenCount">0</div>
-<div class="streak-label" data-i18n="dashboardGenPerSession">Gens</div>
+<div class="streak-label" data-i18n="dashboardGenPerSession">生成数</div>
 </div>
 <div class="streak-card">
 <div class="streak-value" id="dashboardAvgSession">0m</div>
-<div class="streak-label" data-i18n="dashboardAvgSession">Avg Session</div>
+<div class="streak-label" data-i18n="dashboardAvgSession">平均</div>
 </div>
 <div class="streak-card">
 <div class="streak-value" id="dashboardTotalSessions">0</div>
-<div class="streak-label" data-i18n="dashboardTotalSessions">Sessions</div>
+<div class="streak-label" data-i18n="dashboardTotalSessions">会话数</div>
 </div>
 </div>
 </div>
 <div class="dashboard-section">
 <div class="section-header">
-<h4 data-i18n="dashboardCalendar">Activity Calendar</h4>
+<h4 data-i18n="dashboardCalendar">活动日历</h4>
 </div>
 <div class="calendar-container" id="dashboardCalendar"></div>
 </div>
 <div class="dashboard-section">
 <div class="section-header">
-<h4 data-i18n="dashboardSuccessRate">Success Rate</h4>
+<h4 data-i18n="dashboardSuccessRate">成功率</h4>
 </div>
 <div class="success-rate-container">
 <canvas id="dashboardSuccessRateChart" width="300" height="150"></canvas>
@@ -2588,7 +2883,7 @@ setAutoSizeingControlMini();
 </div>
 <div class="dashboard-section">
 <div class="section-header">
-<h4 data-i18n="dashboardPromptLength">Prompt Length</h4>
+<h4 data-i18n="dashboardPromptLength">提示词长度</h4>
 </div>
 <div class="chart-container">
 <canvas id="dashboardPromptLengthChart" width="600" height="200"></canvas>
@@ -2596,14 +2891,14 @@ setAutoSizeingControlMini();
 </div>
 <div class="dashboard-section">
 <div class="section-header">
-<h4 data-i18n="dashboardCoOccurrence">Tag Co-occurrence</h4>
+<h4 data-i18n="dashboardCoOccurrence">标签共现</h4>
 </div>
 <div class="stats-table-container">
 <table class="stats-table cooccurrence-table">
 <thead>
 <tr>
-<th data-i18n="dashboardTagPair">Tag Pair</th>
-<th data-i18n="dashboardPairCount">Count</th>
+<th data-i18n="dashboardTagPair">标签对</th>
+<th data-i18n="dashboardPairCount">次数</th>
 </tr>
 </thead>
 <tbody id="dashboardCoOccurrenceTable"></tbody>
@@ -2612,7 +2907,7 @@ setAutoSizeingControlMini();
 </div>
 <div class="dashboard-section">
 <div class="section-header">
-<h4 data-i18n="dashboardModelUsage">Model Usage</h4>
+<h4 data-i18n="dashboardModelUsage">模型使用</h4>
 </div>
 <div class="chart-container model-chart-container">
 <canvas id="dashboardModelChart" width="600" height="200"></canvas>
@@ -2620,21 +2915,21 @@ setAutoSizeingControlMini();
 </div>
 <div class="dashboard-section">
 <div class="section-header">
-<h4 data-i18n="dashboardGoals">Goals</h4>
+<h4 data-i18n="dashboardGoals">目标</h4>
 </div>
 <div class="goal-container">
 <div class="goal-row">
-<span class="goal-label" data-i18n="dashboardDailyGoal">Daily Goal</span>
+<span class="goal-label" data-i18n="dashboardDailyGoal">每日目标</span>
 <input type="number" id="dashboardDailyGoalInput" class="goal-input" min="1" max="9999" placeholder="0">
-<button class="dashboard-download-btn goal-save-btn" id="dashboardSaveDailyGoal" data-i18n="dashboardGoalSave">Save</button>
+<button class="dashboard-download-btn goal-save-btn" id="dashboardSaveDailyGoal" data-i18n="dashboardGoalSave">保存</button>
 </div>
 <div class="goal-progress-wrap">
 <div class="goal-progress-bar" id="dashboardDailyProgressBar"><span id="dashboardDailyProgressText"></span></div>
 </div>
 <div class="goal-row">
-<span class="goal-label" data-i18n="dashboardWeeklyGoal">Weekly Goal</span>
+<span class="goal-label" data-i18n="dashboardWeeklyGoal">每周目标</span>
 <input type="number" id="dashboardWeeklyGoalInput" class="goal-input" min="1" max="9999" placeholder="0">
-<button class="dashboard-download-btn goal-save-btn" id="dashboardSaveWeeklyGoal" data-i18n="dashboardGoalSave">Save</button>
+<button class="dashboard-download-btn goal-save-btn" id="dashboardSaveWeeklyGoal" data-i18n="dashboardGoalSave">保存</button>
 </div>
 <div class="goal-progress-wrap">
 <div class="goal-progress-bar" id="dashboardWeeklyProgressBar"><span id="dashboardWeeklyProgressText"></span></div>
@@ -2643,13 +2938,13 @@ setAutoSizeingControlMini();
 </div>
 <div class="dashboard-section">
 <div class="section-header">
-<h4 data-i18n="dashboardBadges">Badges</h4>
+<h4 data-i18n="dashboardBadges">徽章</h4>
 </div>
 <div class="badge-grid" id="dashboardBadgeGrid"></div>
 </div>
 <div class="dashboard-section">
 <div class="section-header">
-<h4 data-i18n="dashboardExport">Export</h4>
+<h4 data-i18n="dashboardExport">导出</h4>
 </div>
 <div class="export-section">
 <button class="dashboard-download-btn" id="dashboardExportJSON" data-i18n="dashboardExportJSON">JSON</button>
@@ -2658,6 +2953,76 @@ setAutoSizeingControlMini();
 </div>
 </div>
 </div>
+</div>
+
+<div id="simulatorStudioOverlay" class="sim-studio-overlay" hidden>
+  <div class="sim-studio-header">
+    <strong>模拟器工作台</strong>
+    <div class="sim-studio-tabs" id="simStudioTabs" role="tablist">
+      <button type="button" class="simulator-workspace-tab is-active" data-studio-tab="chat">对话</button>
+      <button type="button" class="simulator-workspace-tab" data-studio-tab="web">网页</button>
+      <button type="button" class="simulator-workspace-tab" data-studio-tab="part">零件</button>
+    </div>
+    <button id="simStudioClose" type="button" class="nai-character-mini-button">关闭</button>
+  </div>
+  <p class="simulator-chat-help">像商店一样点预览选样式，改完字再放到画布。放到画布后可以整体放大缩小、贴合分镜。这是本包自带的通用界面，不含真实站名。</p>
+  <div class="sim-studio-body">
+    <div data-studio-panel="chat">
+      <div class="simulator-chat-field">
+        <label for="simStudioChatTitle">对话标题</label>
+        <input id="simStudioChatTitle" class="simulator-chat-input" type="text" value="夜间对话">
+      </div>
+      <p class="sim-studio-store-hint">点下面的卡片选对话样式，选中后会立刻换预览。</p>
+      <div id="simStudioChatStore" class="sim-store-grid" role="listbox" aria-label="对话样式商店"></div>
+      <div class="simulator-chat-field sim-studio-hidden-field">
+        <label for="simStudioChatTemplate">聊天皮肤</label>
+        <select id="simStudioChatTemplate" class="simulator-chat-input"></select>
+      </div>
+      <textarea id="simStudioChatScript" class="simulator-chat-textarea" rows="8" placeholder="角色A：今晚还出图吗？&#10;角色B：先把分镜排好。"></textarea>
+      <div class="simulator-chat-actions">
+        <button id="simStudioChatInsert" type="button" class="nai-character-mini-button">放到画布</button>
+        <button id="simStudioChatLoad" type="button" class="nai-character-mini-button">读取选中</button>
+      </div>
+      <div class="simulator-chat-help">聊天皮肤不能直接 NAI 出图。要出漫画请到「剧情」点「生成漫画分镜」。</div>
+    </div>
+    <div data-studio-panel="web" hidden>
+      <p class="sim-studio-store-hint">点卡片选网页模板。影片站、弹幕、图区、社交、论坛都可以先看样子再放进漫画。</p>
+      <div id="simStudioWebStore" class="sim-store-grid" role="listbox" aria-label="网页模板商店"></div>
+      <div class="simulator-chat-field sim-studio-hidden-field">
+        <label for="simStudioWebTemplate">网页模板</label>
+        <select id="simStudioWebTemplate" class="simulator-chat-input"></select>
+      </div>
+      <div id="simStudioWebForm" class="sim-studio-form"></div>
+      <div class="simulator-chat-actions">
+        <button id="simStudioWebExample" type="button" class="nai-character-mini-button">载入示例</button>
+        <button id="simStudioWebInsert" type="button" class="nai-character-mini-button">放到画布</button>
+        <button id="simStudioWebLoad" type="button" class="nai-character-mini-button">读取选中</button>
+      </div>
+      <div class="simulator-chat-help">影片站 / 弹幕页 / 图区的标题、播放量、评论都可以在这里改，再整页放到画布。</div>
+    </div>
+    <div data-studio-panel="part" hidden>
+      <p class="sim-studio-store-hint">点卡片选按钮、搜索栏、弹幕条。放到画布后可以直接改上面的字。</p>
+      <div id="simStudioPartStore" class="sim-store-grid sim-store-grid-parts" role="listbox" aria-label="零件商店"></div>
+      <div class="simulator-chat-field sim-studio-hidden-field">
+        <label for="simStudioPartSelect">站点零件</label>
+        <select id="simStudioPartSelect" class="simulator-chat-input"></select>
+      </div>
+      <div id="simStudioPartForm" class="sim-studio-form"></div>
+      <div class="simulator-chat-actions">
+        <button id="simStudioPartInsert" type="button" class="nai-character-mini-button">更新到画布</button>
+        <button id="simStudioPartLoad" type="button" class="nai-character-mini-button">读取选中</button>
+      </div>
+      <div class="simulator-chat-help">素材库里的播放器、评论、数据行添加后也是这些可改字段，不必再贴死图。</div>
+    </div>
+  </div>
+  <div class="sim-studio-scale-bar" role="group" aria-label="整页缩放">
+    <span class="sim-studio-scale-label">整页</span>
+    <button id="simStudioScaleDown" type="button" class="nai-character-mini-button" title="缩小刚放上去或当前选中的整页模拟器">缩小</button>
+    <button id="simStudioScaleUp" type="button" class="nai-character-mini-button" title="放大刚放上去或当前选中的整页模拟器">放大</button>
+    <button id="simStudioFit" type="button" class="nai-character-mini-button" title="把当前模拟器贴合到选中的分镜">贴合分镜</button>
+    <span class="sim-studio-scale-hint">也可在画布上 Ctrl+滚轮缩放画布，Alt+Ctrl+滚轮缩放对象</span>
+  </div>
+  <div id="simStudioStatus" class="simulator-chat-status">改好文字后点「放到画布」。</div>
 </div>
 
 </body>

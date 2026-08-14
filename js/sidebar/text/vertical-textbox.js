@@ -586,3 +586,4 @@ controls.mtr=objectControls.mtr;
 for(let i=0,len=positions.length;i<len;i++){const key=positions[i];
 controls[key]=new fabric.Control({x:objectControls[key].x,y:objectControls[key].y,actionHandler:this.changeWidthAndHeight,cursorStyleHandler:scaleSkewStyleHandler,actionName:'resizing',lockScalingX:!1,lockScalingY:!1,})};
 return controls})()}
+fabric.VerticalTextbox=VerticalTextbox;

@@ -11,6 +11,7 @@ return{r:0,g:0,b:0,a:1};
 const MODE_TONE="Tone";
 const MODE_TONE_NOISE="ToneNoise";
 const MODE_TONE_SNOW="ToneSnow";
+const MODE_TONE_RAIN="ToneRain";
 const MODE_FOCUSING_LINE="FocusingLine";
 const MODE_SPEED_LINE="SpeedLine";
 
@@ -43,6 +44,23 @@ var mangaToneMinRadius=null;
 
 let nowTone=null;
 
+function mangaToneTarget(){
+var active=(typeof canvas!=='undefined'&&canvas&&typeof canvas.getActiveObject==='function')?canvas.getActiveObject():null;
+if(active&&typeof isPanel==='function'&&isPanel(active))return active;
+if(active&&typeof isImage==='function'&&isImage(active))return active;
+var last=typeof getLastObject==='function'?getLastObject():null;
+if(last&&typeof isPanel==='function'&&isPanel(last))return last;
+if(last&&typeof isImage==='function'&&isImage(last))return last;
+return null;
+}
+
+function mangaToneRequireTarget(){
+var target=mangaToneTarget();
+if(target)return target;
+if(typeof createToast==='function')createToast('网点贴在格子上','请先点一个分镜格子或一张图，再点网点。整页下雨/氛围请用「更多 → 页面」里的画面效果。',4800);
+return null;
+}
+
 function switchMangaTone(type) {
 switchMangaToneUi(type);
 
@@ -53,6 +71,8 @@ speedLineEnd();
 focusLineEnd();
 toneNoiseEnd();
 toneEnd();
+if(typeof snowToneEnd==='function')snowToneEnd();
+if(typeof rainToneEnd==='function')rainToneEnd();
 nowTone=null;
 return;
 } else {
@@ -61,22 +81,28 @@ speedLineEnd();
 focusLineEnd();
 toneNoiseEnd();
 toneEnd();
+if(typeof snowToneEnd==='function')snowToneEnd();
+if(typeof rainToneEnd==='function')rainToneEnd();
 nowTone=null;
 }
 }
 
 if (type===MODE_TONE) {
-toneStart();
+if(typeof toneStart==='function'&&toneStart()===false)return;
 addToneEventListener();
 debouncedGenerateTone();
 } else if (type===MODE_TONE_NOISE) {
-toneNoiseStart();
+if(typeof toneNoiseStart==='function'&&toneNoiseStart()===false)return;
 addToneNoiseEventListener();
 updateToneNoise();
 } else if (type===MODE_TONE_SNOW) {
-snowToneStart();
+if(typeof snowToneStart==='function'&&snowToneStart()===false)return;
 addSnowToneEventListener();
 generateSnowTone();
+} else if (type===MODE_TONE_RAIN) {
+if(typeof rainToneStart==='function'&&rainToneStart()===false)return;
+addRainToneEventListener();
+generateRainTone();
 } else if (type===MODE_FOCUSING_LINE) {
 focusLineStart();
 addFCEventListener();
@@ -152,15 +178,25 @@ settingsHTML+=addSlider(MODE_TONE_SNOW+'-angle','angle',0,180,sidebarValueMap.ge
 $('manga-tone-settings').innerHTML=settingsHTML;
 jsColorSet();
 
-mangaToneColor=$(MODE_TONE_NOISE+'-frontColor');
-mangaToneBackColor=$(MODE_TONE_NOISE+'-backColor');
-mangaToneDensity=$(MODE_TONE_NOISE+'-density');
-mangaToneFrontSize=$(MODE_TONE_NOISE+'-frontSize');
-mangaToneBackSize=$(MODE_TONE_NOISE+'-backSize');
-mangaToneFrontBlurSize=$(MODE_TONE_NOISE+'-frontBlurSize');
-mangaToneBackBlurSize=$(MODE_TONE_NOISE+'-backBlurSize');
-mangaToneAngle=$(MODE_TONE_NOISE+'-angle');
+mangaToneColor=$(MODE_TONE_SNOW+'-frontColor');
+mangaToneBackColor=$(MODE_TONE_SNOW+'-backColor');
+mangaToneDensity=$(MODE_TONE_SNOW+'-density');
+mangaToneFrontSize=$(MODE_TONE_SNOW+'-frontSize');
+mangaToneBackSize=$(MODE_TONE_SNOW+'-backSize');
+mangaToneFrontBlurSize=$(MODE_TONE_SNOW+'-frontBlurSize');
+mangaToneBackBlurSize=$(MODE_TONE_SNOW+'-backBlurSize');
+mangaToneAngle=$(MODE_TONE_SNOW+'-angle');
 
+break;
+case MODE_TONE_RAIN:
+settingsHTML+=addColor(MODE_TONE_RAIN+'-color','color',sidebarValueMap.getOrDefault(MODE_TONE_RAIN+'-color','#9eb6c9'));
+settingsHTML+=addSlider(MODE_TONE_RAIN+'-density','density',1,2000,sidebarValueMap.getOrDefault(MODE_TONE_RAIN+'-density',420));
+settingsHTML+=addSlider(MODE_TONE_RAIN+'-length','length',4,160,sidebarValueMap.getOrDefault(MODE_TONE_RAIN+'-length',36));
+settingsHTML+=addSlider(MODE_TONE_RAIN+'-width','width',1,8,sidebarValueMap.getOrDefault(MODE_TONE_RAIN+'-width',1));
+settingsHTML+=addSlider(MODE_TONE_RAIN+'-angle','angle',0,180,sidebarValueMap.getOrDefault(MODE_TONE_RAIN+'-angle',18));
+settingsHTML+=addSlider(MODE_TONE_RAIN+'-opacity','opacity',5,100,sidebarValueMap.getOrDefault(MODE_TONE_RAIN+'-opacity',55));
+$('manga-tone-settings').innerHTML=settingsHTML;
+jsColorSet();
 break;
 case MODE_FOCUSING_LINE:
 settingsHTML+=addColor(MODE_FOCUSING_LINE+'-color','color',sidebarValueMap.getOrDefault(MODE_FOCUSING_LINE+'-color','#000000'));
@@ -193,10 +229,10 @@ settingsHTML+=addSlider(MODE_SPEED_LINE+'-grad-end','grad-end',0,100,sidebarValu
 $('manga-tone-settings').innerHTML=settingsHTML;
 jsColorSet();
 
-mangaToneColor=$(MODE_TONE_NOISE+'-color');
-mangaToneDensity=$(MODE_TONE_NOISE+'-density');
-mangaToneGradStart=$(MODE_TONE_NOISE+'-grad-start');
-mangaToneGradEnd=$(MODE_TONE_NOISE+'-grad-end');
+mangaToneColor=$(MODE_SPEED_LINE+'-color');
+mangaToneDensity=$(MODE_SPEED_LINE+'-density');
+mangaToneGradStart=$(MODE_SPEED_LINE+'-grad-start');
+mangaToneGradEnd=$(MODE_SPEED_LINE+'-grad-end');
 break;
 }
 
@@ -314,11 +350,10 @@ saveValueMap(element);
 
 
 function clearActiveToneButton() {
-$(MODE_TONE+'Button').classList.remove('active-button');
-$(MODE_TONE_NOISE+'Button').classList.remove('active-button');
-$(MODE_TONE_SNOW+'Button').classList.remove('active-button');
-$(MODE_FOCUSING_LINE+'Button').classList.remove('active-button');
-$(MODE_SPEED_LINE+'Button').classList.remove('active-button');
+[MODE_TONE,MODE_TONE_NOISE,MODE_TONE_SNOW,MODE_TONE_RAIN,MODE_FOCUSING_LINE,MODE_SPEED_LINE].forEach(function(id){
+var el=$(id+'Button');
+if(el)el.classList.remove('active-button');
+});
 }
 
 

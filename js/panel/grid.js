@@ -67,10 +67,17 @@ gridCtx.moveTo(0,centerY);
 gridCtx.lineTo(canvas.width,centerY);
 gridCtx.stroke();
 
+var hasPaper=typeof canvas.getObjects==='function'&&canvas.getObjects().some(function(object){return object&&object.customType==='pageBackground';});
+if(hasPaper){
+canvas.setBackgroundImage(null,canvas.renderAll.bind(canvas));
+if(window.NaiPageStudio&&typeof window.NaiPageStudio.syncGridOverlay==='function')window.NaiPageStudio.syncGridOverlay(true);
+}else{
 canvas.setBackgroundImage(
 gridCanvas.toDataURL(),
 canvas.renderAll.bind(canvas)
 );
+if(window.NaiPageStudio&&typeof window.NaiPageStudio.syncGridOverlay==='function')window.NaiPageStudio.syncGridOverlay(false);
+}
 }
 
 
@@ -92,6 +99,9 @@ return '#'+(
 }
 function removeGrid() {
 canvas.setBackgroundImage(null,canvas.renderAll.bind(canvas));
+if(window.NaiPageStudio&&typeof window.NaiPageStudio.syncGridOverlay==='function'){
+window.NaiPageStudio.syncGridOverlay(false);
+}
 }
 
 function toggleGrid() {

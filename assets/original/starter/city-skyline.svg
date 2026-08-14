@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 160" width="320" height="160" fill="none">
+
+<rect x="0" y="0" width="320" height="160" fill="#e8eef4"/>
+<g fill="#1f2937">
+  <rect x="8" y="70" width="36" height="90"/><rect x="50" y="40" width="28" height="120"/>
+  <rect x="86" y="86" width="44" height="74"/><rect x="138" y="28" width="32" height="132"/>
+  <rect x="178" y="60" width="40" height="100"/><rect x="226" y="18" width="24" height="142"/>
+  <rect x="258" y="76" width="54" height="84"/>
+</g>
+<g fill="#94a3b8" opacity="0.55">
+  <rect x="16" y="82" width="6" height="8"/><rect x="28" y="82" width="6" height="8"/>
+  <rect x="58" y="52" width="6" height="8"/><rect x="70" y="52" width="6" height="8"/>
+  <rect x="148" y="42" width="6" height="8"/><rect x="148" y="58" width="6" height="8"/>
+</g>
+</svg>

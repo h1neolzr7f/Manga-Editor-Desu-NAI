@@ -7,7 +7,8 @@ var controlElementsTone=null;
 var isDrawingTone=false;
 
 function toneStart() {
-var activeObject=canvas.getActiveObject();
+var activeObject=typeof mangaToneRequireTarget==='function'?mangaToneRequireTarget():canvas.getActiveObject();
+if(!activeObject)return false;
 tmpCanvasTone=document.createElement("canvas");
 
 if (isPanel(activeObject)) {
@@ -16,8 +17,8 @@ var canvasY=(activeObject.height*activeObject.scaleY);
 tmpCanvasTone.width=canvasX*3;
 tmpCanvasTone.height=canvasY*3;
 }else{
-tmpCanvasTone.width=canvas.width*3;
-tmpCanvasTone.height=canvas.height*3;
+tmpCanvasTone.width=Math.max(1,(activeObject.width||1)*(activeObject.scaleX||1))*3;
+tmpCanvasTone.height=Math.max(1,(activeObject.height||1)*(activeObject.scaleY||1))*3;
 }
 
 tmpCtxTone=tmpCanvasTone.getContext("2d");
@@ -34,6 +35,7 @@ gradientEnd: $(MODE_TONE+'-grad-end'),
 };
 
 updatecanvas();
+return true;
 }
 
 function toneEnd() {

@@ -512,7 +512,7 @@ if(obj.customType==="freehandBubbleRect") {
 obj.set({selectable:false,evented:false});
 return;
 }
-obj.set({selectable:true,evented:true});
+obj.set({selectable:true,evented:obj.simulatorRole!=='page'});
 });
 nonActiveClearButton();
 }

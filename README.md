@@ -1,247 +1,76 @@
-[English](https://github.com/new-sankaku/stable-diffusion-webui-simple-manga-maker) |
-[日本語](https://github.com/new-sankaku/stable-diffusion-webui-simple-manga-maker/blob/main/README_JP.md) |
-[中文](https://github.com/new-sankaku/stable-diffusion-webui-simple-manga-maker/blob/main/README_CN.md)
+# Manga Editor Desu · nai学长魔改版
 
-# Manga Editor Desu! Pro Edition
+**Unofficial modified build 1.0.0**（2026-08-14）
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![GitHub Stars](https://img.shields.io/github/stars/new-sankaku/manga-editor-desu?style=social)](https://github.com/new-sankaku/manga-editor-desu)
+[English](README_EN.md) · [日本語](README_JP.md) · [中文短链](README_CN.md)
 
-A web-based manga creation tool with AI image generation support. Create professional manga pages directly in your browser.
+> **致敬原作。** 本程序基于 [new-sankaku / Manga Editor Desu!](https://github.com/new-sankaku/manga-editor-desu)。  
+> 英文名仍为 **Manga Editor Desu**，本包只在后面标明 **nai学长魔改版**。  
+> **不是**上游官方发行，与 new-sankaku **无附属关系**。分镜、气泡、图层、刀切等编辑器能力来自原项目。
 
-**[Try the Demo](https://new-sankaku.github.io/manga-editor-desu/)** - No installation required!
+- 上游源码：https://github.com/new-sankaku/manga-editor-desu  
+- 本仓库：https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI  
+- 许可证：与原项目相同，[GPL-3.0](LICENSE)  
+- 修改声明：[NOTICE.md](NOTICE.md) · [CHANGELOG.md](CHANGELOG.md)  
+- 小白步骤：[先看我.txt](先看我.txt) · [使用说明.txt](使用说明.txt)
 
-<img src="https://new-sankaku.github.io/SP-MangaEditer-docs/01_mainpage.webp" width="700">
-
----
-
-## Table of Contents
-
-- [Features](#features)
-- [Quick Start](#quick-start)
-- [Requirements](#requirements)
-- [AI Image Generation Setup](#ai-image-generation-setup)
-- [Keyboard Shortcuts](#keyboard-shortcuts)
-- [Gallery](#gallery)
-- [FAQ](#faq)
-- [Support](#support)
-- [License](#license)
+本包的问题请在**本仓库**提，不要开到上游 Issues。
 
 ---
 
-## Features
+## 小白一键启动（Windows）
 
-### Core Features
-- **Panel Layouts** - Pre-built templates and custom panel creation with knife tool
-- **Speech Bubbles** - 40+ styles with customizable colors and transparency
-- **Text Tools** - Vertical/horizontal text, manga fonts, shadows, outlines, neon effects
-- **Layer Management** - Organize images, text, and panels with familiar layer controls
-- **Undo/Redo** - Full history support for all editing operations
+1. 解压整个文件夹。  
+2. 双击 `一键启动.bat`。  
+3. 浏览器打开 `http://127.0.0.1:8000/index.html`。  
+4. 在「NovelAI 设置」粘贴你自己的访问令牌。
 
-### Image Editing
-- **Auto-Fit** - Images automatically scale and trim to fit panels
-- **Adjustments** - Rotation, position, scale, flip horizontal/vertical
-- **Effects** - Sepia, grayscale, blur, pixelation, gamma, vibrance
-- **Advanced Effects** - Unsharp mask, zoom blur, dot screen, hex pixelate, ink, hue/saturation
-- **Blend Modes** - 25 Photoshop-style blend modes
-- **Tone Processing** - Convert color images to manga-style tones
-
-### AI Integration
-- **Text2Image** - Generate images directly in panels
-- **Image2Image** - Transform existing images with AI
-- **Prompt Queue** - Batch generate multiple variations
-- **Supported Backends:**
-  - ComfyUI (SD1.5, SDXL, Pony, Flux1, Custom Workflows)
-  - A1111 WebUI (SD1.5, SDXL, Pony)
-  - Forge (SD1.5, SDXL, Pony, Flux1)
-
-### Export & Save
-- **Project Save/Load** - Continue work anytime with `.json` project files
-- **Settings Save/Load** - Preserve your workflow preferences
-- **Image Export** - Export pages for print or digital distribution
-
-### Supported Languages
-English, Japanese, Korean, French, Chinese, Russian, Spanish, Portuguese, Thai, German
-
-<img src="https://new-sankaku.github.io/SP-MangaEditer-docs/02_trans.webp" height="300">
+需要：Windows 10/11、Python 3、Chrome 或 Edge。  
+不要用 `file://` 打开 `index.html`。改完前端请 **Ctrl+F5**。
 
 ---
 
-## Quick Start
+## 和原版的差别
 
-### Option 1: Use Online (Recommended)
-Visit **[https://new-sankaku.github.io/manga-editor-desu/](https://new-sankaku.github.io/manga-editor-desu/)**
+| | Manga Editor Desu（上游） | 本包 · nai学长魔改版 |
+|---|---|---|
+| 启动 | 打开 `index.html` 或官方 demo | 双击 `一键启动.bat` → 本机 8000 端口 |
+| 出图 | ComfyUI / WebUI / Forge 等 | **仅 NovelAI**（自备 Token，会花积分） |
+| 模拟器 | 无 | 侧栏「模拟器」：对话、假网页、零件 |
+| 界面 | 专业编辑器 | 中文小白流程 + 原有画布工具 |
 
-No setup required. Works with all features including AI generation when connected to a local backend.
+原版功能（模板分镜、刀切、气泡、网点、笔刷、多页、保存）仍在。
 
-### Option 2: Run Locally
-```bash
-git clone https://github.com/new-sankaku/manga-editor-desu.git
-cd manga-editor-desu
-start index.html
+---
+
+## 使用注意
+
+- 点「生成」会消耗 **NovelAI 积分**，界面会确认。  
+- 模拟器是漫画用的通用界面，不含真实站名或商标。  
+- 私人素材、缓存、生成图在 `user_data/`，不要推进 Git。  
+- 可选：复制 `.env.example` 为 `.env` 填导演网关（不要提交 `.env`）。
+
+打小白分发包（桌面会生成 `Manga-Editor-Desu-NAI-1.0.0.zip`，不含 `.git` / `.env` / `user_data`）：
+
+```text
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\make-one-click-zip.ps1
 ```
 
 ---
 
-## Requirements
+## 开发
 
-### Browser Support
-- Chrome (Recommended)
-- Firefox
-- Edge
-- Safari
+```bash
+npm test
+```
 
-### For AI Image Generation (Optional)
-One of the following:
-- [ComfyUI](https://github.com/comfyanonymous/ComfyUI)
-- [Stable Diffusion WebUI (A1111)](https://github.com/AUTOMATIC1111/stable-diffusion-webui)
-- [Forge](https://github.com/lllyasviel/stable-diffusion-webui-forge)
+常用：`npm run test:layout`、`npm run test:simulator`、`npm run test:story-engine`。  
+贡献说明：[CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ---
 
-## AI Image Generation Setup
+## 许可证与致谢
 
-### ComfyUI Setup
-
-1. Start ComfyUI with API access enabled:
-   ```bash
-   python main.py --listen --enable-cors-header
-   ```
-
-2. In Manga Editor, click the **Settings** icon
-3. Select **ComfyUI** as the backend
-4. Enter the API URL (default: `http://127.0.0.1:8188`)
-5. Click **Connect**
-
-### A1111 WebUI / Forge Setup
-
-1. Start WebUI with API access:
-   ```bash
-   ./webui.sh --api --cors-allow-origins=*
-   ```
-   Or add to `webui-user.bat`:
-   ```
-   set COMMANDLINE_ARGS=--api --cors-allow-origins=*
-   ```
-
-2. In Manga Editor, click the **Settings** icon
-3. Select **WebUI** or **Forge** as the backend
-4. Enter the API URL (default: `http://127.0.0.1:7860`)
-5. Click **Connect**
-
----
-
-## Keyboard Shortcuts
-
-| Action | Windows/Linux | Mac |
-|--------|---------------|-----|
-| Undo | `Ctrl + Z` | `Cmd + Z` |
-| Redo | `Ctrl + Y` | `Cmd + Y` |
-| Copy | `Ctrl + C` | `Cmd + C` |
-| Paste | `Ctrl + V` | `Cmd + V` |
-| Delete | `Delete` / `Backspace` | `Delete` / `Backspace` |
-| Save Project | `Ctrl + S` | `Cmd + S` |
-| Load Project | `Ctrl + O` | `Cmd + O` |
-| Toggle Grid | `Ctrl + G` | `Ctrl + G` |
-| Toggle Layers Panel | `Ctrl + L` | `Ctrl + L` |
-| Toggle Controls | `Ctrl + K` | `Ctrl + K` |
-| Zoom In | `Ctrl + 8` | `Ctrl + 8` |
-| Zoom Out | `Ctrl + 9` | `Ctrl + 9` |
-| Zoom Fit | `Ctrl + 0` | `Ctrl + 0` |
-| Move Object | `Arrow Keys` | `Arrow Keys` |
-| Move Object (Fast) | `Shift + Arrow Keys` | `Shift + Arrow Keys` |
-| Layer Up | `Ctrl + Up` | `Cmd + Up` |
-| Layer Down | `Ctrl + Down` | `Cmd + Down` |
-| Deselect | `Escape` | `Escape` |
-
----
-
-## Gallery
-
-### Image Drop
-https://github.com/user-attachments/assets/7cf94e6c-fc39-4aed-a0a1-37ca70260fe4
-
-### Speech Bubbles
-https://github.com/user-attachments/assets/6f1dae5f-b50f-4b04-8875-f0b07111f2ab
-
-### Prompt Helper
-<img src="https://new-sankaku.github.io/SP-MangaEditer-docs/03_prompthelper.webp" width="700">
-
-### Grid & Knife Mode
-<div style="display: flex; gap: 10px;">
-<img src="https://new-sankaku.github.io/SP-MangaEditer-docs/05_gridline.webp" height="300">
-<img src="https://new-sankaku.github.io/SP-MangaEditer-docs/06_knifemode.webp" height="300">
-</div>
-
-### Dark Mode
-<img src="https://new-sankaku.github.io/SP-MangaEditer-docs/09_darkmode.webp" height="300">
-
-### Blend Modes
-<div style="display: flex; gap: 10px;">
-<img src="https://new-sankaku.github.io/SP-MangaEditer-docs/12_blend.webp" height="300">
-<img src="https://new-sankaku.github.io/SP-MangaEditer-docs/13_blend.webp" height="300">
-</div>
-
-### Effects
-<div style="display: flex; gap: 10px;">
-<img src="https://new-sankaku.github.io/SP-MangaEditer-docs/04_gpix01.webp" height="300">
-<img src="https://new-sankaku.github.io/SP-MangaEditer-docs/04_gpix02.webp" height="300">
-</div>
-
-### Text & Speech Bubbles
-<div style="display: flex; gap: 10px;">
-<img src="https://new-sankaku.github.io/SP-MangaEditer-docs/08_speechbubble.webp" height="300">
-<img src="https://new-sankaku.github.io/SP-MangaEditer-docs/07_font.webp" height="300">
-</div>
-
----
-
-## FAQ
-
-### Q: Can I use this without AI image generation?
-**A:** Yes! All editing features work standalone. AI generation is optional and requires a separate backend (ComfyUI/WebUI/Forge).
-
-### Q: Why won't my AI backend connect?
-**A:** Common solutions:
-1. Ensure CORS headers are enabled (`--cors-allow-origins=*` or `--enable-cors-header`)
-2. Check the API URL is correct
-3. Verify the backend is running
-4. Try using `http://127.0.0.1` instead of `localhost`
-
-### Q: Can I use custom ComfyUI workflows?
-**A:** Yes! You can import and use your own ComfyUI workflows.
-
-### Q: Where are my projects saved?
-**A:** Projects are saved as `.json` files to your local downloads folder. Load them anytime to continue editing.
-
-### Q: What data is stored in my browser?
-**A:** The app uses browser localStorage to remember your preferences:
-- Language and dark/light mode settings
-- API connection settings (URL, parameters)
-- Custom prompt presets
-- Tutorial completion status
-
-This data stays in your browser and is never sent to any server.
-
-### Q: How do I clear saved settings?
-**A:** Open browser DevTools (F12) → Application tab → Local Storage → Clear the site data. Or use your browser's "Clear site data" feature.
-
-### Q: Is my data sent anywhere?
-**A:** No. Everything runs in your browser. AI requests go only to your local backend.
-
----
-
-## Support
-
-- **Bug Reports & Feature Requests:** [GitHub Issues](https://github.com/new-sankaku/manga-editor-desu/issues)
-- **Contributing:** See [CONTRIBUTING.md](CONTRIBUTING.md)
-
----
-
-## License
-
-This project is licensed under the **GNU General Public License v3.0** - see the [LICENSE](LICENSE) file for details.
-
----
-
-Made with love for manga creators worldwide.
+Copyright 原项目作者见 [manga-editor-desu](https://github.com/new-sankaku/manga-editor-desu)。  
+本修改版在 GPL-3.0 下发布；分发时须提供对应源码和本许可证。  
+第三方素材见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

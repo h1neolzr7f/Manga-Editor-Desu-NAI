@@ -1,5 +1,88 @@
 let finalLayerOrder=[];
 let lastHighlightGuid=null;
+var naiLayerPageFold=Object.create(null);
+
+function isGenericLayerName(name){
+return /^(rect|i-text|textbox|text|path|group|image|polygon|circle|activeSelection)(\d+)?$/i.test(String(name||'').trim());
+}
+
+function friendlyLayerName(layer,index){
+if(!layer)return '图层';
+if(layer.simulatorRole==='page')return '页面底';
+if(layer.isPanel&&layer.name&&!isGenericLayerName(layer.name))return layer.name;
+if(layer.isPanel)return '画面格';
+if(layer.text)return String(layer.text).replace(/\s+/g,' ').slice(0,18);
+if(layer.name&&!isGenericLayerName(layer.name))return layer.name;
+return '图层 '+(Number(index)+1);
+}
+
+function pageLayerTitle(pageId,items){
+var page=null;
+(items||[]).forEach(function(item){
+var layer=item.layer||item;
+if(layer&&layer.simulatorPageId===pageId&&layer.simulatorRole==='page')page=layer;
+});
+if(page&&page.name)return String(page.name).replace(/^模拟器：/,'');
+return '整页模板';
+}
+
+function beginnerLayerDisplay(order){
+var pageIds=[];
+order.forEach(function(item){
+var id=item.layer&&item.layer.simulatorPageId;
+if(id&&pageIds.indexOf(id)<0)pageIds.push(id);
+});
+if(!pageIds.length)return order.map(function(item){return {kind:'layer',layer:item.layer,level:item.level||0};});
+var out=[];
+pageIds.forEach(function(pageId){
+var parts=order.filter(function(item){return item.layer&&item.layer.simulatorPageId===pageId;});
+var visible=parts.filter(function(item){return item.layer.simulatorRole!=='page';});
+var folded=!!naiLayerPageFold[pageId];
+out.push({kind:'page-header',pageId:pageId,title:pageLayerTitle(pageId,parts),count:visible.length,folded:folded});
+if(!folded)visible.forEach(function(item){out.push({kind:'layer',layer:item.layer,level:1});});
+});
+order.forEach(function(item){
+if(item.layer&&!item.layer.simulatorPageId)out.push({kind:'layer',layer:item.layer,level:item.level||0});
+});
+return out;
+}
+
+function makePageLayerHeader(pageId,title,count,folded){
+var row=document.createElement('div');
+row.className='layer-item layer-page-header';
+row.setAttribute('data-page-id',pageId);
+var fold=document.createElement('button');
+fold.type='button';
+fold.className='layer-page-fold';
+fold.textContent=folded?'▸':'▾';
+fold.title=folded?'展开零件':'收起零件';
+fold.onclick=function(event){
+event.stopPropagation();
+naiLayerPageFold[pageId]=!naiLayerPageFold[pageId];
+updateLayerPanel();
+};
+var label=document.createElement('span');
+label.className='layer-page-title';
+label.textContent='整页：'+title+'（'+count+'）';
+var pick=document.createElement('button');
+pick.type='button';
+pick.className='layer-page-select';
+pick.textContent='选中';
+pick.title='选中整页，拖一下一起移动';
+pick.onclick=function(event){
+event.stopPropagation();
+if(window.NaiBeginnerGuide&&typeof window.NaiBeginnerGuide.selectPageById==='function')window.NaiBeginnerGuide.selectPageById(pageId);
+else if(window.NaiComicExtraRendererFactory)window.NaiComicExtraRendererFactory.selectPage(canvas,pageId);
+};
+row.appendChild(fold);
+row.appendChild(label);
+row.appendChild(pick);
+row.onclick=function(){
+if(window.NaiBeginnerGuide&&typeof window.NaiBeginnerGuide.selectPageById==='function')window.NaiBeginnerGuide.selectPageById(pageId);
+else if(window.NaiComicExtraRendererFactory)window.NaiComicExtraRendererFactory.selectPage(canvas,pageId);
+};
+return row;
+}
 
 function getLayerTypeIcon(layer){
 if(isSpeechBubbleSVG(layer)||isFreehandBubblePath(layer)){
@@ -63,7 +146,7 @@ executeUpdate();
 function executeUpdate() {
 isExecuting=true;
 
-var layers=canvas.getObjects().slice().reverse();
+var layers=canvas.getObjects().slice().reverse().filter(function(layer){return !layer||!layer.naiCropFrame;});
 var layerContent=$("layer-content");
 layerContent.innerHTML="";
 var guidMap=createGUIDMap(layers);
@@ -120,7 +203,16 @@ remainingLayers.forEach(layer=>{
 finalLayerOrder.push({layer: layer,level: 0});
 });
 
-finalLayerOrder.forEach(({layer,level},index)=>{
+var displayList=beginnerLayerDisplay(finalLayerOrder);
+var layerRowIndex=0;
+displayList.forEach((entry)=>{
+if(entry.kind==='page-header'){
+layerContent.appendChild(makePageLayerHeader(entry.pageId,entry.title,entry.count,entry.folded));
+return;
+}
+var layer=entry.layer;
+var level=entry.level;
+var index=layerRowIndex++;
 if (!layer.excludeFromLayerPanel) {
 var layerDiv=Object.assign(document.createElement("div"),{
 className: "layer-item",
@@ -197,7 +289,7 @@ putActionButton(actionBar,"directions_run","actAiGenerate",function(){
 var spinner=createSpinner(getGUID(layer),'T2I');T2I(layer,spinner);
 },AI_ROLES.Image2Image);
 putActionButton(actionBar,"recycling","actSeedApply",function(){
-if(layer.tempSeed){layer.text2img_seed=layer.tempSeed;createToast("Recycling Seed",layer.text2img_seed);}else{createToastError("Nothing Seed","");}
+if(layer.tempSeed){layer.text2img_seed=layer.tempSeed;createToast("已套用种子",layer.text2img_seed);}else{createToastError("没有可套用的种子","");}
 },AI_ROLES.PutSeed);
 putActionButton(actionBar,"check_circle","actManualOk",function(){
 if(window.NaiPanelPipelineReview&&window.NaiPanelPipelineReview.markPanelManualOk){
@@ -268,9 +360,10 @@ setTimeout(updateLayerPanel,0);
 }
 
 function setNameTextAreaProperties(layer,nameTextArea,index) {
-nameTextArea.value=layer.name||nameTextArea.value||layer.type+`${index + 1}`;
-
-layer.name=nameTextArea.value;
+var shown=friendlyLayerName(layer,index);
+if(layer.name&&!isGenericLayerName(layer.name))shown=layer.name;
+nameTextArea.value=shown;
+if(!layer.name||isGenericLayerName(layer.name))layer.name=shown;
 nameTextArea.rows=1;
 nameTextArea.style.resize="none";
 nameTextArea.style.width="100%";

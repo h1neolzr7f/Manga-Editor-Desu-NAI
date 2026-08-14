@@ -1,9 +1,11 @@
 {
-  "name": "manga-editor-desu",
+  "name": "manga-editor-desu-nai",
   "version": "1.0.0",
-  "description": "Manga Editor",
+  "license": "GPL-3.0-only",
+  "description": "Manga Editor Desu · nai学长魔改版 — unofficial NovelAI one-click fork",
   "type": "module",
   "scripts": {
+    "test": "node scripts/layout-smoke-test.cjs",
     "lint": "eslint js/ --ext .js",
     "lint:fix": "eslint js/ --ext .js --fix",
     "format": "node scripts/remove-spaces.cjs",
@@ -14,10 +16,17 @@
     "test:cutout": "node scripts/cutout-presets-smoke-test.cjs",
     "test:brushes": "node scripts/custom-brush-smoke-test.cjs",
     "test:assets": "node scripts/asset-library-smoke-test.cjs",
+    "vendor:free-assets": "node scripts/vendor-free-public-assets.cjs",
+    "generate:site-ui": "node scripts/generate-site-ui-svgs.cjs",
     "test:simulator-extra": "node scripts/simulator-extra-smoke-test.cjs",
+    "test:story-engine": "node scripts/story-engine-smoke-test.cjs",
+    "test:page-studio": "node scripts/page-studio-smoke-test.cjs",
     "test:timeline": "node scripts/simulator-timeline-smoke-test.cjs",
     "test:image2": "node scripts/image2-interface-smoke-test.cjs",
-    "test:scene-plan": "node scripts/scene-plan-smoke-test.cjs"
+    "test:scene-plan": "node scripts/scene-plan-smoke-test.cjs",
+    "test:proxy-guards": "python scripts/proxy-guard-smoke-test.py",
+    "test:layout": "node scripts/layout-smoke-test.cjs",
+    "test:page-size": "node scripts/manga-page-size-smoke-test.cjs"
   },
   "devDependencies": {
     "eslint": "^8.57.0",

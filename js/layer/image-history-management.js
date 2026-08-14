@@ -205,6 +205,12 @@ currentStateIndex++;
 updateLayerPanel();
 }
 
+function hydratePageStudioAfterLoad(){
+if(window.NaiPageStudio&&typeof window.NaiPageStudio.hydrateAll==='function'){
+window.NaiPageStudio.hydrateAll();
+}
+}
+
 function undo() {
 if (currentStateIndex>=1) {
 changeDoNotSaveHistory();
@@ -221,6 +227,7 @@ canvasObj.selectable=stateObj.selectable;
 });
 reSetSpeechBubbleText();
 setCanvasGUID(state.canvasGuid);
+hydratePageStudioAfterLoad();
 canvas.renderAll();
 updateLayerPanel();
 resetEventHandlers();
@@ -229,6 +236,24 @@ changeDoSaveHistory();
 });
 clearJSTSGeometry();
 }
+}
+
+function jumpToHistoryIndex(index){
+if(index<0||index>=stateStack.length)return;
+changeDoNotSaveHistory();
+currentStateIndex=index;
+let state=restoreImage(stateStack[currentStateIndex]);
+canvas.loadFromJSON(state,function(){
+reSetSpeechBubbleText();
+setCanvasGUID(state.canvasGuid);
+hydratePageStudioAfterLoad();
+canvas.renderAll();
+updateLayerPanel();
+resetEventHandlers();
+customSpeechBubbleAllRelocation();
+changeDoSaveHistory();
+});
+clearJSTSGeometry();
 }
 
 function redo() {
@@ -240,6 +265,7 @@ let state=restoreImage(stateStack[currentStateIndex]);
 canvas.loadFromJSON(state,function () {
 reSetSpeechBubbleText();
 setCanvasGUID(state.canvasGuid);
+hydratePageStudioAfterLoad();
 canvas.renderAll();
 updateLayerPanel();
 resetEventHandlers();
@@ -262,6 +288,7 @@ setCanvasGUID(guid);
 }else{
 setCanvasGUID(state.canvasGuid);
 }
+hydratePageStudioAfterLoad();
 canvas.renderAll();
 updateLayerPanel();
 resetEventHandlers();

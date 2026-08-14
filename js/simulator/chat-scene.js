@@ -42,7 +42,7 @@ avatar:typeof participant.avatar==='string'?participant.avatar:''
 
 function normalizeMessage(message,index){
 message=message&&typeof message==='object'?message:{};
-var type=['text','image','system'].indexOf(message.type)>=0?message.type:'text';
+var type=['text','image','system','aside','narrator','hint','choice','title'].indexOf(message.type)>=0?message.type:'text';
 return {
 id:String(message.id||createId('message')),
 type:type,
@@ -66,7 +66,8 @@ templateId:String(source.templateId||defaults.templateId),
 title:String(source.title||defaults.title),
 theme:source.theme&&typeof source.theme==='object'?clone(source.theme):undefined,
 participants:participants.map(normalizeParticipant),
-messages:messages.map(normalizeMessage)
+messages:messages.map(normalizeMessage),
+story:source.story&&typeof source.story==='object'?clone(source.story):undefined
 };
 }
 
@@ -82,9 +83,10 @@ ids[participant.id]=true;
 if(!participant.name.trim())warnings.push('存在未命名角色：'+participant.id);
 });
 normalized.messages.forEach(function(message,index){
-if(message.type!=='system'&&!ids[message.speaker])errors.push('第 '+(index+1)+' 条消息引用了已删除角色：'+message.speaker);
+var needsSpeaker=message.type==='text'||message.type==='image'||message.type==='aside';
+if(needsSpeaker&&!ids[message.speaker])errors.push('第 '+(index+1)+' 条消息引用了已删除角色：'+message.speaker);
 if(message.type==='image'&&!message.image)warnings.push('第 '+(index+1)+' 条图片消息还没有图片资源');
-if(message.type!=='image'&&!message.content.trim())warnings.push('第 '+(index+1)+' 条消息内容为空');
+if(message.type!=='image'&&message.type!=='choice'&&!message.content.trim())warnings.push('第 '+(index+1)+' 条消息内容为空');
 });
 return {ok:errors.length===0,errors:errors,warnings:warnings,scene:normalized};
 }

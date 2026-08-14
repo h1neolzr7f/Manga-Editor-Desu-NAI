@@ -4,7 +4,8 @@ var nowToneNoise=null;
 var isDrawingToneNoise=false;
 
 function toneNoiseStart() {
-var activeObject=getLastObject();
+var activeObject=typeof mangaToneRequireTarget==='function'?mangaToneRequireTarget():getLastObject();
+if(!activeObject)return false;
 tmpCanvasToneNoise=document.createElement("canvas");
 
 if (isPanel(activeObject)) {
@@ -13,12 +14,13 @@ var canvasY=activeObject.height*activeObject.scaleY;
 tmpCanvasToneNoise.width=canvasX*3;
 tmpCanvasToneNoise.height=canvasY*3;
 } else {
-tmpCanvasToneNoise.width=canvas.width*3;
-tmpCanvasToneNoise.height=canvas.height*3;
+tmpCanvasToneNoise.width=Math.max(1,(activeObject.width||1)*(activeObject.scaleX||1))*3;
+tmpCanvasToneNoise.height=Math.max(1,(activeObject.height||1)*(activeObject.scaleY||1))*3;
 }
 
 tmpCtxToneNoise=tmpCanvasToneNoise.getContext("2d");
 tmpCtxToneNoise.scale(3,3);
+return true;
 }
 
 function toneNoiseEnd() {

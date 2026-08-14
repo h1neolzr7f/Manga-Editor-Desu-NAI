@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 48" width="420" height="48">
+<rect x="0" y="0" width="420" height="48" fill="#0b1220"/>
+<text x="16" y="30" fill="#94a3b8" font-size="13" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">推荐</text>
+<text x="96" y="30" fill="#22d3ee" font-size="13" font-family="Microsoft YaHei, Noto Sans SC, sans-serif" font-weight="700">动画</text>
+<rect x="92" y="38" width="28" height="3" fill="#e11d48" rx="2" ry="2"/>
+<text x="176" y="30" fill="#94a3b8" font-size="13" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">音乐</text>
+<text x="256" y="30" fill="#94a3b8" font-size="13" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">游戏</text>
+<text x="336" y="30" fill="#94a3b8" font-size="13" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">知识</text>
+</svg>

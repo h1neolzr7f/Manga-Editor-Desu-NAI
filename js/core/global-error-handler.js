@@ -3,7 +3,7 @@
 window.onerror=function(message,source,lineno,colno,error){
 errorHandlerLogger.error('Uncaught error:',message,'at',source+':'+lineno+':'+colno);
 if(typeof createToastError==='function'){
-createToastError('Error',String(message));
+createToastError('出错了',String(message));
 }
 };
 

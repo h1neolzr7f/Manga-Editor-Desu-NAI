@@ -749,7 +749,7 @@ OP_hideLoading(loading);
 
 async function legacyAutoMultiPromptSet(pageList,scenarioPromptSelecter){
 if(!scenarioPromptSelecter){
-createToastError("Prompt Set is not selected.","");
+createToastError("还没选场景模板","请填写 AI 导演批量需求，或在下拉里选一个场景。");
 return;
 }
 

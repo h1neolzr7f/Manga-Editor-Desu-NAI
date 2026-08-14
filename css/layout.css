@@ -1,16 +1,16 @@
 @import url('root.css');
 
 .content {
- flex: var(--flex-1);
+ flex: 1 1 auto;
  display: var(--display-flex);
  align-items: var(--align-items-center);
  justify-content: var(--justify-content-center);
  width: var(--width-100);
- min-width: var(--min-width-600);
+ min-width: 0;
  max-width: var(--width-100);
- height: var(--height-95);
- min-height: var(--min-height-400);
- max-height: var(--max-height-97);
+ height: auto;
+ min-height: 0;
+ max-height: none;
 }
 
 .resizable-container {
@@ -27,8 +27,9 @@
 }
 
 #canvas-container {
+ position: relative;
  width: var(--width-100);
- min-width: var(--min-width-600);
+ min-width: 0;
  max-width: var(--width-100);
  height: 100%;
  min-height: var(--min-height-400);
@@ -88,6 +89,55 @@
 .canvas-help-text .help-key {
  color: var(--text-color-C);
  font-weight: bold;
+}
+.beginner-tool-hud{
+ display:inline-block;
+ margin-left:4px;
+ padding:3px 8px;
+ border-radius:4px;
+ font-size:12px;
+ font-weight:normal;
+ color:#e2e8f0;
+ background:rgba(15,23,42,.55);
+ flex:1 1 180px;
+ min-width:0;
+ max-width:none;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+ vertical-align:middle;
+}
+.beginner-tool-hud.is-drawing{
+ color:#0f172a;
+ background:#fbbf24;
+}
+.nai-page-size-badge{
+ flex:0 0 auto;
+ margin-left:4px;
+ padding:3px 8px;
+ border-radius:4px;
+ font-size:11px;
+ font-weight:600;
+ color:#cbd5e1;
+ background:rgba(15,23,42,.45);
+}
+.nai-token-badge{
+ flex:0 0 auto;
+ margin-left:4px;
+ padding:3px 8px;
+ border:0;
+ border-radius:999px;
+ font-size:11px;
+ font-weight:600;
+ cursor:pointer;
+}
+.nai-token-badge.is-missing{
+ background:#fbbf24;
+ color:#0f172a;
+}
+.nai-token-badge.is-ready{
+ background:rgba(34,197,94,.28);
+ color:#bbf7d0;
 }
 @keyframes helpTextFadeIn {
  from {opacity:0;transform:translateY(-2px)}
@@ -238,11 +288,13 @@
 }
 
 .navbar-logo-text {
-width:70px;
-font-size:13px;
+width:auto;
+min-width:70px;
+max-width:120px;
+font-size:12px;
 font-weight:800;
 line-height:1.15;
-letter-spacing:0.12em;
+letter-spacing:0.02em;
 color:var(--text-color-C);
 text-align:center;
 display:inline-flex;

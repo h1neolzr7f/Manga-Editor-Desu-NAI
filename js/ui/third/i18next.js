@@ -10,6 +10,46 @@
 // },
 //マージされるので追加日ごとにyyyyMMddHHmmss_SSSをTopKeyに入れます。個別の翻訳はKey名・翻訳文を任意に付けてください。ただし被らないように。
 const resources = {
+"20260813220000_001":{
+"zh":{
+"sc_marqueeTool":"框选图层",
+"sc_cropTool":"裁剪 / 框选抠图",
+"sc_knifeTool":"切割格子",
+"sc_lassoTool":"套索",
+"sc_gradientTool":"渐变"
+},
+"en":{
+"sc_marqueeTool":"Select layers",
+"sc_cropTool":"Crop / region cutout",
+"sc_knifeTool":"Split panel",
+"sc_lassoTool":"Lasso",
+"sc_gradientTool":"Gradient"
+}
+},
+"20260813213000_001":{
+"zh":{
+"rembg":"抠图",
+"cutoutRegion":"框选抠图",
+"confirmCrop":"确认裁剪",
+"cropImage":"框选裁剪",
+"cropHelpText":"拖绿框选区域，按 Enter 裁剪",
+"cutoutRegionHelpText":"拖绿框选区域，按 Enter 抠图（本地，不花积分）",
+"menuGroupCutout":"抠图 / 裁剪",
+"pagePortrait":"竖页 A4",
+"pageLandscape":"横页 A4"
+},
+"en":{
+"rembg":"Cutout",
+"cutoutRegion":"Marquee cutout",
+"confirmCrop":"Confirm crop",
+"cropImage":"Marquee crop",
+"cropHelpText":"Drag the green box, then press Enter to crop",
+"cutoutRegionHelpText":"Drag the green box, then press Enter to cut out",
+"menuGroupCutout":"Cutout / Crop",
+"pagePortrait":"Portrait A4",
+"pageLandscape":"Landscape A4"
+}
+},
 "20260602143000_001":{
 "en":{
 "iphSubNaiQuality":"NAI Quality",
@@ -34,6 +74,11 @@ const resources = {
 "iphSubNaiPreset":"NAI Preset"
 },
 "zh":{
+"sc_moveTool":"移动工具",
+"sc_brushTool":"笔刷",
+"sc_eraserTool":"橡皮",
+"sc_marqueeTool":"框选裁剪 / 框选抠图",
+"sc_spacePan":"空格拖动画布",
 "iphSubNaiQuality":"NAI质量",
 "iphSubNaiNegative":"NAI反向",
 "iphSubHairDetail":"头发细节",
@@ -4333,7 +4378,7 @@ viewPanel:"Panel"
 "zh": {"upscaleButton": "提升图像分辨率",
 "cropButton": "裁剪",
 "importButton": "导入",
-"exitModeButton": "退出模式 (ESC)"},
+"exitModeButton": "退出画笔 (Esc)"},
 "ru": {"upscaleButton": "Увеличить разрешение",
 "cropButton": "Обрезка",
 "importButton": "Импорт",
@@ -4483,7 +4528,7 @@ document.documentElement.lang = DEFAULT_LANGUAGE;
 var langFlagMap = { "zh": "cn" };
 
 var langWelcomeMap = {
-  "zh": "来来来！中文界面已锁定。欢迎使用漫画编辑器 Desu！"
+  "zh": "欢迎使用 Manga Editor Desu（nai学长魔改版）。"
 };
 
 function updateLanguageFlag(lng) {

@@ -22,6 +22,8 @@ var menuIconMap={
 "flipHorizontal":"flip",
 "flipVertical":"flip",
 "cropImage":"crop",
+"cutoutRegion":"content_cut",
+"confirmCrop":"check",
 "clearAllClipPaths":"content_cut",
 "clearTopClipPath":"content_cut",
 "clearBottomClipPath":"content_cut",
@@ -35,7 +37,8 @@ var menuIconMap={
 "copyAndPast":"content_copy"
 };
 
-var menuAiActions=["generate","rembg","upscale","inpaint","angleGenerate"];
+var menuAiActions=["generate","upscale","inpaint","angleGenerate"];
+var menuLocalActions=["rembg","cutoutRegion"];
 var naiOnlyMode=true;
 
 function createObjectMenu(){
@@ -62,14 +65,17 @@ return;
 
 const boundingRect=activeObject.getBoundingRect(true,true);
 const menuPadding=20;
-const canvasRect=canvas.getElement().getBoundingClientRect();
+const canvasEl=canvas.getElement();
+const canvasRect=canvasEl.getBoundingClientRect();
 const canvasOffsetLeft=canvasRect.left;
 const canvasOffsetTop=canvasRect.top;
 const canvasWidth=canvasRect.width;
 const canvasHeight=canvasRect.height;
+var scaleX=canvasWidth/Math.max(1,canvas.getWidth());
+var scaleY=canvasHeight/Math.max(1,canvas.getHeight());
 
-let left=canvasOffsetLeft+boundingRect.left*canvasContinerScale+boundingRect.width*canvasContinerScale+menuPadding;
-let top=canvasOffsetTop+boundingRect.top*canvasContinerScale;
+let left=canvasOffsetLeft+boundingRect.left*scaleX+boundingRect.width*scaleX+menuPadding;
+let top=canvasOffsetTop+boundingRect.top*scaleY;
 
 if(left+objectMenu.offsetWidth>canvasOffsetLeft+canvasWidth){
 left=Math.min(
@@ -123,7 +129,8 @@ function renderMenuButton(itemValue){
 var iconName=menuIconMap[itemValue]||"";
 var iconHtml=iconName?`<i class="material-icons menu-btn-icon">${iconName}</i>`:"";
 var isAi=menuAiActions.indexOf(itemValue)!==-1;
-var extraClass=isAi?" menu-ai-action":"";
+var isLocal=menuLocalActions.indexOf(itemValue)!==-1;
+var extraClass=isAi?" menu-ai-action":(isLocal?" menu-local-action":"");
 var flipStyle=itemValue==="flipVertical"?' style="transform:rotate(90deg)"':"";
 if(flipStyle&&iconHtml){
 iconHtml=`<i class="material-icons menu-btn-icon"${flipStyle}>${iconName}</i>`;
@@ -180,6 +187,8 @@ var clearLeftClipPath=createObjectMenuButton('clearLeftClipPath');
 var flipHorizontal=createObjectMenuButton('flipHorizontal');
 var flipVertical=createObjectMenuButton('flipVertical');
 var cropImage=createObjectMenuButton('cropImage');
+var cutoutRegion=createObjectMenuButton('cutoutRegion');
+var confirmCrop=createObjectMenuButton('confirmCrop');
 
 var font=createObjectMenuDiv('fontSelectorMenu');
 
@@ -211,7 +220,9 @@ let fillColor=createObjectMenuColor("com-fill",rgbaToHex(fillTemp),fillTemp);
 uiLogger.debug("fillColor",fillColor);
 let strokeColor=createObjectMenuColor("com-strokeColor",rgbaToHex(strokeTemp),strokeTemp);
 
-if(isPanel(activeObject)){
+if(activeObject.naiCropFrame||(typeof cropFrame!=="undefined"&&cropFrame&&activeObject===cropFrame)){
+menuItems.push(cutoutRegion,confirmCrop,selectClear);
+}else if(isPanel(activeObject)){
 if(clickType!=='left'){
 menuItems.push(selectClear);
 menuItems.push(createObjectMenuGroupHeader('menuGroupOperation'));
@@ -232,6 +243,8 @@ if(clickType!=='left'){
 menuItems.push(selectClear);
 menuItems.push(createObjectMenuGroupHeader('menuGroupOperation'));
 menuItems.push(visible,movement,duplicate);
+menuItems.push(createObjectMenuGroupHeader('menuGroupCutout'));
+menuItems.push(rembg,cutoutRegion,cropImage);
 var aiItems=[];
 if(hasRole(AI_ROLES.Image2Image))aiItems.push(generate);
 if(aiItems.length>0){
@@ -239,7 +252,7 @@ menuItems.push(createObjectMenuGroupHeader('menuGroupAI'));
 menuItems=menuItems.concat(aiItems);
 }
 menuItems.push(createObjectMenuGroupHeader('menuGroupTransform'));
-menuItems.push(flipHorizontal,flipVertical,cropImage);
+menuItems.push(flipHorizontal,flipVertical);
 if(haveClipPath(activeObject)){
 var clippingSub=createObjectMenuSubmenu('menuClipping',[
 clearAllClipPaths,clearTopClipPath,clearBottomClipPath,clearRightClipPath,clearLeftClipPath
@@ -523,9 +536,30 @@ moveLockChange(activeObject);
 break;
 
 case 'rembg':
-if(naiOnlyMode)return;
-var spinner=createSpinner(getGUID(activeObject),'BG');
-aiRembg(activeObject,spinner);
+var cutoutTarget=activeObject&&activeObject.naiCropFrame?cropActiveObject:activeObject;
+if(!cutoutTarget||!isImage(cutoutTarget)){
+if(typeof createToastError==="function")createToastError("请先选中一张图片","");
+break;
+}
+if(window.NaiBackgroundRemovalClient&&typeof window.NaiBackgroundRemovalClient.processLayer==="function"){
+if(typeof createToast==="function")createToast("本地抠图","正在抠图，不花 NovelAI 积分。",2200);
+window.NaiBackgroundRemovalClient.processLayer(cutoutTarget).catch(function(){});
+}else if(typeof toggleVisibility==="function"){
+toggleVisibility("cutout-area");
+}
+break;
+case 'cutoutRegion':
+var regionTarget=activeObject&&activeObject.naiCropFrame?cropActiveObject:activeObject;
+if(typeof cropFrame!=="undefined"&&cropFrame&&cropActiveObject&&cropThenCutout!==undefined){
+cropThenCutout=true;
+completeCrop();
+break;
+}
+if(typeof startCutoutRegionMode==="function")startCutoutRegionMode(regionTarget);
+else if(typeof startCropMode==="function")startCropMode(regionTarget,true);
+break;
+case 'confirmCrop':
+if(typeof completeCrop==="function")completeCrop();
 break;
 case 'upscale':
 if(naiOnlyMode)return;
@@ -541,6 +575,9 @@ if(naiOnlyMode)return;
 openAngleEditor(activeObject);
 break;
 case 'generate':
+if(window.NaiBeginnerGuide&&typeof window.NaiBeginnerGuide.confirmSpend==='function'){
+if(!window.NaiBeginnerGuide.confirmSpend(isPanel(activeObject)?'生成这一格':'以这张图再生成'))return;
+}else if(!window.confirm('将用 NovelAI 生成。会花积分，确定吗？'))return;
 if(isPanel(activeObject)){
 var spinner=createSpinner(getGUID(activeObject),'T2I');
 T2I(activeObject,spinner);

@@ -41,7 +41,7 @@ OP_updateLoadingState(loading,{icon: 'process',step: 'Step3',substep: 'Process 2
 var url=window.URL.createObjectURL(mergeLz4Blob);
 var a=document.createElement("a");
 a.href=url;
-a.download="DESU-Project.lz4";
+a.download="DESU-nai学长魔改.lz4";
 
 document.body.appendChild(a);
 a.click();
@@ -192,7 +192,7 @@ else el.classList.remove('settings-highlight');
 
 var SETTINGS_SCHEMA={
 view_layers_checkbox:{id:'view_layers_checkbox',default:true,type:'checkbox'},
-view_controls_checkbox:{id:'view_controls_checkbox',default:true,type:'checkbox'},
+view_controls_checkbox:{id:'view_controls_checkbox',default:false,type:'checkbox'},
 knifePanelSpaceSize:{id:'knifePanelSpaceSize',default:'20'},
 canvasBgColor:{id:'bg-color',default:'#ffffff'},
 canvasDpi:{id:'outputDpi',default:'450'},
@@ -200,7 +200,7 @@ canvasGridLineSize:{id:'gridSizeInput',default:'10'},
 canvasMarginFromPanel:{id:'marginFromPanel',default:20},
 novelaiApiUrl:{id:'novelaiApiUrl',default:'https://image.novelai.net'},
 novelaiUseLocalProxy:{id:'novelaiUseLocalProxy',default:true,type:'checkbox'},
-novelaiApiKey:{id:'novelaiApiKey',default:''},
+novelaiApiKey:{id:'novelaiApiKey',default:'',secret:true},
 novelaiModel:{id:'novelaiModel',default:'nai-diffusion-4-5-full'},
 novelaiSampler:{id:'novelaiSampler',default:'k_euler_ancestral'},
 novelaiSteps:{id:'novelaiSteps',default:'28'},
@@ -215,13 +215,13 @@ naiDirectorAdjustCanvas:{id:'naiDirectorAdjustCanvas',default:true,type:'checkbo
 naiDirectorUseTagAnchors:{id:'naiDirectorUseTagAnchors',default:true,type:'checkbox'},
 naiDirectorHonorCharacterCards:{id:'naiDirectorHonorCharacterCards',default:true,type:'checkbox'},
 naiDirectorMessageMode:{id:'naiDirectorMessageMode',default:'armor_first'},
-naiBatchAcceptanceGate:{id:'naiBatchAcceptanceGate',default:true,type:'checkbox'},
+naiBatchAcceptanceGate:{id:'naiBatchAcceptanceGate',default:false,type:'checkbox'},
 naiBatchAutoGenerateAfterPrompts:{id:'naiBatchAutoGenerateAfterPrompts',default:false,type:'checkbox'},
 naiDirectorStoreDrafts:{id:'naiDirectorStoreDrafts',default:true,type:'checkbox'},
 naiDirectorUseApi:{id:'naiDirectorUseApi',default:true,type:'checkbox'},
 naiDirectorUseProxy:{id:'naiDirectorUseProxy',default:true,type:'checkbox'},
 naiDirectorApiUrl:{id:'naiDirectorApiUrl',default:'https://tokendance.space/gateway/v1'},
-naiDirectorApiKey:{id:'naiDirectorApiKey',default:''},
+naiDirectorApiKey:{id:'naiDirectorApiKey',default:'',secret:true},
 naiDirectorModel:{id:'naiDirectorModel',default:'deepseek-v4-flash'},
 naiDirectorTimeout:{id:'naiDirectorTimeout',default:'30'},
 naiMangaImportTaggerUrl:{id:'mangaImportTaggerUrl',default:'http://127.0.0.1:7860/tag'},
@@ -242,8 +242,8 @@ autoSaveEnabled:{id:'autoSaveCheckbox',default:true,type:'checkbox'},
 autoSaveInterval:{id:'autoSaveInterval',default:'60'},
 settingsAutoSaveEnabled:{id:'settingsAutoSaveCheckbox',default:true,type:'checkbox'},
 view_prompt_checkbox:{id:'view_prompt_checkbox',default:false,type:'checkbox'},
-customPanelSizeX:{id:'customPanelSizeX',default:'1380'},
-customPanelSizeY:{id:'customPanelSizeY',default:'4000'},
+customPanelSizeX:{id:'customPanelSizeX',default:'1654'},
+customPanelSizeY:{id:'customPanelSizeY',default:'2339'},
 panelStrokeColor:{id:'panelStrokeColor',default:'rgba(0,0,0,1)'},
 panelFillColor:{id:'panelFillColor',default:'rgba(255,255,255,1)'},
 panelStrokeWidth:{id:'panelStrokeWidth',default:'2'},
@@ -316,16 +316,116 @@ basePrompt_text2img_hr_step:{id:'text2img_hr_step',key:'text2img_hr_step'},
 basePrompt_text2img_hr_denoise:{id:'text2img_hr_denoise',key:'text2img_hr_denoise'}
 };
 
+var SECRET_SETTINGS_KEY='sessionSettingsSecrets';
+var PERSIST_SECRETS_KEY='localSettingsSecrets';
+
+function rememberTokenEnabled(){
+var el=$('novelaiRememberToken');
+if(el)return!!el.checked;
+try{return localStorage.getItem('nai_remember_token')!=='0';}catch(error){return true;}
+}
+
+function readSecretStore(){
+var persist={};
+var session={};
+try{persist=JSON.parse(localStorage.getItem(PERSIST_SECRETS_KEY)||'{}')||{};}catch(error){persist={};}
+try{session=JSON.parse(sessionStorage.getItem(SECRET_SETTINGS_KEY)||'{}')||{};}catch(error){session={};}
+return Object.assign({},persist,session);
+}
+
+function writeSecretStore(data){
+try{sessionStorage.setItem(SECRET_SETTINGS_KEY,JSON.stringify(data||{}));}catch(error){/* ignore quota */}
+try{
+if(rememberTokenEnabled())localStorage.setItem(PERSIST_SECRETS_KEY,JSON.stringify(data||{}));
+else localStorage.removeItem(PERSIST_SECRETS_KEY);
+}catch(error){/* ignore quota */}
+}
+
+function applyBeginnerUxMigration(){
+if(localStorage.getItem('nai_beginner_ux_v2')==='1')return;
+localStorage.setItem('nai_beginner_ux_v2','1');
+var gate=$('naiBatchAcceptanceGate');
+if(gate)gate.checked=false;
+try{
+var raw=localStorage.getItem('localSettingsData');
+if(raw){
+var parsed=JSON.parse(raw);
+parsed.naiBatchAcceptanceGate=false;
+localStorage.setItem('localSettingsData',JSON.stringify(parsed));
+}
+}catch(error){/* ignore */}
+}
+
+function applyAssemblyPageSizeMigration(){
+if(localStorage.getItem('nai_assembly_page_v1')==='1')return;
+localStorage.setItem('nai_assembly_page_v1','1');
+var page=typeof NaiMangaPageSize!=='undefined'?NaiMangaPageSize.defaultMangaPageSize(false):{width:1654,height:2339};
+var x=$('customPanelSizeX');
+var y=$('customPanelSizeY');
+if(x)x.value=String(page.width);
+if(y)y.value=String(page.height);
+try{
+var raw=localStorage.getItem('localSettingsData');
+if(raw){
+var parsed=JSON.parse(raw);
+parsed.customPanelSizeX=String(page.width);
+parsed.customPanelSizeY=String(page.height);
+localStorage.setItem('localSettingsData',JSON.stringify(parsed));
+}
+}catch(error){/* ignore */}
+}
+
+function applyBeginnerLayoutMigration(){
+if(localStorage.getItem('nai_beginner_layout_v1')==='1')return;
+localStorage.setItem('nai_beginner_layout_v1','1');
+var ctrl=$('view_controls_checkbox');
+if(ctrl)ctrl.checked=false;
+try{
+var raw=localStorage.getItem('localSettingsData');
+if(raw){
+var parsed=JSON.parse(raw);
+parsed.view_controls_checkbox=false;
+localStorage.setItem('localSettingsData',JSON.stringify(parsed));
+}
+}catch(error){/* ignore */}
+}
+
 function loadSettingsLocalStrage(){
-createToast('Settings Load',['Loading settings...','Load Completed!!'],1500);
 var stored=localStorage.getItem('localSettingsData');
-if(!stored)return;
+var secrets=readSecretStore();
+if(!stored){
+Object.keys(SETTINGS_SCHEMA).forEach(function(key){
+var cfg=SETTINGS_SCHEMA[key];
+if(!cfg.secret)return;
+var el=$(cfg.id);
+if(el&&secrets[key]!==undefined)el.value=secrets[key];
+});
+applyBeginnerLayoutMigration();
+applyBeginnerUxMigration();
+applyAssemblyPageSizeMigration();
+return;
+}
 var data=JSON.parse(stored);
+var migrated=false;
+Object.keys(SETTINGS_SCHEMA).forEach(function(key){
+var cfg=SETTINGS_SCHEMA[key];
+if(!cfg.secret)return;
+if(data[key]&&!secrets[key]){secrets[key]=data[key];migrated=true;}
+delete data[key];
+});
+if(migrated){
+writeSecretStore(secrets);
+try{
+var cleaned=JSON.parse(stored);
+Object.keys(SETTINGS_SCHEMA).forEach(function(key){if(SETTINGS_SCHEMA[key].secret)delete cleaned[key];});
+localStorage.setItem('localSettingsData',JSON.stringify(cleaned));
+}catch(error){/* ignore */}
+}
 Object.keys(SETTINGS_SCHEMA).forEach(function(key){
 var cfg=SETTINGS_SCHEMA[key];
 var el=$(cfg.id);
 if(!el)return;
-var val=(data[key]!==undefined)?data[key]:cfg.default;
+var val=cfg.secret?((secrets[key]!==undefined)?secrets[key]:''):((data[key]!==undefined)?data[key]:cfg.default);
 if(cfg.type==='checkbox')el.checked=val;
 else el.value=val;
 });
@@ -348,6 +448,12 @@ localStorage.setItem('naiDirectorModelMigratedV5','1');
 }
 if(typeof loadPanelLayoutPrefs==='function'){
 loadPanelLayoutPrefs(data);
+}
+applyBeginnerLayoutMigration();
+applyBeginnerUxMigration();
+applyAssemblyPageSizeMigration();
+if(typeof window.NaiBeginnerGuide!=='undefined'&&window.NaiBeginnerGuide.updateTokenBadge){
+window.NaiBeginnerGuide.updateTokenBadge();
 }
 var bgEl=$('bg-color');
 bgEl.dispatchEvent(new Event('input',{bubbles:true,cancelable:true}));
@@ -379,15 +485,18 @@ updateWorkflowType();
 }
 
 function saveSettingsLocalStrage(silent){
-if(!silent)createToast('Settings Save',['Saving settings...','Save Completed!!'],1500);
+if(!silent)createToast('设置','已保存本机设置。',1500);
 apiMode=apis.NOVELAI;
 var data={externalAI:apiMode};
+var secrets=readSecretStore();
 Object.keys(SETTINGS_SCHEMA).forEach(function(key){
 var cfg=SETTINGS_SCHEMA[key];
 var el=$(cfg.id);
 if(!el)return;
+if(cfg.secret){secrets[key]=(cfg.type==='checkbox')?el.checked:el.value;return;}
 data[key]=(cfg.type==='checkbox')?el.checked:el.value;
 });
+writeSecretStore(secrets);
 if(typeof getSelectedValueByGroup==='function'){
 try{data.panelLayoutMode=getSelectedValueByGroup('panelLayoutMode');}catch(error){/* ignore */}
 }
@@ -453,7 +562,7 @@ caches.keys().then(function(names){
 names.forEach(function(name){caches.delete(name);});
 });
 }
-createToast('Settings Reset',['Clearing all data...','Reloading...'],1500);
+createToast('重置设置',['正在清除本机数据…','即将刷新'],1500);
 setTimeout(function(){location.reload();},1500);
 });
 }

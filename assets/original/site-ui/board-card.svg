@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 220" width="180" height="220">
+<rect x="0" y="0" width="180" height="220" fill="#fffdf8" rx="10" ry="10" stroke="#d6d0c4" stroke-width="1"/>
+<rect x="10" y="10" width="160" height="130" fill="#e7dfd0" rx="8" ry="8"/>
+<rect x="10" y="150" width="120" height="10" fill="#2f2a24" rx="2" ry="2" opacity="0.75"/>
+<rect x="10" y="168" width="88" height="8" fill="#7a7368" rx="2" ry="2" opacity="0.6"/>
+<text x="10" y="202" fill="#4d7c0f" font-size="12" font-family="Microsoft YaHei, Noto Sans SC, sans-serif" font-weight="700">12 图 · 48 评</text>
+</svg>

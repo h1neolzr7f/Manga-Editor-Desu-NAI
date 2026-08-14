@@ -377,7 +377,7 @@ var SSS=('00'+date.getMilliseconds()).slice(-3);
 return yyyy+MM+dd+'_'+hh+mm+ss+'_'+SSS;
 }
 var link=document.createElement('a');
-link.download='DESU-'+getFormattedDateTime()+'.'+format;
+link.download='DESU-nai学长魔改-'+getFormattedDateTime()+'.'+format;
 link.href=cropped;
 return link;
 },
@@ -403,20 +403,29 @@ return ImageUtil.getCropAndDownloadLinkByMultiplier(multiplier,'png');
 clipCopy:function(){
 removeGrid();
 var link=ImageUtil.getCropAndDownloadLink();
-fetch(link.href)
-.then(function(res){return res.blob();})
-.then(function(blob){
-var item=new ClipboardItem({"image/png":blob});
-navigator.clipboard.write([item]).then(function(){
-createToast("Success","Image copied to clipboard successfully!");
-},function(error){
-createToastError("Error","Unable to write to clipboard. Error");
-});
-});
+function restoreGrid(){
 if(isGridVisible){
 drawGrid();
 isGridVisible=true;
 }
+}
+function blobFromLink(){
+if(link.href&&link.href.indexOf('data:')===0){
+return fetch(link.href).then(function(res){return res.blob();});
+}
+return Promise.resolve(null);
+}
+blobFromLink().then(function(blob){
+if(!blob)throw new Error('没有可复制的画面。');
+if(!(window.isSecureContext&&navigator.clipboard&&navigator.clipboard.write&&window.ClipboardItem)){
+throw new Error('当前页面不是安全上下文。请用 http://127.0.0.1:8000 打开后再复制到剪贴板。');
+}
+return navigator.clipboard.write([new ClipboardItem({"image/png":blob})]);
+}).then(function(){
+createToast("已复制","画面已复制到剪贴板。");
+}).catch(function(error){
+createToastError("复制失败",(error&&error.message)||"无法写入剪贴板。");
+}).then(restoreGrid);
 },
 
 cropAndDownload:function(){

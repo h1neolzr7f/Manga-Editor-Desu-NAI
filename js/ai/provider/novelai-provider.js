@@ -66,18 +66,29 @@ var token=this.getApiKey();
 var headers={
 'Accept':'application/zip, application/json'
 };
-if(token&&!this._useLocalProxy()){
-headers.Authorization=/^Bearer\s+/i.test(token)?token:'Bearer '+token;
-}
+if(token)headers.Authorization=/^Bearer\s+/i.test(token)?token:'Bearer '+token;
 if(json)headers['Content-Type']='application/json';
 return headers;
 }
-_request(url,options){
-options=options||{};
-if(typeof fetch==='function'){
-return fetch(url,options);
+_proxyOfflineMessage(){
+return '无法连接本机代理 http://127.0.0.1:8000。请先运行「一键启动.bat」，再用 http://127.0.0.1:8000 打开编辑器。';
 }
-return new Promise((resolve,reject)=>{
+_wrapProxyError(error){
+if(!this._useLocalProxy())return error;
+var message=(error&&error.message)||String(error||'');
+if(/Failed to fetch|NetworkError|ECONNREFUSED|Load failed/i.test(message)){
+return new Error(this._proxyOfflineMessage());
+}
+return error instanceof Error?error:new Error(message);
+}
+_request(url,options){
+var self=this;
+options=options||{};
+var request;
+if(typeof fetch==='function'){
+request=fetch(url,options);
+}else{
+request=new Promise((resolve,reject)=>{
 var xhr=new XMLHttpRequest();
 xhr.open(options.method||'GET',url,true);
 xhr.responseType='blob';
@@ -91,15 +102,16 @@ resolve({
 ok:xhr.status>=200&&xhr.status<300,
 status:xhr.status,
 headers:{get:function(name){return xhr.getResponseHeader(name);}},
-text:()=>this._blobToText(blob),
-json:()=>this._blobToText(blob).then(function(text){return JSON.parse(text);}),
-blob:()=>Promise.resolve(blob)
+blob:function(){return Promise.resolve(blob);},
+text:function(){return blob.text?blob.text():Promise.resolve('');},
+json:function(){return blob.text().then(function(text){return JSON.parse(text||'{}');});}
 });
 };
-xhr.onerror=function(){reject(new Error('Network request failed'));};
-xhr.ontimeout=function(){reject(new Error('Network request timed out'));};
+xhr.onerror=()=>reject(new Error(self._proxyOfflineMessage()));
 xhr.send(options.body||null);
 });
+}
+return Promise.resolve(request).catch(function(error){throw self._wrapProxyError(error);});
 }
 _blobToText(blob){
 if(blob&&typeof blob.text==='function'){
@@ -114,7 +126,7 @@ reader.readAsText(blob);
 }
 async heartbeat(){
 var apiKey=this.getApiKey();
-if(!apiKey&&!this._useLocalProxy()){
+if(!apiKey){
 this._updateLabel(false);
 return false;
 }
@@ -372,7 +384,7 @@ return new Promise(function(resolve){setTimeout(resolve,ms);});
 }
 async _runGenerate(payload){
 var apiKey=this.getApiKey();
-if(!apiKey&&!this._useLocalProxy())throw new Error('NovelAI API token is not set');
+if(!apiKey)throw new Error('请先填写 NovelAI API Token。本地代理不会再用环境变量代替浏览器里的 Token。');
 var maxAttempts=8;
 var lastError=null;
 for(var attempt=1;attempt<=maxAttempts;attempt++){

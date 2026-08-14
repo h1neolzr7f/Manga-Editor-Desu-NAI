@@ -149,12 +149,19 @@ function checkHealth(){
 resetClient();
 setStatus("正在检查本地抠图服务…",false);
 return getClient().health().then(function(data){
-var label=data&&data.rembg?"rembg + 颜色抠图":"颜色抠图可用（未安装 rembg）";
+var rembg=!!(data&&data.rembg);
+var engine=element("backgroundRemovalEngine");
+if(engine&&!rembg)engine.value="color-key";
+toggleEngineFields();
+var label=rembg?"rembg + 颜色抠图":"颜色抠图可用（未安装 rembg）";
 setStatus("抠图服务："+label,false);
 return data;
 }).catch(function(error){
-setStatus("抠图服务不可用：请先启动本地工具，或点「一键启动」。"+error.message,true);
-throw error;
+var engine=element("backgroundRemovalEngine");
+if(engine)engine.value="color-key";
+toggleEngineFields();
+setStatus("神经网络服务未开，已改用浏览器颜色抠图（白底/绿幕可直接抠）。",false);
+return {rembg:false,localColorKey:true};
 });
 }
 
@@ -192,6 +199,61 @@ if(typeof object["getScaled"+(axis==="width"?"Width":"Height")]==="function")ret
 return (object[axis]||1)*(axis==="width"?(object.scaleX||1):(object.scaleY||1));
 }
 
+function getImageElement(image){
+return (image&&typeof image.getElement==="function"&&image.getElement())||(image&&image._element)||null;
+}
+
+function imageToPngDataUrl(image){
+var el=getImageElement(image);
+if(el&&(el.naturalWidth||el.width)){
+var w=el.naturalWidth||el.width;
+var h=el.naturalHeight||el.height;
+var tmp=document.createElement("canvas");
+tmp.width=Math.max(1,w);
+tmp.height=Math.max(1,h);
+tmp.getContext("2d").drawImage(el,0,0,tmp.width,tmp.height);
+return tmp.toDataURL("image/png");
+}
+if(image&&typeof image.toDataURL==="function")return image.toDataURL({format:"png"});
+return "";
+}
+
+function extractRegionDataUrl(image,rect){
+var el=getImageElement(image);
+var dispW=Math.max(1,imageSize(image,"width"));
+var dispH=Math.max(1,imageSize(image,"height"));
+var natW=el?(el.naturalWidth||el.width||dispW):dispW;
+var natH=el?(el.naturalHeight||el.height||dispH):dispH;
+var angle=image.angle||0;
+if(!el||Math.abs(angle)>0.5){
+var multiplier=Math.min(4,Math.max(1,natW/dispW));
+var dataUrl=typeof image.toDataURL==="function"?image.toDataURL({
+format:"png",
+left:rect.left-(image.left||0),
+top:rect.top-(image.top||0),
+width:rect.width,
+height:rect.height,
+multiplier:multiplier
+}):"";
+return {dataUrl:dataUrl,width:Math.max(1,Math.round(rect.width*multiplier)),height:Math.max(1,Math.round(rect.height*multiplier))};
+}
+var sx=(rect.left-(image.left||0))/dispW*natW;
+var sy=(rect.top-(image.top||0))/dispH*natH;
+var sw=rect.width/dispW*natW;
+var sh=rect.height/dispH*natH;
+if(image.flipX)sx=natW-sx-sw;
+if(image.flipY)sy=natH-sy-sh;
+sx=Math.max(0,sx);
+sy=Math.max(0,sy);
+sw=Math.max(1,Math.min(natW-sx,sw));
+sh=Math.max(1,Math.min(natH-sy,sh));
+var tmp=document.createElement("canvas");
+tmp.width=Math.max(1,Math.round(sw));
+tmp.height=Math.max(1,Math.round(sh));
+tmp.getContext("2d").drawImage(el,sx,sy,sw,sh,0,0,tmp.width,tmp.height);
+return {dataUrl:tmp.toDataURL("image/png"),width:tmp.width,height:tmp.height};
+}
+
 function copyPlacement(source,target){
 target.set({
 left:source.left||0,
@@ -227,11 +289,24 @@ if(typeof updateLayerPanel==="function")updateLayerPanel();
 if(typeof saveStateByManual==="function")saveStateByManual();
 }
 
-function applyResult(source,result,action){
+function applyResult(source,result,action,placement){
 var current=getCanvas();
 if(!current)throw new Error("Canvas 尚未初始化。");
 return createFabricImage(result.image).then(function(processed){
+if(placement&&placement.width&&placement.height){
+processed.set({
+left:placement.left||0,
+top:placement.top||0,
+scaleX:placement.width/(processed.width||1),
+scaleY:placement.height/(processed.height||1),
+angle:source.angle||0,
+opacity:source.opacity===undefined?1:source.opacity,
+originX:source.originX||"left",
+originY:source.originY||"top"
+});
+}else{
 copyPlacement(source,processed);
+}
 processed.backgroundRemovalResult=true;
 processed.backgroundRemovalModel=result.model||collectOptions().model;
 processed.backgroundRemovalSourceGuid=source.guid||"";
@@ -243,8 +318,8 @@ current.add(processed);
 }else if(action==="new"){
 current.add(processed);
 }else{
-processed.left=(source.left||0)+20;
-processed.top=(source.top||0)+20;
+processed.left=(processed.left||0)+20;
+processed.top=(processed.top||0)+20;
 current.add(processed);
 }
 if(typeof changeDoSaveHistory==="function")changeDoSaveHistory();
@@ -255,15 +330,61 @@ return processed;
 });
 }
 
+function hexToRgb(hex){
+hex=String(hex||'#ffffff').replace('#','');
+if(hex.length===3)hex=hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+return{r:parseInt(hex.slice(0,2),16)||0,g:parseInt(hex.slice(2,4),16)||0,b:parseInt(hex.slice(4,6),16)||0};
+}
+
+function localColorKeyDataUrl(dataUrl,keyColor,tolerance,invert){
+return new Promise(function(resolve,reject){
+var img=new Image();
+img.onload=function(){
+var c=document.createElement('canvas');
+c.width=img.width;c.height=img.height;
+var ctx=c.getContext('2d');
+ctx.drawImage(img,0,0);
+var data=ctx.getImageData(0,0,c.width,c.height);
+var key=hexToRgb(keyColor);
+var tol=(Number(tolerance)||28)*3;
+var px=data.data,i;
+for(i=0;i<px.length;i+=4){
+var match=Math.abs(px[i]-key.r)+Math.abs(px[i+1]-key.g)+Math.abs(px[i+2]-key.b)<=tol;
+if(invert)match=!match;
+if(match)px[i+3]=0;
+}
+ctx.putImageData(data,0,0);
+resolve(c.toDataURL('image/png'));
+};
+img.onerror=function(){reject(new Error('颜色抠图读图失败。'));};
+img.src=dataUrl;
+});
+}
+
 function processSelected(mode,action,layer){
 var image;
 try{image=getSelectedImage(layer);}catch(error){setStatus(error.message,true);return Promise.reject(error);}
-var dataUrl=typeof image.toDataURL==="function"?image.toDataURL({format:"png"}):"";
+var dataUrl=imageToPngDataUrl(image);
 if(!dataUrl){var noDataError=new Error("选中图层没有可读取的图片数据。");setStatus(noDataError.message,true);return Promise.reject(noDataError);}
 var options=collectOptions();
 if(mode)options.model=mode;
 var selectedAction=action||options.action||"new";
 setStatus("正在处理选中图层，原图会保持可撤销…",false);
+function finishLocal(url){
+setPreview(dataUrl,url);
+return applyResult(image,{ok:true,image:url,model:'color-key'},selectedAction);
+}
+if(options.engine==='color-key'||options.model==='color-key'){
+return localColorKeyDataUrl(dataUrl,options.key_color,options.key_tolerance,options.invert).then(finishLocal).then(function(result){
+setStatus("颜色抠图完成，可继续编辑或撤销。",false);
+if(typeof createToast==="function")createToast("抠图完成","浏览器颜色抠图，没有花 NovelAI 积分。",2500);
+return result;
+}).catch(function(error){
+setStatus("抠图未完成，原图保持不变："+error.message,true);
+if(typeof createToastError==="function")createToastError("抠图失败",error.message);
+throw error;
+});
+}
 return dataUrlToBlob(dataUrl).then(function(blob){
 return getClient().removeBackground(blob,options.model,options);
 }).then(function(data){
@@ -272,10 +393,76 @@ setPreview(dataUrl,data.image);
 return applyResult(image,data,selectedAction);
 }).then(function(result){
 setStatus("抠图完成："+(result.backgroundRemovalModel||options.model)+"，可继续编辑或撤销。",false);
+if(typeof createToast==="function")createToast("抠图完成","本地抠图，没有花 NovelAI 积分。",2500);
 return result;
 }).catch(function(error){
+setStatus("神经网络抠图不可用，改用颜色抠图…",false);
+return localColorKeyDataUrl(dataUrl,options.key_color||'#ffffff',options.key_tolerance||28,options.invert).then(finishLocal).then(function(result){
+setStatus("已用浏览器颜色抠图完成。白底/绿幕最合适。",false);
+if(typeof createToast==="function")createToast("已改用颜色抠图","本机抠图服务未开。白底可直接抠，不花积分。",3200);
+return result;
+}).catch(function(){
 setStatus("抠图未完成，原图保持不变："+error.message,true);
+if(typeof createToastError==="function")createToastError("抠图失败",error.message||"请先启动本地抠图服务，或改用颜色抠图。");
 throw error;
+});
+});
+}
+
+function processRegion(layer,rect,action){
+var image;
+try{image=getSelectedImage(layer);}catch(error){setStatus(error.message,true);return Promise.reject(error);}
+if(!rect||!(rect.width>1)||!(rect.height>1)){
+var sizeError=new Error("请先框选出要抠的区域。");
+setStatus(sizeError.message,true);
+return Promise.reject(sizeError);
+}
+var extracted=extractRegionDataUrl(image,rect);
+if(!extracted||!extracted.dataUrl){
+var noDataError=new Error("框选区域没有可读取的图片数据。");
+setStatus(noDataError.message,true);
+return Promise.reject(noDataError);
+}
+var options=collectOptions();
+var selectedAction=action||options.action||"new";
+setStatus("正在抠选区，原图会保持可撤销…",false);
+if(typeof createToast==="function")createToast("框选抠图","正在处理选区，不花积分。",2200);
+function finishLocal(url){
+setPreview(extracted.dataUrl,url);
+return applyResult(image,{ok:true,image:url,model:"color-key"},selectedAction,rect);
+}
+if(options.engine==="color-key"||options.model==="color-key"){
+return localColorKeyDataUrl(extracted.dataUrl,options.key_color,options.key_tolerance,options.invert).then(finishLocal).then(function(result){
+setStatus("选区颜色抠图完成。",false);
+if(typeof createToast==="function")createToast("选区抠图完成","浏览器颜色抠图，没有花积分。",2500);
+return result;
+}).catch(function(error){
+setStatus("选区抠图未完成："+error.message,true);
+if(typeof createToastError==="function")createToastError("框选抠图失败",error.message);
+throw error;
+});
+}
+return dataUrlToBlob(extracted.dataUrl).then(function(blob){
+return getClient().removeBackground(blob,options.model,options);
+}).then(function(data){
+if(!data||!data.ok||!data.image)throw new Error("抠图服务没有返回有效透明 PNG。");
+setPreview(extracted.dataUrl,data.image);
+return applyResult(image,data,selectedAction,rect);
+}).then(function(result){
+setStatus("选区抠图完成："+(result.backgroundRemovalModel||options.model)+"。",false);
+if(typeof createToast==="function")createToast("选区抠图完成","新图层已放在框选位置。",2500);
+return result;
+}).catch(function(error){
+setStatus("神经网络抠图不可用，选区改用颜色抠图…",false);
+return localColorKeyDataUrl(extracted.dataUrl,options.key_color||"#ffffff",options.key_tolerance||28,options.invert).then(finishLocal).then(function(result){
+setStatus("已用浏览器颜色抠图完成选区。",false);
+if(typeof createToast==="function")createToast("已改用颜色抠图","本机抠图服务未开。白底可直接抠，不花积分。",3200);
+return result;
+}).catch(function(){
+setStatus("选区抠图未完成："+error.message,true);
+if(typeof createToastError==="function")createToastError("框选抠图失败",error.message||"请先启动本地抠图服务，或改用颜色抠图。");
+throw error;
+});
 });
 }
 
@@ -329,10 +516,12 @@ checkHealth:checkHealth,
 listModels:listModels,
 processSelected:processSelected,
 processLayer:processLayer,
+processRegion:processRegion,
 getSelectedImage:getSelectedImage,
 setPreview:setPreview,
 collectOptions:collectOptions,
-applyOptions:applyOptions
+applyOptions:applyOptions,
+localColorKeyDataUrl:localColorKeyDataUrl
 };
 
 if(typeof document!=="undefined")document.addEventListener("DOMContentLoaded",bind);

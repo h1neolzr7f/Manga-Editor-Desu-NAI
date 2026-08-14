@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 160" width="420" height="160">
+<rect x="0" y="0" width="420" height="160" fill="#0b1220"/>
+<text x="12" y="22" fill="#e2e8f0" font-size="13" font-family="Microsoft YaHei, Noto Sans SC, sans-serif" font-weight="700">接下来播放</text>
+<rect x="12" y="34" width="124" height="72" fill="#1b2a40" rx="8" ry="8"/>
+<rect x="12" y="92" width="50" height="8" fill="#22d3ee" rx="2" ry="2"/>
+<rect x="12" y="116" width="100" height="8" fill="#94a3b8" rx="2" ry="2" opacity="0.7"/>
+<rect x="12" y="132" width="72" height="6" fill="#94a3b8" rx="2" ry="2" opacity="0.4"/>
+<rect x="148" y="34" width="124" height="72" fill="#1b2a40" rx="8" ry="8"/>
+<rect x="148" y="92" width="60" height="8" fill="#22d3ee" rx="2" ry="2"/>
+<rect x="148" y="116" width="100" height="8" fill="#94a3b8" rx="2" ry="2" opacity="0.7"/>
+<rect x="148" y="132" width="72" height="6" fill="#94a3b8" rx="2" ry="2" opacity="0.4"/>
+<rect x="284" y="34" width="124" height="72" fill="#1b2a40" rx="8" ry="8"/>
+<rect x="284" y="92" width="70" height="8" fill="#22d3ee" rx="2" ry="2"/>
+<rect x="284" y="116" width="100" height="8" fill="#94a3b8" rx="2" ry="2" opacity="0.7"/>
+<rect x="284" y="132" width="72" height="6" fill="#94a3b8" rx="2" ry="2" opacity="0.4"/>
+</svg>

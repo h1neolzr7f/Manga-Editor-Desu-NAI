@@ -16,7 +16,12 @@ random:{id:'random',label:'随机切分（原逻辑）'},
 // 新增：日本漫画风多样分镜（非均匀，使用原故事预设灵感，不同页不同节奏）
 'manga-4-varied':{id:'manga-4-varied',label:'日漫风4格（大上+下三变）'},
 'manga-5-dynamic':{id:'manga-5-dynamic',label:'日漫风5格（动态大中小）'},
-'manga-v-flow':{id:'manga-v-flow',label:'日漫风纵向流（左大+右叠）'}
+'manga-v-flow':{id:'manga-v-flow',label:'日漫风纵向流（左大+右叠）'},
+'splash-full':{id:'splash-full',label:'整页开场（不切分）'},
+'widescreen-top':{id:'widescreen-top',label:'宽银幕（上横条+下大）'},
+'rows-4':{id:'rows-4',label:'四行均分'},
+'nine-grid':{id:'nine-grid',label:'九宫格 3×3'},
+'manga-inset':{id:'manga-inset',label:'日漫风嵌套（上条+中二+底条）'}
 };
 
 var GUIDED_SPLIT_RATIO_CANDIDATES=[0.5,0.45,0.55,0.4,0.6,0.35,0.65,0.33,0.67];
@@ -150,6 +155,11 @@ case 'grid-3x2':ok=applyLayoutGrid3x2(panel);break;
 case 'manga-4-varied':ok=applyLayoutManga4Varied(panel);break;
 case 'manga-5-dynamic':ok=applyLayoutManga5Dynamic(panel);break;
 case 'manga-v-flow':ok=applyLayoutMangaVFlow(panel);break;
+case 'splash-full':ok=true;break;
+case 'widescreen-top':ok=applyLayoutWidescreenTop(panel);break;
+case 'rows-4':ok=applyLayoutRows4(panel);break;
+case 'nine-grid':ok=applyLayoutNineGrid(panel);break;
+case 'manga-inset':ok=applyLayoutMangaInset(panel);break;
 default:
 createToastError('分镜模板','未知模板：'+templateId,4000);
 return false;
@@ -243,7 +253,6 @@ return bl.isSplit&&br.isSplit;
 }
 
 function applyLayoutMangaVFlow(panel){
-// 左大纵向 + 右 3 小叠（不同高，模拟阅读流）
 var left=guidedSplitPanelWithRetry(panel,true,0.42);
 if(!left.isSplit) return false;
 var right=left.polygon2;
@@ -252,6 +261,76 @@ if(!r1.isSplit) return false;
 var r2=guidedSplitPanelWithRetry(r1.polygon2,false,0.35);
 if(!r2.isSplit) return false;
 return true;
+}
+
+function applyLayoutWidescreenTop(panel){
+return guidedSplitPanelWithRetry(panel,false,0.28).isSplit;
+}
+
+function applyLayoutRows4(panel){
+var first=guidedSplitPanelWithRetry(panel,false,0.25);
+if(!first.isSplit)return false;
+var second=guidedSplitPanelWithRetry(first.polygon2,false,1/3);
+if(!second.isSplit)return false;
+return guidedSplitPanelWithRetry(second.polygon2,false,0.5).isSplit;
+}
+
+function applyLayoutNineGrid(panel){
+var c1=guidedSplitPanelWithRetry(panel,true,1/3);
+if(!c1.isSplit)return false;
+var c2=guidedSplitPanelWithRetry(c1.polygon2,true,0.5);
+if(!c2.isSplit)return false;
+return applyLayoutRows3(c1.polygon1)&&applyLayoutRows3(c2.polygon1)&&applyLayoutRows3(c2.polygon2);
+}
+
+function applyLayoutMangaInset(panel){
+var top=guidedSplitPanelWithRetry(panel,false,0.18);
+if(!top.isSplit)return false;
+var bot=guidedSplitPanelWithRetry(top.polygon2,false,0.78);
+if(!bot.isSplit)return false;
+return guidedSplitPanelWithRetry(bot.polygon1,true,0.5).isSplit;
+}
+
+function recommendPanelLayouts(panelCount){
+var count=Math.max(1,Number(panelCount)||1);
+var map={
+1:[{id:'splash-full',reason:'整页开场或满版插图'},{id:'widescreen-top',reason:'上横条适合标题镜头'},{id:'manga-4-varied',reason:'日漫风四格适合开场'}],
+2:[{id:'cols-2',reason:'两格左右对切'},{id:'widescreen-top',reason:'上横条+下大'},{id:'top-2bottom',reason:'上大下小适合反应镜头'}],
+3:[{id:'rows-3',reason:'三行均分'},{id:'top-2bottom',reason:'上大+下二'},{id:'left-2right',reason:'左大+右二'}],
+4:[{id:'grid-2x2',reason:'四格整齐排版'},{id:'manga-4-varied',reason:'上大下三，更像日漫节奏'},{id:'rows-4',reason:'四行时间推进'},{id:'manga-inset',reason:'上下条+中间对切'}],
+5:[{id:'classic-5',reason:'上1下4 的经典五格'},{id:'manga-5-dynamic',reason:'大小变化的动态五格'}],
+6:[{id:'grid-3x2',reason:'六格网格'},{id:'manga-v-flow',reason:'左大右叠的纵向流'}],
+9:[{id:'nine-grid',reason:'九宫格适合快速节拍'}]
+};
+return (map[count]||[{id:'manga-4-varied',reason:'当前格数较少见，先用日漫风四格再手调'},{id:'classic-5',reason:'或改成经典五格'}]).map(function(item){
+var template=PANEL_LAYOUT_TEMPLATES[item.id];
+return {id:item.id,label:template?template.label:item.id,reason:item.reason,count:count};
+});
+}
+
+function currentPanelCount(){
+if(typeof getPanelObjectList==='function'){
+var list=getPanelObjectList();
+return list&&list.length?list.length:0;
+}
+return 0;
+}
+
+function renderPanelLayoutRecommendations(){
+var host=typeof document!=='undefined'?document.getElementById('panelLayoutRecommendList'):null;
+if(!host)return [];
+var count=currentPanelCount()||1;
+var items=recommendPanelLayouts(count);
+host.innerHTML='';
+items.forEach(function(item){
+var button=document.createElement('button');
+button.type='button';
+button.className='nai-character-mini-button';
+button.textContent=item.label+' · '+item.reason;
+button.addEventListener('click',function(){applyPanelLayoutTemplate(item.id);});
+host.appendChild(button);
+});
+return items;
 }
 
 function applyPanelLayoutForCurrentPage(){
@@ -286,6 +365,8 @@ select.addEventListener('change',savePanelLayoutPrefs);
 }
 var applyBtn=$('panelLayoutTemplateButton');
 if(applyBtn)applyBtn.addEventListener('click',applyPanelLayoutForCurrentPage);
+var recommendBtn=$('panelLayoutRecommendButton');
+if(recommendBtn)recommendBtn.addEventListener('click',renderPanelLayoutRecommendations);
 var modeGroup=document.querySelector('[data-group="panelLayoutMode"]');
 if(modeGroup){
 modeGroup.querySelectorAll('button').forEach(function(btn){
@@ -302,4 +383,6 @@ window.applyPanelLayoutTemplate=applyPanelLayoutTemplate;
 window.applyPanelLayoutForCurrentPage=applyPanelLayoutForCurrentPage;
 window.loadPanelLayoutPrefs=loadPanelLayoutPrefs;
 window.PANEL_LAYOUT_TEMPLATES=PANEL_LAYOUT_TEMPLATES;
+window.recommendPanelLayouts=recommendPanelLayouts;
+window.renderPanelLayoutRecommendations=renderPanelLayoutRecommendations;
 }

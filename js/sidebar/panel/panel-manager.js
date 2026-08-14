@@ -265,15 +265,22 @@ scaleY: scale,
 
 
 /** Load SVG(Verfical, Landscope) */
-function loadSVGPlusReset(svgString,isLand=false) {
+function loadSVGPlusReset(svgString,isLand=false,addOnly=false) {
+if(!addOnly){
 initImageHistory();
 saveState();
+}
 changeDoNotSaveHistory();
 // console.log("svgPagging", svgPagging);
 
 skipForcedAdjust=true;
 fabric.loadSVGFromString(svgString,function (objects,options) {
-resizeCanvasToObject(options.width,options.height);
+var pageSize=typeof NaiMangaPageSize!=="undefined"?NaiMangaPageSize.defaultMangaPageSize(!!isLand):null;
+if(!addOnly){
+if(pageSize)resizeCanvasToObject(pageSize.width,pageSize.height);
+else resizeCanvasToObject(options.width,options.height);
+}
+var addShift=addOnly?28:0;
 
 var strokeWidthScale=canvas.width/700;
 var strokeWidth=2*strokeWidthScale;
@@ -334,8 +341,8 @@ var polygon=new fabric.Polygon(vertices,{
 isPanel: true,
 scaleX: scaleToFit,
 scaleY: scaleToFit,
-top: obj.top*scaleToFit+offsetY,
-left: obj.left*scaleToFit+offsetX,
+top: obj.top*scaleToFit+offsetY+addShift,
+left: obj.left*scaleToFit+offsetX+addShift,
 stroke: obj.stroke,
 strokeWidth: strokeWidth,
 selectable: false,
@@ -360,11 +367,11 @@ obj.isPanel=true;
 obj.scaleX=scaleToFit;
 obj.scaleY=scaleToFit;
 if(isLand){
-obj.top=obj.top*scaleToFit+offsetHorizontalY-(strokeWidth);
-obj.left=obj.left*scaleToFit+offsetHorizontalX;
+obj.top=obj.top*scaleToFit+offsetHorizontalY-(strokeWidth)+addShift;
+obj.left=obj.left*scaleToFit+offsetHorizontalX+addShift;
 }else{
-obj.top=obj.top*scaleToFit+offsetVerticalY-(strokeWidth);
-obj.left=obj.left*scaleToFit+offsetVerticalX;
+obj.top=obj.top*scaleToFit+offsetVerticalY-(strokeWidth)+addShift;
+obj.left=obj.left*scaleToFit+offsetVerticalX+addShift;
 }
 
 obj.setCoords();

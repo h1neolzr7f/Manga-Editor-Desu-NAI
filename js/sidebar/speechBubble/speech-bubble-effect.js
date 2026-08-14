@@ -190,36 +190,57 @@ document.head.appendChild(script);
 });
 }
 
+function templatePlaceMode(){
+var el=typeof document!=='undefined'?document.getElementById('naiTemplatePlaceMode'):null;
+return el&&el.value?el.value:'replace';
+}
+
+async function applyMangaTemplate(item,isLand){
+var mode=templatePlaceMode();
+var overlay=mode==='overlay';
+var newpage=mode==='newpage';
+if(overlay){
+setCanvasGUID();
+loadSVGPlusReset(item.svg,!!isLand,true);
+return;
+}
+if(newpage&&typeof getObjectCount==='function'&&getObjectCount()>0&&typeof btmSaveProjectFile==='function'){
+await btmSaveProjectFile();
+}
+if(mode==='replace'&&typeof getObjectCount==='function'&&getObjectCount()>0){
+if(!window.confirm('会清掉当前页上的格子，换成这个分镜。确定吗？要保留当前页请选「加为新页」。'))return;
+}
+setCanvasGUID();
+loadSVGPlusReset(item.svg,!!isLand,false);
+}
+
+function afterTemplateApplied(){
+if(typeof createToast==='function')createToast('分镜模板','已放到画布。这是可出图的格子。底部一排可以切换多页。',3200);
+if(window.NaiBeginnerGuide){
+if(window.NaiBeginnerGuide.exitDrawing)window.NaiBeginnerGuide.exitDrawing();
+if(window.NaiBeginnerGuide.updateEmptyHint)window.NaiBeginnerGuide.updateEmptyHint();
+}
+if(window.NaiVisualStudio&&typeof window.NaiVisualStudio.refresh==='function')window.NaiVisualStudio.refresh();
+}
+
 function populateVerticalPanels(){
 previewAreaVertical.innerHTML="";
 MangaPanelsImage_Vertical.forEach((item)=>{
 const img=document.createElement("img");
 img.src="data:image/svg+xml;utf8,"+encodeURIComponent(item.svg);
-img.classList.add("svg-preview");
+img.classList.add("svg-preview","visual-thumb");
 img.alt=item.name;
+img.title=(item.name||'分镜')+' · 点一下放到画布';
 img.addEventListener("click",async function(){
 panelLogger.info("[verticalTemplate] stateStack.length="+stateStack.length+" btmProjectsMap.size="+btmProjectsMap.size+" canvasGUID="+getCanvasGUID()+" objectCount="+getObjectCount());
 const loading=OP_showLoading({
-icon:'process',step:'Step1',substep:'New Page',progress:0
+icon:'process',step:'正在套用分镜',substep:'写入画布',progress:0
 });
 try{
-if(stateStack.length>=btmSaveStateThreshold){
-panelLogger.info("[verticalTemplate] saving current page to bottom bar");
-OP_updateLoadingState(loading,{
-icon:'process',step:'Step2',substep:'Zip Start',progress:20
-});
-await btmSaveProjectFile().then(()=>{
-panelLogger.info("[verticalTemplate] btmSaveProjectFile done. btmProjectsMap.size="+btmProjectsMap.size);
-setCanvasGUID();
-loadSVGPlusReset(item.svg);
-});
-}else{
-panelLogger.info("[verticalTemplate] skipping save (stateStack too short)");
-setCanvasGUID();
-loadSVGPlusReset(item.svg);
-}
+await applyMangaTemplate(item,false);
 }finally{
 OP_hideLoading(loading);
+afterTemplateApplied();
 }
 });
 previewAreaVertical.appendChild(img);
@@ -231,31 +252,19 @@ previewAreaLandscape.innerHTML="";
 MangaPanelsImage_Landscape.forEach((item)=>{
 const img=document.createElement("img");
 img.src="data:image/svg+xml;utf8,"+encodeURIComponent(item.svg);
-img.classList.add("svg-preview");
+img.classList.add("svg-preview","visual-thumb");
 img.alt=item.name;
+img.title=(item.name||'分镜')+' · 点一下放到画布';
 img.addEventListener("click",async function(){
 panelLogger.info("[landscapeTemplate] stateStack.length="+stateStack.length+" btmProjectsMap.size="+btmProjectsMap.size+" canvasGUID="+getCanvasGUID()+" objectCount="+getObjectCount());
 const loading=OP_showLoading({
-icon:'process',step:'Step1',substep:'New Page',progress:0
+icon:'process',step:'正在套用分镜',substep:'写入画布',progress:0
 });
 try{
-if(stateStack.length>=btmSaveStateThreshold){
-panelLogger.info("[landscapeTemplate] saving current page to bottom bar");
-OP_updateLoadingState(loading,{
-icon:'process',step:'Step2',substep:'Zip Start',progress:20
-});
-await btmSaveProjectFile().then(()=>{
-panelLogger.info("[landscapeTemplate] btmSaveProjectFile done. btmProjectsMap.size="+btmProjectsMap.size);
-setCanvasGUID();
-loadSVGPlusReset(item.svg,true);
-});
-}else{
-panelLogger.info("[landscapeTemplate] skipping save (stateStack too short)");
-setCanvasGUID();
-loadSVGPlusReset(item.svg,true);
-}
+await applyMangaTemplate(item,true);
 }finally{
 OP_hideLoading(loading);
+afterTemplateApplied();
 }
 });
 previewAreaLandscape.appendChild(img);
@@ -267,10 +276,12 @@ speechBubbleArea.innerHTML="";
 SpeechBubble.forEach((item)=>{
 const img=document.createElement("img");
 img.src="data:image/svg+xml;utf8,"+encodeURIComponent(item.svg);
-img.classList.add("svg-preview");
+img.classList.add("svg-preview","visual-thumb");
 img.alt=item.name;
+img.title=(item.name||'气泡')+' · 点一下放到画布，再双击改字';
 img.addEventListener("click",function(){
 loadSpeechBubbleSVGReadOnly(item.svg,item.name);
+if(window.NaiVisualStudio&&typeof window.NaiVisualStudio.refresh==='function')window.NaiVisualStudio.refresh();
 });
 speechBubbleArea.appendChild(img);
 });
@@ -279,7 +290,7 @@ speechBubbleArea.appendChild(img);
 function lazyLoadVerticalPanels(){
 if(svgDataLoaded.vertical) return;
 svgDataLoaded.vertical=true;
-previewAreaVertical.textContent="Loading...";
+previewAreaVertical.textContent="正在加载竖版分镜…";
 loadSvgScript("js/svg/manga-panels-image-vertical.js?v=7.2").then(function(){
 populateVerticalPanels();
 }).catch(function(){
@@ -291,7 +302,7 @@ previewAreaVertical.textContent="";
 function lazyLoadLandscapePanels(){
 if(svgDataLoaded.landscape) return;
 svgDataLoaded.landscape=true;
-previewAreaLandscape.textContent="Loading...";
+previewAreaLandscape.textContent="正在加载横版分镜…";
 loadSvgScript("js/svg/manga-panels-image-landscape.js?v=7.2").then(function(){
 populateLandscapePanels();
 }).catch(function(){
@@ -323,5 +334,5 @@ lazyLoadVerticalPanels();
 }
 if(id==="svg-container-vertical") lazyLoadVerticalPanels();
 if(id==="svg-container-landscape") lazyLoadLandscapePanels();
-if(id==="speech-bubble-area1") lazyLoadSpeechBubbles();
+if(id==="speech-bubble-area"||id==="speech-bubble-area1") lazyLoadSpeechBubbles();
 }

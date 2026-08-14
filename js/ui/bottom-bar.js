@@ -29,11 +29,11 @@ btmUpdateHandleText();
 function btmUpdateHandleText() {
 if(!btmNavCenter)return;
 var isClosed=btmDrawer.classList.contains("btm-closed");
-var stateText=isClosed?"OPEN":"CLOSE";
+var stateText=isClosed?"展开页面":"收起页面";
 var totalPages=btmGetGuidsSize();
 var currentGuid=getCanvasGUID();
 var currentIndex=btmGetGuidIndex(currentGuid);
-var pageText=totalPages>0?" "+(currentIndex+1)+"/"+totalPages:"";
+var pageText=totalPages>0?" "+(currentIndex+1)+"/"+totalPages+" 页":"";
 var ctrlKey=isMacOs?"⌘+B":"Ctrl+B";
 btmNavCenter.textContent=stateText+pageText+" ("+ctrlKey+")";
 if(currentIndex>0){
@@ -415,15 +415,20 @@ return Array.from(btmProjectsMap.keys())[0];
 function btmShowAddPageDialog(guid) {
 var dialog=document.createElement("div");
 dialog.className="btm-dialog-overlay";
+var portrait=typeof NaiMangaPageSize!=="undefined"?NaiMangaPageSize.defaultMangaPageSize(false):{width:1654,height:2339};
+var landscape=typeof NaiMangaPageSize!=="undefined"?NaiMangaPageSize.defaultMangaPageSize(true):{width:2339,height:1654};
+var portraitLabel=portrait.width+"\u00d7"+portrait.height;
+var landscapeLabel=landscape.width+"\u00d7"+landscape.height;
 dialog.innerHTML='<div class="btm-dialog"><div class="btm-dialog-content">'+
-'<h3>ページサイズを選択</h3>'+
+'<h3>选择新页尺寸</h3>'+
+'<p class="btm-dialog-help">底图按 A4 约 200dpi 建，用来拼 NovelAI 出的格子。出图单格仍走安全尺寸。</p>'+
 '<div class="btm-radio-group">'+
-'<label><input type="radio" name="page-size" value="portrait" checked>縦</label>'+
-'<label><input type="radio" name="page-size" value="landscape">横</label>'+
+'<label><input type="radio" name="page-size" value="portrait" checked>竖页 '+portraitLabel+'</label>'+
+'<label><input type="radio" name="page-size" value="landscape">横页 '+landscapeLabel+'</label>'+
 '</div>'+
 '<div class="btm-dialog-buttons">'+
-'<button class="btm-dialog-button" id="btm-dialog-cancel">キャンセル</button>'+
-'<button class="btm-dialog-button btm-dialog-submit" id="btm-dialog-submit">作成</button>'+
+'<button class="btm-dialog-button" id="btm-dialog-cancel">取消</button>'+
+'<button class="btm-dialog-button btm-dialog-submit" id="btm-dialog-submit">创建</button>'+
 '</div></div></div>';
 document.body.appendChild(dialog);
 var cancelButton=document.getElementById("btm-dialog-cancel");
@@ -437,8 +442,8 @@ document.body.removeChild(dialog);
 var currentIndex=btmGetGuidIndex(guid);
 var newGuid=generateGUID();
 var w,h;
-if(selectedSize==="portrait"){w=210;h=297;}
-else{w=297;h=210;}
+if(selectedSize==="portrait"){w=portrait.width;h=portrait.height;}
+else{w=landscape.width;h=landscape.height;}
 var pc=document.createElement('canvas');
 pc.width=100;
 pc.height=Math.round(100*h/w);

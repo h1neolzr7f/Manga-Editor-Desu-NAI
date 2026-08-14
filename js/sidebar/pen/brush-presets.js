@@ -9,7 +9,24 @@ var BUILTIN=[
 {id:"marker-flat",name:"平头马克笔",builtin:true,engine:"stamp",size:28,opacity:0.72,color:"#1d4ed8",spacing:0.18,hardness:0.92,scatter:0,angleJitter:0,taperStart:0,taperEnd:0,smoothing:0.2,followPath:true,tip:""},
 {id:"spray-dot",name:"喷雾网点",builtin:true,engine:"stamp",size:22,opacity:0.38,color:"#111827",spacing:0.42,hardness:0.15,scatter:0.55,angleJitter:180,taperStart:0,taperEnd:0,smoothing:0.1,followPath:false,tip:""},
 {id:"speed-line",name:"速度线刷",builtin:true,engine:"stamp",size:18,opacity:0.8,color:"#0f172a",spacing:0.22,hardness:0.7,scatter:0.05,angleJitter:4,taperStart:0.05,taperEnd:0.7,smoothing:0.35,followPath:true,shape:"line",tip:""},
-{id:"tone-stamp",name:"网点印章",builtin:true,engine:"stamp",size:26,opacity:0.65,color:"#111111",spacing:0.7,hardness:1,scatter:0.12,angleJitter:20,taperStart:0,taperEnd:0,smoothing:0,followPath:false,shape:"dot",tip:""}
+{id:"tone-stamp",name:"网点印章",builtin:true,engine:"stamp",size:26,opacity:0.65,color:"#111111",spacing:0.7,hardness:1,scatter:0.12,angleJitter:20,taperStart:0,taperEnd:0,smoothing:0,followPath:false,shape:"dot",tip:""},
+{id:"charcoal",name:"木炭",builtin:true,engine:"taper",size:22,opacity:0.42,color:"#2a2a2a",spacing:0.1,hardness:0.18,scatter:0.22,angleJitter:14,taperStart:0.15,taperEnd:0.45,smoothing:0.28,followPath:true,tip:""},
+{id:"dry-ink",name:"枯笔",builtin:true,engine:"stamp",size:20,opacity:0.82,color:"#111111",spacing:0.28,hardness:0.55,scatter:0.2,angleJitter:18,taperStart:0,taperEnd:0,smoothing:0.12,followPath:true,tip:""},
+{id:"hatch",name:"排线",builtin:true,engine:"stamp",size:14,opacity:0.78,color:"#0f172a",spacing:0.12,hardness:0.85,scatter:0.05,angleJitter:8,taperStart:0,taperEnd:0,smoothing:0.2,followPath:true,shape:"line",tip:""},
+{id:"rain-streak",name:"雨丝刷",builtin:true,engine:"stamp",size:24,opacity:0.32,color:"#64748b",spacing:0.38,hardness:0.7,scatter:0.42,angleJitter:16,taperStart:0,taperEnd:0,smoothing:0.08,followPath:true,shape:"line",tip:""},
+{id:"splat",name:"飞溅",builtin:true,engine:"stamp",size:16,opacity:0.7,color:"#7f1d1d",spacing:0.85,hardness:0.4,scatter:0.95,angleJitter:180,taperStart:0,taperEnd:0,smoothing:0,followPath:false,tip:""},
+{id:"soft-glow",name:"柔光笔",builtin:true,engine:"taper",size:36,opacity:0.22,color:"#fbbf24",spacing:0.16,hardness:0.08,scatter:0.04,angleJitter:0,taperStart:0.2,taperEnd:0.2,smoothing:0.55,followPath:true,tip:""},
+{id:"felt-tip",name:"水性笔",builtin:true,engine:"taper",size:8,opacity:0.95,color:"#111827",spacing:0.08,hardness:0.92,scatter:0,angleJitter:0,taperStart:0.05,taperEnd:0.28,smoothing:0.4,followPath:true,tip:""},
+{id:"cloud-soft",name:"白云笔",builtin:true,engine:"stamp",size:40,opacity:0.16,color:"#e2e8f0",spacing:0.42,hardness:0.06,scatter:0.32,angleJitter:40,taperStart:0,taperEnd:0,smoothing:0.2,followPath:false,tip:""},
+{id:"white-out",name:"修正白",builtin:true,engine:"taper",size:18,opacity:0.92,color:"#f8fafc",spacing:0.1,hardness:0.88,scatter:0,angleJitter:0,taperStart:0.1,taperEnd:0.22,smoothing:0.4,followPath:true,tip:""},
+{id:"fine-tone",name:"细网点",builtin:true,engine:"stamp",size:12,opacity:0.5,color:"#111111",spacing:0.55,hardness:1,scatter:0.08,angleJitter:0,taperStart:0,taperEnd:0,smoothing:0,followPath:false,shape:"dot",tip:""},
+{id:"wind-brush",name:"风线刷",builtin:true,engine:"stamp",size:20,opacity:0.45,color:"#64748b",spacing:0.28,hardness:0.62,scatter:0.18,angleJitter:10,taperStart:0,taperEnd:0.6,smoothing:0.22,followPath:true,shape:"line",tip:""},
+{id:"sparkle-brush",name:"闪光点刷",builtin:true,engine:"stamp",size:14,opacity:0.85,color:"#fbbf24",spacing:0.9,hardness:0.2,scatter:0.7,angleJitter:180,taperStart:0,taperEnd:0,smoothing:0,followPath:false,tip:""},
+{id:"thick-outline",name:"粗勾线",builtin:true,engine:"taper",size:26,opacity:0.96,color:"#0f172a",spacing:0.1,hardness:0.95,scatter:0,angleJitter:0,taperStart:0.04,taperEnd:0.18,smoothing:0.5,followPath:true,tip:""},
+{id:"watercolor",name:"水彩晕",builtin:true,engine:"taper",size:42,opacity:0.18,color:"#7dd3fc",spacing:0.2,hardness:0.05,scatter:0.12,angleJitter:8,taperStart:0.25,taperEnd:0.25,smoothing:0.6,followPath:true,tip:""},
+{id:"blood-drip",name:"滴溅",builtin:true,engine:"stamp",size:18,opacity:0.78,color:"#7f1d1d",spacing:0.7,hardness:0.35,scatter:0.8,angleJitter:90,taperStart:0,taperEnd:0,smoothing:0,followPath:false,tip:""},
+{id:"ice-crystal",name:"冰晶",builtin:true,engine:"stamp",size:16,opacity:0.55,color:"#bae6fd",spacing:0.62,hardness:0.25,scatter:0.45,angleJitter:60,taperStart:0,taperEnd:0,smoothing:0.1,followPath:false,tip:""},
+{id:"screen-fill",name:"网点填",builtin:true,engine:"stamp",size:30,opacity:0.28,color:"#111827",spacing:0.5,hardness:0.9,scatter:0.06,angleJitter:0,taperStart:0,taperEnd:0,smoothing:0,followPath:false,shape:"dot",tip:""}
 ];
 
 function clone(value){

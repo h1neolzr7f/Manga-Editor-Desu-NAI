@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 160" width="320" height="160" fill="none">
+<path d="M12 18 C 90 14, 180 21, 308 18" stroke="#111" stroke-width="1.2" opacity="0.35"/>
+<path d="M30 27.5 C 91 23.5, 180 30.5, 308 27.5" stroke="#111" stroke-width="1.6" opacity="0.5"/>
+<path d="M48 37 C 92 33, 180 40, 308 37" stroke="#111" stroke-width="2" opacity="0.6499999999999999"/>
+<path d="M12 46.5 C 93 42.5, 180 49.5, 308 46.5" stroke="#111" stroke-width="1.2" opacity="0.7999999999999999"/>
+<path d="M30 56 C 94 52, 180 59, 308 56" stroke="#111" stroke-width="1.6" opacity="0.35"/>
+<path d="M48 65.5 C 95 61.5, 180 68.5, 308 65.5" stroke="#111" stroke-width="2" opacity="0.5"/>
+<path d="M12 75 C 96 71, 180 78, 308 75" stroke="#111" stroke-width="1.2" opacity="0.6499999999999999"/>
+<path d="M30 84.5 C 97 80.5, 180 87.5, 308 84.5" stroke="#111" stroke-width="1.6" opacity="0.7999999999999999"/>
+<path d="M48 94 C 98 90, 180 97, 308 94" stroke="#111" stroke-width="2" opacity="0.35"/>
+<path d="M12 103.5 C 99 99.5, 180 106.5, 308 103.5" stroke="#111" stroke-width="1.2" opacity="0.5"/>
+<path d="M30 113 C 100 109, 180 116, 308 113" stroke="#111" stroke-width="1.6" opacity="0.6499999999999999"/>
+<path d="M48 122.5 C 101 118.5, 180 125.5, 308 122.5" stroke="#111" stroke-width="2" opacity="0.7999999999999999"/>
+<path d="M12 132 C 102 128, 180 135, 308 132" stroke="#111" stroke-width="1.2" opacity="0.35"/>
+<path d="M30 141.5 C 103 137.5, 180 144.5, 308 141.5" stroke="#111" stroke-width="1.6" opacity="0.5"/>
+</svg>

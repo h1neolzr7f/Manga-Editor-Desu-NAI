@@ -3,7 +3,7 @@ var panel=getRandomPanel();
 var maxRetryCount=2;
 
 if (panel===null) {
-createToastError("Panel is ZERO.");
+createToastError("还没有分镜格子。请先点左侧「模板」放一个分镜。");
 return;
 }
 
@@ -68,11 +68,14 @@ return cuts;
 
 
 async function generateMultipage(){
+const pageCount=Number(($("pageCount")||{}).value)||0;
+if(pageCount>1&&typeof window!=='undefined'&&typeof window.confirm==='function'){
+if(!window.confirm('将创建 '+pageCount+' 张空白分镜页，不会花 NovelAI 积分。页数多会比较难改。确定吗？'))return;
+}
 const loading=OP_showLoading({icon: 'process',step: 'Step1',substep: 'Multi Page',progress: 0});
 await new Promise(requestAnimationFrame);
 
 try{
-const pageCount=$("pageCount").value;
 var newPage=false;
 const selectedValue=getSelectedValueByGroup("multiPageType");
 const useVaried=$('panelVariedMangaPerPage')&&$('panelVariedMangaPerPage').checked;

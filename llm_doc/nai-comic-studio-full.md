@@ -1,3 +1,7 @@
+# Manga Editor Desu · nai学长魔改版：实现说明
+
+对外产品名：**Manga Editor Desu · nai学长魔改版** 1.0.0。下文模块名仍沿用开发期的 NAI Comic Studio。
+
 # NAI Comic Studio / Manga Editor Desu 增强版：完整实现说明
 
 ## 范围
@@ -37,6 +41,13 @@
 
 对应渲染器位于 `js/simulator/renderers/`。每个模板使用原创 CSS/Fabric 结构和原始授权元数据，不使用第三方品牌 Logo 或素材。
 
+剧情引擎（MayerTalk 交互参考，原创实现）：
+
+- `js/simulator/story-engine.js`：角色、对白类型、剧情节点、剧本解析。
+- `js/simulator/story-adapters.js`：同一段剧情套到聊天 / 视觉小说 / 社交 / 论坛 / 手机 / 直播模板。
+- `js/simulator/story-composer-controller.js`：选角色、发送对白、+1、解析剧本、套模板插入画布。
+- 聊天皮肤：`story-log-dark`、`discord-chat-dark`、`instant-chat-light`、`sms-chat-light`。
+
 ### 回放、时间轴和长截图（阶段 5）
 
 - `js/simulator/timeline.js`：从消息、对白和事件生成可回放时间轴。
@@ -69,6 +80,7 @@
 
 ```text
 npm run test:simulator
+npm run test:story-engine
 npm run test:assets
 npm run test:simulator-extra
 npm run test:timeline

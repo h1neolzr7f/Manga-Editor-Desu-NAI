@@ -164,12 +164,234 @@ background:repeating-conic-gradient(#cbd5e1 0 25%,#94a3b8 0 50%) 0/16px 16px;
 border:1px solid rgba(148,163,184,.35);
 }
 
+.asset-library-groups{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}
+.asset-library-group{font-size:11px;line-height:1.2;padding:4px 8px;border-radius:999px;border:1px solid rgba(148,163,184,.35);background:transparent;color:inherit;cursor:pointer}
+.asset-library-group.is-active{background:#334155;border-color:#94a3b8;color:#f8fafc;font-weight:600}
 .asset-library-list{display:flex;flex-direction:column;gap:6px;margin-top:8px;max-height:420px;overflow:auto}
 .asset-library-row{display:flex;align-items:center;gap:6px;padding:6px;border:1px solid rgba(148,163,184,.25);border-radius:5px;background:rgba(15,23,42,.35);font-size:11px}
 .asset-library-row.is-missing{border-color:#b45309;color:#fbbf24}
 .asset-library-row img{width:44px;height:44px;object-fit:cover;background:#0f172a;border-radius:3px}
 .asset-library-details{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
 .asset-library-details strong,.asset-library-details small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.asset-library-list.is-grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(96px,1fr));
+gap:8px;
+align-content:start;
+}
+
+.asset-library-card{
+display:flex;
+flex-direction:column;
+gap:4px;
+padding:6px;
+border:1px solid rgba(148,163,184,.25);
+border-radius:6px;
+background:rgba(15,23,42,.35);
+font-size:11px;
+min-width:0;
+}
+
+.asset-library-card.is-missing{border-color:#b45309;color:#fbbf24}
+.asset-library-card img{width:100%;height:72px;object-fit:cover;background:#0f172a;border-radius:4px}
+.asset-library-card strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
+.asset-library-card-actions{display:flex;flex-wrap:wrap;gap:4px}
+.asset-library-pager{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12px}
+
+.simulator-workspace-tabs{
+display:flex;
+gap:4px;
+padding:2px;
+border:1px solid rgba(148,163,184,.22);
+border-radius:8px;
+background:rgba(15,23,42,.35);
+}
+.simulator-workspace-tab{
+flex:1 1 0;
+border:0;
+border-radius:6px;
+padding:6px 8px;
+background:transparent;
+color:inherit;
+font-size:12px;
+cursor:pointer;
+}
+.simulator-workspace-tab.is-active{
+background:#334155;
+color:#f8fafc;
+font-weight:600;
+}
+
+.nai-boot-guard{
+position:fixed;
+inset:0;
+z-index:99999;
+display:flex;
+align-items:center;
+justify-content:center;
+background:rgba(8,10,16,.92);
+color:#e5e7eb;
+}
+.nai-boot-guard-card{
+max-width:420px;
+padding:22px 24px;
+border:1px solid rgba(148,163,184,.35);
+border-radius:12px;
+background:#111827;
+box-shadow:0 16px 40px rgba(0,0,0,.45);
+}
+.nai-boot-guard-card p{margin:10px 0 0;line-height:1.55;font-size:13px}
+.nai-boot-guard-card code{color:#93c5fd}
+
+#sidebar .icon-wrapper.is-brush-active i{
+color:#38bdf8;
+}
+.brush-preset-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:6px;
+padding:8px 10px 10px;
+}
+.brush-preset-chip{
+margin:0;
+padding:7px 8px;
+border:1px solid rgba(148,163,184,.28);
+border-radius:6px;
+background:rgba(15,23,42,.35);
+color:#e2e8f0;
+font-size:12px;
+line-height:1.3;
+text-align:left;
+cursor:pointer;
+}
+.brush-preset-chip.is-active{
+border-color:#38bdf8;
+background:rgba(56,189,248,.16);
+color:#f8fafc;
+}
+#pen-tool-buttons button.is-brush-active{
+outline:2px solid #38bdf8;
+}
+.tutorial-beginner-steps{
+margin:8px 0 10px 18px;
+padding:0;
+line-height:1.55;
+font-size:13px;
+}
+.tutorial-beginner-steps li{margin:0 0 6px;}
+
+.sidebar-icon-hidden,
+#sidebar .icon-wrapper[hidden]{display:none !important}
+
+#speech-bubble-area .area-header{margin-top:4px}
+
+.page-studio-presets{
+display:flex;
+flex-wrap:wrap;
+gap:6px;
+margin-top:8px;
+}
+.page-studio-presets .nai-character-mini-button,
+.page-studio-swatch{
+flex:1 1 140px;
+}
+.page-studio-swatch{
+min-height:36px;
+border:1px solid rgba(15,23,42,.25);
+color:#111827;
+font-size:12px;
+cursor:pointer;
+}
+.simulator-advanced{
+margin:8px 0;
+}
+.simulator-advanced summary{
+cursor:pointer;
+color:#94a3b8;
+}
+.sfx-palette{
+margin:8px 0 12px;
+padding:8px;
+border:1px solid rgba(148,163,184,.22);
+border-radius:7px;
+}
+.sfx-palette-list{
+display:flex;
+flex-wrap:wrap;
+gap:6px;
+margin:8px 0;
+}
+.sfx-chip{
+padding:4px 10px;
+border:1px solid rgba(148,163,184,.35);
+border-radius:999px;
+background:rgba(15,23,42,.45);
+color:#fff;
+font-size:12px;
+cursor:pointer;
+}
+.sfx-chip:hover{
+border-color:#fbbf24;
+}
+
+.story-character-row,
+.story-type-row{
+display:flex;
+flex-wrap:wrap;
+gap:6px;
+}
+
+.story-character-chip,
+.story-type-row .simulator-chat-small-button{
+border:1px solid rgba(148,163,184,.35);
+border-radius:999px;
+background:rgba(15,23,42,.45);
+color:var(--color-text-primary,#fff);
+font-size:11px;
+padding:4px 10px;
+cursor:pointer;
+}
+
+.story-character-chip.is-active,
+.story-type-row .simulator-chat-small-button.is-active{
+border-color:#fbbf24;
+background:rgba(251,191,36,.18);
+color:#fde68a;
+}
+
+.story-node-list{
+display:flex;
+flex-direction:column;
+gap:6px;
+max-height:240px;
+overflow:auto;
+}
+.story-node-empty{
+padding:10px 8px;
+font-size:12px;
+line-height:1.5;
+color:#94a3b8;
+}
+
+.story-node-row{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:8px;
+padding:6px 8px;
+border:1px solid rgba(148,163,184,.22);
+border-radius:6px;
+background:rgba(2,6,23,.28);
+color:var(--color-text-primary,#e5e7eb);
+font-size:11px;
+cursor:pointer;
+}
+
+.story-node-row.is-active{
+border-color:#38bdf8;
+background:rgba(56,189,248,.12);
+}
 
 @media (max-width:720px){
 .simulator-chat-field label{
@@ -178,5 +400,323 @@ width:100%;
 .simulator-chat-participant .simulator-chat-input,
 .simulator-chat-message-header .simulator-chat-input{
 flex-basis:100%;
+}
+}
+
+.sim-studio-overlay{
+position:fixed;
+top:44px;
+left:76px;
+bottom:48px;
+width:min(640px,52vw);
+z-index:180;
+display:flex;
+flex-direction:column;
+gap:8px;
+padding:12px 14px;
+box-sizing:border-box;
+background:#0f172a;
+color:#e2e8f0;
+border-right:1px solid rgba(148,163,184,.22);
+box-shadow:16px 0 36px rgba(0,0,0,.38);
+}
+.sim-studio-overlay[hidden]{
+display:none !important;
+}
+.sim-studio-header{
+display:flex;
+align-items:center;
+gap:8px;
+flex-wrap:wrap;
+}
+.sim-studio-header strong{
+font-size:15px;
+}
+.sim-studio-tabs{
+display:flex;
+gap:4px;
+flex:1 1 auto;
+}
+.sim-studio-body{
+flex:1 1 auto;
+min-height:0;
+overflow:auto;
+padding-right:4px;
+}
+.sim-studio-form{
+display:flex;
+flex-direction:column;
+gap:8px;
+margin:8px 0;
+}
+.sim-studio-field{
+flex-direction:column;
+align-items:stretch;
+}
+.sim-studio-field label{
+min-width:0;
+width:auto;
+}
+.sim-studio-field .simulator-chat-input,
+.sim-studio-field textarea{
+width:100%;
+}
+.sim-studio-hidden-field{
+position:absolute;
+width:1px;
+height:1px;
+padding:0;
+margin:-1px;
+overflow:hidden;
+clip:rect(0,0,0,0);
+white-space:nowrap;
+border:0;
+}
+.sim-studio-store-hint{
+margin:0 0 8px;
+font-size:12px;
+line-height:1.45;
+color:#94a3b8;
+}
+.sim-store-grid{
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:8px;
+margin:0 0 12px;
+}
+.sim-store-grid-parts{
+grid-template-columns:repeat(3,minmax(0,1fr));
+}
+.sim-store-card{
+display:flex;
+flex-direction:column;
+gap:6px;
+margin:0;
+padding:8px;
+border:1px solid rgba(148,163,184,.22);
+border-radius:10px;
+background:rgba(15,23,42,.55);
+color:#e2e8f0;
+cursor:pointer;
+text-align:left;
+}
+.sim-store-card:hover{
+border-color:#38bdf8;
+transform:translateY(-1px);
+box-shadow:0 8px 18px rgba(0,0,0,.28);
+}
+.sim-store-card.is-selected{
+border-color:#38bdf8;
+box-shadow:0 0 0 2px rgba(56,189,248,.35);
+background:rgba(56,189,248,.08);
+}
+.sim-store-name{
+font-size:12px;
+line-height:1.3;
+}
+.sim-store-preview{
+display:block;
+height:78px;
+border-radius:8px;
+overflow:hidden;
+position:relative;
+box-sizing:border-box;
+}
+.sim-store-thumb{
+display:block;
+width:100%;
+height:72px;
+object-fit:cover;
+border-radius:8px;
+background:#0b1220;
+}
+.sim-store-preview-chat{
+background:var(--sim-bg,#111827);
+padding:8px;
+}
+.sim-mini-head{
+display:block;
+height:10px;
+margin-bottom:8px;
+border-radius:4px;
+background:var(--sim-header,#0f172a);
+box-shadow:inset 12px 0 0 var(--sim-accent,#38bdf8);
+}
+.sim-mini-row{
+display:flex;
+margin-bottom:6px;
+}
+.sim-mini-row.is-right{
+justify-content:flex-end;
+}
+.sim-mini-bubble{
+display:block;
+height:14px;
+border-radius:8px;
+width:68%;
+}
+.sim-mini-left{
+background:var(--sim-left,#243244);
+}
+.sim-mini-right{
+background:var(--sim-right,#075985);
+width:54%;
+}
+.sim-mini-left.is-short{
+width:42%;
+}
+.sim-store-preview-web{
+background:#141414;
+padding:8px;
+}
+.sim-web-bar,
+.sim-web-player,
+.sim-web-lines{
+display:block;
+border-radius:4px;
+}
+.sim-web-bar{
+height:10px;
+margin-bottom:6px;
+background:#242424;
+}
+.sim-web-player{
+height:36px;
+margin-bottom:6px;
+background:#0a0a0a;
+position:relative;
+}
+.sim-web-player::after{
+content:"▶";
+position:absolute;
+left:50%;
+top:50%;
+transform:translate(-50%,-50%);
+font-size:12px;
+color:#f8fafc;
+}
+.sim-web-lines{
+height:8px;
+background:#1c1c1c;
+}
+.sim-store-preview-web[data-kind="danmaku"]{
+background:#0b1220;
+}
+.sim-store-preview-web[data-kind="danmaku"] .sim-web-bar{
+background:#152033;
+}
+.sim-store-preview-web[data-kind="danmaku"] .sim-web-player{
+background:#081018;
+}
+.sim-store-preview-web[data-kind="danmaku"] .sim-web-player::after{
+content:"弹";
+color:#22d3ee;
+}
+.sim-store-preview-web[data-kind="board"]{
+background:#f3eee4;
+}
+.sim-store-preview-web[data-kind="board"] .sim-web-bar{
+background:#3d4a32;
+}
+.sim-store-preview-web[data-kind="board"] .sim-web-player{
+background:#e7dfd0;
+}
+.sim-store-preview-web[data-kind="board"] .sim-web-player::after{
+content:"";
+}
+.sim-store-preview-web[data-kind="board"] .sim-web-lines{
+background:#d6d0c4;
+}
+.sim-store-preview-web[data-kind="vn"]{
+background:#1e1b4b;
+}
+.sim-store-preview-web[data-kind="vn"] .sim-web-bar{
+background:#312e81;
+}
+.sim-store-preview-web[data-kind="vn"] .sim-web-player{
+background:#0f172a;
+height:28px;
+}
+.sim-store-preview-web[data-kind="vn"] .sim-web-player::after{
+content:"";
+}
+.sim-store-preview-web[data-kind="vn"] .sim-web-lines{
+height:18px;
+background:#312e81;
+}
+.sim-store-preview-web[data-kind="social"]{
+background:#0f172a;
+}
+.sim-store-preview-web[data-kind="social"] .sim-web-player{
+height:22px;
+border-radius:12px;
+}
+.sim-store-preview-web[data-kind="social"] .sim-web-player::after{
+content:"";
+}
+.sim-store-preview-web[data-kind="phone"]{
+background:#020617;
+padding:10px 28px;
+}
+.sim-store-preview-web[data-kind="phone"] .sim-web-bar{
+width:24px;
+margin:0 auto 6px;
+border-radius:8px;
+}
+.sim-store-preview-web[data-kind="phone"] .sim-web-player{
+height:42px;
+border-radius:12px;
+}
+.sim-store-preview-web[data-kind="forum"]{
+background:#111827;
+}
+.sim-store-preview-web[data-kind="forum"] .sim-web-player{
+height:18px;
+}
+.sim-store-preview-web[data-kind="forum"] .sim-web-player::after{
+content:"";
+}
+.sim-store-preview-web[data-kind="live"]{
+background:#111827;
+}
+.sim-store-preview-web[data-kind="live"] .sim-web-player::after{
+content:"LIVE";
+font-size:9px;
+color:#ef4444;
+}
+.sim-store-preview-part{
+background:#141414;
+}
+.sim-store-preview-part[data-kind="danmaku"]{
+background:#0b1220;
+}
+.sim-store-preview-part[data-kind="board"]{
+background:#f3eee4;
+}
+.sim-studio-scale-bar{
+display:flex;
+flex-wrap:wrap;
+align-items:center;
+gap:6px;
+padding-top:4px;
+border-top:1px solid rgba(148,163,184,.18);
+}
+.sim-studio-scale-label{
+font-size:12px;
+color:#94a3b8;
+}
+.sim-studio-scale-hint{
+font-size:11px;
+color:#64748b;
+line-height:1.35;
+flex:1 1 180px;
+}
+@media (max-width:1100px){
+.sim-studio-overlay{
+width:min(92vw,640px);
+left:48px;
+}
+.sim-store-grid-parts{
+grid-template-columns:repeat(2,minmax(0,1fr));
 }
 }

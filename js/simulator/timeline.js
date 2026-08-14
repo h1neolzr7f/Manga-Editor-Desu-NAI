@@ -5,8 +5,9 @@ function clone(value){return JSON.parse(JSON.stringify(value));}
 function eventsFromScene(scene){
 var value=scene&&typeof scene==='object'?scene:{};
 if(Array.isArray(value.events)&&value.events.length)return value.events.map(function(event,index){return Object.assign({id:'event_'+(index+1),index:index},clone(event));});
+if(Array.isArray(value.nodes)&&value.nodes.length)return value.nodes.map(function(node,index){return {id:node.id||'node_'+(index+1),index:index,type:node.type||'node',payload:clone(node)};});
 if(Array.isArray(value.messages))return value.messages.map(function(message,index){return {id:message.id||'message_'+(index+1),index:index,type:'message',payload:clone(message)};});
-if(Array.isArray(value.dialogue))return value.dialogue.map(function(dialogue,index){return {id:'dialogue_'+(index+1),index:index,type:'dialogue',payload:clone(dialogue)};});
+if(Array.isArray(value.dialogue))return value.dialogue.map(function(dialogue,index){return {id:dialogue.id||'dialogue_'+(index+1),index:index,type:'dialogue',payload:clone(dialogue)};});
 return [];
 }
 

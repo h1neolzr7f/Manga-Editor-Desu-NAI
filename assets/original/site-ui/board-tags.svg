@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 56" width="360" height="56">
+<rect x="0" y="0" width="360" height="56" fill="#f3eee4"/>
+<rect x="10" y="12" width="60" height="32" fill="#4d7c0f" rx="6" ry="6" stroke="#d6d0c4" stroke-width="1"/>
+<text x="40" y="33" fill="#fffdf8" font-size="12" font-family="Microsoft YaHei, Noto Sans SC, sans-serif" text-anchor="middle">最新</text>
+<rect x="78" y="12" width="60" height="32" fill="#fffdf8" rx="6" ry="6" stroke="#d6d0c4" stroke-width="1"/>
+<text x="108" y="33" fill="#2f2a24" font-size="12" font-family="Microsoft YaHei, Noto Sans SC, sans-serif" text-anchor="middle">热门</text>
+<rect x="146" y="12" width="60" height="32" fill="#fffdf8" rx="6" ry="6" stroke="#d6d0c4" stroke-width="1"/>
+<text x="176" y="33" fill="#2f2a24" font-size="12" font-family="Microsoft YaHei, Noto Sans SC, sans-serif" text-anchor="middle">精华</text>
+<rect x="214" y="12" width="60" height="32" fill="#fffdf8" rx="6" ry="6" stroke="#d6d0c4" stroke-width="1"/>
+<text x="244" y="33" fill="#2f2a24" font-size="12" font-family="Microsoft YaHei, Noto Sans SC, sans-serif" text-anchor="middle">长图</text>
+<rect x="282" y="12" width="60" height="32" fill="#fffdf8" rx="6" ry="6" stroke="#d6d0c4" stroke-width="1"/>
+<text x="312" y="33" fill="#2f2a24" font-size="12" font-family="Microsoft YaHei, Noto Sans SC, sans-serif" text-anchor="middle">系列</text>
+</svg>

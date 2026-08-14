@@ -9,7 +9,7 @@ window.open(url,'ShareWindow','toolbar=no, location=no, status=no, menubar=no, s
 function snsTweet(){
 clipCopy();
 
-var tweetText="\nCreated by Manga Editor Desu!\n#Manga_Editor_Desu\n[Web site]\nhttps://new-sankaku.github.io/SP-MangaEditer/\n[Webui extension]\nhttps://github.com/new-sankaku/stable-diffusion-webui-simple-manga-maker";
+var tweetText="\nMade with Manga Editor Desu · nai学长魔改版\n#Manga_Editor_Desu";
 var tweetUrl="https://twitter.com/intent/tweet?text="+encodeURIComponent(tweetText);
 openWindow(tweetUrl);
 }

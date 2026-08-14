@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 240" width="360" height="240">
+<rect x="0" y="0" width="360" height="240" fill="#f3eee4"/>
+<rect x="10" y="10" width="340" height="64" fill="#fffdf8" rx="8" ry="8" stroke="#d6d0c4" stroke-width="1"/>
+<text x="22" y="34" fill="#4d7c0f" font-size="12" font-family="Microsoft YaHei, Noto Sans SC, sans-serif" font-weight="700">楼主</text>
+<rect x="22" y="46" width="220" height="8" fill="#2f2a24" rx="2" ry="2" opacity="0.55"/>
+<rect x="10" y="86" width="340" height="40" fill="#fffdf8" rx="8" ry="8" stroke="#d6d0c4" stroke-width="1"/>
+<text x="22" y="104" fill="#7a7368" font-size="11" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">2 楼</text>
+<rect x="58" y="102" width="180" height="8" fill="#2f2a24" rx="2" ry="2" opacity="0.45"/>
+<rect x="10" y="134" width="340" height="40" fill="#fffdf8" rx="8" ry="8" stroke="#d6d0c4" stroke-width="1"/>
+<text x="22" y="152" fill="#7a7368" font-size="11" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">3 楼</text>
+<rect x="58" y="150" width="200" height="8" fill="#2f2a24" rx="2" ry="2" opacity="0.45"/>
+<rect x="10" y="182" width="340" height="40" fill="#fffdf8" rx="8" ry="8" stroke="#d6d0c4" stroke-width="1"/>
+<text x="22" y="200" fill="#7a7368" font-size="11" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">4 楼</text>
+<rect x="58" y="198" width="220" height="8" fill="#2f2a24" rx="2" ry="2" opacity="0.45"/>
+</svg>

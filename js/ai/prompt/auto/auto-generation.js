@@ -1,4 +1,11 @@
 async function autoMultiGenerate(skipDirectorPrep) {
+if(window.NaiBeginnerGuide&&typeof window.NaiBeginnerGuide.generatePreflight==='function'&&!window.NaiBeginnerGuide.generatePreflight())return;
+if(!skipDirectorPrep&&typeof window!=='undefined'&&typeof window.confirm==='function'){
+var n=($("onePanelGenerateNumber")&&$("onePanelGenerateNumber").value)||1;
+var pages=(typeof btmGetGuids==='function'&&btmGetGuids())||[];
+var count=Array.isArray(pages)?pages.length:0;
+if(!window.confirm('将用 NovelAI 生成画布上的分镜（约 '+count+' 格 × '+n+' 次）。会花积分，确定吗？'))return;
+}
 if(!skipDirectorPrep&&typeof isBatchDirectorEnabled==='function'&&isBatchDirectorEnabled()&&typeof naiBatchDirectorSetPrompts==='function'){
 let scenarioPromptSelecter=$('ScenarioPromptSelecter')?$('ScenarioPromptSelecter').value:'';
 let batchPageList=generatePageList();
@@ -21,7 +28,7 @@ createToastError('AI 导演','已填写批量需求，但未开启“生成所�
 return;
 }
 
-const loading=OP_showLoading({icon: 'process',step: 'Step1',substep: 'Multi Page',progress: 0},true);
+const loading=OP_showLoading({icon: 'process',step: '正在生成',substep: '多页出图',progress: 0},true);
 await new Promise(requestAnimationFrame);
 
 try{
@@ -32,13 +39,13 @@ for (const [index,guid] of guidList.entries()) {
 
 if(OP_isCancelled()){
 OP_updateLoadingState(loading,{
-icon: 'process',step: typeof getText==='function'?getText('op_cancelled'):'Cancelled',substep: '',progress: 100
+icon: 'process',step: typeof getText==='function'?getText('op_cancelled'):'已取消',substep: '',progress: 100
 });
 break;
 }
 
 OP_updateLoadingState(loading,{
-icon: 'process',step: 'Step2',substep: 'Page:'+(index+1)+'/'+guidList.length,progress: Math.round((index/guidList.length)*100)
+icon: 'process',step: '正在生成',substep: '第 '+(index+1)+' / '+guidList.length+' 页',progress: Math.round((index/guidList.length)*100)
 });
 await new Promise(requestAnimationFrame);
 

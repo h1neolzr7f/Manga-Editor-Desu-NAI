@@ -84,11 +84,18 @@ var self=this;
 var overlay=document.createElement('div');
 overlay.className='tutorial-overlay';
 overlay.innerHTML='<div class="tutorial-prompt">'+
-'<div class="tutorial-prompt-title">'+getText('tutorialWelcomeTitle')+'</div>'+
-'<div class="tutorial-prompt-body">'+getText('tutorialWelcomeBody')+'</div>'+
+'<div class="tutorial-prompt-title">三步开始画漫画</div>'+
+'<div class="tutorial-prompt-body">'+
+'<ol class="tutorial-beginner-steps">'+
+'<li>左侧点「模板」，选一个分镜放到画布。</li>'+
+'<li>点「剧情」写对白。对话皮肤用「套用对话模板」；要出图用「生成漫画分镜」或左侧「模板」。</li>'+
+'<li>要出图再到「自动生成」。生成会花 NovelAI 积分，不会偷偷扣。</li>'+
+'</ol>'+
+'<p>画完按 Esc 或点「移动」，才能再选中图层。笔刷都在左侧「笔刷」里。</p>'+
+'</div>'+
 '<div class="tutorial-prompt-buttons">'+
-'<button class="tutorial-btn tutorial-btn-primary" id="tutorialStartBtn">'+getText('tutorialStart')+'</button>'+
-'<button class="tutorial-btn tutorial-btn-secondary" id="tutorialSkipBtn">'+getText('tutorialSkip')+'</button>'+
+'<button class="tutorial-btn tutorial-btn-primary" id="tutorialStartBtn">知道了，开始</button>'+
+'<button class="tutorial-btn tutorial-btn-secondary" id="tutorialSkipBtn">跳过</button>'+
 '</div>'+
 '</div>';
 document.body.appendChild(overlay);
@@ -105,16 +112,14 @@ self.saveState();
 startQuickStart:function(){
 var self=this;
 var steps=[
-{element:'#intro_svg-container-template',title:getText('tutorialStep1Title'),body:getText('tutorialStep1Body'),position:'right'},
-{element:'#canvas-area',title:getText('tutorialStep2Title'),body:getText('tutorialStep2Body'),position:'left'},
-{element:'#intro_speech-bubble-area1',title:getText('tutorialStep3Title'),body:getText('tutorialStep3Body'),position:'right'},
-{element:'#intro_text-area',title:getText('tutorialStep4Title'),body:getText('tutorialStep4Body'),position:'right'},
-{element:'#canvas-area',title:getText('tutorialStep5Title'),body:getText('tutorialStep5Body'),position:'left'}
+{element:'#intro_svg-container-template',title:'① 选分镜',body:'点左侧「模板」，选一个分镜放到画布。',position:'right'},
+{element:'#intro_simulator-chat-area',title:'② 写对白',body:'打开「剧情」写几句。「套用对话模板」只出聊天界面；要出图请点「生成漫画分镜」，或回左侧点「模板」。',position:'right'},
+{element:'#intro_auto-generate-area',title:'③ 自动生成出图',body:'先看画布顶栏是否已填 Token。打开「自动生成」，确认后再点生成。这一步才会花 NovelAI 积分。',position:'right'}
 ];
 this.runSteps(steps,0,function(){
 self.state.quickStartCompleted=true;
 self.saveState();
-createToast(getText('tutorialCompleteTitle'),getText('tutorialCompleteBody'),3000);
+createToast('可以开始了','Esc 回到移动。双击改字。要画画点「笔刷」。',3500);
 });
 },
 runSteps:function(steps,index,onComplete){

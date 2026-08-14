@@ -22,6 +22,7 @@ const MODE_PEN_CUSTOM='CustomBrush';
 var isMosaicBrushActive=false;
 var cropFrame;
 var cropActiveObject;
+var cropThenCutout=false;
 let nowPencil="";
 
 function showCanvasHelpText(text,highlightKey){
@@ -82,49 +83,77 @@ var rootStyles=getComputedStyle(currentModeElement);
 return rootStyles.getPropertyValue(key).trim();
 }
 
+function getCropFrameRect(){
+if(!cropFrame)return null;
+return {
+left:cropFrame.left,
+top:cropFrame.top,
+width:Math.abs((cropFrame.width||0)*(cropFrame.scaleX||1)),
+height:Math.abs((cropFrame.height||0)*(cropFrame.scaleY||1))
+};
+}
+
 function completeCrop(){
 if(!cropFrame||!cropActiveObject)return false;
-var left=cropFrame.left-cropActiveObject.left;
-var top=cropFrame.top-cropActiveObject.top;
-left*=1;
-top*=1;
-var width=cropFrame.width*1;
-var height=cropFrame.height*1;
+var image=cropActiveObject;
+var rect=getCropFrameRect();
+var doCutout=!!cropThenCutout;
+cropThenCutout=false;
+if(doCutout){
+cropModeClear();
+if(window.NaiBackgroundRemovalClient&&typeof window.NaiBackgroundRemovalClient.processRegion==="function"){
+window.NaiBackgroundRemovalClient.processRegion(image,rect,"new").catch(function(){});
+}else if(typeof createToastError==="function"){
+createToastError("抠图不可用","本地抠图还没就绪，请用一键启动后再试。");
+}
+return true;
+}
 ImageUtil.cropImage(
-cropActiveObject,
-cropFrame.left,
-cropFrame.top,
-parseInt(cropFrame.scaleY*height),
-parseInt(width*cropFrame.scaleX)
+image,
+rect.left,
+rect.top,
+parseInt(rect.height,10),
+parseInt(rect.width,10)
 );
 cropModeClear();
 return true;
 }
 
-function startCropMode(targetImage){
-if(cropModeClear()){
-return true;
-}
+function startCropMode(targetImage,cutoutAfter){
+var previousImage=cropActiveObject;
+if(typeof cropModeClear==="function")cropModeClear();
 if(!targetImage){
 targetImage=canvas.getActiveObject();
 }
+if(targetImage&&targetImage.naiCropFrame)targetImage=previousImage;
+if(!targetImage&&previousImage)targetImage=previousImage;
 if(!targetImage||!isImage(targetImage)){
-createToastError("Select Image!","");
+if(typeof createToast==='function')createToast('裁剪需要图片','请先点一张图再按 C。分镜格子请用左侧「刀」切开，不要用裁剪。',4200);
+else if(typeof createToastError==='function')createToastError('裁剪需要图片','请先点一张图再按 C。分镜格子请用刀切开。');
 return;
 }
+if(typeof selectMoveTool==="function"&&canvas&&canvas.isDrawingMode)selectMoveTool();
+cropThenCutout=!!cutoutAfter;
 cropActiveObject=targetImage;
 cropFrame=new fabric.Rect({
-fill:"rgba(0,0,0,0)",
+fill:"rgba(54,253,0,0.08)",
 originX:"left",
 originY:"top",
-stroke:"rgba(0,0,0,0)",
-strokeWidth:0,
+stroke:"rgba(54,253,0,0.95)",
+strokeWidth:2,
+strokeDashArray:[8,4],
 width:1,
 height:1,
 borderColor:"#36fd00",
-cornerColor:"green",
+cornerColor:"#36fd00",
+cornerSize:10,
+transparentCorners:false,
 hasRotatingPoint:false,
+lockRotation:true,
 selectable:true,
+evented:true,
+naiCropFrame:true,
+excludeFromExport:true
 });
 cropFrame.left=cropActiveObject.left;
 cropFrame.top=cropActiveObject.top;
@@ -133,5 +162,12 @@ cropFrame.height=cropActiveObject.height*cropActiveObject.scaleY;
 canvas.add(cropFrame);
 canvas.setActiveObject(cropFrame);
 canvas.renderAll();
-showCanvasHelpText(getText("cropHelpText"),"Enter");
+showCanvasHelpText(getText(cutoutAfter?"cutoutRegionHelpText":"cropHelpText"),"Enter");
+if(typeof createToast==="function"){
+createToast(cutoutAfter?"框选抠图":"框选裁剪",cutoutAfter?"拖绿框选区域，按 Enter 抠图（本地，不花积分）。":"拖绿框选区域，按 Enter 裁剪。",3200);
+}
+}
+
+function startCutoutRegionMode(targetImage){
+return startCropMode(targetImage,true);
 }

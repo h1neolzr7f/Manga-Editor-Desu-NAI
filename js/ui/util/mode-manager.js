@@ -249,12 +249,11 @@ _enable:function(){
 },
 
 disable:function(){
-if(!cropFrame)return;
-canvas.remove(cropFrame);
-cropFrame=null;
-if(cropActiveObject){
-cropActiveObject.set({selectable:true});
+if(cropFrame){
+try{canvas.remove(cropFrame);}catch(error){}
 }
+cropFrame=null;
+cropActiveObject=null;
 hideCanvasHelpText();
 },
 
@@ -386,10 +385,12 @@ if(obj.customType==="freehandBubbleRect"){
 obj.set({selectable:false,evented:false});
 return;
 }
-obj.set({selectable:true,evented:true});
+obj.set({selectable:true,evented:obj.simulatorRole!=='page'});
 });
 canvas.selection=true;
 ModeManager.cursor.reset();
+if(typeof syncBrushSidebar==='function')syncBrushSidebar();
+else if(window.NaiBeginnerGuide&&typeof window.NaiBeginnerGuide.updateHud==='function')window.NaiBeginnerGuide.updateHud();
 uiLogger.debug("ModeManager.clearAll: all modes cleared");
 }
 };

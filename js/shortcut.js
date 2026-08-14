@@ -122,12 +122,13 @@ e.preventDefault();
 
 // bind delete shortcut
 hotkeys(hotkeysMap.delete,'all',function (e) {
+if(isEditableTagsActive())return;
 var activeObject=canvas.getActiveObject();
-if (activeObject) {
+if(!activeObject)return;
+if(activeObject.isEditing)return;
 removeLayer(activeObject);
 canvas.renderAll();
 e.preventDefault();
-}
 });
 
 // bind move object shortcuts
@@ -259,6 +260,15 @@ var shortcutCategories=[
 {win:'Ctrl + C',mac:'⌘ + C',i18n:'sc_copy'},
 {win:'Ctrl + V',mac:'⌘ + V',i18n:'sc_paste'},
 {win:'Delete / Backspace',mac:'Delete / Backspace',i18n:'sc_deleteLayer'},
+{win:'V',mac:'V',i18n:'sc_moveTool'},
+{win:'B',mac:'B',i18n:'sc_brushTool'},
+{win:'E',mac:'E',i18n:'sc_eraserTool'},
+{win:'M',mac:'M',i18n:'sc_marqueeTool'},
+{win:'C',mac:'C',i18n:'sc_cropTool'},
+{win:'K',mac:'K',i18n:'sc_knifeTool'},
+{win:'L',mac:'L',i18n:'sc_lassoTool'},
+{win:'G',mac:'G',i18n:'sc_gradientTool'},
+{win:'Space + Drag',mac:'Space + Drag',i18n:'sc_spacePan'},
 ]},
 {category:'sc_cat_view',items:[
 {win:'Ctrl + G',mac:'Ctrl + G',i18n:'sc_toggleGrid'},
@@ -283,6 +293,26 @@ var shortcutCategories=[
 ];
 
 var shortcutFocusTrap=null;
+var SC_ZH={
+sc_cat_file:'文件',sc_cat_edit:'编辑',sc_cat_view:'视图',sc_cat_object:'对象',sc_cat_other:'其他',
+sc_newPage:'新页',sc_prevPage:'上一页',sc_nextPage:'下一页',
+sc_projectSave:'保存项目',sc_projectLoad:'加载项目',sc_imageDownload:'下载图片',sc_settingsSave:'保存设置',
+sc_undo:'撤销',sc_redo:'重做',sc_copy:'复制',sc_paste:'粘贴',sc_deleteLayer:'删除',
+sc_moveTool:'移动',sc_brushTool:'笔刷',sc_eraserTool:'橡皮',sc_marqueeTool:'框选图层',
+sc_cropTool:'裁剪 / 框选抠图',sc_knifeTool:'切割格子',sc_lassoTool:'套索',sc_gradientTool:'渐变',
+sc_spacePan:'空格拖动画布',sc_toggleGrid:'切换网格',sc_toggleLayerPanel:'图层面板',
+sc_toggleControls:'控件',sc_toggleBottomBar:'底部栏',sc_promptView:'查看提示',
+sc_zoomIn:'放大',sc_zoomOut:'缩小',sc_zoomReset:'重置缩放',
+sc_arrowKeys:'方向键',sc_shiftArrow:'Shift + 方向键',sc_moveObject:'移动',
+sc_moveObjectFast:'移动(10px)',sc_layerUp:'前移',sc_layerDown:'后移',
+sc_deselect:'取消选择',sc_shortcutPage:'快捷键'
+};
+function scText(key){
+var text='';
+try{if(typeof i18next!=='undefined'&&typeof i18next.t==='function')text=i18next.t(key);}catch(e){}
+if(!text||text===key)text=SC_ZH[key]||key;
+return text;
+}
 function openShortcutModal(){
 var container=$('shortcutGrid');
 container.innerHTML='';
@@ -295,7 +325,7 @@ var catDiv=document.createElement('div');
 catDiv.className='sc-category';
 var title=document.createElement('div');
 title.className='sc-category-title';
-title.textContent=i18next.t(cat.category);
+title.textContent=scText(cat.category);
 catDiv.appendChild(title);
 var items=document.createElement('div');
 items.className='sc-category-items';
@@ -305,13 +335,13 @@ itemDiv.className='sc-item';
 var keySpan=document.createElement('span');
 keySpan.className='sc-key';
 if(item.winI18n){
-keySpan.textContent=i18next.t(isMacOs?item.macI18n:item.winI18n);
+keySpan.textContent=scText(isMacOs?item.macI18n:item.winI18n);
 }else{
 keySpan.textContent=isMacOs?item.mac:item.win;
 }
 var funcSpan=document.createElement('span');
 funcSpan.className='sc-func';
-funcSpan.textContent=i18next.t(item.i18n);
+funcSpan.textContent=scText(item.i18n);
 itemDiv.appendChild(keySpan);
 itemDiv.appendChild(funcSpan);
 items.appendChild(itemDiv);

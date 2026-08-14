@@ -1,3 +1,7 @@
+# Manga Editor Desu · nai学长魔改版 / NAI Comic Studio 规格说明
+
+> 内部设计笔记。对外名称是 **Manga Editor Desu · nai学长魔改版** 1.0.0。下文「第一轮」指早期增量范围，以仓库代码为准。
+
 # NAI Comic Studio / Manga Editor Desu 增强版规格（第一轮）
 
 ## 目标与范围

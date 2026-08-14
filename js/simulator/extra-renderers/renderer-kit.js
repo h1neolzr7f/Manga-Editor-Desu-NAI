@@ -1,5 +1,6 @@
 (function(root){
 "use strict";
+// Unused leftover. Live extra-simulator helpers live in extra-renderer-factory.js.
 
 var SCHEMA_VERSION=1;
 var guidCounter=0;

@@ -5,7 +5,7 @@ apiMode=apis.NOVELAI;
 providerRegistry.syncFromApiMode(apiMode);
 
 var helpTitle=getText("help_api_connect_settings");
-if(showToast)createToast("API CHANGE!","NovelAI",2000);
+if(showToast)createToast("已切换到 NovelAI","出图将使用 NovelAI。",2000);
 if($('apiSettingsUrlHelpe'))$('apiSettingsUrlHelpe').innerHTML='';
 
 updateWorkflowType();

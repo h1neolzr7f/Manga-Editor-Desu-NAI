@@ -57,4 +57,38 @@ flipHorizontally();
 EventDelegator.register('flipVertically',function(){
 flipVertically();
 });
+
+EventDelegator.register('selectBrush',function(el){
+if(typeof selectSidebarBrush==='function')selectSidebarBrush(el.dataset.brush,el.dataset.target||'tool-area');
+});
+
+EventDelegator.register('selectMove',function(){
+if(typeof selectMoveTool==='function')selectMoveTool();
+});
+
+EventDelegator.register('selectEraser',function(){
+if(typeof selectEraserTool==='function')selectEraserTool();
+});
+
+EventDelegator.register('selectMarquee',function(){
+if(window.NaiPsTools)window.NaiPsTools.selectObjectMarquee();
+else if(typeof selectMarqueeTool==='function')selectMarqueeTool(false);
+});
+
+EventDelegator.register('selectCrop',function(){
+if(window.NaiPsTools)window.NaiPsTools.selectCrop(false);
+else if(typeof selectMarqueeTool==='function')selectMarqueeTool(false);
+});
+
+EventDelegator.register('selectKnife',function(){
+if(window.NaiPsTools)window.NaiPsTools.selectKnife();
+else if(typeof ModeManager!=='undefined'&&ModeManager.knife)ModeManager.knife.toggle();
+});
+
+EventDelegator.register('openSimulatorStudio',function(){
+var studio=window.NaiComicSimulatorStudio;
+if(!studio||typeof studio.open!=='function')return;
+if(typeof studio.isOpen==='function'&&studio.isOpen())studio.close();
+else studio.open();
+});
 });

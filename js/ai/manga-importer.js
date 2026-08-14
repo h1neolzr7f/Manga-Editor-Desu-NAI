@@ -2437,7 +2437,7 @@ if(!preflight.ok){
 notify('NAI redraw','Preflight blocked generation because one or more panels exceed the safe pixel budget.',true,7000);
 return;
 }
-var ok=window.confirm(formatNaiPreflight(preflight)+'\n\nThis will call NovelAI one panel at a time. Continue?');
+var ok=window.confirm(formatNaiPreflight(preflight)+'\n\n将逐格调用 NovelAI 出图（会花积分）。确定吗？');
 if(!ok)return;
 hideImportTemplateLayers();
 if(typeof OP_resetCancel==='function')OP_resetCancel();

@@ -8,7 +8,7 @@ let fmFontData = {
    color: "#4a9eff",
    fonts: [
     { name: "Arial Narrow" },
-    { name: "Klee One" },
+    { name: "Klee One", bundled: true },
     { name: "ZCOOL KuaiLe" },
     { name: "ZCOOL XiaoWei" },
     { name: "Do Hyeon" },
@@ -115,12 +115,12 @@ let fmFontData = {
   OnomatopoeiaFont: {
    color: "#ff4a4a",
    fonts: [
-    { name: "Bangers" },
+    { name: "Bangers", bundled: true },
     { name: "Impact" },
-    { name: "851_DZUYOKU" },
-    { name: "851_YOWAKU" },
-    { name: "851_KAKUKAKU" },
-    { name: "851_MkPOP" },
+    { name: "851_DZUYOKU", bundled: true },
+    { name: "851_YOWAKU", bundled: true },
+    { name: "851_KAKUKAKU", bundled: true },
+    { name: "851_MkPOP", bundled: true },
     { name: "Arial Black" },
     { name: "HGGothicE" },
     { name: "HGGyoshotai" },
@@ -137,14 +137,32 @@ let fmFontData = {
     { name: "Black Han Sans" },
     { name: "ZCOOL QingKe HuangYou" },
     { name: "Didot" },
-    { name: "Deutsche Zierschrift" }
+    { name: "Deutsche Zierschrift" },
+    { name: "Anton" },
+    { name: "Russo One" },
+    { name: "Black Ops One" },
+    { name: "Luckiest Guy" },
+    { name: "Creepster" },
+    { name: "Segoe UI Black" },
+    { name: "Yu Gothic" },
+    { name: "Meiryo" },
+    { name: "STXingkai" },
+    { name: "LiSu" },
+    { name: "YouYuan" },
+    { name: "FZShuTi" }
    ],
   },
   CustomFont: {
    color: "#ff9f4a",
    fonts: [
-    { name: "DotGothic16" },
-    { name: "Chalk" },
+    { name: "DotGothic16", bundled: true },
+    { name: "Chalk", bundled: true },
+    { name: "Rampart One", bundled: true },
+    { name: "Stick", bundled: true },
+    { name: "Train One", bundled: true },
+    { name: "Kalam", bundled: true },
+    { name: "DokiDokiFantasia", bundled: true },
+    { name: "Ohisama", bundled: true },
     { name: "Bungee Shade" },
     { name: "Rubik Mono One" },
     { name: "Permanent Marker" },
@@ -469,8 +487,12 @@ const FontDetector = {
     filteredData[groupName] = {
       color: data.color,
       fonts: data.fonts.filter(font => {
+        if (font.bundled) return true;
         const result = FontDetector.compareRendering(font.name);
         return result.available;
+      }).map(font => {
+        if (font.bundled) return font;
+        return font;
       })
     };
   }
@@ -487,6 +509,6 @@ const FontDetector = {
  }
  
  window.addEventListener('DOMContentLoaded', () => {
-  setTimeout(fontInit, 0);
+  setTimeout(fontInit, 1600);
  });
  

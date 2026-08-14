@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 40" width="320" height="40">
+<rect x="0" y="0" width="320" height="40" fill="#f3eee4"/>
+<rect x="12" y="6" width="32" height="28" fill="#fffdf8" rx="6" ry="6" stroke="#d6d0c4" stroke-width="1"/>
+<text x="28" y="25" fill="#2f2a24" font-size="13" font-family="Microsoft YaHei, Noto Sans SC, sans-serif" text-anchor="middle">‹</text>
+<rect x="54" y="6" width="32" height="28" fill="#fffdf8" rx="6" ry="6" stroke="#d6d0c4" stroke-width="1"/>
+<text x="70" y="25" fill="#2f2a24" font-size="13" font-family="Microsoft YaHei, Noto Sans SC, sans-serif" text-anchor="middle">1</text>
+<rect x="96" y="6" width="32" height="28" fill="#4d7c0f" rx="6" ry="6" stroke="#d6d0c4" stroke-width="1"/>
+<text x="112" y="25" fill="#fffdf8" font-size="13" font-family="Microsoft YaHei, Noto Sans SC, sans-serif" font-weight="700" text-anchor="middle">2</text>
+<rect x="138" y="6" width="32" height="28" fill="#fffdf8" rx="6" ry="6" stroke="#d6d0c4" stroke-width="1"/>
+<text x="154" y="25" fill="#2f2a24" font-size="13" font-family="Microsoft YaHei, Noto Sans SC, sans-serif" text-anchor="middle">3</text>
+<rect x="180" y="6" width="32" height="28" fill="#fffdf8" rx="6" ry="6" stroke="#d6d0c4" stroke-width="1"/>
+<text x="196" y="25" fill="#2f2a24" font-size="13" font-family="Microsoft YaHei, Noto Sans SC, sans-serif" text-anchor="middle">…</text>
+<rect x="222" y="6" width="32" height="28" fill="#fffdf8" rx="6" ry="6" stroke="#d6d0c4" stroke-width="1"/>
+<text x="238" y="25" fill="#2f2a24" font-size="13" font-family="Microsoft YaHei, Noto Sans SC, sans-serif" text-anchor="middle">12</text>
+<rect x="264" y="6" width="32" height="28" fill="#fffdf8" rx="6" ry="6" stroke="#d6d0c4" stroke-width="1"/>
+<text x="280" y="25" fill="#2f2a24" font-size="13" font-family="Microsoft YaHei, Noto Sans SC, sans-serif" text-anchor="middle">›</text>
+</svg>

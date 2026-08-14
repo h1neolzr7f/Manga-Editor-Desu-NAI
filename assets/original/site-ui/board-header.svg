@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 64" width="420" height="64">
+<rect x="0" y="0" width="420" height="64" fill="#3d4a32"/>
+<rect x="14" y="16" width="32" height="32" fill="#4d7c0f" rx="6" ry="6"/>
+<rect x="20" y="22" width="8" height="8" fill="#fffdf8" rx="1" ry="1"/>
+<rect x="32" y="22" width="8" height="8" fill="#fffdf8" rx="1" ry="1"/>
+<rect x="20" y="34" width="8" height="8" fill="#fffdf8" rx="1" ry="1"/>
+<rect x="32" y="34" width="8" height="8" fill="#fffdf8" rx="1" ry="1"/>
+<text x="58" y="38" fill="#fffdf8" font-size="18" font-family="Microsoft YaHei, Noto Sans SC, sans-serif" font-weight="700">图区</text>
+<rect x="250" y="16" width="156" height="32" fill="#2f3828" rx="16" ry="16"/>
+<rect x="266" y="28" width="90" height="8" fill="#6b7a5c" rx="4" ry="4"/>
+</svg>

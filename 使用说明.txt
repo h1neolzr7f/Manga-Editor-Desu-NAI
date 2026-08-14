@@ -1,20 +1,59 @@
-Manga Editor Desu NAI 魔改版小白一键包
+Manga Editor Desu · nai学长魔改版  1.0.0
+GPL-3.0  非官方魔改
 
-使用方法：
-1. 解压整个文件夹。
-2. 双击“一键启动.bat”。
-3. 浏览器会打开 http://127.0.0.1:8000/index.html。
-4. 进入“设置 / NovelAI 生图设置”，自己填写 NovelAI 访问令牌。
-5. 抠图：点左侧「抠图」。一键启动会同时打开 8765 本地抠图服务。未安装 rembg 时可用颜色抠图；安装 `local_tools/requirements.txt` 后可选动漫/人像模型，并可保存自己的预设。
-6. 自定义笔刷：点左侧「ペン / 笔」，再点「自定义笔刷」。可调大小、间距、硬度、散射、起收笔，导入自己的笔尖图，保存或导出 JSON。
+致敬原作 Manga Editor Desu（new-sankaku）
+上游：https://github.com/new-sankaku/manga-editor-desu
+本仓库：https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI
+本包与上游无附属关系。问题请在本仓库提，不要开到上游 Issues。
 
-打包说明：
-- 这是桌面快捷方式指向的 NAI 魔改版全量包：
-  C:\Users\tzzcomputer\Desktop\Manga-Editor-Desu\start_manga_editor_nai.bat
-- 已包含前端资源、NovelAI 魔改代码、本地代理、node_modules、outputs、test、roadmap、llm_doc、99_doc 和相关脚本。
-- 已排除真实 .env 和 .git 仓库历史，避免把你的 API、token 或提交历史打包进去。
-- .env.example 只是空模板，没有真实密钥。
+======== 启动 ========
 
-如果打不开：
-- 确认电脑已安装 Python，并且命令行能运行 python。
-- 如果 8000 端口被占用，先关闭旧的 Manga Editor Desu 窗口或相关 python 进程，再重新启动。
+1. 解压整个文件夹，不要只拷贝单个 html。
+2. 双击「一键启动.bat」。
+3. 浏览器应打开 http://127.0.0.1:8000/index.html
+4. 不要用 file:// 直接打开 index.html，出图、抠图、素材都会不正常。
+5. 改完页面后若显示旧界面，按 Ctrl+F5 强制刷新。
+
+需要：Windows 10/11、Python 3、Chrome 或 Edge。
+出图还需要你自己的 NovelAI 访问令牌（会消耗 NovelAI 积分）。
+
+======== 第一次用 ========
+
+1. 打开「设置 / NovelAI 设置」，粘贴访问令牌。
+2. 左侧「开始」：模板 → 选分镜铺到这一页。
+3. 在格子里写提示词，点「生成」（会花积分，界面会确认）。
+4. 聊天或假网页：点左侧「模拟器」，选皮肤或零件，再插入画布。
+5. 画布缩放：Ctrl+滚轮，或顶栏 − / % / + / 适应。
+6. 整页贴合某个分镜：选中模拟器页面后点「贴合分镜」。
+
+导演分镜文案（可选）：在设置里填 OpenAI 兼容网关。最终格子出图仍只走 NovelAI。
+
+======== 常用功能 ========
+
+分镜 / 刀切 / 气泡 / 图层 / 网点 / 笔刷 / 多页 / 保存
+  这些来自原版 Manga Editor Desu，用法大体相同。
+  工程保存为「DESU-nai学长魔改.lz4」。
+
+模拟器
+  对话、网页、零件。都是通用界面样式，没有真实站名或商标。
+  聊天皮肤不能直接当 NAI 出图；要出漫画请放到分镜格子里再生成。
+
+抠图
+  左侧「抠图」。一键启动会尝试打开本机 8765 抠图服务。
+  没装 rembg 时可用颜色抠图；装好 local_tools/requirements.txt 后可选动漫/人像模型。
+
+自定义笔刷
+  左侧笔刷 → 自定义笔刷。可调大小、间距、硬度，导入笔尖图，保存或导出 JSON。
+
+======== 不要做 ========
+
+- 不要把 .env、令牌、user_data/ 里的私人图发到网上或推进 Git。
+- 不要把本包当成 ComfyUI / WebUI / Forge 前端（这些已关掉）。
+- 点「生成」会花 NovelAI 积分，批量生成前看清确认框。
+
+======== 打不开时 ========
+
+- 命令行能运行 python。
+- 8000 端口被占用时，关掉旧窗口或相关 python，再开一次。
+- 启动失败看 user_data\start.log。
+- 更完整的仓库说明见 README.md。

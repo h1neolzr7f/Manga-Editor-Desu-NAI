@@ -15,7 +15,7 @@ import os
 import tempfile
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlsplit
 
 from cutout import DEFAULT_OPTIONS
 from model_manager import ModelManager
@@ -25,6 +25,22 @@ HOST = "127.0.0.1"
 PORT = 8765
 MAX_UPLOAD_BYTES = 20 * 1024 * 1024
 ALLOWED_MIME_TYPES = {"image/png", "image/jpeg", "image/webp", "image/gif"}
+
+
+def cors_allow_origin(origin: str | None) -> str:
+    value = (origin or "").strip()
+    if not value:
+        return "http://127.0.0.1:8000"
+    if value == "null":
+        return "null"
+    try:
+        parsed = urlsplit(value)
+        host = (parsed.hostname or "").lower()
+        if parsed.scheme in ("http", "https") and host in ("127.0.0.1", "localhost", "::1"):
+            return value
+    except Exception:
+        return ""
+    return ""
 
 
 def data_url(payload: bytes) -> str:
@@ -49,7 +65,10 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Access-Control-Allow-Origin", "*")
+        origin = cors_allow_origin(self.headers.get("Origin"))
+        if origin:
+            self.send_header("Access-Control-Allow-Origin", origin)
+            self.send_header("Vary", "Origin")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.end_headers()
@@ -213,7 +232,7 @@ def main() -> None:
     port = int(os.environ.get("LOCAL_TOOLS_PORT") or PORT)
     server = ThreadingHTTPServer((HOST, port), Handler)
     server.model_manager = ModelManager()  # type: ignore[attr-defined]
-    print(f"Manga Editor local-tools listening on http://{HOST}:{port}")
+    print(f"Manga Editor Desu nai学长魔改版 local-tools listening on http://{HOST}:{port}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

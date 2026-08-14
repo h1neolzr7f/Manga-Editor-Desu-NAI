@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 280" width="480" height="280">
+<rect x="0" y="0" width="480" height="280" fill="#0b1220" rx="12" ry="12"/>
+<rect x="10" y="10" width="460" height="230" fill="#081018" rx="8" ry="8"/>
+<polygon points="218,92 218,168 286,130" fill="#22d3ee" opacity="0.85"/>
+<text x="24" y="42" fill="#e2e8f0" font-size="13" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">好喜欢这一段</text>
+<text x="160" y="68" fill="#e11d48" font-size="13" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">前方高能</text>
+<text x="40" y="98" fill="#22d3ee" font-size="13" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">字幕组辛苦了</text>
+<text x="220" y="120" fill="#e2e8f0" font-size="13" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">再来亿遍</text>
+<text x="80" y="152" fill="#22d3ee" font-size="13" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">这个构图绝了</text>
+<text x="250" y="178" fill="#e11d48" font-size="13" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">收藏了</text>
+<rect x="10" y="248" width="460" height="8" fill="#1b2a40" rx="4" ry="4"/>
+<rect x="10" y="248" width="160" height="8" fill="#22d3ee" rx="4" ry="4"/>
+</svg>

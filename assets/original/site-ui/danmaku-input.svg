@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 52" width="420" height="52">
+<rect x="0" y="0" width="420" height="52" fill="#0b1220" rx="10" ry="10"/>
+<rect x="10" y="10" width="300" height="32" fill="#152033" rx="16" ry="16"/>
+<text x="24" y="32" fill="#94a3b8" font-size="12" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">发一条弹幕…</text>
+<rect x="320" y="10" width="90" height="32" fill="#e11d48" rx="16" ry="16"/>
+<text x="365" y="32" fill="#e2e8f0" font-size="13" font-family="Microsoft YaHei, Noto Sans SC, sans-serif" font-weight="700" text-anchor="middle">发送</text>
+</svg>

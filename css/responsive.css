@@ -1,46 +1,62 @@
 /* Responsive breakpoints for main layout structure */
 
-@media(max-width:1280px){
-#sidebar{
-width:50px;
-min-width:50px;
-max-width:50px;
-}
-#sidebar hr{
-width:80%;
-}
+@media(max-width:1366px){
 .left_area{
-width:160px;
-min-width:160px;
-max-width:160px;
+width:280px;
+min-width:260px;
+max-width:300px;
 }
 #layer-panel{
-max-width:15%;
-flex:0 0 17%;
+flex:0 0 200px;
+min-width:180px;
+max-width:220px;
 }
 #controls{
-max-width:18%;
+flex:0 0 240px;
+min-width:220px;
+max-width:260px;
+}
+}
+
+@media(max-width:1280px){
+#sidebar{
+width:76px;
+min-width:76px;
+max-width:76px;
+}
+.left_area{
+width:260px;
+min-width:240px;
+max-width:280px;
+}
+#layer-panel{
+flex:0 0 190px;
+min-width:170px;
+max-width:210px;
+}
+#controls{
+flex:0 0 230px;
+min-width:210px;
+max-width:250px;
 }
 .navbar-logo-text{
-width:50px;
+width:auto;
+min-width:48px;
 font-size:11px;
 }
 }
 
 @media(max-width:1024px){
 #sidebar{
-width:40px;
-min-width:40px;
-max-width:40px;
+width:56px;
+min-width:56px;
+max-width:56px;
 padding:4px 0;
-}
-#sidebar hr{
-width:90%;
-margin:-6px 0;
+flex-basis:56px;
 }
 #sidebar i{
 font-size:20px;
-padding:3px;
+padding:0;
 margin-bottom:0;
 }
 .icon-label{
@@ -48,22 +64,31 @@ display:none;
 }
 .icon-wrapper{
 margin:0;
+min-height:0;
+padding:6px 0;
+}
+.sidebar-group-label,
+.sidebar-more-toggle{
+font-size:9px;
 }
 .left_area{
-width:140px;
-min-width:140px;
-max-width:140px;
+width:240px;
+min-width:220px;
+max-width:260px;
 }
 #layer-panel{
-max-width:13%;
-flex:0 0 15%;
+flex:0 0 170px;
+min-width:150px;
+max-width:190px;
 }
 #controls{
-max-width:16%;
+flex:0 0 220px;
 min-width:200px;
+max-width:240px;
 }
 .navbar-logo-text{
-width:40px;
+width:auto;
+min-width:40px;
 font-size:10px;
 }
 .navbar-logo-ver{
@@ -73,13 +98,11 @@ display:none;
 
 @media(max-width:768px){
 #sidebar{
-width:36px;
-min-width:36px;
-max-width:36px;
+width:48px;
+min-width:48px;
+max-width:48px;
 padding:2px 0;
-}
-#sidebar hr{
-margin:-4px 0;
+flex-basis:48px;
 }
 #sidebar i{
 font-size:18px;
@@ -88,44 +111,34 @@ margin-bottom:0;
 }
 .left_area{
 position:absolute;
-left:36px;
+left:48px;
 top:0;
 z-index:var(--z-sidebar);
-width:180px;
-min-width:180px;
-max-width:180px;
+width:280px;
+min-width:240px;
+max-width:300px;
 height:100%;
 max-height:100%;
 background:var(--background-color-A);
 box-shadow:2px 0 8px rgba(0,0,0,0.3);
 }
 #layer-panel{
-max-width:36px;
-min-width:36px;
-flex:0 0 36px;
-overflow:hidden;
-}
-#layer-panel>.area-header label,
-#layer-panel>.area-header button{
-display:none;
-}
-#layer-panel>.area-header{
-writing-mode:vertical-rl;
-text-orientation:mixed;
-padding:4px 2px;
-font-size:10px;
+flex:0 0 160px;
+min-width:140px;
+max-width:180px;
 }
 #controls{
 display:none;
 }
 .navbar-logo-text{
-width:36px;
+width:auto;
+min-width:36px;
 font-size:9px;
 }
 .navbar-logo-ver{
 display:none;
 }
 #canvas-area{
-min-width:300px;
+min-width:0;
 }
 }

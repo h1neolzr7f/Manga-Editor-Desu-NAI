@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 44" width="420" height="44">
+<rect x="0" y="0" width="420" height="44" fill="#f3eee4"/>
+<text x="12" y="28" fill="#7a7368" font-size="12" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">排序</text>
+<rect x="48" y="8" width="88" height="28" fill="#fffdf8" rx="6" ry="6" stroke="#d6d0c4" stroke-width="1"/>
+<text x="92" y="27" fill="#2f2a24" font-size="12" font-family="Microsoft YaHei, Noto Sans SC, sans-serif" text-anchor="middle">最新回复</text>
+<rect x="148" y="8" width="88" height="28" fill="#fffdf8" rx="6" ry="6" stroke="#d6d0c4" stroke-width="1"/>
+<text x="192" y="27" fill="#2f2a24" font-size="12" font-family="Microsoft YaHei, Noto Sans SC, sans-serif" text-anchor="middle">今日</text>
+<rect x="248" y="8" width="88" height="28" fill="#4d7c0f" rx="6" ry="6"/>
+<text x="292" y="27" fill="#fffdf8" font-size="12" font-family="Microsoft YaHei, Noto Sans SC, sans-serif" font-weight="700" text-anchor="middle">发帖</text>
+</svg>

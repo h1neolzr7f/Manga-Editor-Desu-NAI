@@ -92,10 +92,10 @@ const commonProperties=[
 "guids","guid","tempPrompt","tempNegative","tempSeed","img2imgScale","img2img_denoise","canvasGuid","isSpeechBubble","jstsGeom","text","selectable","customType"
 ,"speechBubbleGrid","speechBubbleScale","speechBubbleViewBoxWidth","speechBubbleViewBoxHeight","speechBubbleRectX","speechBubbleRectY","speechBubbleRectWidth","speechBubbleRectHeight"
 ,"baseScaleX","baseScaleY","lastLeft","lastTop","targetObject","originalSvg","naiDirectorDraft"
-,"simulatorType","simulatorSchemaVersion","simulatorTemplateId","simulatorEditable","simulatorScene","simulatorMessageId","simulatorMessageIndex","simulatorParentGuid"
-,"simulatorPlaybackIndex","assetId","assetHash","backgroundRemovalResult","backgroundRemovalModel","backgroundRemovalSourceGuid","backgroundRemovalAction"
+,"simulatorType","simulatorSchemaVersion","simulatorTemplateId","simulatorEditable","simulatorScene","simulatorStory","simulatorMessageId","simulatorMessageIndex","simulatorParentGuid"
+,"simulatorPlaybackIndex","simulatorPageId","simulatorExplode","simulatorPartIndex","simulatorRole","simulatorExploded","assetId","assetHash","backgroundRemovalResult","backgroundRemovalModel","backgroundRemovalSourceGuid","backgroundRemovalAction"
 ,"scenePlanId","scenePlanPanelIndex","scenePlanApplyId"
-,"simulatorSourceGuid"
+,"simulatorSourceGuid","pageStudioKind","pageStudioPreset","pageStudioEffect","pageStudioPrevFill","pageStudioGridSize","strokeDashArray"
 ];
 
 let jscolorOptions={
