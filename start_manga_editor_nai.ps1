@@ -5,6 +5,7 @@ $Port = 8000
 $Url = "http://127.0.0.1:$Port/index.html"
 function Resolve-Python {
     $candidates = @(
+        (Join-Path $Root "runtime\python\python.exe"),
         (Join-Path $env:LOCALAPPDATA "Programs\Python\Python313\python.exe"),
         (Join-Path $env:LOCALAPPDATA "Programs\Python\Python312\python.exe"),
         (Join-Path $env:LOCALAPPDATA "Programs\Python\Python311\python.exe")
@@ -23,6 +24,10 @@ function Resolve-Python {
 }
 
 $Python = Resolve-Python
+$BundledNodeDir = Join-Path $Root "runtime\node"
+if (Test-Path -LiteralPath (Join-Path $BundledNodeDir "node.exe")) {
+    $env:PATH = $BundledNodeDir + ";" + $env:PATH
+}
 $LogPath = Join-Path $Root "user_data\start.log"
 
 Set-Location $Root
