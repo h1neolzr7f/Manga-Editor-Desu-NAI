@@ -21,6 +21,10 @@
 
 项目原有的 Fabric、Bootstrap、i18next、LZ4/CryptoJS 等第三方依赖及其许可证以项目已有的 `third/`、`cdn-local/`、`package.json` 和根目录许可证/声明为准。本魔改不把 NovelAI 令牌或模型权重打进仓库。
 
+## Windows 安装器内置运行时
+
+自包含 EXE 安装器额外打包 Python 3.12、Node.js 和 Pillow。各组件的许可证文本会复制到安装目录的 `licenses/`。安装界面的简体中文语言文件来自 kira-96 的 Inno Setup Chinese Simplified Translation（MIT），并保留其许可证。rembg 及模型权重不随安装器分发。
+
 ## 打包的免费素材（assets/public）
 
 这些文件带明确许可证，可以随包装发。重新拉取：`node scripts/vendor-free-public-assets.cjs`。

@@ -8,7 +8,7 @@ on:
         required: true
         default: "1.0.1"
       release_tag:
-        description: Existing release tag to receive the EXE; leave blank for artifact only
+        description: Release tag to create/update with the EXE; leave blank for artifact only
         required: false
         default: ""
   push:
@@ -140,6 +140,10 @@ jobs:
         run: |
           $tag = "${{ steps.package.outputs.release_tag }}"
           gh release view $tag | Out-Null
-          if ($LASTEXITCODE -ne 0) { throw "Release $tag does not exist. Create it first or leave release_tag blank." }
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag --verify-tag --generate-notes --title "Manga Editor Desu · NovelAI Edition $tag"
+            if ($LASTEXITCODE -ne 0) { throw "Could not create release $tag. Make sure the tag exists." }
+          }
           $setup = Get-ChildItem .\dist\Manga-Editor-Desu-NAI-Setup-*.exe | Select-Object -First 1
           gh release upload $tag $setup.FullName --clobber
+          if ($LASTEXITCODE -ne 0) { throw "Could not upload installer to release $tag." }
