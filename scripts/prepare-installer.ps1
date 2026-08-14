@@ -43,6 +43,9 @@ $runtimeDir = Join-Path $StagingDir "runtime"
 $pythonDir = Join-Path $runtimeDir "python"
 $nodeDir = Join-Path $runtimeDir "node"
 New-Item -ItemType Directory -Force -Path $pythonDir, $nodeDir | Out-Null
+$licensesDir = Join-Path $StagingDir "licenses"
+New-Item -ItemType Directory -Force -Path $licensesDir | Out-Null
+Copy-Item -LiteralPath (Join-Path $SourceRoot "installer\ChineseSimplified-LICENSE.txt") -Destination (Join-Path $licensesDir "inno-setup-chinese-translation.txt") -Force
 
 $PythonVersion = "3.12.10"
 $PythonArchiveName = "python-$PythonVersion-embed-amd64.zip"
