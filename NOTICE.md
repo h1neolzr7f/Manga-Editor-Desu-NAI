@@ -1,8 +1,10 @@
-# NOTICE — 修改声明与致谢
+# NOTICE
 
-本程序英文名仍为 **Manga Editor Desu**，发布名是 **Manga Editor Desu · nai学长魔改版**。
+This program keeps the English name **Manga Editor Desu**. The published title is **Manga Editor Desu · nai学长魔改版**.
 
-向原作者 **new-sankaku** 与原项目 [manga-editor-desu](https://github.com/new-sankaku/manga-editor-desu) 致敬。没有原作的分镜编辑器，就没有这个魔改包。
+It is a modified work of [manga-editor-desu](https://github.com/new-sankaku/manga-editor-desu) by **new-sankaku**. Credit and thanks to the original author; the panel editor this fork builds on is theirs.
+
+本程序英文名仍为 **Manga Editor Desu**，发布名是 **Manga Editor Desu · nai学长魔改版**。向原作者与原项目致敬。
 
 - 上游许可证：GNU General Public License v3.0（见根目录 `LICENSE`）  
 - 本修改版版本：**1.0.0**  

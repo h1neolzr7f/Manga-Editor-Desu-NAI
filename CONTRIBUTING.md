@@ -1,7 +1,8 @@
-# 为 Manga Editor Desu · nai学长魔改版 做贡献
+# Contributing
 
-本仓库是 [Manga Editor Desu!](https://github.com/new-sankaku/manga-editor-desu) 的**非官方魔改**，英文名仍为 Manga Editor Desu。  
-NovelAI、模拟器、一键启动相关的改动请提交到**本仓库**，不要开到上游。
+This repository is an unofficial fork of [Manga Editor Desu!](https://github.com/new-sankaku/manga-editor-desu). The English product name remains **Manga Editor Desu**.
+
+Send NovelAI, simulator, and launcher changes **here**. Do not open those issues or pull requests on upstream.
 
 ## 本地运行
 
