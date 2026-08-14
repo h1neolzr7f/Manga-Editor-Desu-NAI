@@ -27,7 +27,8 @@ New-Item -ItemType Directory -Force -Path $StagingDir | Out-Null
 $excludeDirs = @(
     ".git", ".github", ".claude", ".playwright-cli", ".pytest_cache",
     "node_modules", "user_data", "outputs", "dist", "__pycache__",
-    "llm_doc", "roadmap", "99_doc", "test", "installer"
+    "llm_doc", "roadmap", "99_doc", "test", "installer",
+    "ロードマップ２", "ロードマップ３_複数API対応"
 )
 $excludeFiles = @(".env", ".DS_Store", "100_git_push_draft.bat", "99_git_fetch.bat")
 
