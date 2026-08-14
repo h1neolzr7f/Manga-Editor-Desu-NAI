@@ -15,7 +15,7 @@ echo.
 call "%~dp0start_manga_editor_nai.bat"
 if errorlevel 1 (
   echo.
-  echo  启动失败。请先确认已安装 Python 3，再看 user_data\start.log
+  echo  启动失败。请查看 user_data\start.log，或重新运行安装程序。
   echo  也可打开「先看我.txt」
   pause
 )
