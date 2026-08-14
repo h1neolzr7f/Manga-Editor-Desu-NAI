@@ -6,15 +6,24 @@ GPL-3.0  非官方魔改
 本仓库：https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI
 本包与上游无附属关系。问题请在本仓库提，不要开到上游 Issues。
 
-======== 启动 ========
+======== 安装与启动 ========
 
+【普通用户推荐：EXE 安装器】
+1. 从 GitHub Releases 下载「Manga-Editor-Desu-NAI-Setup-*.exe」。
+2. 双击安装，可选择创建桌面快捷方式。
+3. 从开始菜单或桌面打开「Manga Editor Desu NAI」。
+4. 安装器已内置 Python、Node.js 和 Pillow，不需要另装环境，也不需要管理员权限。
+
+【便携包 / 源码】
 1. 解压整个文件夹，不要只拷贝单个 html。
-2. 双击「一键启动.bat」。
-3. 浏览器应打开 http://127.0.0.1:8000/index.html
-4. 不要用 file:// 直接打开 index.html，出图、抠图、素材都会不正常。
-5. 改完页面后若显示旧界面，按 Ctrl+F5 强制刷新。
+2. 确保命令行能运行 Python 3；批量素材工具还需要 Node.js。
+3. 双击「一键启动.bat」。
 
-需要：Windows 10/11、Python 3、Chrome 或 Edge。
+浏览器应打开 http://127.0.0.1:8000/index.html
+不要用 file:// 直接打开 index.html，出图、抠图、素材都会不正常。
+改完页面后若显示旧界面，按 Ctrl+F5 强制刷新。
+
+需要：Windows 10/11、Chrome 或 Edge。
 出图还需要你自己的 NovelAI 访问令牌（会消耗 NovelAI 积分）。
 
 ======== 第一次用 ========
@@ -39,8 +48,9 @@ GPL-3.0  非官方魔改
   聊天皮肤不能直接当 NAI 出图；要出漫画请放到分镜格子里再生成。
 
 抠图
-  左侧「抠图」。一键启动会尝试打开本机 8765 抠图服务。
-  没装 rembg 时可用颜色抠图；装好 local_tools/requirements.txt 后可选动漫/人像模型。
+  左侧「抠图」。启动器会打开本机 8765 抠图服务。
+  EXE 已包含颜色抠图所需的 Pillow。rembg 和体积较大的模型不随安装器打包；
+  需要动漫/人像模型时，再按 local_tools/README.md 选装。
 
 自定义笔刷
   左侧笔刷 → 自定义笔刷。可调大小、间距、硬度，导入笔尖图，保存或导出 JSON。
@@ -53,7 +63,7 @@ GPL-3.0  非官方魔改
 
 ======== 打不开时 ========
 
-- 命令行能运行 python。
+- EXE 安装版：先看 user_data\start.log；文件损坏时重新运行安装器修复。
+- 便携包 / 源码：确认命令行能运行 python。
 - 8000 端口被占用时，关掉旧窗口或相关 python，再开一次。
-- 启动失败看 user_data\start.log。
 - 更完整的仓库说明见 README.md。

@@ -12,7 +12,7 @@
 [![Release](https://img.shields.io/github/v/release/h1neolzr7f/Manga-Editor-Desu-NAI)](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest)
 [![Upstream](https://img.shields.io/badge/upstream-manga--editor--desu-0A7EA4)](https://github.com/new-sankaku/manga-editor-desu)
 
-[下载 v1.0.0 一键包](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/tag/v1.0.0) ·
+[下载最新版](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest) ·
 [查看相对上游的改动](CHANGELOG.md) ·
 [问题反馈](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/issues)
 
@@ -30,7 +30,7 @@
 | 新增能力 | 作用 |
 |---|---|
 | **NovelAI 专用生成** | 直接在编辑流程里完成文生图与图生图，不再暴露无关后端 |
-| **Windows 一键启动** | 双击批处理文件，自动启动本地服务器并打开编辑器 |
+| **Windows 小白安装器** | 安装一次，从快捷方式启动；无需另装 Python 或 Node.js |
 | **模拟器工作区** | 通用聊天、网页与 UI 组件，用于漫画中的手机和社交场景 |
 | **本地抠图** | 可选 rembg sidecar；缺少模型时保留颜色键回退 |
 | **中文新手布局** | 设置分组、工具提示、空画布引导和 Token 状态 |
@@ -67,26 +67,29 @@ Please file issues for **this fork** here. Do not open NovelAI / launcher / simu
 
 ---
 
-## Requirements
+## 安装方式（Windows）
 
-- Windows 10 or 11
-- Python 3
-- Chrome or Edge
-- A NovelAI access token, if you generate images
+### 普通用户：EXE 安装器（推荐，从 v1.0.1 起）
 
----
+1. 打开 [Releases](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest)，下载 `Manga-Editor-Desu-NAI-Setup-*.exe`。
+2. 双击安装，可选择创建桌面快捷方式。
+3. 从开始菜单或桌面打开 **Manga Editor Desu NAI**。
+4. 打开 **NovelAI 设置**，粘贴你自己的令牌。
 
-## Quick start (Windows)
+安装器内置 Python 3.12、Node.js 和 Pillow；不需要另装开发环境，也不需要管理员权限。体积较大的 rembg 模型仍为可选项，不会偷偷下载。
 
-1. Download the source or the [v1.0.0 one-click zip](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/tag/v1.0.0).
-2. Extract the **entire** folder.
-3. Double-click `一键启动.bat`.
-4. Wait for `http://127.0.0.1:8000/index.html`.
-5. Open **NovelAI 设置** and paste your token.
+### 便携包 / 源码
 
-Step-by-step notes (Chinese): [先看我.txt](先看我.txt) · [使用说明.txt](使用说明.txt)
+1. 下载 ZIP 或源码并解压**整个文件夹**。
+2. 确保 Windows 10/11 已安装 Python 3；批量素材工具还需要 Node.js。
+3. 双击 `一键启动.bat`。
+4. 等待浏览器打开 `http://127.0.0.1:8000/index.html`。
 
-If the UI looks stale after a code change, hard-refresh with **Ctrl+F5**.
+浏览器推荐 Chrome 或 Edge。只有使用出图功能时才需要 NovelAI 访问令牌（会消耗 NovelAI 积分）。
+
+分步说明：[先看我.txt](先看我.txt) · [使用说明.txt](使用说明.txt)
+
+如果更新后仍显示旧界面，请按 **Ctrl+F5** 强制刷新。
 
 ---
 
@@ -108,11 +111,13 @@ If the UI looks stale after a code change, hard-refresh with **Ctrl+F5**.
 - Keep `.env`, tokens, and `user_data/` off git and off public uploads.
 - Optional director text uses an OpenAI-compatible gateway. Final panel images still go through NovelAI.
 
-To rebuild the Windows zip (excludes `.git`, `.env`, and `user_data`):
+To rebuild the portable Windows zip (excludes `.git`, `.env`, and `user_data`):
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\make-one-click-zip.ps1
 ```
+
+The self-contained EXE is built by [Build Windows installer](.github/workflows/build-windows-installer.yml). A `v*` tag builds, smoke-tests, and publishes the installer to that GitHub Release.
 
 ---
 
