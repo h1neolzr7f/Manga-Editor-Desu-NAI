@@ -1,4 +1,10 @@
-# Manga Editor Desu · nai学长魔改版
+<div align="center">
+
+# Manga Editor Desu · NovelAI Edition
+
+### 面向 NovelAI 创作者的本地漫画工作台
+
+**分镜与图层 · 对话气泡 · NovelAI 出图 · 模拟器场景 · 本地抠图 · Windows 一键启动**
 
 [English](README_EN.md) · [日本語](README_JP.md)
 
@@ -6,19 +12,32 @@
 [![Release](https://img.shields.io/github/v/release/h1neolzr7f/Manga-Editor-Desu-NAI)](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest)
 [![Upstream](https://img.shields.io/badge/upstream-manga--editor--desu-0A7EA4)](https://github.com/new-sankaku/manga-editor-desu)
 
-Unofficial modified distribution of **[Manga Editor Desu!](https://github.com/new-sankaku/manga-editor-desu)** by [new-sankaku](https://github.com/new-sankaku).  
-The original English name is retained. **nai学长魔改版** only marks this fork.
+[下载 v1.0.0 一键包](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/tag/v1.0.0) ·
+[查看相对上游的改动](CHANGELOG.md) ·
+[问题反馈](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/issues)
 
-This repository is **not** an official release and is **not affiliated** with the upstream author.  
-Editor fundamentals — panels, speech bubbles, layers, the knife tool, tones, brushes, multi-page projects — come from Desu. This fork targets **NovelAI** generation and a Windows one-click local server.
+</div>
 
 <p align="center">
-  <img src="03_images/PagePreview/Git/Preview.png" alt="Manga Editor Desu editor preview" width="880">
+  <img src="03_images/PagePreview/Git/Preview.png" alt="Manga Editor Desu 漫画编辑器界面" width="880">
 </p>
+<p align="center"><sub>编辑器基础界面继承自 Manga Editor Desu；本版本新增能力见下表与 CHANGELOG。</sub></p>
 
-<p align="center"><sub>Editor UI inherited from Manga Editor Desu. Preview image belongs to the upstream project.</sub></p>
+## 为什么做这个版本？
 
----
+原版 Desu 已经拥有分镜、气泡、图层、刀具、网点、画笔和多页工程。本版本不重新造漫画编辑器，而是把它改造成一套更适合 **NovelAI 本地创作流程**的发行版：
+
+| 新增能力 | 作用 |
+|---|---|
+| **NovelAI 专用生成** | 直接在编辑流程里完成文生图与图生图，不再暴露无关后端 |
+| **Windows 一键启动** | 双击批处理文件，自动启动本地服务器并打开编辑器 |
+| **模拟器工作区** | 通用聊天、网页与 UI 组件，用于漫画中的手机和社交场景 |
+| **本地抠图** | 可选 rembg sidecar；缺少模型时保留颜色键回退 |
+| **中文新手布局** | 设置分组、工具提示、空画布引导和 Token 状态 |
+| **画布视图工具** | Ctrl+滚轮缩放、整页适配与面板缩放 |
+
+> [!IMPORTANT]
+> 这是 [new-sankaku/manga-editor-desu](https://github.com/new-sankaku/manga-editor-desu) 的非官方 GPL-3.0 修改发行版，不代表上游作者。基础编辑能力来自 Desu；本仓库负责 NovelAI、启动器、模拟器与抠图相关改动。
 
 ## Attribution
 
