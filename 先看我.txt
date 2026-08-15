@@ -1,4 +1,4 @@
-Manga Editor Desu · nai学长魔改版  1.0.0
+Manga Editor Desu · nai学长魔改版  1.0.1
 ========================================
 
 这是原项目 Manga Editor Desu 的非官方魔改，向 new-sankaku 致敬。

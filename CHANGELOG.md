@@ -2,7 +2,7 @@
 
 Version numbers apply to **this fork only**, not to upstream Manga Editor Desu.
 
-## Unreleased
+## 1.0.1 — 2026-08-14
 
 - Add a self-contained Windows EXE installer with Chinese/English UI, Start Menu and optional desktop shortcuts, repair/uninstall support.
 - Bundle Python 3.12, Node.js and Pillow so ordinary users do not need to configure a development environment.
