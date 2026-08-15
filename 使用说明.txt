@@ -1,4 +1,4 @@
-Manga Editor Desu · nai学长魔改版  1.0.0
+Manga Editor Desu · nai学长魔改版  1.0.1
 GPL-3.0  非官方魔改
 
 致敬原作 Manga Editor Desu（new-sankaku）

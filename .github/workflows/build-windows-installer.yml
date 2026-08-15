@@ -23,6 +23,10 @@ on:
       - "start_manga_editor_nai.ps1"
       - "start_manga_editor_nai.bat"
       - "一键启动.bat"
+      - "package.json"
+      - "CHANGELOG.md"
+      - "使用说明.txt"
+      - "先看我.txt"
 
 permissions:
   contents: write
@@ -45,6 +49,8 @@ jobs:
       - name: Resolve package version
         id: package
         shell: pwsh
+        env:
+          RELEASE_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           if ("${{ github.ref }}" -like "refs/tags/v*") {
             $version = "${{ github.ref_name }}" -replace '^v', ''
@@ -52,6 +58,106 @@ jobs:
           } elseif ("${{ github.event_name }}" -eq "workflow_dispatch") {
             $version = "${{ inputs.version }}"
             $releaseTag = "${{ inputs.release_tag }}"
+          } elseif ($env:RELEASE_MESSAGE -match '^Release v(\d+\.\d+\.\d+([.-][0-9A-Za-z.-]+)?)
+          if ($version -notmatch '^\d+\.\d+\.\d+([.-][0-9A-Za-z.-]+)?$') {
+            throw "Invalid version: $version"
+          }
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "release_tag=$releaseTag" >> $env:GITHUB_OUTPUT
+
+      - name: Run core smoke tests
+        run: npm test
+
+      - name: Prepare self-contained application
+        shell: pwsh
+        run: |
+          .\scripts\prepare-installer.ps1 -Version "${{ steps.package.outputs.version }}"
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --yes --no-progress
+
+      - name: Compile installer
+        shell: pwsh
+        run: |
+          $iscc = Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\ISCC.exe"
+          & $iscc "/DAppVersion=${{ steps.package.outputs.version }}" "/DSourceRoot=$PWD\dist\installer-staging" ".\installer\MangaEditorDesuNAI.iss"
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with code $LASTEXITCODE" }
+
+      - name: Smoke-test installed runtime
+        shell: pwsh
+        run: |
+          $setup = Get-ChildItem .\dist\Manga-Editor-Desu-NAI-Setup-*.exe | Select-Object -First 1
+          $installDir = Join-Path $env:RUNNER_TEMP "desu-nai-installed"
+          $install = Start-Process -FilePath $setup.FullName -ArgumentList @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/DIR=$installDir") -Wait -PassThru
+          if ($install.ExitCode -ne 0) { throw "Silent install failed with code $($install.ExitCode)" }
+
+          $python = Join-Path $installDir "runtime\python\python.exe"
+          $node = Join-Path $installDir "runtime\node\node.exe"
+          & $python -c "import PIL; print('Pillow', PIL.__version__)"
+          & $node --version
+
+          $server = Start-Process -FilePath $python -ArgumentList "99_server.py" -WorkingDirectory $installDir -WindowStyle Hidden -PassThru
+          try {
+            $ready = $false
+            for ($i = 0; $i -lt 30; $i++) {
+              Start-Sleep -Milliseconds 300
+              try {
+                $response = Invoke-WebRequest -UseBasicParsing -Uri "http://127.0.0.1:8000/index.html" -TimeoutSec 2
+                if ($response.StatusCode -eq 200) { $ready = $true; break }
+              } catch {}
+            }
+            if (-not $ready) { throw "Installed server did not become ready." }
+          } finally {
+            if ($server -and -not $server.HasExited) { Stop-Process -Id $server.Id -Force }
+          }
+
+          $tools = Start-Process -FilePath $python -ArgumentList "server.py" -WorkingDirectory (Join-Path $installDir "local_tools") -WindowStyle Hidden -PassThru
+          try {
+            $ready = $false
+            for ($i = 0; $i -lt 30; $i++) {
+              Start-Sleep -Milliseconds 300
+              try {
+                $health = Invoke-RestMethod -Uri "http://127.0.0.1:8765/health" -TimeoutSec 2
+                if ($health.status -eq "ok" -and $health.colorKey) { $ready = $true; break }
+              } catch {}
+            }
+            if (-not $ready) { throw "Installed local-tools service did not become ready." }
+          } finally {
+            if ($tools -and -not $tools.HasExited) { Stop-Process -Id $tools.Id -Force }
+          }
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: Manga-Editor-Desu-NAI-Setup-${{ steps.package.outputs.version }}
+          path: dist/Manga-Editor-Desu-NAI-Setup-*.exe
+          if-no-files-found: error
+          compression-level: 0
+
+      - name: Attach installer to release
+        if: steps.package.outputs.release_tag != ''
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "${{ steps.package.outputs.release_tag }}"
+          gh api "repos/${{ github.repository }}/git/ref/tags/$tag" | Out-Null
+          if ($LASTEXITCODE -ne 0) {
+            gh api --method POST "repos/${{ github.repository }}/git/refs" -f "ref=refs/tags/$tag" -f "sha=${{ github.sha }}" | Out-Null
+            if ($LASTEXITCODE -ne 0) { throw "Could not create tag $tag." }
+          }
+          gh release view $tag | Out-Null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag --verify-tag --generate-notes --title "Manga Editor Desu · NovelAI Edition $tag"
+            if ($LASTEXITCODE -ne 0) { throw "Could not create release $tag. Make sure the tag exists." }
+          }
+          $setup = Get-ChildItem .\dist\Manga-Editor-Desu-NAI-Setup-*.exe | Select-Object -First 1
+          gh release upload $tag $setup.FullName --clobber
+          if ($LASTEXITCODE -ne 0) { throw "Could not upload installer to release $tag." }
+) {
+            $version = $Matches[1]
+            $releaseTag = "v$version"
           } else {
             $version = "1.0.1-ci.${{ github.run_number }}"
             $releaseTag = ""
