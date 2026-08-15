@@ -139,3 +139,7 @@ Copyright for the original editor belongs to the upstream authors. See [manga-ed
 This modified version is released under **GPL-3.0**. Redistribution must include the corresponding source and this license.
 
 Thanks to **new-sankaku** for Manga Editor Desu. This fork exists because that editor already solved panels, bubbles, layers, and project persistence.
+
+---
+
+**💬 QQ 测试 / 反馈群：762652608**
