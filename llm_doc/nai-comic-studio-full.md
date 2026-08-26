@@ -29,10 +29,16 @@
 
 没有复制第三方 rembg-ui 或其它项目代码，也没有把模型权重提交到仓库。
 
-### 五种模拟器（阶段 4）
+### 九种单开模拟器
 
-通用场景序列化位于 `js/simulator/scene-serializer.js`，渲染器工厂位于 `js/simulator/extra-renderer-factory.js`。当前模板为：
+入口是左侧「模拟器」（`js/simulator/simulator-studio.js` + `#simulatorStudioOverlay`）。先显示启动页，点一种界面就进入该模拟器工作区：左侧实时预览，右侧改字 / 播放，「放入漫画」才写主画布并关闭 overlay。聊天对白进入时写入示例或剧情对白，预览与编辑框同一份文字。零件挂在影片站、弹幕、图区内部，不再作为第三种主入口。左侧「模板」只套分镜格子。空画布提示忽略 `canvasInitMessage` 占位字。
 
+通用场景序列化位于 `js/simulator/scene-serializer.js`，渲染器工厂位于 `js/simulator/extra-renderer-factory.js`。当前类型为：
+
+- 聊天：`generic-chat-dark` 等 8 套皮肤（`template-registry.js`）
+- `video-tube-generic`：影片站
+- `danmaku-player-generic`：弹幕投稿页
+- `image-board-generic`：图区
 - `visual-novel-generic`：视觉小说对话框
 - `social-feed-generic`：社交动态流
 - `phone-generic`：手机通知/聊天界面
@@ -44,8 +50,8 @@
 剧情引擎（MayerTalk 交互参考，原创实现）：
 
 - `js/simulator/story-engine.js`：角色、对白类型、剧情节点、剧本解析。
-- `js/simulator/story-adapters.js`：同一段剧情套到聊天 / 视觉小说 / 社交 / 论坛 / 手机 / 直播模板。
-- `js/simulator/story-composer-controller.js`：选角色、发送对白、+1、解析剧本、套模板插入画布。
+- `js/simulator/story-adapters.js`：同一段剧情套到聊天 / 视觉小说 / 社交 / 论坛 / 手机 / 直播 / 影片站 / 弹幕 / 图区。
+- `js/simulator/story-composer-controller.js`：选角色、发送对白、+1、解析剧本；「打开对应模拟器」进入单开工作区，「生成漫画分镜」才拆格子。
 - 聊天皮肤：`story-log-dark`、`discord-chat-dark`、`instant-chat-light`、`sms-chat-light`。
 
 ### 回放、时间轴和长截图（阶段 5）

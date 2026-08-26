@@ -64,71 +64,28 @@ canvas.requestRenderAll();
 }
 
 function getSpeechBubbleTextFill(activeObject,type){
-let isExistsFillArea=false;
 if(isPath(activeObject)){
-if(type=='fill'){
-return activeObject.fill;
+if(type=='fill')return activeObject.fill;
+if(type=='stroke')return activeObject.stroke;
+if(type=='strokeWidth')return activeObject.strokeWidth;
 }
-if(type=='stroke'){
-return activeObject.stroke;
-}
-if(type=='strokeWidth'){
-return activeObject.strokeWidth;
-}
-}else{
-activeObject.forEachObject((obj)=>{
-if(obj.data?.originalId==="fillArea"){
-isExistsFillArea=true;
-return;
-}
-});
-activeObject.forEachObject((obj)=>{
-if(isExistsFillArea){
-if(obj.data?.originalId==="fillArea"){
-
-if(type=='fill'){
-return obj.fill;
-}
-if(type=='stroke'){
-return obj.stroke;
-}
-if(type=='strokeWidth'){
-return obj.strokeWidth;
-}
-}else{
-if(type=='fill'){
-return obj.fill;
-}
-if(type=='stroke'){
-return obj.stroke;
-}
-if(type=='strokeWidth'){
-return obj.strokeWidth;
-}
-}
-}else{
-if(type=='fill'){
-return obj.fill;
-}
-if(type=='stroke'){
-return obj.stroke;
-}
-if(type=='strokeWidth'){
-return obj.strokeWidth;
-}
-}
+var fillArea=null;
+var firstChild=null;
+if(activeObject&&typeof activeObject.forEachObject==='function'){
+activeObject.forEachObject(function(obj){
+if(!firstChild)firstChild=obj;
+if(obj.data&&obj.data.originalId==='fillArea')fillArea=obj;
 });
 }
-
-if(type=='fill'){
-return "rgba(255, 255, 255, 1.0)";
+var target=fillArea||firstChild;
+if(target){
+if(type=='fill')return target.fill;
+if(type=='stroke')return target.stroke;
+if(type=='strokeWidth')return target.strokeWidth;
 }
-if(type=='stroke'){
-return "rgba(0, 0, 0, 1.0)";
-}
-if(type=='strokeWidth'){
-return 10;
-}
+if(type=='fill')return "rgba(255, 255, 255, 1.0)";
+if(type=='stroke')return "rgba(0, 0, 0, 1.0)";
+if(type=='strokeWidth')return 10;
 return null;
 }
 

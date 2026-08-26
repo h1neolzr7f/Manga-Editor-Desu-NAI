@@ -116,6 +116,15 @@ document.addEventListener('DOMContentLoaded',function() {
 jsColorSet();
 });
 
+function syncJsColorFromInputs(root){
+var scope=root||document;
+if(!scope.querySelectorAll)return;
+scope.querySelectorAll('.jscolor-color-picker').forEach(function(picker){
+if(!picker.jscolor||!picker.value||typeof picker.jscolor.fromString!=='function')return;
+try{picker.jscolor.fromString(picker.value);}catch(e){}
+});
+}
+
 function jsColorSet(){
 const colorPickers=document.querySelectorAll('.jscolor-color-picker');
 colorPickers.forEach(picker=>{

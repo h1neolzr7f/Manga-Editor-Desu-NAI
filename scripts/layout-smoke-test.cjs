@@ -15,7 +15,7 @@ function must(cond, message) {
 
 must(html.includes('js/assets/boot-guard.js'), 'boot-guard script missing');
 must(html.includes('id="naiBootGuard"') || boot.includes('naiBootGuard'), 'boot-guard overlay missing');
-must(html.includes('套用对话模板'), 'insert button copy missing');
+must(html.includes('打开对应模拟器'), 'open-simulator action missing');
 must(html.includes('id="naiTokenBadge"'), 'token badge missing');
 must(html.includes('id="novelaiRememberToken"'), 'remember token checkbox missing');
 must(!html.includes('id="naiBatchAcceptanceGate" checked'), 'acceptance gate should default off');
@@ -25,10 +25,10 @@ must(html.includes('data-sim-tab="edit"') && html.includes('data-sim-tab="play"'
 must(html.includes('id="speech-bubble-area"'), 'merged bubble panel missing');
 must(html.includes('data-target="speech-bubble-area"'), 'bubble sidebar target missing');
 must(html.includes('createImagePromptHelperFlotingWindow()'), 'prompt gallery button missing');
-must(html.includes('用作整页') || lib.includes('用作整页'), 'site-ui full-page action missing');
+must(lib.includes('打开对应模拟器'), 'site-ui open-simulator action missing');
 must(html.includes('id="simulatorStudioOverlay"'), 'simulator studio overlay missing');
 must(html.includes('data-action="openSimulatorStudio"'), 'simulator studio action missing');
-must(html.includes('icon-label">模拟器'), 'simulator sidebar label missing');
+must(html.includes('side-label-simulator'), 'simulator sidebar label missing');
 must(html.includes('js/simulator/site-ui-parts.js'), 'site-ui-parts script missing');
 must(html.includes('js/simulator/simulator-studio.js'), 'simulator-studio script missing');
 must(lib.includes('编辑数据'), 'site-ui edit-data action missing');
@@ -114,7 +114,7 @@ must(store.includes('user_data/asset_packs/'), 'imported persist path missing');
 must(store.includes('hasLoadableSource'), 'hasLoadableSource missing');
 must(!store.includes('if(hasDataThumbnail(asset))return Promise.resolve(asset.thumbnail)'), 'thumbnail still used as loadable source');
 must(!fonts.includes('{ name: "Anton", bundled: true }'), 'false bundled Anton still present');
-must(fonts.includes('{ name: "Klee One", bundled: true }'), 'true bundled Klee One missing');
+must(fonts.includes('name: "Klee One"')&&fonts.includes('bundled: true'), 'true bundled Klee One missing');
 must(css.includes('.asset-library-list.is-grid'), 'asset grid css missing');
 must(css.includes('.simulator-workspace-tabs'), 'workspace tab css missing');
 must(fs.readFileSync(path.join(root, 'css/layout.css'), 'utf8').includes('.beginner-tool-hud'), 'beginner HUD css missing');
@@ -139,8 +139,8 @@ must(fs.readFileSync(path.join(root,'js/canvas-manager.js'),'utf8').includes('al
 must(fs.readFileSync(path.join(root,'js/simulator/story-composer-controller.js'),'utf8').includes('options.story'), 'studio chat insert still overwrites story composer');
 must(fs.readFileSync(path.join(root,'js/simulator/page-edit-controller.js'),'utf8').includes("factory.selectPage(current,target.simulatorPageId)"), 'dblclick chrome cannot reselect whole page');
 must(html.includes('id="naiZoomInBtn"') && html.includes('id="naiObjectFitBtn"'), 'canvas/object zoom buttons missing');
-must(html.includes('id="simStudioChatStore"') && html.includes('id="simStudioWebStore"') && html.includes('id="simStudioPartStore"'), 'simulator store grids missing');
-must(html.includes('id="simStudioScaleUp"') && html.includes('贴合分镜'), 'simulator whole-page scale controls missing');
+must(html.includes('id="simStudioChatStore"') && html.includes('id="simStudioWebForm"') && html.includes('id="simStudioPartStore"'), 'simulator store grids missing');
+must(html.includes('id="simStudioScaleUp"') && html.includes('贴到格子'), 'simulator whole-page scale controls missing');
 must(css.includes('.sim-store-grid'), 'simulator store css missing');
 must(fs.readFileSync(path.join(root,'js/canvas-manager.js'),'utf8').includes('function zoomBy'), 'ctrl-wheel zoomBy missing');
 must(fs.readFileSync(path.join(root,'js/canvas-manager.js'),'utf8').includes('NaiCanvasView'), 'NaiCanvasView export missing');

@@ -11,12 +11,12 @@ const selectedValue=getSelectedValueByGroup("align_group");
 let style={
 top: 50,
 left: 50,
-fontSize: parseInt(fontsize),
+fontSize: parseInt(fontsize,10)||32,
 fontFamily: selectedFont,
-fill: $("textColorPicker").value,
-stroke: $("textOutlineColorPicker").value,
-strokeWidth: parseInt(fontStrokeWidth),
-textBackgroundColor: $("textBgColorPicker").value,
+fill: (typeof letteringPaintColor==="function"?letteringPaintColor("textColorPicker"):$("textColorPicker").value)||"rgba(0,0,0,1)",
+stroke: typeof letteringPaintColor==="function"?letteringPaintColor("textOutlineColorPicker"):$("textOutlineColorPicker").value,
+strokeWidth: parseInt(fontStrokeWidth,10)||0,
+textBackgroundColor: typeof letteringPaintColor==="function"?letteringPaintColor("textBgColorPicker"):$("textBgColorPicker").value,
 textAlign: selectedValue,
 
 cornerSize: 8,

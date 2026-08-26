@@ -492,10 +492,13 @@ rgbToHex:function(color){
 if(!color){
 return '#000000';
 }
+if(typeof color!=='string'){
+return '#000000';
+}
 if(color.startsWith('#')){
 return color;
 }
-var match=color.match(/^rgb\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*,\s*([0-9]+)\s*\)$/);
+var match=color.match(/^rgba?\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*,\s*([0-9]+)/);
 if(!match){
 return color;
 }
@@ -508,6 +511,7 @@ return '#'+convert(match[1])+convert(match[2])+convert(match[3]);
 
 rgbaToHex:function(color){
 if(!color)return '#000000';
+if(typeof color!=='string')return '#000000';
 if(color.startsWith('#'))return color;
 var match=color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d*\.?\d+))?\)/);
 if(!match)return '#000000';

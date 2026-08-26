@@ -49,6 +49,7 @@ manga-editor-desu/
 | `sdQueue` / `comfyuiQueue` / `runpodEndpointQueue` / `falaiQueue` | プロバイダ別TaskQueue |
 
 | NaiComicTemplateRegistry | 模拟器模板注册表 |
+| NaiComicSimulatorStudio | 模拟器启动页与九种单开工作区 |
 | NaiComicChatController | 通用聊天场景编辑与 Fabric Group 接入 |
 | NaiBackgroundRemovalClient | 本地抠图 Sidecar 前端 Stub |
 

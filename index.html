@@ -36,36 +36,28 @@
     <meta name="keywords"
         content="Manga Editor Desu, nai学长魔改版, NovelAI, manga-editor-desu fork, comic panels">
     <!-- Google Analytics removed for offline use -->
-    <!-- Google Fonts replaced with local fallbacks for offline use -->
+    <!-- System CJK faces only. Do not alias missing Google fonts to YaHei. -->
     <style>
-    @font-face { font-family: 'Klee One'; src: url('font/Klee_One/KleeOne-Regular.ttf') format('truetype'), local('Klee One'); }
-    @font-face { font-family: 'DotGothic16'; src: url('font/DotGothic16/DotGothic16-Regular.ttf') format('truetype'), local('DotGothic16'); }
-    @font-face { font-family: 'Bangers'; src: url('font/Bangers/Bangers-Regular.ttf') format('truetype'), local('Bangers'); }
-    @font-face { font-family: 'M PLUS 1p'; src: local('M PLUS 1p'); }
-    @font-face { font-family: 'Noto Sans JP'; src: local('Noto Sans JP'), local('Yu Gothic UI'), local('Microsoft YaHei'); }
-    @font-face { font-family: 'Zen Maru Gothic'; src: local('Zen Maru Gothic'); }
-    @font-face { font-family: 'Noto Sans SC'; src: local('Noto Sans SC'), local('Microsoft YaHei'); }
-    @font-face { font-family: 'ZCOOL KuaiLe'; src: local('ZCOOL KuaiLe'); }
-    @font-face { font-family: 'ZCOOL XiaoWei'; src: local('ZCOOL XiaoWei'); }
-    @font-face { font-family: 'Noto Sans KR'; src: local('Noto Sans KR'), local('Malgun Gothic'); }
-    @font-face { font-family: 'Comic Neue'; src: local('Comic Neue'), local('Comic Sans MS'); }
-    @font-face { font-family: 'Creepster'; src: local('Creepster'); }
-    @font-face { font-family: 'Permanent Marker'; src: local('Permanent Marker'); }
-    @font-face { font-family: 'Rubik Mono One'; src: local('Rubik Mono One'); }
-    @font-face { font-family: 'Architects Daughter'; src: local('Architects Daughter'); }
-    @font-face { font-family: 'Bungee Shade'; src: local('Bungee Shade'); }
-    @font-face { font-family: 'Do Hyeon'; src: local('Do Hyeon'); }
-    @font-face { font-family: 'East Sea Dokdo'; src: local('East Sea Dokdo'); }
-    @font-face { font-family: 'Anton'; src: local('Anton'), local('Impact'); }
-    @font-face { font-family: 'Russo One'; src: local('Russo One'), local('Arial Black'); }
-    @font-face { font-family: 'Black Ops One'; src: local('Black Ops One'), local('Impact'); }
-    @font-face { font-family: 'Luckiest Guy'; src: local('Luckiest Guy'), local('Comic Sans MS'); }
-    @font-face { font-family: 'Yu Gothic'; src: local('Yu Gothic'), local('Microsoft YaHei'); }
-    @font-face { font-family: 'Meiryo'; src: local('Meiryo'), local('Yu Gothic'); }
-    @font-face { font-family: 'STXingkai'; src: local('STXingkai'), local('KaiTi'); }
-    @font-face { font-family: 'LiSu'; src: local('LiSu'), local('SimHei'); }
-    @font-face { font-family: 'YouYuan'; src: local('YouYuan'), local('Microsoft YaHei'); }
-    @font-face { font-family: 'FZShuTi'; src: local('FZShuTi'), local('KaiTi'); }
+    @font-face { font-family: 'Microsoft YaHei'; src: local('Microsoft YaHei'), local('微软雅黑'); }
+    @font-face { font-family: 'Microsoft YaHei UI'; src: local('Microsoft YaHei UI'), local('微软雅黑 UI'); }
+    @font-face { font-family: 'SimHei'; src: local('SimHei'), local('黑体'); }
+    @font-face { font-family: 'SimSun'; src: local('SimSun'), local('宋体'); }
+    @font-face { font-family: 'NSimSun'; src: local('NSimSun'), local('新宋体'); }
+    @font-face { font-family: 'KaiTi'; src: local('KaiTi'), local('楷体'); }
+    @font-face { font-family: 'FangSong'; src: local('FangSong'), local('仿宋'); }
+    @font-face { font-family: 'YouYuan'; src: local('YouYuan'), local('幼圆'); }
+    @font-face { font-family: 'LiSu'; src: local('LiSu'), local('隶书'); }
+    @font-face { font-family: 'STXingkai'; src: local('STXingkai'), local('华文行楷'); }
+    @font-face { font-family: 'STCaiyun'; src: local('STCaiyun'), local('华文彩云'); }
+    @font-face { font-family: 'STHupo'; src: local('STHupo'), local('华文琥珀'); }
+    @font-face { font-family: 'STLiti'; src: local('STLiti'), local('华文隶书'); }
+    @font-face { font-family: 'STXinwei'; src: local('STXinwei'), local('华文新魏'); }
+    @font-face { font-family: 'STZhongsong'; src: local('STZhongsong'), local('华文中宋'); }
+    @font-face { font-family: 'DengXian'; src: local('DengXian'), local('等线'); }
+    @font-face { font-family: 'Microsoft JhengHei'; src: local('Microsoft JhengHei'), local('微軟正黑體'); }
+    @font-face { font-family: 'MingLiU'; src: local('MingLiU'), local('細明體'); }
+    @font-face { font-family: 'PMingLiU'; src: local('PMingLiU'), local('新細明體'); }
+    @font-face { font-family: 'DFKai-SB'; src: local('DFKai-SB'), local('標楷體'); }
     </style>
 
     <div id="a" style="display:none"></div>
@@ -206,7 +198,7 @@ function getElementClasses(element) {
 <link rel="stylesheet" href="css/css2.css?v=7.2">
 <link rel="stylesheet" href="css/icon.css?v=7.8">
 <link rel="stylesheet" href="css/controls-mini.css?v=8.6">
-  <link rel="stylesheet" href="css/simulator-chat.css?v=2.0">
+  <link rel="stylesheet" href="css/simulator-chat.css?v=2.2">
 <script src="js/assets/boot-guard.js?v=1.0"></script>
     <link rel="stylesheet" href="css/cutout-brush.css?v=1.0">
 <link rel="stylesheet" href="css/common.css?v=7.8">
@@ -233,7 +225,7 @@ function getElementClasses(element) {
 <link rel="stylesheet" href="css/ui/custom-html-components.css?v=7.2">
 <link rel="stylesheet" href="css/tagify.css?v=7.2" media="print" onload="this.media='all'">
 
-<link rel="stylesheet" href="css/ui/font-manager.css?v=7.2" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="css/ui/font-manager.css?v=7.9" media="print" onload="this.media='all'">
 
 <script src="cdn-local/stacktrace.min.js"></script>
 <script src="cdn-local/tagify.min.js?v=4.37.1-nai-only-7.5"></script>
@@ -595,9 +587,9 @@ function getElementClasses(element) {
                   <i class="material-icons" id="intro_simulator-chat-area">forum</i>
                   <span class="icon-label" data-i18n="simulatorChatTitle">剧情</span>
                  </div>
-                 <div class="icon-wrapper" data-action="openSimulatorStudio" title="对话皮肤、影片站、弹幕页、图区">
+                 <div class="icon-wrapper" data-action="openSimulatorStudio" title="聊天、影片站、弹幕、手机等单开模拟器">
                   <i class="material-icons" id="intro_simulator-studio">web_asset</i>
-                  <span class="icon-label">模拟器</span>
+                  <span class="icon-label" data-i18n="side-label-simulator">模拟器</span>
                  </div>
                  <div class="icon-wrapper" data-action="toggleVisibility" data-target="asset-library-area">
                   <i class="material-icons" id="intro_asset-library-area">collections</i>
@@ -1130,7 +1122,7 @@ function getElementClasses(element) {
                         <button type="button" class="simulator-workspace-tab" data-sim-tab="advanced">高级</button>
                     </div>
                     <div data-sim-panel="edit">
-                    <div class="simulator-chat-help">写对白后有两条路：① 左侧「模拟器」做聊天/假网页。②「生成漫画分镜」才拆成可出图的格子。左侧「模板」点分镜也行。</div>
+                    <div class="simulator-chat-help">写对白后有两条路：①「打开对应模拟器」进入聊天/影片站/手机等单开界面。②「生成漫画分镜」才拆成可出图的格子。左侧「模板」只套分镜。</div>
                     <div class="simulator-chat-section" id="story-composer-section">
                         <div class="simulator-chat-section-title">剧情编辑器</div>
                         <div class="simulator-chat-field">
@@ -1152,7 +1144,7 @@ function getElementClasses(element) {
                             <select id="storyComposerTemplate" class="simulator-chat-input"></select>
                         </div>
                         <div class="simulator-chat-actions">
-                            <button id="storyComposerInsert" type="button" class="nai-character-mini-button">套用对话模板</button>
+                            <button id="storyComposerInsert" type="button" class="nai-character-mini-button">打开对应模拟器</button>
                             <button id="storyComposerManga" type="button" class="nai-character-mini-button">生成漫画分镜</button>
                         </div>
                         <details class="simulator-advanced beginner-advanced">
@@ -1232,9 +1224,9 @@ function getElementClasses(element) {
                     </details>
             <div id="simulator-extra-section" class="simulator-chat-section simulator-extra-section">
                 <div class="simulator-chat-section-title">其他模拟器模板</div>
-                <div class="simulator-chat-help">对话皮肤、影片站、弹幕页、图区已单独放到左侧「模拟器」。这里只留给要手改 JSON 的情况。</div>
+                <div class="simulator-chat-help">聊天、影片站、弹幕、手机等请点左侧「模拟器」单开。这里只留给要手改 JSON 的情况。</div>
                 <div class="simulator-chat-actions">
-                    <button type="button" class="nai-character-mini-button" data-action="openSimulatorStudio">打开模拟器工作台</button>
+                    <button type="button" class="nai-character-mini-button" data-action="openSimulatorStudio">打开模拟器</button>
                 </div>
                 <select id="simulatorExtraTemplate" class="simulator-chat-input"></select>
                 <details class="simulator-advanced">
@@ -1354,9 +1346,9 @@ function getElementClasses(element) {
             <div class="left_area" id="asset-library-area" style="display: none;">
                 <div class="area-header">素材库</div>
                 <div class="prompt-manager-items asset-library-panel">
-                    <div class="simulator-chat-help">站点零件点「添加」后可双击改字。对话模拟器和假网页请点左侧「模拟器」，或下面「打开模拟器工作台」。Kenney 图标很多，点对应分类才会加载。</div>
+                    <div class="simulator-chat-help">站点零件点「添加」后可双击改字。聊天和假网页请点左侧「模拟器」单开。影片站 / 弹幕 / 图区零件也在对应模拟器里。Kenney 图标很多，点对应分类才会加载。</div>
                     <div class="simulator-chat-actions">
-                        <button type="button" class="nai-character-mini-button" data-action="openSimulatorStudio">打开模拟器工作台</button>
+                        <button type="button" class="nai-character-mini-button" data-action="openSimulatorStudio">打开模拟器</button>
                     </div>
                     <input id="assetLibraryInput" type="file" accept="image/*,.svg" multiple>
                     <div class="simulator-chat-actions">
@@ -1609,10 +1601,10 @@ function getElementClasses(element) {
                         </div>
                         <div class="input-group">
                             <label data-i18n="com-bgColor">背景颜色</label>
-                            <input id="textBgColorPicker" class="jscolor-color-picker" data-initial-color="rgba(255,255,255,1)" oninput="changeTextBgColor(this.value)">
+                            <input id="textBgColorPicker" class="jscolor-color-picker" data-initial-color="rgba(0,0,0,0)" oninput="changeTextBgColor(this.value)">
                         </div>
                         <div class="input-container-leftSpace" data-i18n-label="fontSize">
-                            <input type="range" id="fontSizeSlider" min="7" max="150" value="14" oninput="changeFontSize(this.value)">
+                            <input type="range" id="fontSizeSlider" min="7" max="150" value="32" oninput="changeFontSize(this.value)">
                         </div>
                         <div class="input-container-leftSpace" data-i18n-label="outlineSize">
                             <input type="range" id="fontStrokeWidthSlider" min="0" max="5" step="1" value="0" oninput="changeStrokeWidthSize(this.value)">
@@ -2112,13 +2104,13 @@ function getElementClasses(element) {
                     <div id="canvasEmptyHint" class="canvas-empty-hint">
                         <strong>画布还是空的</strong>
                         <ol>
-                            <li>点左侧「模板」，选一个分镜铺到这一页</li>
-                            <li>聊天或假网页：点左侧「模拟器」</li>
-                            <li>要出图：填好 Token，再点「生成」（会花积分）</li>
+                            <li>要假聊天、影片站、弹幕：点「打开模拟器」</li>
+                            <li>要格子分镜：点「去选分镜」</li>
+                            <li>要 AI 出图：填好 Token，再点「生成」（会花积分）</li>
                         </ol>
                         <div class="canvas-empty-hint-actions">
-                            <button type="button" id="canvasEmptyHintTemplate">去选分镜</button>
-                            <button type="button" id="canvasEmptyHintSimulator" class="is-secondary">打开模拟器</button>
+                            <button type="button" id="canvasEmptyHintSimulator">打开模拟器</button>
+                            <button type="button" id="canvasEmptyHintTemplate" class="is-secondary">去选分镜</button>
                         </div>
                     </div>
                 </div>
@@ -2494,17 +2486,17 @@ function getElementClasses(element) {
     <script src="js/sidebar/pen/fabric/brushes/drip.js?v=7.2"></script>
     <script src="js/sidebar/pen/fabric/brushes/stroke.js?v=7.2"></script>
     <script src="js/core/manga-page-size.js?v=1.0" defer></script>
-    <script src="js/core/settings.js?v=8.8" defer></script>
+    <script src="js/core/settings.js?v=8.9" defer></script>
     <script src="js/core/debug.js?v=7.2" defer></script>
-    <script src="js/core/logger.js?v=7.2" defer></script>
+    <script src="js/core/logger.js?v=7.3" defer></script>
     <script src="js/ui/util/focus-trap.js?v=7.2" defer></script>
     <script src="js/core/global-error-handler.js?v=7.3" defer></script>
 
     <script src="js/ui/glfx-ui.js?v=7.2" defer></script>
-    <script src="js/ui/canvas-object-menu.js?v=7.7" defer></script>
+    <script src="js/ui/canvas-object-menu.js?v=8.0" defer></script>
     <script src="js/ui/third/intro.js?v=7.2" defer></script>
-    <script src="js/ui/tutorial.js?v=7.7" defer></script>
-    <script src="js/ui/beginner-guide.js?v=1.8" defer></script>
+    <script src="js/ui/tutorial.js?v=7.8" defer></script>
+    <script src="js/ui/beginner-guide.js?v=2.0" defer></script>
     <script src="js/ui/visual-studio.js?v=1.5" defer></script>
     <script src="js/ui/visual-ps-tools.js?v=1.2" defer></script>
     <script src="js/ui/toast.js?v=7.3" defer></script>
@@ -2512,8 +2504,8 @@ function getElementClasses(element) {
     <script src="js/ui/util/event-delegator.js?v=7.6" defer></script>
     <script src="js/ui/third/tippy.js?v=7.5" defer></script>
 
-    <script src="js/ui/third/base-translation/base-zh.js?v=8.1" defer></script>
-    <script src="js/ui/third/i18next.js?v=8.4" defer></script>
+    <script src="js/ui/third/base-translation/base-zh.js?v=8.3" defer></script>
+    <script src="js/ui/third/i18next.js?v=8.5" defer></script>
     <script src="js/dashboard/performance-storage.js?v=7.5" defer></script>
     <script src="js/dashboard/prompt-frequency-storage.js?v=7.3" defer></script>
     <script src="js/dashboard/dashboard-ui.js?v=8.11" defer></script>
@@ -2533,13 +2525,13 @@ function getElementClasses(element) {
     <script src="js/core/util/js-util.js?v=7.2" defer></script>
     <script src="js/core/util/fabric-util.js?v=8.9" defer></script>
     <script src="js/core/util/html-canvas-util.js?v=7.2" defer></script>
-    <script src="js/core/util/image-util.js?v=7.5" defer></script>
+    <script src="js/core/util/image-util.js?v=7.6" defer></script>
     <script src="js/core/util/anime-util.js?v=7.2" defer></script>
     <script src="js/core/util/share-util.js?v=7.3" defer></script>
     <script src="js/core/util/log-util.js?v=7.2" defer></script>
     <script src="js/core/util/image-analyzer-util.js?v=7.2" defer></script>
     <script src="js/canvas-manager.js?v=7.6" defer></script>
-    <script src="js/project-management.js?v=8.14" defer></script>
+    <script src="js/project-management.js?v=8.16" defer></script>
     <script src="js/shortcut.js?v=8.12" defer></script>
     <script src="js/panel/grid.js?v=7.3" defer></script>
     <script src="js/panel/layout-templates.js?v=8.12" defer></script>
@@ -2577,7 +2569,7 @@ function getElementClasses(element) {
      <script src="js/assets/site-ui-pack.js?v=1.0" defer></script>
      <script src="js/assets/github-free-pack.js?v=1.1" defer></script>
      <script src="js/assets/asset-pack.js?v=1.0" defer></script>
-     <script src="js/assets/asset-library-controller.js?v=1.8" defer></script>
+     <script src="js/assets/asset-library-controller.js?v=2.0" defer></script>
      <script src="js/assets/image2-job-store.js?v=1.0" defer></script>
      <script src="js/assets/image2-client.js?v=1.0" defer></script>
      <script src="js/assets/image2-controller.js?v=1.1" defer></script>
@@ -2598,25 +2590,25 @@ function getElementClasses(element) {
      <script src="js/simulator/renderers/image-board-renderer.js?v=1.1" defer></script>
      <script src="js/simulator/site-ui-parts.js?v=1.0" defer></script>
      <script src="js/simulator/story-adapters.js?v=1.4" defer></script>
-     <script src="js/simulator/story-composer-controller.js?v=2.0" defer></script>
+     <script src="js/simulator/story-composer-controller.js?v=2.2" defer></script>
      <script src="js/simulator/simulator-controller.js?v=1.4" defer></script>
-     <script src="js/simulator/timeline.js?v=1.2" defer></script>
+     <script src="js/simulator/timeline.js?v=1.3" defer></script>
      <script src="js/simulator/longshot-exporter.js?v=1.0" defer></script>
-     <script src="js/simulator/playback-controller.js?v=1.6" defer></script>
+     <script src="js/simulator/playback-controller.js?v=1.7" defer></script>
      <script src="js/simulator/page-edit-controller.js?v=1.2" defer></script>
      <script src="js/local-tools/local-tools-client.js?v=1.1" defer></script>
      <script src="js/local-tools/cutout-presets.js?v=1.1" defer></script>
      <script src="js/local-tools/background-removal-client.js?v=1.4" defer></script>
      <script src="js/simulator/chat-controller.js?v=1.4" defer></script>
-     <script src="js/simulator/simulator-studio.js?v=1.3" defer></script>
+     <script src="js/simulator/simulator-studio.js?v=2.1" defer></script>
      <script src="js/layer/blend/blend.js?v=7.2" defer></script>
     
     <script src="js/sidebar/sidebar-ui.js?v=7.2" defer></script>
     <script src="js/sidebar/sidebar.js?v=7.5" defer></script>
-    <script src="js/sidebar/text/text-effect.js?v=7.2" defer></script>
+    <script src="js/sidebar/text/text-effect.js?v=8.2" defer></script>
     <script src="js/sidebar/text/vertical-textbox.js?v=7.3" defer></script>
-    <script src="js/sidebar/text/vertical-text.js?v=7.3" defer></script>
-    <script src="js/sidebar/speechBubble/speech-bubble-effect.js?v=7.6" defer></script>
+    <script src="js/sidebar/text/vertical-text.js?v=7.4" defer></script>
+    <script src="js/sidebar/speechBubble/speech-bubble-effect.js?v=7.7" defer></script>
     <script src="js/sidebar/speechBubble/speech-bubble-freehand.js?v=7.3" defer></script>
     <script src="js/sidebar/speechBubble/speech-bubble-text.js?v=7.2" defer></script>    
     <script src="js/sidebar/pen/original-brush.js?v=7.2" defer></script>
@@ -2659,7 +2651,7 @@ function getElementClasses(element) {
     <script src="js/ui/control/image-control-manager.js?v=7.2" defer></script>
     <script src="js/ui/control/information-control.js?v=7.2" defer></script>
     <script src="js/ui/control/glfx-control.js?v=7.3" defer></script>
-    <script src="js/fabric/fabric-management.js?v=7.3" defer></script>
+    <script src="js/fabric/fabric-management.js?v=7.9" defer></script>
     <script src="js/core/svg/google-icon-names.js?v=7.2"></script>
     <script src="js/core/svg/google-icon-helper.js?v=8.13"></script>
     <script src="js/ui/bottom-bar.js?v=7.4" defer></script>
@@ -2673,8 +2665,8 @@ function getElementClasses(element) {
 
     <script src="js/db/user-font-repository.js?v=7.2" defer></script>
     <script src="js/ui/font/user-font-manager.js?v=7.6" defer></script>
-    <script src="js/core/font/font-manager-core.js?v=7.5" defer></script>
-    <script src="js/core/font/font-dropdown.js?v=7.2" defer></script>
+    <script src="js/core/font/font-manager-core.js?v=8.0" defer></script>
+    <script src="js/core/font/font-dropdown.js?v=7.9" defer></script>
 
     <script src="service-worker.js?v=8.11" defer></script>
     <script src="js/core/service/worker-register.js?v=7.6" defer></script>
@@ -2957,72 +2949,85 @@ setAutoSizeingControlMini();
 
 <div id="simulatorStudioOverlay" class="sim-studio-overlay" hidden>
   <div class="sim-studio-header">
-    <strong>模拟器工作台</strong>
-    <div class="sim-studio-tabs" id="simStudioTabs" role="tablist">
-      <button type="button" class="simulator-workspace-tab is-active" data-studio-tab="chat">对话</button>
-      <button type="button" class="simulator-workspace-tab" data-studio-tab="web">网页</button>
-      <button type="button" class="simulator-workspace-tab" data-studio-tab="part">零件</button>
-    </div>
-    <button id="simStudioClose" type="button" class="nai-character-mini-button">关闭</button>
+    <button id="simStudioBack" type="button" class="nai-character-mini-button" hidden data-i18n="simStudioBack">返回</button>
+    <strong id="simStudioTitle" data-i18n="simStudioTitle">模拟器</strong>
+    <button id="simStudioClose" type="button" class="nai-character-mini-button" data-i18n="simStudioClose">去看画布</button>
   </div>
-  <p class="simulator-chat-help">像商店一样点预览选样式，改完字再放到画布。放到画布后可以整体放大缩小、贴合分镜。这是本包自带的通用界面，不含真实站名。</p>
-  <div class="sim-studio-body">
-    <div data-studio-panel="chat">
-      <div class="simulator-chat-field">
-        <label for="simStudioChatTitle">对话标题</label>
-        <input id="simStudioChatTitle" class="simulator-chat-input" type="text" value="夜间对话">
-      </div>
-      <p class="sim-studio-store-hint">点下面的卡片选对话样式，选中后会立刻换预览。</p>
-      <div id="simStudioChatStore" class="sim-store-grid" role="listbox" aria-label="对话样式商店"></div>
-      <div class="simulator-chat-field sim-studio-hidden-field">
-        <label for="simStudioChatTemplate">聊天皮肤</label>
-        <select id="simStudioChatTemplate" class="simulator-chat-input"></select>
-      </div>
-      <textarea id="simStudioChatScript" class="simulator-chat-textarea" rows="8" placeholder="角色A：今晚还出图吗？&#10;角色B：先把分镜排好。"></textarea>
-      <div class="simulator-chat-actions">
-        <button id="simStudioChatInsert" type="button" class="nai-character-mini-button">放到画布</button>
-        <button id="simStudioChatLoad" type="button" class="nai-character-mini-button">读取选中</button>
-      </div>
-      <div class="simulator-chat-help">聊天皮肤不能直接 NAI 出图。要出漫画请到「剧情」点「生成漫画分镜」。</div>
+  <div id="simStudioHome" class="sim-studio-home">
+    <p class="sim-studio-store-hint" data-i18n="simStudioHomeHint">点一种界面，进入对应模拟器。在里面改字、播放。放入漫画是可选出口。不含真实站名。</p>
+    <div id="simStudioHomeGrid" class="sim-studio-home-grid" role="listbox" aria-label="模拟器"></div>
+  </div>
+  <div id="simStudioWork" class="sim-studio-work" hidden>
+    <div class="sim-studio-preview-host" id="simStudioPreviewHost">
+      <canvas id="simStudioPreview"></canvas>
     </div>
-    <div data-studio-panel="web" hidden>
-      <p class="sim-studio-store-hint">点卡片选网页模板。影片站、弹幕、图区、社交、论坛都可以先看样子再放进漫画。</p>
-      <div id="simStudioWebStore" class="sim-store-grid" role="listbox" aria-label="网页模板商店"></div>
-      <div class="simulator-chat-field sim-studio-hidden-field">
-        <label for="simStudioWebTemplate">网页模板</label>
-        <select id="simStudioWebTemplate" class="simulator-chat-input"></select>
+    <div class="sim-studio-dock">
+      <div class="sim-studio-dock-scroll">
+      <div id="simStudioChatDock">
+        <div class="simulator-chat-field">
+          <label for="simStudioChatTitle">对话标题</label>
+          <input id="simStudioChatTitle" class="simulator-chat-input" type="text" value="夜间对话">
+        </div>
+        <p class="sim-studio-store-hint" data-i18n="simStudioSkins">界面样式</p>
+        <div id="simStudioChatStore" class="sim-store-grid" role="listbox" aria-label="界面样式"></div>
+        <div class="simulator-chat-field sim-studio-hidden-field">
+          <label for="simStudioChatTemplate">聊天皮肤</label>
+          <select id="simStudioChatTemplate" class="simulator-chat-input"></select>
+        </div>
+        <div class="simulator-chat-field">
+          <label for="simStudioChatScript" data-i18n="simStudioChatScriptLabel">对白（每行 角色：台词）</label>
+          <textarea id="simStudioChatScript" class="simulator-chat-textarea" rows="8" placeholder="角色A：今晚还出图吗？&#10;角色B：先把分镜排好。"></textarea>
+        </div>
+        <div class="simulator-chat-help">聊天界面不能直接 NAI 出图。要出漫画请到「剧情」点「生成漫画分镜」。</div>
       </div>
-      <div id="simStudioWebForm" class="sim-studio-form"></div>
-      <div class="simulator-chat-actions">
-        <button id="simStudioWebExample" type="button" class="nai-character-mini-button">载入示例</button>
-        <button id="simStudioWebInsert" type="button" class="nai-character-mini-button">放到画布</button>
-        <button id="simStudioWebLoad" type="button" class="nai-character-mini-button">读取选中</button>
+      <div id="simStudioWebDock" hidden>
+        <div class="simulator-chat-field sim-studio-hidden-field">
+          <label for="simStudioWebTemplate">网页模板</label>
+          <select id="simStudioWebTemplate" class="simulator-chat-input"></select>
+        </div>
+        <div id="simStudioWebForm" class="sim-studio-form"></div>
       </div>
-      <div class="simulator-chat-help">影片站 / 弹幕页 / 图区的标题、播放量、评论都可以在这里改，再整页放到画布。</div>
-    </div>
-    <div data-studio-panel="part" hidden>
-      <p class="sim-studio-store-hint">点卡片选按钮、搜索栏、弹幕条。放到画布后可以直接改上面的字。</p>
-      <div id="simStudioPartStore" class="sim-store-grid sim-store-grid-parts" role="listbox" aria-label="零件商店"></div>
-      <div class="simulator-chat-field sim-studio-hidden-field">
-        <label for="simStudioPartSelect">站点零件</label>
-        <select id="simStudioPartSelect" class="simulator-chat-input"></select>
+      <div id="simStudioPartDock" hidden>
+        <p class="sim-studio-store-hint" data-i18n="simStudioParts">本模拟器零件</p>
+        <div id="simStudioPartStore" class="sim-store-grid sim-store-grid-parts" role="listbox" aria-label="本模拟器零件"></div>
+        <div class="simulator-chat-field sim-studio-hidden-field">
+          <label for="simStudioPartSelect">站点零件</label>
+          <select id="simStudioPartSelect" class="simulator-chat-input"></select>
+        </div>
+        <div id="simStudioPartForm" class="sim-studio-form"></div>
       </div>
-      <div id="simStudioPartForm" class="sim-studio-form"></div>
-      <div class="simulator-chat-actions">
-        <button id="simStudioPartInsert" type="button" class="nai-character-mini-button">更新到画布</button>
-        <button id="simStudioPartLoad" type="button" class="nai-character-mini-button">读取选中</button>
       </div>
-      <div class="simulator-chat-help">素材库里的播放器、评论、数据行添加后也是这些可改字段，不必再贴死图。</div>
+      <div class="sim-studio-dock-actions">
+        <div id="simStudioChatActions" class="simulator-chat-actions">
+          <button id="simStudioChatInsert" type="button" class="nai-character-mini-button" data-i18n="simStudioPlace">放入漫画</button>
+          <button id="simStudioChatLoad" type="button" class="nai-character-mini-button" data-i18n="simStudioLoadCanvas">从画布读回来</button>
+        </div>
+        <div id="simStudioWebActions" class="simulator-chat-actions" hidden>
+          <button id="simStudioWebExample" type="button" class="nai-character-mini-button" data-i18n="simStudioExample">载入示例</button>
+          <button id="simStudioWebInsert" type="button" class="nai-character-mini-button" data-i18n="simStudioPlace">放入漫画</button>
+          <button id="simStudioWebLoad" type="button" class="nai-character-mini-button" data-i18n="simStudioLoadCanvas">从画布读回来</button>
+        </div>
+        <div id="simStudioPartActions" class="simulator-chat-actions" hidden>
+          <button id="simStudioPartInsert" type="button" class="nai-character-mini-button" data-i18n="simStudioPartPlace">把零件放到画布</button>
+          <button id="simStudioPartLoad" type="button" class="nai-character-mini-button" data-i18n="simStudioLoadCanvas">从画布读回来</button>
+        </div>
+        <div class="sim-studio-play-bar" role="group" aria-label="播放">
+          <button id="simStudioPlayPrev" type="button" class="nai-character-mini-button" data-i18n="simStudioPlayPrev">上一步</button>
+          <button id="simStudioPlayNext" type="button" class="nai-character-mini-button" data-i18n="simStudioPlayNext">下一步</button>
+          <button id="simStudioPlay" type="button" class="nai-character-mini-button" data-i18n="simStudioPlay">播放</button>
+          <button id="simStudioPlayStop" type="button" class="nai-character-mini-button" data-i18n="simStudioStop">停止</button>
+          <span class="sim-studio-play-count"><span id="simStudioPlayIndex">0</span> / <span id="simStudioPlayTotal">0</span></span>
+        </div>
+        <div class="sim-studio-scale-bar" role="group" aria-label="整页缩放">
+          <span class="sim-studio-scale-label" data-i18n="simStudioScaleHint">放到画布后</span>
+          <button id="simStudioScaleDown" type="button" class="nai-character-mini-button" title="缩小画布上选中的整页模拟器">缩小</button>
+          <button id="simStudioScaleUp" type="button" class="nai-character-mini-button" title="放大画布上选中的整页模拟器">放大</button>
+          <button id="simStudioFit" type="button" class="nai-character-mini-button" data-i18n="simStudioFitPanel" title="把画布上选中的模拟器贴到格子">贴到格子</button>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="sim-studio-scale-bar" role="group" aria-label="整页缩放">
-    <span class="sim-studio-scale-label">整页</span>
-    <button id="simStudioScaleDown" type="button" class="nai-character-mini-button" title="缩小刚放上去或当前选中的整页模拟器">缩小</button>
-    <button id="simStudioScaleUp" type="button" class="nai-character-mini-button" title="放大刚放上去或当前选中的整页模拟器">放大</button>
-    <button id="simStudioFit" type="button" class="nai-character-mini-button" title="把当前模拟器贴合到选中的分镜">贴合分镜</button>
-    <span class="sim-studio-scale-hint">也可在画布上 Ctrl+滚轮缩放画布，Alt+Ctrl+滚轮缩放对象</span>
-  </div>
-  <div id="simStudioStatus" class="simulator-chat-status">改好文字后点「放到画布」。</div>
+  <div id="simStudioStatus" class="simulator-chat-status">点一种界面，进入对应模拟器。</div>
 </div>
 
 </body>

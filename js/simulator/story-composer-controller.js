@@ -316,13 +316,19 @@ var send=el('storyComposerSend');if(send)send.addEventListener('click',sendNode)
 var plus=el('storyComposerPlusOne');if(plus)plus.addEventListener('click',function(){story=engine().repeatLast(ensureStory());renderEditor();});
 var parse=el('storyComposerParse');if(parse)parse.addEventListener('click',parseScript);
 var add=el('storyComposerAddCharacter');if(add)add.addEventListener('click',addCharacter);
-var insert=el('storyComposerInsert');if(insert)insert.addEventListener('click',function(){insertOrUpdate().catch(function(error){setStatus(error.message,true);});});
+var insert=el('storyComposerInsert');if(insert)insert.addEventListener('click',function(){
+if(!root.NaiComicSimulatorStudio||typeof root.NaiComicSimulatorStudio.openFromStory!=='function'){
+setStatus('模拟器未加载。',true);
+return;
+}
+root.NaiComicSimulatorStudio.openFromStory();
+});
 var manga=el('storyComposerManga');if(manga)manga.addEventListener('click',function(){insertMangaPanels().catch(function(error){setStatus(error.message,true);});});
 var prompt=el('storyComposerFillPrompt');if(prompt)prompt.addEventListener('click',function(){if(root.NaiComicStoryToManga){root.NaiComicStoryToManga.fillDirectorPrompt(ensureStory());setStatus('已写入「AI 导演批量需求」，不会自动生图。',false);}});
 var load=el('storyComposerLoad');if(load)load.addEventListener('click',loadSelected);
 var selectPage=el('storyComposerSelectPage');if(selectPage)selectPage.addEventListener('click',function(){
 if(root.NaiBeginnerGuide&&typeof root.NaiBeginnerGuide.selectWholePage==='function'){
-if(!root.NaiBeginnerGuide.selectWholePage())setStatus('画布上还没有整页。先点「套用对话模板」或左侧「模板」。',true);
+if(!root.NaiBeginnerGuide.selectWholePage())setStatus('画布上还没有整页。先在模拟器里「放入漫画」，或点左侧「模板」。',true);
 }else setStatus('整页选择未加载。',true);
 });
 var exported=el('storyComposerExportJson');if(exported)exported.addEventListener('click',exportJson);

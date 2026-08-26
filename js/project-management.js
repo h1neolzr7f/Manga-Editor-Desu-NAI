@@ -291,8 +291,8 @@ dashboardDailyGoalInput:{id:'dashboardDailyGoalInput',default:''},
 dashboardWeeklyGoalInput:{id:'dashboardWeeklyGoalInput',default:''},
 textColorPicker:{id:'textColorPicker',default:'rgba(0,0,0,1)'},
 textOutlineColorPicker:{id:'textOutlineColorPicker',default:'rgba(0,0,0,1)'},
-textBgColorPicker:{id:'textBgColorPicker',default:'rgba(255,255,255,1)'},
-fontSizeSlider:{id:'fontSizeSlider',default:'14'},
+textBgColorPicker:{id:'textBgColorPicker',default:'rgba(0,0,0,0)'},
+fontSizeSlider:{id:'fontSizeSlider',default:'32'},
 fontStrokeWidthSlider:{id:'fontStrokeWidthSlider',default:'0'},
 inpaintPrompt:{id:'inpaint-prompt',default:''},
 inpaintNegative:{id:'inpaint-negative',default:''},
@@ -403,6 +403,9 @@ if(el&&secrets[key]!==undefined)el.value=secrets[key];
 applyBeginnerLayoutMigration();
 applyBeginnerUxMigration();
 applyAssemblyPageSizeMigration();
+if(typeof syncJsColorFromInputs==='function'){
+syncJsColorFromInputs();
+}
 return;
 }
 var data=JSON.parse(stored);
@@ -445,6 +448,38 @@ modelEl.value='deepseek-v4-flash';
 data.naiDirectorModel='deepseek-v4-flash';
 }
 localStorage.setItem('naiDirectorModelMigratedV5','1');
+}
+if(localStorage.getItem('letteringFontSizeDefaultMigratedV1')!=='1'){
+var sizeEl=$('fontSizeSlider');
+if(sizeEl&&(String(sizeEl.value)==='14'||data.fontSizeSlider==='14'||data.fontSizeSlider===undefined)){
+sizeEl.value='32';
+data.fontSizeSlider='32';
+try{
+var sizeStore=JSON.parse(localStorage.getItem('localSettingsData')||'{}');
+sizeStore.fontSizeSlider='32';
+localStorage.setItem('localSettingsData',JSON.stringify(sizeStore));
+}catch(e){}
+}
+localStorage.setItem('letteringFontSizeDefaultMigratedV1','1');
+}
+if(localStorage.getItem('letteringTextBgTransparentMigratedV1')!=='1'){
+var bgPicker=$('textBgColorPicker');
+var bgVal=bgPicker?String(bgPicker.value):'';
+var savedBg=data.textBgColorPicker;
+var factoryWhite={'rgba(255,255,255,1)':1,'rgba(255, 255, 255, 1)':1,'#ffffff':1,'#FFFFFF':1};
+if(bgPicker&&(factoryWhite[bgVal]||factoryWhite[savedBg]||savedBg===undefined)){
+bgPicker.value='rgba(0,0,0,0)';
+data.textBgColorPicker='rgba(0,0,0,0)';
+try{
+var bgStore=JSON.parse(localStorage.getItem('localSettingsData')||'{}');
+bgStore.textBgColorPicker='rgba(0,0,0,0)';
+localStorage.setItem('localSettingsData',JSON.stringify(bgStore));
+}catch(e){}
+}
+localStorage.setItem('letteringTextBgTransparentMigratedV1','1');
+}
+if(typeof syncJsColorFromInputs==='function'){
+syncJsColorFromInputs();
 }
 if(typeof loadPanelLayoutPrefs==='function'){
 loadPanelLayoutPrefs(data);

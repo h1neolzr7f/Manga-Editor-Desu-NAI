@@ -62,18 +62,12 @@ return result;
 }
 
 function insertSiteTemplate(templateId,name){
-if(root.NaiComicSimulatorStudio&&typeof root.NaiComicSimulatorStudio.open==='function'){
-root.NaiComicSimulatorStudio.open({tab:'web',templateId:templateId,message:'先改标题、播放量、评论，再点「放到画布」。'});
-status('已打开模拟器工作台。改完数据再放到画布：'+(name||templateId)+'。',false);
+if(!root.NaiComicSimulatorStudio||typeof root.NaiComicSimulatorStudio.open!=='function'){
+return Promise.reject(new Error('模拟器未加载。'));
+}
+root.NaiComicSimulatorStudio.open({tab:'web',templateId:templateId,message:'已进入对应模拟器。在里面改字、播放，需要时再放入漫画。'});
+status('已打开「'+(name||templateId)+'」模拟器。',false);
 return Promise.resolve();
-}
-var composer=root.NaiComicStoryComposer;
-if(composer&&typeof composer.insertTemplate==='function'){
-return composer.insertTemplate(templateId).then(function(){
-status('已插入整页：'+(name||templateId)+'。可像漫画一样拖动零件，双击文字修改。',false);
-});
-}
-return Promise.reject(new Error('剧情编辑器未加载。'));
 }
 
 function addAsset(asset,point){
@@ -116,7 +110,7 @@ assets=assets.slice(currentPage*PAGE_SIZE,(currentPage+1)*PAGE_SIZE);
 paged=pageCount>1;
 status('共 '+total+' 件。当前第 '+(currentPage+1)+' / '+pageCount+' 页。搜索名称可直接定位。',false);
 }else if(currentGroup==='site-ui'||currentGroup==='tube'||currentGroup==='danmaku'||currentGroup==='board'){
-status('站点界面 '+assets.length+' 件。点「添加」放可改字零件，「编辑数据」改播放量/评论，「用作整页」打开网页模拟器。不含真实站名。',false);
+status('站点界面 '+assets.length+' 件。点「添加」放可改字零件，「编辑数据」改播放量/评论，「打开对应模拟器」进入影片站/弹幕/图区。不含真实站名。',false);
 }else if(currentGroup==='recent'){
 status('最近使用 '+assets.length+' 件。',false);
 }else status('当前 '+assets.length+' 件 / 全库 '+total+' 件。选中分镜后再添加会铺进该格。',false);
@@ -161,7 +155,7 @@ edit.type='button';
 edit.className='simulator-chat-small-button';
 edit.textContent='编辑数据';
 edit.addEventListener('click',function(){
-if(root.NaiComicSimulatorStudio)root.NaiComicSimulatorStudio.open({tab:'part',assetId:asset.id,message:'改播放量、评论、标题后点「更新到画布」。'});
+if(root.NaiComicSimulatorStudio)root.NaiComicSimulatorStudio.open({tab:'part',assetId:asset.id,message:'已进入对应模拟器。改完零件文字后可放到画布。'});
 });
 actions.appendChild(edit);
 }
@@ -170,7 +164,7 @@ if(templateId){
 var usePage=document.createElement('button');
 usePage.type='button';
 usePage.className='simulator-chat-small-button';
-usePage.textContent='用作整页';
+usePage.textContent='打开对应模拟器';
 usePage.addEventListener('click',function(){
 insertSiteTemplate(templateId,asset.name).catch(function(error){status(error.message,true);});
 });
