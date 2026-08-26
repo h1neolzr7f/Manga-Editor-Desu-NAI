@@ -1,0 +1,35 @@
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run deterministic offline checks
+        run: |
+          node scripts/layout-smoke-test.cjs
+          node scripts/manga-import-smoke-test.cjs
+          node scripts/simulator-chat-smoke-test.cjs
+          node scripts/cutout-presets-smoke-test.cjs
+          node scripts/custom-brush-smoke-test.cjs
+          node scripts/asset-library-smoke-test.cjs
+          node scripts/simulator-extra-smoke-test.cjs
+          node scripts/story-engine-smoke-test.cjs
+          node scripts/page-studio-smoke-test.cjs
+          node scripts/simulator-timeline-smoke-test.cjs
+          node scripts/image2-interface-smoke-test.cjs
+          node scripts/scene-plan-smoke-test.cjs
+          node scripts/manga-page-size-smoke-test.cjs
+          python scripts/proxy-guard-smoke-test.py

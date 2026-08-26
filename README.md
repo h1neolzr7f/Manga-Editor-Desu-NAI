@@ -10,6 +10,7 @@
 
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/h1neolzr7f/Manga-Editor-Desu-NAI)](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest)
+[![Verify](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/actions/workflows/verify.yml/badge.svg)](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/actions/workflows/verify.yml)
 [![Upstream](https://img.shields.io/badge/upstream-manga--editor--desu-0A7EA4)](https://github.com/new-sankaku/manga-editor-desu)
 
 [下载最新版](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest) ·
