@@ -2,6 +2,13 @@
 
 Version numbers apply to **this fork only**, not to upstream Manga Editor Desu.
 
+## 1.0.2 — 2026-08-26
+
+- Open each fake UI as its own simulator: chat, video site, danmaku, phone, social, forum, live, image board, visual novel.
+- Edit and play inside the simulator; placing on the manga canvas is optional and then shows the canvas.
+- Fix CJK lettering so changing fonts actually changes the words on the canvas.
+- Beginner empty-canvas hint, clearer autosave restore copy, and story/asset buttons that open the matching simulator.
+
 ## 1.0.1 — 2026-08-14
 
 - Add a self-contained Windows EXE installer with Chinese/English UI, Start Menu and optional desktop shortcuts, repair/uninstall support.
