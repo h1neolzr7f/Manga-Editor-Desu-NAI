@@ -2,11 +2,22 @@ class FontSelectorManager {
   static instances = [];
  
   static addInstance(instance) {
+    this.instances = this.instances.filter((item) => item.targetId !== instance.targetId);
     this.instances.push(instance);
   }
  
   static reloadAll() {
     this.instances.forEach((instance) => instance.reload());
+  }
+
+  static syncSelected(fontName) {
+    this.instances.forEach((instance) => {
+      const fmSelectedFont = $(`fm-selected-font-${instance.targetId}`);
+      if (!fmSelectedFont) return;
+      fmSelectedFont.textContent = fontName;
+      fmSelectedFont.className = `fm-font-${fontClassName(fontName)}`;
+      instance.savedFont = fontName;
+    });
   }
  
   static closeAllDropdowns(exceptId = null) {
@@ -37,23 +48,26 @@ class FontSelector {
   }
  
   initializeStyles() {
-    let fmStyleSheet = document.createElement("style");
-    Object.entries(fmFontData).forEach(([category, data]) => {
-      data.fonts.forEach((font) => {
-        fmStyleSheet.textContent += `.fm-font-${font.name.replace(/[\s-]/g, "_")}{font-family:"${font.name}",sans-serif; border-left:2px solid ${data.color}!important;}`;
-      });
-    });
-    if (!$("fm-styles")) {
+    let fmStyleSheet = $("fm-styles");
+    if (!fmStyleSheet) {
+      fmStyleSheet = document.createElement("style");
       fmStyleSheet.id = "fm-styles";
       document.head.appendChild(fmStyleSheet);
     }
+    let css = "";
+    Object.entries(fmFontData).forEach(([category, data]) => {
+      data.fonts.forEach((font) => {
+        css += `.fm-font-${fontClassName(font.name)}{font-family:"${font.name}"; border-left:2px solid ${data.color}!important;}`;
+      });
+    });
+    fmStyleSheet.textContent = css;
   }
  
   createFontOption(font, color) {
-    var langText = getSampleTextByLanguageCode();
     const option = document.createElement("div");
-    option.className = `fm-font-option fm-font-${font.name.replace(/[\s-]/g,"_")}`;
+    option.className = `fm-font-option fm-font-${fontClassName(font.name)}`;
     option.dataset.font = font.name;
+    option.dataset.scripts = font.scripts || "";
     option.style.display = "flex";
     option.style.justifyContent = "space-between";
     option.style.alignItems = "center";
@@ -61,10 +75,17 @@ class FontSelector {
     fontNameSpan.textContent = font.name;
     fontNameSpan.style.fontSize = "1.0em";
     const sampleTextSpan = document.createElement("span");
-    sampleTextSpan.textContent = langText;
+    sampleTextSpan.className = "fm-font-sample";
+    sampleTextSpan.textContent = font.scripts === "latin" ? "ABC" : getSampleTextByLanguageCode();
     sampleTextSpan.style.fontSize = "0.8em";
     option.appendChild(fontNameSpan);
     option.appendChild(sampleTextSpan);
+    if (font.scripts === "latin") {
+      const badge = document.createElement("span");
+      badge.className = "fm-font-script-badge";
+      badge.textContent = getText("fontLatinOnly");
+      option.appendChild(badge);
+    }
     return option;
   }
   
@@ -79,8 +100,7 @@ class FontSelector {
     if (this.savedFont && this.savedFont !== this.title) {
       const fmSelectedFont = $(`fm-selected-font-${this.targetId}`);
       fmSelectedFont.textContent = this.savedFont;
-      const fontNameClass = this.savedFont.replace(/[\s-]/g, "_");
-      fmSelectedFont.className = `fm-font-${fontNameClass}`;
+      fmSelectedFont.className = `fm-font-${fontClassName(this.savedFont)}`;
     }
   }
  
@@ -212,16 +232,9 @@ dropdown.style.visibility = '';
       data.fonts.forEach((font) => {
         const option = this.createFontOption(font, data.color);
         option.addEventListener("click", () => {
-
-          const activeObject = canvas.getActiveObject();
-          if(activeObject){
-            activeObject.fontFamily=font.name;
-            canvas.requestRenderAll();
-          }
-          fmSelectedFont.textContent = font.name;
-          fmSelectedFont.className = `fm-font-${font.name.replace(/[\s-]/g,"_")}`;
+          fontManager.applyToActiveObject(font.name);
+          FontSelectorManager.syncSelected(font.name);
           fmDropdown.classList.remove("fm-show");
-          this.savedFont = font.name;
           const event = new CustomEvent(this.targetId, {
             detail: {
               fontName: font.name,
@@ -265,7 +278,9 @@ dropdown.style.visibility = '';
  
 document.addEventListener("DOMContentLoaded", async () => {
   await fontManager.init();
-  new FontSelector("fontSelector", "Arial");
+  await fontInit();
+  new FontSelector("fontSelector", fontManager.getDefaultFont());
+  FontSelectorManager.syncSelected(fontManager.getDefaultFont());
 
   document.addEventListener("click", (event) => {
     if (!event.target.closest(".fm-font-dropdown")) {
@@ -276,27 +291,5 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 function getSampleTextByLanguageCode() {
-  const currentLang = i18next.language;
-  switch (currentLang) {
-    case 'en':
-      return 'ABC';
-    case 'ja':
-      return 'サンプル ABC';
-    case 'ko':
-      return '샘플 ABC';
-    case 'fr':
-      return 'ABC';
-    case 'zh':
-      return '示例 ABC';
-    case 'ru':
-      return 'Пример ABC';
-    case 'es':
-      return 'Ejemplo ABC';
-    case 'pt':
-      return 'ABC';
-    case 'de':
-      return 'Beispiel ABC';
-    default:
-      return 'Sample ABC';
-  }
+  return "嵌字 あア ABC";
 }

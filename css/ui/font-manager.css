@@ -301,6 +301,22 @@ font-size: 16px;
   border: 1px solid var(--color-tertiary);
   font-size: 1.1em;
   color: var(--color-text-primary);
+  gap: 6px;
+}
+
+.fm-font-sample {
+  opacity: 0.9;
+  white-space: nowrap;
+}
+
+.fm-font-script-badge {
+  font-size: 10px;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
 }
 
 .fm-font-option:hover {

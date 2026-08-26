@@ -88,7 +88,7 @@ overlay.innerHTML='<div class="tutorial-prompt">'+
 '<div class="tutorial-prompt-body">'+
 '<ol class="tutorial-beginner-steps">'+
 '<li>左侧点「模板」，选一个分镜放到画布。</li>'+
-'<li>点「剧情」写对白。对话皮肤用「套用对话模板」；要出图用「生成漫画分镜」或左侧「模板」。</li>'+
+'<li>点「剧情」写对白，再「打开对应模拟器」。假网页、聊天、手机在左侧「模拟器」里单开。要出图用「生成漫画分镜」或左侧「模板」。</li>'+
 '<li>要出图再到「自动生成」。生成会花 NovelAI 积分，不会偷偷扣。</li>'+
 '</ol>'+
 '<p>画完按 Esc 或点「移动」，才能再选中图层。笔刷都在左侧「笔刷」里。</p>'+
@@ -113,7 +113,7 @@ startQuickStart:function(){
 var self=this;
 var steps=[
 {element:'#intro_svg-container-template',title:'① 选分镜',body:'点左侧「模板」，选一个分镜放到画布。',position:'right'},
-{element:'#intro_simulator-chat-area',title:'② 写对白',body:'打开「剧情」写几句。「套用对话模板」只出聊天界面；要出图请点「生成漫画分镜」，或回左侧点「模板」。',position:'right'},
+{element:'#intro_simulator-chat-area',title:'② 写对白',body:'打开「剧情」写几句，再点「打开对应模拟器」。假网页和聊天在左侧「模拟器」里单开。要出图请点「生成漫画分镜」，或回左侧点「模板」。',position:'right'},
 {element:'#intro_auto-generate-area',title:'③ 自动生成出图',body:'先看画布顶栏是否已填 Token。打开「自动生成」，确认后再点生成。这一步才会花 NovelAI 积分。',position:'right'}
 ];
 this.runSteps(steps,0,function(){

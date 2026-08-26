@@ -31,7 +31,10 @@ eventLogger.trace('4: object:added');
 perfCounters.objectAdded++;
 perfCounters.forcedAdjust++;
 const obj=e.target;
-if(obj.fontFamily==="Font") obj.set("fontFamily","Arial");
+if(obj.fontFamily==="Font"){
+var letteringFont=(typeof fontManager!=="undefined"&&fontManager.getDefaultFont)?fontManager.getDefaultFont():"Klee One";
+obj.set("fontFamily",letteringFont);
+}
 if (!obj.initial) {
 saveInitialState(obj);
 }
@@ -573,6 +576,10 @@ updateObjectPositions(event.target,true);
 });
 canvas.on("text:changed",function (event) {
 eventLogger.trace('32: text:changed');
+var textObj=event.target;
+if(textObj&&typeof isText==="function"&&isText(textObj)&&textObj.fontFamily){
+textObj.set({fontFamily:textObj.fontFamily});
+}
 requestAnimationFrame(()=>{
 speechBubbleTextChaged(event.target);
 });

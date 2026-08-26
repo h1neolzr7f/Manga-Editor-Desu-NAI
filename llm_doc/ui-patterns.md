@@ -91,4 +91,10 @@ ModeManager.getCurrent()
 
 ## Simulator panel
 
-The first-round chat simulator is a normal left_area panel toggled through the existing sidebar data-action flow. Its controls use the existing CSS variables and data-i18n keys. Dynamic participant/message rows are owned by NaiComicChatController; canvas mutations still go through the existing history helpers and layer-panel refresh.
+左侧「剧情」(`#simulator-chat-area`) 继续只写对白，并提供「打开对应模拟器」和「生成漫画分镜」。
+
+左侧「模拟器」打开 `#simulatorStudioOverlay`：先是启动页，再单开一种模拟器工作区。预览用独立 `fabric.StaticCanvas`，不占用主画布。播放在工作区内完成；「放入漫画」才调用现有 `placeOnCanvas` / `insertTemplate`，成功后必须关掉 overlay，让用户立刻看见画布。聊天对白框进入时要写入可编辑示例（或剧情灌入的对白），预览与编辑框必须同一份文字，禁止空脚本静默借用剧情。右侧坞的「放入漫画 / 播放」钉在底部，不跟皮肤网格一起滚走。零件只出现在影片站 / 弹幕 / 图区工作区。左侧「模板」只套分镜格子。
+
+空画布提示 `#canvasEmptyHint` 不要把 `canvasInitMessage` 占位字算成内容。
+
+`NaiComicSimulatorStudio.open({tab,templateId,assetId,story})` 仍可用：`tab:'chat'|'web'|'part'` 会映射到对应单开模式。旧画布对象 `simulatorChat` / `simulatorExtra` 仍可通过「从画布读回来」回读。素材库站点卡的「打开对应模拟器」只进对应工作区，不再偷偷往画布插整页。

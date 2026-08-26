@@ -370,7 +370,7 @@ setupSlider(slider,'.input-container-leftSpace',false);
 var fontSelectorMenuEl=$("fontSelectorMenu");
 if(fontSelectorMenuEl){
 var menuActiveObj=canvas.getActiveObject();
-new FontSelector("fontSelectorMenu",menuActiveObj&&menuActiveObj.fontFamily||"Font");
+new FontSelector("fontSelectorMenu",menuActiveObj&&menuActiveObj.fontFamily||fontManager.getDefaultFont());
 }
 
 var submenuToggles=objectMenu.querySelectorAll('.menu-submenu-toggle');
@@ -405,14 +405,18 @@ if(!activeObject)return;
 
 switch(e.target.id){
 case 'com-fontSize':
-const fontSizeValue=parseInt(e.target.value);
-activeObject.fontSize=fontSizeValue;
-
+if(typeof changeFontSize==='function'){
+changeFontSize(e.target.value);
+}else{
+activeObject.set('fontSize',parseInt(e.target.value,10));
 if(isSpeechBubbleText(activeObject)){
 let newSettings=mainSpeechBubbleObjectResize(activeObject);
 const svgObj=activeObject.targetObject;
+if(svgObj){
 svgObj.set(newSettings);
 updateShapeMetrics(svgObj);
+}
+}
 }
 break
 case 'com-opacity':
@@ -437,18 +441,28 @@ if(lineWidthSlider)lineWidthSlider.value=1;
 }
 break;
 case 'com-textColor':
+if(typeof changeTextColor==='function'){
+changeTextColor(e.target.value);
+}else{
 activeObject.set("fill",e.target.value);
+}
 break;
 case 'com-outlineColor':
+if(typeof changeOutlineTextColor==='function'){
+changeOutlineTextColor(e.target.value);
+}else{
 activeObject.set("stroke",e.target.value);
 if(isText(activeObject)&&(!activeObject.strokeWidth||activeObject.strokeWidth===0)){
 activeObject.set("strokeWidth",1);
-var lws=$("com-lineWidth");
-if(lws)lws.value=1;
 }
+}
+var lws=$("com-lineWidth");
+if(lws&&(!activeObject.strokeWidth||activeObject.strokeWidth===0))lws.value=1;
 break;
 case 'com-bgColor':
-if(isVerticalText(activeObject)){
+if(typeof changeTextBgColor==='function'){
+changeTextBgColor(e.target.value);
+}else if(isVerticalText(activeObject)){
 activeObject.set("textBackgroundColor",e.target.value);
 }else{
 activeObject.set("backgroundColor",e.target.value);

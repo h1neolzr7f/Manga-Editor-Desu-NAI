@@ -106,10 +106,20 @@ if(objects[i]&&objects[i].simulatorPageId){pageId=objects[i].simulatorPageId;bre
 return selectPageById(pageId);
 }
 
+function isCanvasInitPlaceholder(item){
+if(!item)return true;
+if(item.excludeFromLayerPanel)return true;
+if(typeof initMessageText!=='undefined'&&item===initMessageText)return true;
+var text=typeof item.text==='string'?item.text:'';
+if(!text)return false;
+if(typeof getText==='function'&&text===getText('canvasInitMessage'))return true;
+return text==='拖放或生成图片';
+}
+
 function visibleCount(){
 var current=canvas();
 if(!current||typeof current.getObjects!=='function')return 0;
-return current.getObjects().filter(function(item){return item&&!item.excludeFromLayerPanel;}).length;
+return current.getObjects().filter(function(item){return item&&!isCanvasInitPlaceholder(item);}).length;
 }
 
 function updateEmptyHint(){
@@ -163,7 +173,7 @@ var pageId=placed&&placed.root&&placed.root.simulatorPageId;
 if(pageId&&root.NaiCanvasView)root.NaiCanvasView.lastPageId=pageId;
 if(pageId&&factory&&typeof factory.selectPage==='function'&&current){
 factory.selectPage(current,pageId);
-flashHelp('已放到画布并选中整页。可缩放、贴合分镜，或再点某个零件单独改。');
+flashHelp('已放到画布并选中整页。可缩放、贴到格子，或再点某个零件单独改。');
 }else if(placed&&placed.root&&current&&typeof current.setActiveObject==='function'){
 current.setActiveObject(placed.root);
 if(typeof current.requestRenderAll==='function')current.requestRenderAll();
@@ -282,7 +292,7 @@ return false;
 if(!panelCount()){
 var pages=typeof btmGetGuidsSize==='function'?btmGetGuidsSize():1;
 if(!pages||pages<=1){
-if(typeof createToastError==='function')createToastError('还没有分镜格','「套用对话模板」只是聊天界面。请先点左侧「模板」选分镜，或在剧情里点「生成漫画分镜」。',7000);
+if(typeof createToastError==='function')createToastError('还没有分镜格','模拟器是假界面，不能当格子出图。请先点左侧「模板」选分镜，或在剧情里点「生成漫画分镜」。',7000);
 return false;
 }
 }

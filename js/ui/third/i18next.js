@@ -3333,10 +3333,10 @@ const resources = {
 "autoSave":"项目自动保存",
 "autoSaveSeconds":"秒",
 "autoSaveComplete":"已自动保存",
-"autoSaveRecoveryTitle":"恢复自动保存",
-"autoSaveRecoveryMessage":"发现自动保存数据。是否恢复？",
-"autoSaveRecover":"恢复",
-"autoSaveDiscard":"删除"
+"autoSaveRecoveryTitle":"发现上次的画布",
+"autoSaveRecoveryMessage":"要恢复上次没关干净的画布吗？不想要就点「从空白开始」。",
+"autoSaveRecover":"恢复上次",
+"autoSaveDiscard":"从空白开始"
 },
 "ru":{
 "inpaint":"Инпейнт",
