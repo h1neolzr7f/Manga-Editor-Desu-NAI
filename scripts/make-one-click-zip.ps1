@@ -1,7 +1,7 @@
 # Build a beginner zip without git history, secrets, or machine caches.
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
-$Name = "Manga-Editor-Desu-NAI-1.0.0"
+$Name = "Manga-Editor-Desu-NAI-1.0.2"
 $Desktop = [Environment]::GetFolderPath("Desktop")
 $OutDir = Join-Path $Root "dist"
 $Staging = Join-Path $env:TEMP ("desu-nai-pack-" + [guid]::NewGuid().ToString("N"))
