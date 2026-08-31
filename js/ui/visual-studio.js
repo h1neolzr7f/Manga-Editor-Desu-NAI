@@ -325,8 +325,10 @@ hint='图文 / 拟声词 · 点样式或拟声词，立刻套到当前文字';
 hint='网点 · 点一种，画布上会出现可调的网点层';
 }else if(panel==='manga-effect-area'){
 hint='特效 · 先点选一张图片，再点效果看变化';
-}else if(panel==='shape-area'||panel==='panel-manager-area'){
-hint='形状 · 点一种再在画布上拖出大小。整页下雨请用「更多 → 页面」，格子网点用侧栏「网点」。';
+}else if(panel==='panel-manager-area'){
+hint='页面管理 · 自定义页面会铺满整页格子，再点「切割格子」画线切开。竖页/横页是 A4 底图。';
+}else if(panel==='shape-area'){
+hint='形状 · 点一种再在画布上拖出大小。格子网点用侧栏「网点」。';
 }else if(panel==='ps-tools-area'){
 hint='画具 · 套索/渐变/油漆桶/仿制都不花积分';
 html='<button type="button" data-visual-act="lasso">套索</button><button type="button" data-visual-act="gradient">渐变</button><button type="button" data-visual-act="history">历史</button>';

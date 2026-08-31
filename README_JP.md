@@ -12,7 +12,7 @@
 [![Release](https://img.shields.io/github/v/release/h1neolzr7f/Manga-Editor-Desu-NAI)](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest)
 [![Upstream](https://img.shields.io/badge/upstream-manga--editor--desu-0A7EA4)](https://github.com/new-sankaku/manga-editor-desu)
 
-[v1.0.0 をダウンロード](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/tag/v1.0.0) ·
+[最新版をダウンロード](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest) ·
 [上流との差分](CHANGELOG.md) ·
 [Issue](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/issues)
 
@@ -33,12 +33,12 @@
 | **Windowsワンクリック起動** | バッチファイルからローカルサーバーと編集画面を起動 |
 | **シミュレーター** | 漫画内のチャット、Webページ、汎用UI画面を作成 |
 | **ローカル切り抜き** | 任意の rembg sidecar とカラキーのフォールバック |
-| **初心者向け中国語UI** | 設定の整理、ツールヒント、空キャンバス案内、Token状態 |
+| **初心者向け中国語UI** | 設定の整理、ツールヒント、閉じられる空キャンバス案内、カスタムページのコマ切り、Token状態 |
 | **表示ツール** | Ctrl+ホイール拡大、ページ倍率、パネルに合わせる操作 |
 
 ## Windowsでの開始方法
 
-1. [v1.0.0 ZIP](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/tag/v1.0.0) を完全に展開します。
+1. [最新リリース](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest) を完全に展開します。
 2. `一键启动.bat` を実行します。
 3. `http://127.0.0.1:8000/index.html` が開くまで待ちます。
 4. NovelAI設定に自分のアクセストークンを入力します。

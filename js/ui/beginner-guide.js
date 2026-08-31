@@ -122,10 +122,64 @@ if(!current||typeof current.getObjects!=='function')return 0;
 return current.getObjects().filter(function(item){return item&&!isCanvasInitPlaceholder(item);}).length;
 }
 
+var EMPTY_HINT_STORAGE_KEY='nai_empty_canvas_hint_dismissed';
+var emptyHintDismissed=false;
+
+function readEmptyHintDismissed(){
+if(emptyHintDismissed)return true;
+try{
+if(typeof localStorage!=='undefined'&&localStorage.getItem(EMPTY_HINT_STORAGE_KEY)==='1'){
+emptyHintDismissed=true;
+return true;
+}
+}catch(e){}
+return false;
+}
+
+function persistEmptyHintDismissed(){
+emptyHintDismissed=true;
+try{
+if(typeof localStorage!=='undefined')localStorage.setItem(EMPTY_HINT_STORAGE_KEY,'1');
+}catch(e){}
+}
+
+function isTutorialCompleted(){
+var mgr=root.TutorialManager;
+return!!(mgr&&mgr.state&&mgr.state.quickStartCompleted);
+}
+
+function emptyHintElement(){
+return typeof document!=='undefined'?document.getElementById('canvasEmptyHint'):null;
+}
+
+function shouldShowEmptyHint(){
+if(readEmptyHintDismissed())return false;
+if(isTutorialCompleted())return false;
+if(visibleCount()>0)return false;
+return true;
+}
+
 function updateEmptyHint(){
-var hint=typeof document!=='undefined'?document.getElementById('canvasEmptyHint'):null;
+var hint=emptyHintElement();
 if(!hint)return;
-hint.hidden=visibleCount()>0;
+hint.hidden=!shouldShowEmptyHint();
+}
+
+function dismissEmptyHint(options){
+options=options||{};
+var already=readEmptyHintDismissed();
+persistEmptyHintDismissed();
+updateEmptyHint();
+if(options.silent)return;
+if(options.fromCustomPage){
+if(!already)flashHelp('自定义底图已建好，整页格子已铺上。点「切割格子」画线切开。');
+return;
+}
+if(options.openPageManager&&typeof toggleVisibility==='function'){
+var panel=document.getElementById('panel-manager-area');
+if(panel&&panel.style.display==='none')toggleVisibility('panel-manager-area');
+}
+flashHelp('已关掉提示。自定义页面后点「切割格子」自己切分镜。帮助菜单里的「新手教程」随时可再看。');
 }
 
 function openTemplates(){
@@ -146,6 +200,26 @@ if(!panel||panel.style.display==='none')toggleVisibility('simulator-chat-area');
 }
 }
 
+var emptyHintActionsBound=false;
+
+function bindEmptyHintActions(){
+if(emptyHintActionsBound)return;
+if(!root.EventDelegator||typeof root.EventDelegator.register!=='function')return;
+emptyHintActionsBound=true;
+root.EventDelegator.register('dismissEmptyCanvasHint',function(){
+dismissEmptyHint();
+});
+root.EventDelegator.register('dismissEmptyCanvasHintCrop',function(){
+dismissEmptyHint({openPageManager:true});
+});
+root.EventDelegator.register('openEmptyCanvasSimulator',function(){
+openSimulator();
+});
+root.EventDelegator.register('openEmptyCanvasTemplates',function(){
+openTemplates();
+});
+}
+
 function bindCanvasHint(){
 var current=canvas();
 if(current&&typeof current.on==='function'&&!current.__naiEmptyHintBound){
@@ -153,17 +227,8 @@ current.__naiEmptyHintBound=true;
 current.on('object:added',updateEmptyHint);
 current.on('object:removed',updateEmptyHint);
 }
+bindEmptyHintActions();
 updateEmptyHint();
-var go=typeof document!=='undefined'?document.getElementById('canvasEmptyHintTemplate'):null;
-if(go&&go.getAttribute('data-bound')!=='1'){
-go.setAttribute('data-bound','1');
-go.addEventListener('click',openTemplates);
-}
-var sim=typeof document!=='undefined'?document.getElementById('canvasEmptyHintSimulator'):null;
-if(sim&&sim.getAttribute('data-bound')!=='1'){
-sim.setAttribute('data-bound','1');
-sim.addEventListener('click',openSimulator);
-}
 }
 
 function onTemplateInserted(current,placed){
@@ -197,6 +262,12 @@ var current=canvas();
 var editing=current&&current.getActiveObject&&current.getActiveObject()&&current.getActiveObject().isEditing;
 if(editing)return;
 if(event.key==='Escape'){
+var hint=emptyHintElement();
+if(hint&&!hint.hidden){
+event.preventDefault();
+dismissEmptyHint();
+return;
+}
 if(current&&current.isDrawingMode)event.preventDefault();
 if(typeof cropModeClear==='function')cropModeClear();
 exitDrawing();
@@ -292,7 +363,7 @@ return false;
 if(!panelCount()){
 var pages=typeof btmGetGuidsSize==='function'?btmGetGuidsSize():1;
 if(!pages||pages<=1){
-if(typeof createToastError==='function')createToastError('还没有分镜格','模拟器是假界面，不能当格子出图。请先点左侧「模板」选分镜，或在剧情里点「生成漫画分镜」。',7000);
+if(typeof createToastError==='function')createToastError('还没有分镜格','请先点「页面」建自定义页面或 A4，再用「切割格子」切开；或点左侧「模板」选分镜。模拟器是假界面，不能当格子出图。',7000);
 return false;
 }
 }
@@ -421,6 +492,7 @@ bindRememberToken();
 setTimeout(updateHud,80);
 setTimeout(updateHud,500);
 setTimeout(bindCanvasHint,800);
+setTimeout(bindEmptyHintActions,800);
 setTimeout(updateTokenBadge,1200);
 var pageBtn=document.getElementById('layerSelectPageButton');
 if(pageBtn&&pageBtn.getAttribute('data-bound')!=='1'){
@@ -437,6 +509,7 @@ selectWholePage:selectWholePage,
 selectPageById:selectPageById,
 flashHelp:flashHelp,
 updateEmptyHint:updateEmptyHint,
+dismissEmptyHint:dismissEmptyHint,
 updateTokenBadge:updateTokenBadge,
 generatePreflight:generatePreflight,
 confirmSpend:confirmSpend,

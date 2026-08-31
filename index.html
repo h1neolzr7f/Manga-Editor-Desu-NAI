@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh" class="dark-mode">
-<!-- Manga Editor Desu · nai学长魔改版 1.0.0 — unofficial modified build (GPL-3.0). Upstream: https://github.com/new-sankaku/manga-editor-desu -->
+<!-- Manga Editor Desu · nai学长魔改版 1.0.3 — unofficial modified build (GPL-3.0). Upstream: https://github.com/new-sankaku/manga-editor-desu -->
 <!-- ========== Head ========== -->
 <head>
-    <title>Manga Editor Desu · nai学长魔改版 1.0</title>
+    <title>Manga Editor Desu · nai学长魔改版 1.0.3</title>
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#121111">
@@ -206,7 +206,7 @@ function getElementClasses(element) {
 <link rel="stylesheet" href="css/layout.css?v=7.9">
   <link rel="stylesheet" href="css/visual-studio.css?v=1.6">
 <link rel="stylesheet" href="css/image-control-manager.css?v=7.2">
-<link rel="stylesheet" href="css/layout-layer.css?v=7.5">
+<link rel="stylesheet" href="css/layout-layer.css?v=7.6">
 <link rel="stylesheet" href="css/toast.css?v=7.2">
 <link rel="stylesheet" href="css/ui/mode-change.css?v=7.2">
 <link rel="stylesheet" href="css/ui/object-menu.css?v=7.3">
@@ -707,7 +707,7 @@ function getElementClasses(element) {
 
                     <div class="param-group">
                         <div class="param-group-header" data-i18n="sectionPageAdd">添加页面</div>
-                        <div class="simulator-chat-help">竖页/横页按 A4 约 200dpi 建底图（约 1654×2339），用来拼 NovelAI 格子。出图单格仍限制在 1024×1024 / 最长边 1536，底图变大不会多花积分。小于 400 的数字会按毫米换算。</div>
+                        <div class="simulator-chat-help">竖页/横页按 A4 约 200dpi 建底图（约 1654×2339），用来拼 NovelAI 格子。自定义页面同样会铺满一整格，再用「切割格子」自己切开。出图单格仍限制在 1024×1024 / 最长边 1536，底图变大不会多花积分。小于 400 的数字会按毫米换算。</div>
                         <button id="page-portrait">
                             <i class="material-icons">crop_portrait</i>
                             <span data-i18n="pagePortrait">竖页 A4</span>
@@ -2101,16 +2101,19 @@ function getElementClasses(element) {
                             <canvas id="mangaImageCanvas"></canvas>
                         </div>
                     </div>
-                    <div id="canvasEmptyHint" class="canvas-empty-hint">
-                        <strong>画布还是空的</strong>
+                    <div id="canvasEmptyHint" class="canvas-empty-hint" hidden>
+                        <button type="button" class="canvas-empty-hint-close" data-action="dismissEmptyCanvasHint" title="关闭" aria-label="关闭">×</button>
+                        <strong data-i18n="canvasEmptyHintTitle">画布还是空的</strong>
                         <ol>
-                            <li>要假聊天、影片站、弹幕：点「打开模拟器」</li>
-                            <li>要格子分镜：点「去选分镜」</li>
-                            <li>要 AI 出图：填好 Token，再点「生成」（会花积分）</li>
+                            <li data-i18n="canvasEmptyHintStepSim">要假聊天、影片站、弹幕：点「打开模拟器」</li>
+                            <li data-i18n="canvasEmptyHintStepTemplate">要格子分镜：点「去选分镜」</li>
+                            <li data-i18n="canvasEmptyHintStepAi">要 AI 出图：填好 Token，再点「生成」（会花积分）</li>
+                            <li data-i18n="canvasEmptyHintStepCustom">要自定义底图自己切格子：点「自己裁剪」，再点「切割格子」</li>
                         </ol>
                         <div class="canvas-empty-hint-actions">
-                            <button type="button" id="canvasEmptyHintSimulator">打开模拟器</button>
-                            <button type="button" id="canvasEmptyHintTemplate" class="is-secondary">去选分镜</button>
+                            <button type="button" id="canvasEmptyHintSimulator" data-action="openEmptyCanvasSimulator" data-i18n="canvasEmptyHintOpenSim">打开模拟器</button>
+                            <button type="button" id="canvasEmptyHintTemplate" class="is-secondary" data-action="openEmptyCanvasTemplates" data-i18n="canvasEmptyHintPickTemplate">去选分镜</button>
+                            <button type="button" id="canvasEmptyHintDismiss" class="is-dismiss" data-action="dismissEmptyCanvasHintCrop" data-i18n="canvasEmptyHintDismiss">自己裁剪</button>
                         </div>
                     </div>
                 </div>
@@ -2495,23 +2498,23 @@ function getElementClasses(element) {
     <script src="js/ui/glfx-ui.js?v=7.2" defer></script>
     <script src="js/ui/canvas-object-menu.js?v=8.0" defer></script>
     <script src="js/ui/third/intro.js?v=7.2" defer></script>
-    <script src="js/ui/tutorial.js?v=7.8" defer></script>
-    <script src="js/ui/beginner-guide.js?v=2.0" defer></script>
-    <script src="js/ui/visual-studio.js?v=1.5" defer></script>
-    <script src="js/ui/visual-ps-tools.js?v=1.2" defer></script>
+    <script src="js/ui/tutorial.js?v=8.0" defer></script>
+    <script src="js/ui/beginner-guide.js?v=2.2" defer></script>
+    <script src="js/ui/visual-studio.js?v=1.6" defer></script>
+    <script src="js/ui/visual-ps-tools.js?v=1.3" defer></script>
     <script src="js/ui/toast.js?v=7.3" defer></script>
     <script src="js/ui/util/ui-util.js?v=7.2" defer></script>
     <script src="js/ui/util/event-delegator.js?v=7.6" defer></script>
     <script src="js/ui/third/tippy.js?v=7.5" defer></script>
 
     <script src="js/ui/third/base-translation/base-zh.js?v=8.3" defer></script>
-    <script src="js/ui/third/i18next.js?v=8.5" defer></script>
+    <script src="js/ui/third/i18next.js?v=8.6" defer></script>
     <script src="js/dashboard/performance-storage.js?v=7.5" defer></script>
     <script src="js/dashboard/prompt-frequency-storage.js?v=7.3" defer></script>
     <script src="js/dashboard/dashboard-ui.js?v=8.11" defer></script>
 
     <script src="js/ui/util/mode-change.js?v=7.5" defer></script>
-    <script src="js/ui/util/mode-manager.js?v=7.4" defer></script>
+    <script src="js/ui/util/mode-manager.js?v=7.5" defer></script>
     <script src="js/ui/util/tagify-util.js?v=7.2" defer></script>
     <script src="js/ui/imagePromptHelper/prompt-helper.js?v=7.2" defer></script>
     <script src="js/ui/imagePromptHelper/hc-image-prompt-helper.js?v=8.11" defer></script>
@@ -2535,9 +2538,9 @@ function getElementClasses(element) {
     <script src="js/shortcut.js?v=8.12" defer></script>
     <script src="js/panel/grid.js?v=7.3" defer></script>
     <script src="js/panel/layout-templates.js?v=8.12" defer></script>
-    <script src="js/panel/random-cut.js?v=8.9" defer></script>
+    <script src="js/panel/random-cut.js?v=8.10" defer></script>
     <script src="js/sidebar/panel/panel-manager.js?v=8.9" defer></script>
-    <script src="js/sidebar/panel/panel-template.js?v=8.14" defer></script>
+    <script src="js/sidebar/panel/panel-template.js?v=8.16" defer></script>
     <script src="js/ui/prompt-manager.js?v=7.2" defer></script>
     <script src="js/ai/role/ai-roles.js?v=7.2" defer></script>
     <script src="js/ai/provider/ai-provider.js?v=7.3" defer></script>
@@ -2644,7 +2647,7 @@ function getElementClasses(element) {
     <script src="js/sidebar/panel/knife/knife-geometry.js?v=7.2" defer></script>
     <script src="js/sidebar/panel/knife/knife-line-renderer.js?v=7.2" defer></script>
     <script src="js/sidebar/panel/knife/knife-split-engine.js?v=7.2" defer></script>
-    <script src="js/sidebar/panel/knife/knife-mode.js?v=7.2" defer></script>
+    <script src="js/sidebar/panel/knife/knife-mode.js?v=7.3" defer></script>
     <script src="js/sidebar/panel/knife/knife-index.js?v=7.2" defer></script>
 
     <script src="js/ui/control/common-control-management.js?v=7.2" defer></script>
