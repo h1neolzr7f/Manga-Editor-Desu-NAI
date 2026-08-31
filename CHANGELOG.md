@@ -9,6 +9,7 @@ Version numbers apply to **this fork only**, not to upstream Manga Editor Desu.
 - Help → 新手教程 includes the custom-page knife path. Skipping or finishing the tutorial stops the overlay from auto-showing.
 - Generate preflight and random-cut copy mention 页面 / 自定义页面, not only 模板.
 - Startup no longer persist-dismisses the overlay via the initial blank `loadBookSize`.
+- GitHub Release now attaches both the EXE installer and the portable ZIP.
 
 ## 1.0.2 — 2026-08-26
 
