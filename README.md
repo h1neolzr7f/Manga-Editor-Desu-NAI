@@ -33,7 +33,7 @@
 | **Windows 小白安装器** | 安装一次，从快捷方式启动；无需另装 Python 或 Node.js |
 | **模拟器工作区** | 通用聊天、网页与 UI 组件，用于漫画中的手机和社交场景 |
 | **本地抠图** | 可选 rembg sidecar；缺少模型时保留颜色键回退 |
-| **中文新手布局** | 设置分组、工具提示、空画布引导和 Token 状态 |
+| **中文新手布局** | 设置分组、工具提示、可关闭的空画布引导、自定义切格子、Token 状态 |
 | **画布视图工具** | Ctrl+滚轮缩放、整页适配与面板缩放 |
 
 > [!IMPORTANT]
@@ -60,7 +60,7 @@ Please file issues for **this fork** here. Do not open NovelAI / launcher / simu
 
 - **NovelAI-only generation** — ComfyUI / A1111 WebUI / Forge backends are disabled. You supply your own access token; generation spends NovelAI credits.
 - **Windows one-click host** — `一键启动.bat` starts a local server at `http://127.0.0.1:8000`. Do not open `index.html` via `file://`.
-- **Beginner Chinese layout** — grouped sidebar, tool hints, empty-canvas guide, token status.
+- **Beginner Chinese layout** — grouped sidebar, tool hints, a dismissable empty-canvas guide, custom-page knife cutting, token status.
 - **Simulator workspace** — generic chat, mock web pages, and UI parts for comic staging. No real site trademarks.
 - **Canvas view tools** — Ctrl+wheel zoom, page scale, fit-to-panel.
 - **Local cutout** — optional rembg sidecar; color-key fallback when the sidecar is absent.

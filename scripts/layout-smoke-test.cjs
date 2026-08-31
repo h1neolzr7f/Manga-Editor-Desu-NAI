@@ -82,8 +82,12 @@ must(html.includes('github.com/new-sankaku/manga-editor-desu'), 'upstream repo l
 must(!html.includes('stable-diffusion-webui-simple-manga-maker'), 'menu still points at WebUI extension as this project');
 const usageGuide = fs.readFileSync(path.join(root, '使用说明.txt'), 'utf8');
 must(usageGuide.includes('Manga Editor Desu · nai学长魔改版'), '使用说明.txt not updated');
+must(usageGuide.includes('1.0.3'), '使用说明 version not bumped');
+must(usageGuide.includes('自定义页面'), '使用说明 missing custom page path');
+must(usageGuide.includes('自己裁剪'), '使用说明 missing dismiss empty-hint copy');
 must(!usageGuide.includes('C:\\Users\\tzzcomputer'), '使用说明 still has local packing path');
-must(html.includes('Manga Editor Desu · nai学长魔改版'), 'product name missing from html');
+must(fs.readFileSync(path.join(root, '先看我.txt'), 'utf8').includes('1.0.3'), '先看我 version not bumped');
+must(fs.readFileSync(path.join(root, '先看我.txt'), 'utf8').includes('自定义页面'), '先看我 missing custom page path');
 must(html.includes('nai学长魔改'), 'fork mark missing from navbar');
 must(html.includes('>DESU<br>'), 'original DESU mark missing from navbar');
 must(!html.includes('Pro Edition'), 'still claiming Desu Pro Edition');
