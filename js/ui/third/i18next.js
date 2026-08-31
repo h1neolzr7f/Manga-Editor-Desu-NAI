@@ -10,6 +10,96 @@
 // },
 //マージされるので追加日ごとにyyyyMMddHHmmss_SSSをTopKeyに入れます。個別の翻訳はKey名・翻訳文を任意に付けてください。ただし被らないように。
 const resources = {
+"20260831143000_001":{
+"zh":{
+"canvasEmptyHintTitle":"画布还是空的",
+"canvasEmptyHintStepSim":"要假聊天、影片站、弹幕：点「打开模拟器」",
+"canvasEmptyHintStepTemplate":"要格子分镜：点「去选分镜」",
+"canvasEmptyHintStepAi":"要 AI 出图：填好 Token，再点「生成」（会花积分）",
+"canvasEmptyHintStepCustom":"要自定义底图自己切格子：点「自己裁剪」，再点「切割格子」",
+"canvasEmptyHintOpenSim":"打开模拟器",
+"canvasEmptyHintPickTemplate":"去选分镜",
+"canvasEmptyHintDismiss":"自己裁剪",
+"canvasEmptyHintClose":"关闭"
+},
+"en":{
+"canvasEmptyHintTitle":"The canvas is still empty",
+"canvasEmptyHintStepSim":"Fake chat, video site, danmaku: tap Open Simulator",
+"canvasEmptyHintStepTemplate":"Grid storyboard: tap Pick panels",
+"canvasEmptyHintStepAi":"AI images: fill Token, then Generate (uses credits)",
+"canvasEmptyHintStepCustom":"Custom page, cut panels yourself: tap I'll crop, then Cut Panels",
+"canvasEmptyHintOpenSim":"Open Simulator",
+"canvasEmptyHintPickTemplate":"Pick panels",
+"canvasEmptyHintDismiss":"I'll crop",
+"canvasEmptyHintClose":"Close"
+},
+"ja":{
+"canvasEmptyHintTitle":"キャンバスはまだ空です",
+"canvasEmptyHintStepSim":"偽チャット・動画サイト・弾幕：「シミュレーターを開く」",
+"canvasEmptyHintStepTemplate":"コマ割り：「コマを選ぶ」",
+"canvasEmptyHintStepAi":"AI生成：Tokenを入れて「生成」（クレジット消費）",
+"canvasEmptyHintStepCustom":"カスタムページで自分で切る：「自分で切る」のあと「コマを切る」",
+"canvasEmptyHintOpenSim":"シミュレーターを開く",
+"canvasEmptyHintPickTemplate":"コマを選ぶ",
+"canvasEmptyHintDismiss":"自分で切る",
+"canvasEmptyHintClose":"閉じる"
+},
+"ko":{
+"canvasEmptyHintTitle":"캔버스가 아직 비어 있습니다",
+"canvasEmptyHintStepSim":"가짜 채팅·영상 사이트·탄막: 「시뮬레이터 열기」",
+"canvasEmptyHintStepTemplate":"칸 나누기: 「컷 고르기」",
+"canvasEmptyHintStepAi":"AI 그림: Token을 채운 뒤 「생성」(크레딧 사용)",
+"canvasEmptyHintStepCustom":"사용자 페이지를 직접 자르려면 「직접 자르기」 후 「칸 자르기」",
+"canvasEmptyHintOpenSim":"시뮬레이터 열기",
+"canvasEmptyHintPickTemplate":"컷 고르기",
+"canvasEmptyHintDismiss":"직접 자르기",
+"canvasEmptyHintClose":"닫기"
+},
+"fr":{
+"canvasEmptyHintTitle":"La toile est encore vide",
+"canvasEmptyHintStepSim":"Faux chat, site vidéo, danmaku : Ouvrir le simulateur",
+"canvasEmptyHintStepTemplate":"Cases : Choisir des cases",
+"canvasEmptyHintStepAi":"Images IA : remplir le jeton, puis Générer (crédits)",
+"canvasEmptyHintStepCustom":"Page perso, découper soi-même : Je découpe, puis Couper les cases",
+"canvasEmptyHintOpenSim":"Ouvrir le simulateur",
+"canvasEmptyHintPickTemplate":"Choisir des cases",
+"canvasEmptyHintDismiss":"Je découpe",
+"canvasEmptyHintClose":"Fermer"
+},
+"ru":{
+"canvasEmptyHintTitle":"Холст всё ещё пуст",
+"canvasEmptyHintStepSim":"Чат, видеосайт, данмаку: «Открыть симулятор»",
+"canvasEmptyHintStepTemplate":"Сетка панелей: «Выбрать панели»",
+"canvasEmptyHintStepAi":"ИИ-картинки: введите токен и нажмите «Создать» (кредиты)",
+"canvasEmptyHintStepCustom":"Своя страница: «Сам обрежу», затем «Разрезать панели»",
+"canvasEmptyHintOpenSim":"Открыть симулятор",
+"canvasEmptyHintPickTemplate":"Выбрать панели",
+"canvasEmptyHintDismiss":"Сам обрежу",
+"canvasEmptyHintClose":"Закрыть"
+},
+"es":{
+"canvasEmptyHintTitle":"El lienzo sigue vacío",
+"canvasEmptyHintStepSim":"Chat falso, vídeo, danmaku: Abrir simulador",
+"canvasEmptyHintStepTemplate":"Viñetas: Elegir viñetas",
+"canvasEmptyHintStepAi":"Imágenes IA: rellena el token y pulsa Generar (créditos)",
+"canvasEmptyHintStepCustom":"Página propia: Yo recorto y luego Cortar viñetas",
+"canvasEmptyHintOpenSim":"Abrir simulador",
+"canvasEmptyHintPickTemplate":"Elegir viñetas",
+"canvasEmptyHintDismiss":"Yo recorto",
+"canvasEmptyHintClose":"Cerrar"
+},
+"de":{
+"canvasEmptyHintTitle":"Die Leinwand ist noch leer",
+"canvasEmptyHintStepSim":"Fake-Chat, Video, Danmaku: Simulator öffnen",
+"canvasEmptyHintStepTemplate":"Panels: Panels wählen",
+"canvasEmptyHintStepAi":"KI-Bilder: Token eintragen, dann Generieren (Credits)",
+"canvasEmptyHintStepCustom":"Eigene Seite selbst schneiden: Selbst schneiden, dann Panels schneiden",
+"canvasEmptyHintOpenSim":"Simulator öffnen",
+"canvasEmptyHintPickTemplate":"Panels wählen",
+"canvasEmptyHintDismiss":"Selbst schneiden",
+"canvasEmptyHintClose":"Schließen"
+}
+},
 "20260813220000_001":{
 "zh":{
 "sc_marqueeTool":"框选图层",

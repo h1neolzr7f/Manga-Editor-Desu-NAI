@@ -51,6 +51,9 @@ panelLogger.info("[loadBookSize] ELSE branch done. stateStack.length="+stateStac
 }finally{
 OP_hideLoading(loading);
 if(window.NaiBeginnerGuide&&typeof window.NaiBeginnerGuide.updateHud==='function')window.NaiBeginnerGuide.updateHud();
+if(!addPanel&&window.NaiBeginnerGuide&&typeof window.NaiBeginnerGuide.dismissEmptyHint==='function'){
+window.NaiBeginnerGuide.dismissEmptyHint({fromCustomPage:true});
+}
 }
 
 }

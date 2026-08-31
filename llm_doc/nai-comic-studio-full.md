@@ -31,7 +31,7 @@
 
 ### 九种单开模拟器
 
-入口是左侧「模拟器」（`js/simulator/simulator-studio.js` + `#simulatorStudioOverlay`）。先显示启动页，点一种界面就进入该模拟器工作区：左侧实时预览，右侧改字 / 播放，「放入漫画」才写主画布并关闭 overlay。聊天对白进入时写入示例或剧情对白，预览与编辑框同一份文字。零件挂在影片站、弹幕、图区内部，不再作为第三种主入口。左侧「模板」只套分镜格子。空画布提示忽略 `canvasInitMessage` 占位字。
+入口是左侧「模拟器」（`js/simulator/simulator-studio.js` + `#simulatorStudioOverlay`）。先显示启动页，点一种界面就进入该模拟器工作区：左侧实时预览，右侧改字 / 播放，「放入漫画」才写主画布并关闭 overlay。聊天对白进入时写入示例或剧情对白，预览与编辑框同一份文字。零件挂在影片站、弹幕、图区内部，不再作为第三种主入口。左侧「模板」只套分镜格子。空画布提示忽略 `canvasInitMessage` 占位字；可关闭且自定义页面时不得挡住画布，引导放在「帮助 → 新手教程」。
 
 通用场景序列化位于 `js/simulator/scene-serializer.js`，渲染器工厂位于 `js/simulator/extra-renderer-factory.js`。当前类型为：
 
