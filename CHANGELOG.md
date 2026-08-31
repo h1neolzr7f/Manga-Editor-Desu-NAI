@@ -2,6 +2,14 @@
 
 Version numbers apply to **this fork only**, not to upstream Manga Editor Desu.
 
+## 1.0.3 — 2026-08-31
+
+- Empty-canvas overlay can be dismissed (× / 自己裁剪 / Esc) and is remembered; it no longer blocks custom pages.
+- Custom pages now lay a full-page panel, so 切割格子 can slice the page without first picking a template.
+- Help → 新手教程 includes the custom-page knife path. Skipping or finishing the tutorial stops the overlay from auto-showing.
+- Generate preflight and random-cut copy mention 页面 / 自定义页面, not only 模板.
+- Startup no longer persist-dismisses the overlay via the initial blank `loadBookSize`.
+
 ## 1.0.2 — 2026-08-26
 
 - Open each fake UI as its own simulator: chat, video site, danmaku, phone, social, forum, live, image board, visual novel.

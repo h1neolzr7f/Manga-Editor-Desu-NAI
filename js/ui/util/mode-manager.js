@@ -49,7 +49,10 @@ case ModeManager.MODE.DELETE_POINT:
 ModeManager._enableSpeechBubbleMode(mode);
 break;
 case ModeManager.MODE.KNIFE:
-ModeManager.knife._enable();
+if(ModeManager.knife._enable()===false){
+ModeManager._current=ModeManager.MODE.SELECT;
+return;
+}
 break;
 case ModeManager.MODE.CROP:
 ModeManager.crop._enable();
@@ -188,6 +191,7 @@ ModeManager.change(ModeManager.MODE.KNIFE);
 },
 
 _enable:function(){
+if(typeof ensurePanelForKnife==='function'&&!ensurePanelForKnife())return false;
 isKnifeMode=true;
 ModeManager.button.activeClear();
 ModeManager.cursor.update(ModeManager.MODE.KNIFE);
@@ -197,6 +201,7 @@ if(knifeModeButton){
 knifeModeButton.classList.add("selected");
 if(typeof getText==='function')knifeModeButton.textContent=getText("knifeOff");
 }
+return true;
 },
 
 disable:function(){

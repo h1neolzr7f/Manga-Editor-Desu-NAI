@@ -112,17 +112,55 @@ square.selectable=false;
 updateLayerPanel();
 }
 
+function isPlaceholderCanvasObject(item){
+if(!item)return true;
+if(item.excludeFromLayerPanel)return true;
+if(typeof initMessageText!=='undefined'&&item===initMessageText)return true;
+var text=typeof item.text==='string'?item.text:'';
+if(text==='拖放或生成图片')return true;
+if(typeof getText==='function'&&text===getText('canvasInitMessage'))return true;
+return false;
+}
+
+function dismissEmptyHintAfterUserPage(){
+if(window.NaiBeginnerGuide&&typeof window.NaiBeginnerGuide.dismissEmptyHint==='function'){
+window.NaiBeginnerGuide.dismissEmptyHint({fromCustomPage:true});
+}
+}
+
+function ensurePanelForKnife(){
+if(typeof getPanelObjectList!=='function'){
+if(typeof createToastError==='function')createToastError('还没有格子','请先到「页面」点「自定义页面」或「竖页 A4」，再切割格子。');
+return false;
+}
+if(getPanelObjectList().length)return true;
+if(typeof canvas==='undefined'||!canvas||typeof canvas.getObjects!=='function'||typeof addSquareBySize!=='function'){
+if(typeof createToastError==='function')createToastError('还没有格子','请先到「页面」点「自定义页面」或「竖页 A4」，再切割格子。');
+return false;
+}
+var hasContent=canvas.getObjects().some(function(item){return !isPlaceholderCanvasObject(item);});
+if(hasContent){
+if(typeof createToastError==='function')createToastError('还没有格子','切割格子需要整页分镜框。请到「页面」点「自定义页面」或「竖页 A4」，或点左侧「模板」选分镜。');
+return false;
+}
+addSquareBySize(canvas.getWidth(),canvas.getHeight());
+if(window.NaiBeginnerGuide&&typeof window.NaiBeginnerGuide.flashHelp==='function'){
+window.NaiBeginnerGuide.flashHelp('已铺满整页格子。在格子上画线即可切开。');
+}
+return true;
+}
+
 document.addEventListener('DOMContentLoaded',function () {
 
 $("CustomPanelButton").addEventListener("click",function () {
 var x=$("customPanelSizeX").value;
 var y=$("customPanelSizeY").value;
-loadBookSize(x,y,false);
+loadBookSize(x,y,true).then(dismissEmptyHintAfterUserPage);
 canvas.renderAll();
 adjustCanvasSize();
 });
-$on($("page-portrait"),"click",()=>loadBookSize(210,297,true));
-$on($("page-landscape"),"click",()=>loadBookSize(297,210,true));
+$on($("page-portrait"),"click",function(){loadBookSize(210,297,true).then(dismissEmptyHintAfterUserPage);});
+$on($("page-landscape"),"click",function(){loadBookSize(297,210,true).then(dismissEmptyHintAfterUserPage);});
 });
 
 // 灵活生成尺寸控制（严格NSFW PM：让每页分镜尺寸灵活，不死板，适配原故事预设 + 日漫多样分镜）
@@ -133,7 +171,7 @@ return;
 }
 var panels=getPanelObjectList()||[];
 if (!panels.length) {
-createToastError('灵活尺寸','当前页没有分镜，先套用模板或新建页。',3000);
+createToastError('灵活尺寸','当前页没有分镜，先点「页面」建自定义页面并切割格子，或套用模板。',3000);
 return;
 }
 var w=parseInt(targetW,10)||1024;

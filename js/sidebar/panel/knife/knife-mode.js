@@ -16,6 +16,9 @@ changeKnifeMode();
  * ナイフモードを切り替え
  */
 function changeKnifeMode() {
+if(!isKnifeMode){
+if(typeof ensurePanelForKnife==='function'&&!ensurePanelForKnife())return;
+}
 isKnifeMode=!isKnifeMode;
 updateKnifeMode();
 }

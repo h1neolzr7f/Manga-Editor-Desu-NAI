@@ -84,14 +84,15 @@ var self=this;
 var overlay=document.createElement('div');
 overlay.className='tutorial-overlay';
 overlay.innerHTML='<div class="tutorial-prompt">'+
-'<div class="tutorial-prompt-title">三步开始画漫画</div>'+
+'<div class="tutorial-prompt-title">四步开始画漫画</div>'+
 '<div class="tutorial-prompt-body">'+
 '<ol class="tutorial-beginner-steps">'+
 '<li>左侧点「模板」，选一个分镜放到画布。</li>'+
 '<li>点「剧情」写对白，再「打开对应模拟器」。假网页、聊天、手机在左侧「模拟器」里单开。要出图用「生成漫画分镜」或左侧「模板」。</li>'+
 '<li>要出图再到「自动生成」。生成会花 NovelAI 积分，不会偷偷扣。</li>'+
+'<li>要自定义底图自己切格子：左侧「页面」→「自定义页面」（会铺满整页格子），再点「切割格子」画线切开。</li>'+
 '</ol>'+
-'<p>画完按 Esc 或点「移动」，才能再选中图层。笔刷都在左侧「笔刷」里。</p>'+
+'<p>画完按 Esc 或点「移动」，才能再选中图层。笔刷都在左侧「笔刷」里。空画布上的提示可随时关掉，之后在「帮助 → 新手教程」里还能再看。</p>'+
 '</div>'+
 '<div class="tutorial-prompt-buttons">'+
 '<button class="tutorial-btn tutorial-btn-primary" id="tutorialStartBtn">知道了，开始</button>'+
@@ -101,12 +102,14 @@ overlay.innerHTML='<div class="tutorial-prompt">'+
 document.body.appendChild(overlay);
 document.getElementById('tutorialStartBtn').addEventListener('click',function(){
 overlay.remove();
+self.dismissEmptyCanvasHint();
 self.startQuickStart();
 });
 document.getElementById('tutorialSkipBtn').addEventListener('click',function(){
 overlay.remove();
 self.state.quickStartCompleted=true;
 self.saveState();
+self.dismissEmptyCanvasHint();
 });
 },
 startQuickStart:function(){
@@ -114,11 +117,13 @@ var self=this;
 var steps=[
 {element:'#intro_svg-container-template',title:'① 选分镜',body:'点左侧「模板」，选一个分镜放到画布。',position:'right'},
 {element:'#intro_simulator-chat-area',title:'② 写对白',body:'打开「剧情」写几句，再点「打开对应模拟器」。假网页和聊天在左侧「模拟器」里单开。要出图请点「生成漫画分镜」，或回左侧点「模板」。',position:'right'},
-{element:'#intro_auto-generate-area',title:'③ 自动生成出图',body:'先看画布顶栏是否已填 Token。打开「自动生成」，确认后再点生成。这一步才会花 NovelAI 积分。',position:'right'}
+{element:'#intro_auto-generate-area',title:'③ 自动生成出图',body:'先看画布顶栏是否已填 Token。打开「自动生成」，确认后再点生成。这一步才会花 NovelAI 积分。',position:'right'},
+{element:'#intro_page-manager-area',title:'④ 自定义切格子',body:'不想套模板时，到「页面」建自定义页面（会铺满整页格子），再点「切割格子」画线切开。',position:'right'}
 ];
 this.runSteps(steps,0,function(){
 self.state.quickStartCompleted=true;
 self.saveState();
+self.dismissEmptyCanvasHint();
 createToast('可以开始了','Esc 回到移动。双击改字。要画画点「笔刷」。',3500);
 });
 },
@@ -141,6 +146,10 @@ if(!targetEl){
 tutorialLogger.warn('Tutorial target not found:',step.element);
 onNext();
 return;
+}
+var more=document.getElementById('sidebarMore');
+if(more&&more.contains(targetEl)&&typeof setSidebarMoreOpen==='function'){
+setSidebarMoreOpen(true);
 }
 var rect=targetEl.getBoundingClientRect();
 var overlay=document.createElement('div');
@@ -190,6 +199,7 @@ document.getElementById('tutorialExitBtn').addEventListener('click',function(){
 self.removeActiveHint();
 self.state.quickStartCompleted=true;
 self.saveState();
+self.dismissEmptyCanvasHint();
 });
 },
 removeActiveHint:function(){
@@ -260,12 +270,18 @@ markHintShown:function(hintId){
 this.state.hintsShown[hintId]=true;
 this.saveState();
 },
+dismissEmptyCanvasHint:function(){
+if(window.NaiBeginnerGuide&&typeof window.NaiBeginnerGuide.dismissEmptyHint==='function'){
+window.NaiBeginnerGuide.dismissEmptyHint({silent:true});
+}
+},
 setupEventListeners:function(){
 var self=this;
 document.addEventListener('click',function(e){
 var el=e.target.closest('#Intro_Tutorial');
 if(el){
 e.preventDefault();
+self.dismissEmptyCanvasHint();
 self.startQuickStart();
 }
 });

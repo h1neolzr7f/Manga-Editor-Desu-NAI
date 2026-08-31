@@ -1,12 +1,16 @@
 # Build a beginner zip without git history, secrets, or machine caches.
+param(
+    [string]$Version = "1.0.3",
+    [switch]$SkipDesktop
+)
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
-$Name = "Manga-Editor-Desu-NAI-1.0.2"
+$Name = "Manga-Editor-Desu-NAI-$Version"
 $Desktop = [Environment]::GetFolderPath("Desktop")
 $OutDir = Join-Path $Root "dist"
 $Staging = Join-Path $env:TEMP ("desu-nai-pack-" + [guid]::NewGuid().ToString("N"))
 $ZipPath = Join-Path $OutDir ($Name + ".zip")
-$DesktopZip = Join-Path $Desktop ($Name + ".zip")
+$DesktopZip = if ($Desktop) { Join-Path $Desktop ($Name + ".zip") } else { "" }
 
 New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
 New-Item -ItemType Directory -Force -Path $Staging | Out-Null
@@ -43,9 +47,13 @@ if ($rc -ge 8) { throw "robocopy failed with code $rc" }
 
 if (Test-Path -LiteralPath $ZipPath) { Remove-Item -LiteralPath $ZipPath -Force }
 Compress-Archive -Path $dest -DestinationPath $ZipPath -CompressionLevel Optimal
-Copy-Item -LiteralPath $ZipPath -Destination $DesktopZip -Force
+if (-not $SkipDesktop -and $DesktopZip -and (Test-Path -LiteralPath $Desktop)) {
+    Copy-Item -LiteralPath $ZipPath -Destination $DesktopZip -Force
+}
 Remove-Item -LiteralPath $Staging -Recurse -Force
 
 Write-Host "one-click zip:"
 Write-Host "  $ZipPath"
-Write-Host "  $DesktopZip"
+if (-not $SkipDesktop -and $DesktopZip -and (Test-Path -LiteralPath $DesktopZip)) {
+    Write-Host "  $DesktopZip"
+}
