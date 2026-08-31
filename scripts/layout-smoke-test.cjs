@@ -88,6 +88,9 @@ must(usageGuide.includes('自己裁剪'), '使用说明 missing dismiss empty-hi
 must(!usageGuide.includes('C:\\Users\\tzzcomputer'), '使用说明 still has local packing path');
 must(fs.readFileSync(path.join(root, '先看我.txt'), 'utf8').includes('1.0.3'), '先看我 version not bumped');
 must(fs.readFileSync(path.join(root, '先看我.txt'), 'utf8').includes('自定义页面'), '先看我 missing custom page path');
+const zipScript = fs.readFileSync(path.join(root, 'scripts/make-one-click-zip.ps1'), 'utf8');
+must(zipScript.includes('$global:LASTEXITCODE = 0'), 'zip script must clear robocopy success codes for GitHub Actions');
+must(/\bexit 0\b/.test(zipScript), 'zip script must exit 0 after a successful pack');
 must(html.includes('nai学长魔改'), 'fork mark missing from navbar');
 must(html.includes('>DESU<br>'), 'original DESU mark missing from navbar');
 must(!html.includes('Pro Edition'), 'still claiming Desu Pro Edition');
