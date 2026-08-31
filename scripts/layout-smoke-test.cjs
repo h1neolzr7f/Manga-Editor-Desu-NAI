@@ -129,7 +129,14 @@ must(fs.readFileSync(path.join(root, 'js/project-management.js'), 'utf8').includ
 must(fs.readFileSync(path.join(root, 'js/ui/beginner-guide.js'), 'utf8').includes('generatePreflight'), 'generate preflight missing');
 must(fs.readFileSync(path.join(root, 'js/ui/beginner-guide.js'), 'utf8').includes('dismissEmptyHint'), 'empty hint dismiss missing');
 must(fs.readFileSync(path.join(root, 'js/ui/beginner-guide.js'), 'utf8').includes('nai_empty_canvas_hint_dismissed'), 'empty hint persist key missing');
-must(fs.readFileSync(path.join(root, 'js/sidebar/panel/panel-template.js'), 'utf8').includes('fromCustomPage'), 'custom page must dismiss empty hint');
+must(fs.readFileSync(path.join(root, 'js/sidebar/panel/panel-template.js'), 'utf8').includes('loadBookSize(x,y,true)'), 'custom page must add a full-page panel for knife');
+must(fs.readFileSync(path.join(root, 'js/sidebar/panel/panel-template.js'), 'utf8').includes('ensurePanelForKnife'), 'knife must ensure a full-page panel');
+must(fs.readFileSync(path.join(root, 'js/sidebar/panel/panel-template.js'), 'utf8').includes('dismissEmptyHintAfterUserPage'), 'page-manager buttons must dismiss empty hint');
+must(!/function loadBookSize[\s\S]*?if\(!addPanel&&window\.NaiBeginnerGuide/.test(fs.readFileSync(path.join(root, 'js/sidebar/panel/panel-template.js'), 'utf8')), 'startup loadBookSize must not persist-dismiss empty hint');
+must(fs.readFileSync(path.join(root, 'js/ui/beginner-guide.js'), 'utf8').includes('建自定义页面或 A4'), 'generate preflight still only mentions templates');
+must(fs.readFileSync(path.join(root, 'js/panel/random-cut.js'), 'utf8').includes('建自定义页面或 A4'), 'random cut still only mentions templates');
+must(fs.readFileSync(path.join(root, 'js/ui/visual-studio.js'), 'utf8').includes("panel==='panel-manager-area'"), 'page manager HUD still reused shape copy');
+must(fs.readFileSync(path.join(root, 'js/ui/tutorial.js'), 'utf8').includes('会铺满整页格子'), 'tutorial custom-crop copy missing full-page panel');
 must(fs.readFileSync(path.join(root, 'js/ui/tutorial.js'), 'utf8').includes('自定义切格子'), 'tutorial custom-crop step missing');
 must(fs.readFileSync(path.join(root, 'js/ui/tutorial.js'), 'utf8').includes('四步开始画漫画'), 'tutorial prompt still says three steps');
 must(fs.readFileSync(path.join(root, 'js/ui/bottom-bar.js'), 'utf8').includes('选择新页尺寸'), 'bottom bar dialog still Japanese');
