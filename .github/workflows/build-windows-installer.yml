@@ -58,12 +58,15 @@ jobs:
           } elseif ("${{ github.event_name }}" -eq "workflow_dispatch") {
             $version = "${{ inputs.version }}"
             $releaseTag = "${{ inputs.release_tag }}"
-          } elseif ($env:RELEASE_MESSAGE -match '^Release v(\d+\.\d+\.\d+([.-][0-9A-Za-z.-]+)?)$') {
-            $version = $Matches[1]
-            $releaseTag = "v$version"
           } else {
-            $version = "1.0.3-ci.${{ github.run_number }}"
-            $releaseTag = ""
+            $firstLine = (($env:RELEASE_MESSAGE -split '\r?\n')[0]).Trim()
+            if ($firstLine -match '^Release v(\d+\.\d+\.\d+([.-][0-9A-Za-z.-]+)?)$') {
+              $version = $Matches[1]
+              $releaseTag = "v$version"
+            } else {
+              $version = "1.0.3-ci.${{ github.run_number }}"
+              $releaseTag = ""
+            }
           }
           if ($version -notmatch '^\d+\.\d+\.\d+([.-][0-9A-Za-z.-]+)?$') {
             throw "Invalid version: $version"
