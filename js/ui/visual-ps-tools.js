@@ -146,6 +146,10 @@ return;
 if(typeof selectMoveTool==='function')selectMoveTool();
 setTool(TOOL.KNIFE);
 if(typeof ModeManager!=='undefined'&&ModeManager.knife)ModeManager.knife.enable();
+if(typeof isKnifeMode!=='undefined'&&!isKnifeMode){
+setTool(TOOL.MOVE);
+return;
+}
 toast('切割格子','在分镜格子上画一条线切开。Esc 退出。');
 }
 

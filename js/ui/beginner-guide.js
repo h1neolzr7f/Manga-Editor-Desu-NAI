@@ -172,7 +172,7 @@ persistEmptyHintDismissed();
 updateEmptyHint();
 if(options.silent)return;
 if(options.fromCustomPage){
-if(!already)flashHelp('自定义底图已建好。点「切割格子」自己切分镜。');
+if(!already)flashHelp('自定义底图已建好，整页格子已铺上。点「切割格子」画线切开。');
 return;
 }
 if(options.openPageManager&&typeof toggleVisibility==='function'){
@@ -363,7 +363,7 @@ return false;
 if(!panelCount()){
 var pages=typeof btmGetGuidsSize==='function'?btmGetGuidsSize():1;
 if(!pages||pages<=1){
-if(typeof createToastError==='function')createToastError('还没有分镜格','模拟器是假界面，不能当格子出图。请先点左侧「模板」选分镜，或在剧情里点「生成漫画分镜」。',7000);
+if(typeof createToastError==='function')createToastError('还没有分镜格','请先点「页面」建自定义页面或 A4，再用「切割格子」切开；或点左侧「模板」选分镜。模拟器是假界面，不能当格子出图。',7000);
 return false;
 }
 }

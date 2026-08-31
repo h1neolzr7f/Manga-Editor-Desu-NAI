@@ -3,7 +3,7 @@ var panel=getRandomPanel();
 var maxRetryCount=2;
 
 if (panel===null) {
-createToastError("还没有分镜格子。请先点左侧「模板」放一个分镜。");
+createToastError("还没有分镜格子。请先点「页面」建自定义页面或 A4，或点左侧「模板」放一个分镜。");
 return;
 }
 
