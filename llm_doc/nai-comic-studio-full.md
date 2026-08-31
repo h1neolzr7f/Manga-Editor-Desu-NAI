@@ -1,6 +1,6 @@
 # Manga Editor Desu · nai学长魔改版：实现说明
 
-对外产品名：**Manga Editor Desu · nai学长魔改版** 1.0.0。下文模块名仍沿用开发期的 NAI Comic Studio。
+对外产品名：**Manga Editor Desu · nai学长魔改版** 1.0.3。下文模块名仍沿用开发期的 NAI Comic Studio。
 
 # NAI Comic Studio / Manga Editor Desu 增强版：完整实现说明
 

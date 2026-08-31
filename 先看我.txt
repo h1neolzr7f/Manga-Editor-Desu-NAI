@@ -1,4 +1,4 @@
-Manga Editor Desu · nai学长魔改版  1.0.1
+Manga Editor Desu · nai学长魔改版  1.0.3
 ========================================
 
 这是原项目 Manga Editor Desu 的非官方魔改，向 new-sankaku 致敬。
@@ -9,7 +9,7 @@ Manga Editor Desu · nai学长魔改版  1.0.1
 小白三步（推荐 EXE 安装版）：
 1. 从 GitHub Releases 下载并运行「Manga-Editor-Desu-NAI-Setup-*.exe」。
 2. 安装后，从开始菜单或桌面快捷方式打开；不用自己安装 Python 或 Node.js。
-3. 在「NovelAI 设置」里粘贴你自己的令牌，再去左侧选分镜、生成。
+3. 在「NovelAI 设置」里粘贴你自己的令牌。格子可以用「模板」，也可以「更多 → 页面 → 自定义页面」再「切割格子」。空画布提示可关掉，教程在「帮助」里。
 
 如果你下载的是 ZIP 或源码：解压整个文件夹，安装 Python 3，再双击「一键启动.bat」。
 

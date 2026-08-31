@@ -7,8 +7,8 @@ It is a modified work of [manga-editor-desu](https://github.com/new-sankaku/mang
 本程序英文名仍为 **Manga Editor Desu**，发布名是 **Manga Editor Desu · nai学长魔改版**。向原作者与原项目致敬。
 
 - 上游许可证：GNU General Public License v3.0（见根目录 `LICENSE`）  
-- 本修改版版本：**1.0.0**  
-- 本修改版发布日期：**2026-08-14**  
+- 本修改版版本：**1.0.3**  
+- 本修改版发布日期：**2026-08-31**  
 - 本仓库：https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI  
 - 与上游关系：**非正式、非附属**。请勿把本包的问题开到上游仓库。
 
@@ -18,7 +18,7 @@ It is a modified work of [manga-editor-desu](https://github.com/new-sankaku/mang
 
 1. 出图后端从 ComfyUI / A1111 WebUI / Forge 等，改为 **NovelAI API**（需用户自备访问令牌；会消耗 NovelAI 积分）。
 2. 增加 Windows **一键启动**本地服务（`99_server.py`），不要用 `file://` 打开页面。
-3. 增加中文小白流程：侧栏分组、工具选项条、空画布提示、Token 状态。
+3. 增加中文小白流程：侧栏分组、工具选项条、可关闭的空画布提示、Token 状态；自定义页面可自己切割格子。
 4. 增加对话 / 网页 / 零件 **模拟器工作台**（通用界面样式，不含真实站点商标）。
 5. 增加画布 Ctrl+滚轮缩放、整页放大缩小、贴合分镜。
 6. 增加本地抠图（无服务时回退浏览器颜色抠图）。

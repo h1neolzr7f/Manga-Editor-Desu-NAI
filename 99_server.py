@@ -1,4 +1,4 @@
-"""Manga Editor Desu · nai学长魔改版 local HTTP server v1.0.0."""
+"""Manga Editor Desu · nai学长魔改版 local HTTP server v1.0.3."""
 from concurrent.futures import ThreadPoolExecutor
 from http.server import SimpleHTTPRequestHandler
 import socketserver

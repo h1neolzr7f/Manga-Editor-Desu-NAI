@@ -6,7 +6,7 @@ on:
       version:
         description: Installer version, without the v prefix
         required: true
-        default: "1.0.1"
+        default: "1.0.3"
       release_tag:
         description: Release tag to create/update with the EXE; leave blank for artifact only
         required: false
@@ -62,7 +62,7 @@ jobs:
             $version = $Matches[1]
             $releaseTag = "v$version"
           } else {
-            $version = "1.0.1-ci.${{ github.run_number }}"
+            $version = "1.0.3-ci.${{ github.run_number }}"
             $releaseTag = ""
           }
           if ($version -notmatch '^\d+\.\d+\.\d+([.-][0-9A-Za-z.-]+)?$') {
@@ -133,11 +133,18 @@ jobs:
             if ($tools -and -not $tools.HasExited) { Stop-Process -Id $tools.Id -Force }
           }
 
+      - name: Build portable zip
+        shell: pwsh
+        run: |
+          .\scripts\make-one-click-zip.ps1 -Version "${{ steps.package.outputs.version }}" -SkipDesktop
+
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v6
         with:
           name: Manga-Editor-Desu-NAI-Setup-${{ steps.package.outputs.version }}
-          path: dist/Manga-Editor-Desu-NAI-Setup-*.exe
+          path: |
+            dist/Manga-Editor-Desu-NAI-Setup-*.exe
+            dist/Manga-Editor-Desu-NAI-*.zip
           if-no-files-found: error
           compression-level: 0
 
@@ -155,9 +162,21 @@ jobs:
           }
           gh release view $tag | Out-Null
           if ($LASTEXITCODE -ne 0) {
-            gh release create $tag --verify-tag --generate-notes --title "Manga Editor Desu · NovelAI Edition $tag"
+            $notes = "release-notes.md"
+            if (Test-Path $notes) {
+              gh release create $tag --verify-tag --title "Manga Editor Desu · nai学长魔改版 $tag" --notes-file $notes
+            } else {
+              gh release create $tag --verify-tag --generate-notes --title "Manga Editor Desu · nai学长魔改版 $tag"
+            }
             if ($LASTEXITCODE -ne 0) { throw "Could not create release $tag. Make sure the tag exists." }
+          } elseif (Test-Path "release-notes.md") {
+            gh release edit $tag --notes-file release-notes.md --title "Manga Editor Desu · nai学长魔改版 $tag"
           }
           $setup = Get-ChildItem .\dist\Manga-Editor-Desu-NAI-Setup-*.exe | Select-Object -First 1
           gh release upload $tag $setup.FullName --clobber
           if ($LASTEXITCODE -ne 0) { throw "Could not upload installer to release $tag." }
+          $zip = Get-ChildItem .\dist\Manga-Editor-Desu-NAI-*.zip | Where-Object { $_.Name -notlike "*Setup*" } | Select-Object -First 1
+          if ($zip) {
+            gh release upload $tag $zip.FullName --clobber
+            if ($LASTEXITCODE -ne 0) { throw "Could not upload zip to release $tag." }
+          }

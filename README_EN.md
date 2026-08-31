@@ -12,7 +12,7 @@
 [![Release](https://img.shields.io/github/v/release/h1neolzr7f/Manga-Editor-Desu-NAI)](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest)
 [![Upstream](https://img.shields.io/badge/upstream-manga--editor--desu-0A7EA4)](https://github.com/new-sankaku/manga-editor-desu)
 
-[Download v1.0.0](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/tag/v1.0.0) ·
+[Download latest](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest) ·
 [Changes from upstream](CHANGELOG.md) ·
 [Report an issue](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/issues)
 
@@ -33,7 +33,7 @@ The upstream editor already provides panels, bubbles, layers, the knife tool, to
 | **One-click Windows host** | Starts a local server and opens the editor from a batch launcher |
 | **Simulator workspace** | Generic chat, web-page, and UI components for in-story screens |
 | **Local cutout** | Optional rembg sidecar with a color-key fallback |
-| **Beginner Chinese layout** | Grouped settings, tool hints, empty-canvas guidance, and token status |
+| **Beginner Chinese layout** | Grouped settings, tool hints, dismissable empty-canvas guidance, custom-page knife cutting, and token status |
 | **Canvas view tools** | Ctrl+wheel zoom, page scaling, and fit-to-panel controls |
 
 > [!IMPORTANT]
@@ -41,7 +41,7 @@ The upstream editor already provides panels, bubbles, layers, the knife tool, to
 
 ## Quick start on Windows
 
-1. Download and fully extract the [v1.0.0 archive](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/tag/v1.0.0).
+1. Download and fully extract the [latest release](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest).
 2. Double-click `一键启动.bat`.
 3. Wait for `http://127.0.0.1:8000/index.html` to open.
 4. Open NovelAI settings and paste your own access token.
