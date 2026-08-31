@@ -43,7 +43,10 @@ $dest = Join-Path $Staging $Name
 $robocopyArgs = @($Root, $dest, "/E", "/NFL", "/NDL", "/NJH", "/NJS", "/NC", "/NS", "/NP", "/XD") + $excludeDirs + @("/XF") + $excludeFiles
 & robocopy @robocopyArgs | Out-Null
 $rc = $LASTEXITCODE
+# robocopy uses 0–7 as success (1 = files copied). GitHub Actions treats a leftover
+# native exit code as the step result, so clear it after a successful copy.
 if ($rc -ge 8) { throw "robocopy failed with code $rc" }
+$global:LASTEXITCODE = 0
 
 if (Test-Path -LiteralPath $ZipPath) { Remove-Item -LiteralPath $ZipPath -Force }
 Compress-Archive -Path $dest -DestinationPath $ZipPath -CompressionLevel Optimal
@@ -57,3 +60,4 @@ Write-Host "  $ZipPath"
 if (-not $SkipDesktop -and $DesktopZip -and (Test-Path -LiteralPath $DesktopZip)) {
     Write-Host "  $DesktopZip"
 }
+exit 0
