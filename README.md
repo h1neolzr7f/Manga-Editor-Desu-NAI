@@ -1,145 +1,69 @@
-<div align="center">
-
 # Manga Editor Desu · NovelAI Edition
 
-### 面向 NovelAI 创作者的本地漫画工作台
+这是 [new-sankaku/manga-editor-desu](https://github.com/new-sankaku/manga-editor-desu) 的非官方 GPL-3.0 修改发行版。分镜、气泡、图层、刀具、网点、画笔和多页工程等编辑器基础能力来自上游；本仓库维护 NovelAI 接入、本地启动器、模拟器工作区与中文入门流程。
 
-**分镜与图层 · 对话气泡 · NovelAI 出图 · 模拟器场景 · 本地抠图 · Windows 一键启动**
+[English](README_EN.md) · [下载 Releases](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest) · [相对上游的改动](CHANGELOG.md) · [参与贡献](CONTRIBUTING.md)
 
-[English](README_EN.md) · [日本語](README_JP.md)
+![当前源码的编辑器界面](docs/screenshots/editor-home.png)
 
-[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/github/v/release/h1neolzr7f/Manga-Editor-Desu-NAI)](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest)
-[![Upstream](https://img.shields.io/badge/upstream-manga--editor--desu-0A7EA4)](https://github.com/new-sankaku/manga-editor-desu)
+> 截图由本仓库当前 `main` 源码在本地 HTTP 服务中启动后采集，画布使用内置空白模板；没有调用 NovelAI，也没有使用私人作品或访问令牌。
 
-[下载最新版](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest) ·
-[查看相对上游的改动](CHANGELOG.md) ·
-[问题反馈](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/issues)
+## 这个版本维护什么
 
-</div>
+| 范围 | 归属与说明 |
+| --- | --- |
+| 分镜、气泡、图层、刀具、网点、画笔、多页工程 | 上游 Manga Editor Desu 的核心编辑能力 |
+| NovelAI 文生图与图生图 | 本修改版接入；需要用户自己的访问令牌，会消耗相应服务额度 |
+| Windows 本地启动 | 通过批处理或安装器启动本地 HTTP 服务，避免 `file://` 限制 |
+| 模拟器工作区 | 通用聊天、网页和界面组件，用于漫画中的屏幕场景 |
+| 中文入门流程 | 设置分组、工具提示、空画布引导、自定义页面切格子和 Token 状态 |
+| 本地抠图 | 可选 rembg sidecar；不可用时保留颜色键回退 |
 
-<p align="center">
-  <img src="03_images/PagePreview/Git/Preview.png" alt="Manga Editor Desu 漫画编辑器界面" width="880">
-</p>
-<p align="center"><sub>编辑器基础界面继承自 Manga Editor Desu；本版本新增能力见下表与 CHANGELOG。</sub></p>
+修改边界和版本记录分别见 [NOTICE.md](NOTICE.md) 与 [CHANGELOG.md](CHANGELOG.md)。本仓库的问题请提交到本仓库；只有在未修改的上游版本中也能复现时，才适合反馈给上游。
 
-## 为什么做这个版本？
+## 快速开始
 
-原版 Desu 已经拥有分镜、气泡、图层、刀具、网点、画笔和多页工程。本版本不重新造漫画编辑器，而是把它改造成一套更适合 **NovelAI 本地创作流程**的发行版：
+### 使用 Release
 
-| 新增能力 | 作用 |
-|---|---|
-| **NovelAI 专用生成** | 直接在编辑流程里完成文生图与图生图，不再暴露无关后端 |
-| **Windows 小白安装器** | 安装一次，从快捷方式启动；无需另装 Python 或 Node.js |
-| **模拟器工作区** | 通用聊天、网页与 UI 组件，用于漫画中的手机和社交场景 |
-| **本地抠图** | 可选 rembg sidecar；缺少模型时保留颜色键回退 |
-| **中文新手布局** | 设置分组、工具提示、可关闭的空画布引导、自定义切格子、Token 状态 |
-| **画布视图工具** | Ctrl+滚轮缩放、整页适配与面板缩放 |
+1. 从 [Releases](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest) 下载安装器或完整便携包。
+2. 完整解压后运行 `一键启动.bat`，或从已安装的快捷方式启动。
+3. 浏览器会打开 `http://127.0.0.1:8000/index.html`。
+4. 只有使用出图功能时才需要在设置中填写自己的 NovelAI 访问令牌。
 
-> [!IMPORTANT]
-> 这是 [new-sankaku/manga-editor-desu](https://github.com/new-sankaku/manga-editor-desu) 的非官方 GPL-3.0 修改发行版，不代表上游作者。基础编辑能力来自 Desu；本仓库负责 NovelAI、启动器、模拟器与抠图相关改动。
+不要直接双击 `index.html`。本地服务负责静态文件、代理保护和可选本地工具。
 
-## Attribution
+### 从源码启动
 
-This work is a modified copy of [new-sankaku/manga-editor-desu](https://github.com/new-sankaku/manga-editor-desu), licensed under the [GNU GPL v3.0](LICENSE).
-
-Per GPL-3.0, the modifications are identified in [NOTICE.md](NOTICE.md) and [CHANGELOG.md](CHANGELOG.md). Corresponding source is provided in this repository.
-
-Please file issues for **this fork** here. Do not open NovelAI / launcher / simulator reports on the upstream tracker unless the same defect reproduces on unmodified Desu.
-
-| | |
-|---|---|
-| Upstream | https://github.com/new-sankaku/manga-editor-desu |
-| This repository | https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI |
-| License | [GPL-3.0](LICENSE) (same as upstream) |
-| Third-party assets | [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) |
-
----
-
-## What this fork adds
-
-- **NovelAI-only generation** — ComfyUI / A1111 WebUI / Forge backends are disabled. You supply your own access token; generation spends NovelAI credits.
-- **Windows one-click host** — `一键启动.bat` starts a local server at `http://127.0.0.1:8000`. Do not open `index.html` via `file://`.
-- **Beginner Chinese layout** — grouped sidebar, tool hints, a dismissable empty-canvas guide, custom-page knife cutting, token status.
-- **Simulator workspace** — generic chat, mock web pages, and UI parts for comic staging. No real site trademarks.
-- **Canvas view tools** — Ctrl+wheel zoom, page scale, fit-to-panel.
-- **Local cutout** — optional rembg sidecar; color-key fallback when the sidecar is absent.
-
----
-
-## 安装方式（Windows）
-
-### 普通用户：EXE 安装器（推荐，从 v1.0.1 起）
-
-1. 打开 [Releases](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest)，下载 `Manga-Editor-Desu-NAI-Setup-*.exe`。
-2. 双击安装，可选择创建桌面快捷方式。
-3. 从开始菜单或桌面打开 **Manga Editor Desu NAI**。
-4. 打开 **NovelAI 设置**，粘贴你自己的令牌。
-
-安装器内置 Python 3.12、Node.js 和 Pillow；不需要另装开发环境，也不需要管理员权限。体积较大的 rembg 模型仍为可选项，不会偷偷下载。
-
-### 便携包 / 源码
-
-1. 下载 ZIP 或源码并解压**整个文件夹**。
-2. 确保 Windows 10/11 已安装 Python 3；批量素材工具还需要 Node.js。
-3. 双击 `一键启动.bat`。
-4. 等待浏览器打开 `http://127.0.0.1:8000/index.html`。
-
-浏览器推荐 Chrome 或 Edge。只有使用出图功能时才需要 NovelAI 访问令牌（会消耗 NovelAI 积分）。
-
-分步说明：[先看我.txt](先看我.txt) · [使用说明.txt](使用说明.txt)
-
-如果更新后仍显示旧界面，请按 **Ctrl+F5** 强制刷新。
-
----
-
-## Compared with upstream
-
-| | Manga Editor Desu | This fork |
-|---|---|---|
-| Launch | `index.html` or the official demo | `一键启动.bat` → `127.0.0.1:8000` |
-| Generation | ComfyUI / WebUI / Forge | NovelAI API only |
-| Simulator | — | Chat / mock web / parts |
-| UI | Professional editor | Same canvas tools, plus a Chinese beginner path |
-
----
-
-## Operational notes
-
-- Confirm the credit dialog before generate or batch generate.
-- Simulator skins are generic comic chrome. They are not NovelAI prompts by themselves; place them in panels to generate.
-- Keep `.env`, tokens, and `user_data/` off git and off public uploads.
-- Optional director text uses an OpenAI-compatible gateway. Final panel images still go through NovelAI.
-
-To rebuild the portable Windows zip (excludes `.git`, `.env`, and `user_data`):
+环境：Windows 10/11、Python 3、Chrome 或 Edge。部分批量素材工具还需要 Node.js。
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\make-one-click-zip.ps1
+git clone https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI.git
+cd Manga-Editor-Desu-NAI
+.\一键启动.bat
 ```
 
-The self-contained EXE is built by [Build Windows installer](.github/workflows/build-windows-installer.yml). A `v*` tag builds, smoke-tests, and publishes the installer to that GitHub Release.
+## 开发与验证
 
----
-
-## Development
-
-```bash
+```powershell
 npm test
+npm run test:simulator
+npm run test:story-engine
+npm run test:cutout
+npm run test:proxy-guards
 ```
 
-Related checks: `npm run test:layout`, `npm run test:simulator`, `npm run test:story-engine`.  
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+上述离线检查覆盖布局、模拟器聊天、故事流程、抠图预设和代理保护。本次文档整理的实际结果见 [docs/VALIDATION.md](docs/VALIDATION.md)。需要真实 NovelAI 账号、积分或第三方网关的测试不属于默认测试范围。
 
----
+发布工作流位于 [.github/workflows/build-windows-installer.yml](.github/workflows/build-windows-installer.yml)，负责 Windows 安装器、已安装运行时冒烟和 Release 附件。构建产物与源码的版本号应保持一致。
 
-## License and credits
+## 数据与凭据
 
-Copyright for the original editor belongs to the upstream authors. See [manga-editor-desu](https://github.com/new-sankaku/manga-editor-desu).
+- 不要提交 `.env`、访问令牌、`user_data/` 或私人漫画工程。
+- 出图前会显示额度提示；是否产生费用由所使用的外部服务决定。
+- 本地服务默认只面向当前电脑，不能当作公网多用户服务。
 
-This modified version is released under **GPL-3.0**. Redistribution must include the corresponding source and this license.
+## 许可证与致谢
 
-Thanks to **new-sankaku** for Manga Editor Desu. This fork exists because that editor already solved panels, bubbles, layers, and project persistence.
+本修改版继续使用 [GNU GPL v3.0](LICENSE)。上游作者保留原编辑器相应版权；重新分发修改版时须保留许可证、修改说明与对应源码。第三方素材许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
----
-
-**💬 QQ 测试 / 反馈群：762652608**
+感谢 [new-sankaku/manga-editor-desu](https://github.com/new-sankaku/manga-editor-desu) 提供编辑器基础。

@@ -1,66 +1,65 @@
-<div align="center">
-
 # Manga Editor Desu · NovelAI Edition
 
-### A local manga workspace tailored for NovelAI creators
+An unofficial GPL-3.0 modified distribution of [new-sankaku/manga-editor-desu](https://github.com/new-sankaku/manga-editor-desu). The upstream project provides the core editor: panels, speech bubbles, layers, knife tools, tones, brushes, and multi-page projects. This repository maintains the NovelAI integration, local launcher, simulator workspace, and a Chinese beginner workflow.
 
-**Panels & layers · Speech bubbles · NovelAI generation · UI simulators · Local cutout · One-click Windows host**
+[中文](README.md) · [Releases](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest) · [Fork changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md)
 
-[中文](README.md) · [日本語](README_JP.md)
+![Editor UI from the current source tree](docs/screenshots/editor-home.png)
 
-[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/github/v/release/h1neolzr7f/Manga-Editor-Desu-NAI)](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest)
-[![Upstream](https://img.shields.io/badge/upstream-manga--editor--desu-0A7EA4)](https://github.com/new-sankaku/manga-editor-desu)
+> Captured from the current `main` source through a local HTTP server with a built-in blank template. No NovelAI request, private artwork, or access token was used.
 
-[Download latest](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest) ·
-[Changes from upstream](CHANGELOG.md) ·
-[Report an issue](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/issues)
+## Scope of this fork
 
-</div>
+| Area | Origin and responsibility |
+| --- | --- |
+| Panels, bubbles, layers, knife tools, tones, brushes, multi-page projects | Core editor from Manga Editor Desu |
+| NovelAI text-to-image and image-to-image | Fork integration; requires the user's own token and may consume service credits |
+| Windows local launcher | Starts an HTTP host to avoid `file://` restrictions |
+| Simulator workspace | Generic chat, web, and UI components for screens inside comics |
+| Beginner Chinese workflow | Grouped settings, hints, blank-canvas guidance, custom-page cutting, token status |
+| Local cutout | Optional rembg sidecar with a color-key fallback |
 
-<p align="center">
-  <img src="03_images/PagePreview/Git/Preview.png" alt="Manga Editor Desu editor interface" width="880">
-</p>
-<p align="center"><sub>The core editor UI comes from Manga Editor Desu. Fork-specific additions are listed below and in CHANGELOG.</sub></p>
+See [NOTICE.md](NOTICE.md) and [CHANGELOG.md](CHANGELOG.md) for the modification boundary. Report fork-specific problems here; use the upstream tracker only when the same defect reproduces on unmodified Manga Editor Desu.
 
-## Why this edition?
+## Quick start
 
-The upstream editor already provides panels, bubbles, layers, the knife tool, tones, brushes, and multi-page projects. This edition keeps that foundation and packages a narrower **NovelAI-first local workflow**:
+1. Download the complete installer or portable archive from [Releases](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest).
+2. Extract the whole archive and run `一键启动.bat`, or launch the installed shortcut.
+3. Open `http://127.0.0.1:8000/index.html` if the browser does not open automatically.
+4. Add your own NovelAI token only when you want to generate images.
 
-| Addition | What it does |
-|---|---|
-| **NovelAI-only generation** | Keeps text-to-image and image-to-image inside the editor without unrelated backend setup |
-| **One-click Windows host** | Starts a local server and opens the editor from a batch launcher |
-| **Simulator workspace** | Generic chat, web-page, and UI components for in-story screens |
-| **Local cutout** | Optional rembg sidecar with a color-key fallback |
-| **Beginner Chinese layout** | Grouped settings, tool hints, dismissable empty-canvas guidance, custom-page knife cutting, and token status |
-| **Canvas view tools** | Ctrl+wheel zoom, page scaling, and fit-to-panel controls |
+Do not open `index.html` through `file://`; the local host provides the expected static-file and proxy behavior.
 
-> [!IMPORTANT]
-> This is an unofficial GPL-3.0 modified distribution of [new-sankaku/manga-editor-desu](https://github.com/new-sankaku/manga-editor-desu). It is not affiliated with or endorsed by the upstream author.
+Source requirements: Windows 10/11, Python 3, Chrome or Edge. Some batch asset tools also require Node.js.
 
-## Quick start on Windows
+```powershell
+git clone https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI.git
+cd Manga-Editor-Desu-NAI
+.\一键启动.bat
+```
 
-1. Download and fully extract the [latest release](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest).
-2. Double-click `一键启动.bat`.
-3. Wait for `http://127.0.0.1:8000/index.html` to open.
-4. Open NovelAI settings and paste your own access token.
+## Development and validation
 
-Do not open `index.html` through `file://`. Image generation spends NovelAI credits.
+```powershell
+npm test
+npm run test:simulator
+npm run test:story-engine
+npm run test:cutout
+npm run test:proxy-guards
+```
 
-## Requirements
+These offline checks cover layout, simulator chat, story flow, cutout presets, and proxy guards. See [docs/VALIDATION.md](docs/VALIDATION.md) for the observed result during this documentation pass. Tests that require a real NovelAI account, credits, or an external gateway are outside the default test scope.
 
-- Windows 10 or 11
-- Python 3
-- Chrome or Edge
-- A NovelAI access token only when generating images
+The Windows packaging workflow is [.github/workflows/build-windows-installer.yml](.github/workflows/build-windows-installer.yml). It builds the installer, smoke-tests the installed runtime, and attaches release artifacts.
 
-## Attribution and development
+## Credentials and local data
 
-The original editor, English name, and core editing features come from [new-sankaku/manga-editor-desu](https://github.com/new-sankaku/manga-editor-desu). Modifications are identified in [NOTICE.md](NOTICE.md) and [CHANGELOG.md](CHANGELOG.md).
+- Never commit `.env`, access tokens, `user_data/`, or private comic projects.
+- Generation may incur charges from the external service you configure.
+- The local host is intended for one trusted desktop, not public multi-user hosting.
 
-Please report NovelAI, launcher, simulator, and cutout issues in this repository. Only report them upstream when the same issue reproduces on unmodified Desu.
+## License and credits
 
-## License
+This modified distribution remains under [GNU GPL v3.0](LICENSE). Preserve the license, modification notices, and corresponding source when redistributing it. Third-party assets are documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-GNU GPL v3.0, the same license as upstream. Keep [LICENSE](LICENSE), [NOTICE.md](NOTICE.md), and the corresponding source when redistributing. Third-party assets are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Thanks to [new-sankaku/manga-editor-desu](https://github.com/new-sankaku/manga-editor-desu) for the editor foundation.
