@@ -88,7 +88,7 @@
 
 ## 6. `js/project-management.js`
 
-- schema（基线 `193`）：`canvasDpi.default` 由 `'450'` 改 `'300'`；新增 `outputImageFormat`(png)、`outputBitDepth`(rgb)、`outputImageQuality`(0.92)。
+- schema（基线 `193`）：`canvasDpi.default` 由 `'450'` 改 `'300'`；新增 `outputImageFormat`(png)、`outputBitDepth`(argb)、`outputImageQuality`(0.92)。
 - 新增 `syncExportPlanAfterSettingsLoad`(399)，并在 `loadSettingsLocalStrage` 的两个返回路径（基线 `405` 附近、`519` 附近）各调用一次。
 - 新增 `sanitizeSettingsValueForStorage`(538)；`saveSettingsLocalStrage`(基线 `522`) 中改为 `data[key]=sanitizeSettingsValueForStorage(cfg,el,previous?previous[key]:undefined)`，并在循环前读取 `previous`。
 
@@ -127,7 +127,7 @@
 
 1. **Promise 化**：忘记 `await`/`.then` 处理 `getCropAndDownloadLink*`，会导致 `link.click()` 报错。
 2. **脚本顺序**：`png-bit-depth.js` 必须是 `defer` 且早于 `image-util.js`；`fabric-text-focus.js` 必须无 `defer`。
-3. **默认位深度**：目标分支若沿用 `rgb` 默认，普通 PNG 导出会丢透明度（见审查文档 [P1]）；如需保透明，默认改 `argb`。
+3. **默认位深度**：上游整合采用 `argb` 作为默认值以保留透明度；若目标分支故意使用 `rgb`，应明确接受 PNG 透明度会被压平到背景色。
 4. **常量一致性**：`EXPORT_MAX_EDGE/PIXELS` 需要在 `manga-page-size.js` 与 `image-util.js` 保持同值。
 5. **缓存版本号**：不改 `?v=` 会造成浏览器沿用旧脚本。
 ---
