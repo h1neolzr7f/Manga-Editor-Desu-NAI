@@ -163,7 +163,7 @@ const fallbackApi=loadApi({require});
 (async function(){
 // --- MODES / DEFAULT_MODE ---
 assert.deepEqual({...api.MODES},{GRAY:'gray',RGB:'rgb',ARGB:'argb'});
-assert.equal(api.DEFAULT_MODE,'rgb');
+assert.equal(api.DEFAULT_MODE,'argb');
 assert.equal(api.resolveExportMode,api.normalizeMode,'resolveExportMode は normalizeMode の別名');
 
 // --- normalizeMode ---
@@ -176,18 +176,18 @@ assert.equal(api.normalizeMode(' 24-bit '),'rgb');
 assert.equal(api.normalizeMode('argb'),'argb');
 assert.equal(api.normalizeMode('ARGB'),'argb');
 assert.equal(api.normalizeMode('RGBA'),'argb');
-assert.equal(api.normalizeMode(''),'rgb','空文字は rgb');
-assert.equal(api.normalizeMode('   '),'rgb','空白のみは rgb');
-assert.equal(api.normalizeMode(undefined),'rgb');
-assert.equal(api.normalizeMode(null),'rgb');
-assert.equal(api.normalizeMode('bmp'),'rgb','未知の値は rgb');
-assert.equal(api.normalizeMode(42),'rgb');
+assert.equal(api.normalizeMode(''),'argb','空文字は argb');
+assert.equal(api.normalizeMode('   '),'argb','空白のみは argb');
+assert.equal(api.normalizeMode(undefined),'argb');
+assert.equal(api.normalizeMode(null),'argb');
+assert.equal(api.normalizeMode('bmp'),'argb','未知の値は argb');
+assert.equal(api.normalizeMode(42),'argb');
 
 // --- describeMode ---
 assert.deepEqual({...api.describeMode('gray')},{mode:'gray',label:'Grayscale',bitDepth:8,colorType:0,hasAlpha:false});
 assert.deepEqual({...api.describeMode('rgb')},{mode:'rgb',label:'24-bit RGB',bitDepth:8,colorType:2,hasAlpha:false});
 assert.deepEqual({...api.describeMode('argb')},{mode:'argb',label:'32-bit ARGB',bitDepth:8,colorType:6,hasAlpha:true});
-assert.equal(api.describeMode('nope').mode,'rgb','未知は rgb の説明を返す');
+assert.equal(api.describeMode('nope').mode,'argb','未知は argb の説明を返す');
 
 // --- crc32 / paeth / base64 の内部実装 ---
 assert.equal(api.__internals.crc32(Buffer.from('123456789','latin1')),0xcbf43926,'CRC32 の既知値');
@@ -253,11 +253,11 @@ assert.equal(grayValues[2],api.__internals.luma(255,255,255),'透過した青は
 assert.equal(grayValues[3],255,'純白は 255');
 assert.equal(gray.raw.length,(gray.width*1+1)*gray.height,'gray の行長');
 
-// --- 既定値: mode 未指定は rgb / background 未指定は白 ---
+// --- 既定値: mode 未指定は argb（透明度保持） ---
 const defaulted=inflatedPixels(Buffer.from((await api.encodePngDataUrl(sourceDataUrl)).split(',')[1],'base64'));
-assert.equal(defaulted.colorType,2,'既定は rgb');
-assert.deepEqual([...unfilterTestSide(defaulted.raw,defaulted.width,defaulted.height,3)].slice(0,3),[255,127,127],'既定の背景は白');
-const customBackground=inflatedPixels(Buffer.from((await api.encodePngDataUrl(sourceDataUrl,{background:{r:0,g:0,b:0}})).split(',')[1],'base64'));
+assert.equal(defaulted.colorType,6,'既定は argb');
+assert.deepEqual([...unfilterTestSide(defaulted.raw,defaulted.width,defaulted.height,4)],[...pixels],'既定は透明度を保持する');
+const customBackground=inflatedPixels(Buffer.from((await api.encodePngDataUrl(sourceDataUrl,{mode:'rgb',background:{r:0,g:0,b:0}})).split(',')[1],'base64'));
 assert.deepEqual([...unfilterTestSide(customBackground.raw,4,2,3)].slice(0,3),[128,0,0],'黒背景なら半透明赤は 128');
 const argbIgnoresBackground=inflatedPixels(Buffer.from((await api.encodePngDataUrl(sourceDataUrl,{mode:'argb',background:{r:0,g:0,b:0}})).split(',')[1],'base64'));
 assert.deepEqual([...unfilterTestSide(argbIgnoresBackground.raw,4,2,4)],[...pixels],'argb は背景色を無視する');
