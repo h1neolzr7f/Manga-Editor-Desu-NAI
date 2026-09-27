@@ -30,7 +30,7 @@ isGridVisible:false,
 // 位深度変換そのものは png-bit-depth-smoke-test.cjs が検証する。
 // ここでは呼び出し配線だけを見たいので、素通しのスタブを置く。
 NaiPngBitDepth:{
-normalizeMode:function(mode){var v=String(mode===undefined||mode===null?'':mode).trim().toLowerCase();if(v==='gray')return 'gray';if(v==='argb')return 'argb';return 'rgb';},
+normalizeMode:function(mode){var v=String(mode===undefined||mode===null?'':mode).trim().toLowerCase();if(v==='gray')return 'gray';if(v==='rgb')return 'rgb';return 'argb';},
 encodePngDataUrl:function(dataUrl){return Promise.resolve(dataUrl);}
 },
 };
@@ -257,7 +257,7 @@ isGridVisible:false,
 // 位深度変換そのものは png-bit-depth-smoke-test.cjs が検証する。
 // ここでは呼び出し配線だけを見たいので、素通しのスタブを置く。
 NaiPngBitDepth:{
-normalizeMode:function(mode){var v=String(mode===undefined||mode===null?'':mode).trim().toLowerCase();if(v==='gray')return 'gray';if(v==='argb')return 'argb';return 'rgb';},
+normalizeMode:function(mode){var v=String(mode===undefined||mode===null?'':mode).trim().toLowerCase();if(v==='gray')return 'gray';if(v==='rgb')return 'rgb';return 'argb';},
 encodePngDataUrl:function(dataUrl){return Promise.resolve(dataUrl);}
 },
 };
@@ -313,7 +313,7 @@ isGridVisible:false,
 // 位深度変換そのものは png-bit-depth-smoke-test.cjs が検証する。
 // ここでは呼び出し配線だけを見たいので、素通しのスタブを置く。
 NaiPngBitDepth:{
-normalizeMode:function(mode){var v=String(mode===undefined||mode===null?'':mode).trim().toLowerCase();if(v==='gray')return 'gray';if(v==='argb')return 'argb';return 'rgb';},
+normalizeMode:function(mode){var v=String(mode===undefined||mode===null?'':mode).trim().toLowerCase();if(v==='gray')return 'gray';if(v==='rgb')return 'rgb';return 'argb';},
 encodePngDataUrl:function(dataUrl){return Promise.resolve(dataUrl);}
 },
 };
@@ -396,14 +396,14 @@ assert.ok(html.includes('id="outputBitDepth"'),'位深度セレクトが未定�
 assert.ok(html.includes('id="exportPxPortraitWidth"')&&html.includes('id="exportPxPortraitHeight"'),'縦の画素入力が未定義');
 assert.ok(html.includes('id="exportPxLandscapeWidth"')&&html.includes('id="exportPxLandscapeHeight"'),'横の画素入力が未定義');
 assert.ok(html.includes('id="bgColorButton"')&&html.includes('id="bgColorValue"')&&html.includes('id="bgColorSwatch"'),'背景ボタンが未定義');
-assert.ok(projectManagement.includes("outputBitDepth:{id:'outputBitDepth'"),'位深度が設定スキーマに無い');
+assert.ok(projectManagement.includes("outputBitDepth:{id:'outputBitDepth',default:'argb'}"),'位深度の既定値は透明度を保持する argb');
 
 // --- 位深度の正規化と下地色の解決 ---
 assert.equal(ImageUtil.resolveExportBitDepth('rgb'),'rgb');
 assert.equal(ImageUtil.resolveExportBitDepth('ARGB'),'argb');
 assert.equal(ImageUtil.resolveExportBitDepth('gray'),'gray');
-assert.equal(ImageUtil.resolveExportBitDepth('unknown'),'rgb','不明値は既定へ');
-assert.equal(ImageUtil.resolveExportBitDepth(undefined),'rgb');
+assert.equal(ImageUtil.resolveExportBitDepth('unknown'),'argb','不明値は既定へ');
+assert.equal(ImageUtil.resolveExportBitDepth(undefined),'argb');
 // vm レルムをまたぐため、プロトタイプではなく値そのものを比べる。
 const backgroundOf=function(value){const result=ImageUtil.resolveExportBackground(value);return result.r+','+result.g+','+result.b;};
 assert.equal(backgroundOf('#102030'),'16,32,48');
