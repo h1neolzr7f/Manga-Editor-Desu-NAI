@@ -5,7 +5,7 @@
 "use strict";
 
 var MODES={GRAY:'gray',RGB:'rgb',ARGB:'argb'};
-var DEFAULT_MODE=MODES.RGB;
+var DEFAULT_MODE=MODES.ARGB;
 var PNG_SIGNATURE=[137,80,78,71,13,10,26,10];
 
 // gray モードは Rec.601 の輝度係数で単一チャンネルへ落とす（係数は仕様として固定）。
