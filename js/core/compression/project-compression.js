@@ -38,7 +38,7 @@ stateStack.push(json);
 currentStateIndex++;
 await convertImageMapBlobUrls();
 removeGrid();
-var previewLink=getCropAndDownloadLinkByMultiplier(1,'jpeg');
+var previewLink=await getCropAndDownloadLinkByMultiplier(1,'jpeg',0.8);
 var previewDataUrl=previewLink.href;
 if(isGridVisible){
 drawGrid();

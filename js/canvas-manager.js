@@ -98,6 +98,8 @@ initialCanvasHeight=canvas.getHeight();
 aspectRatio=initialCanvasWidth/initialCanvasHeight;
 canvas.renderAll();
 fitCanvasViewToContainer(true);
+syncExportPagePlan();
+scheduleExportSizeEstimate();
 }
 
 function resizeCanvas(newWidth,newHeight) {
@@ -136,6 +138,8 @@ obj.setCoords();
 });
 canvas.renderAll();
 fitCanvasViewToContainer(true);
+syncExportPagePlan();
+scheduleExportSizeEstimate();
 }
 
 function forcedAdjustCanvasSize() {
@@ -176,19 +180,458 @@ aspectRatio=initialCanvasWidth/initialCanvasHeight;
 canvas.renderAll();
 viewUserScale=1;
 fitCanvasViewToContainer(true);
+syncExportPagePlan();
+scheduleExportSizeEstimate();
 }
 
 document.addEventListener('DOMContentLoaded',function() {
 $('bg-color').addEventListener('input',function (event) {
 var color=event.target.value;
 canvas.setBackgroundColor(color,canvas.renderAll.bind(canvas));
+syncExportBackgroundLabel();
 });
 $('bg-color').addEventListener('input',function (event) {
 resizableContainer=getCanvasViewParent();
 });
 resizableContainer=getCanvasViewParent();
+bindExportBackgroundButton();
+syncExportBackgroundLabel();
+syncExportBitDepthState();
+syncExportQualityAvailability();
+syncExportPagePlan();
+syncExportSizeEstimate();
 });
 
+// 画布背景の入力本体は 1px の不可視入力なので、行のボタンからピッカーを開く。
+function bindExportBackgroundButton(){
+var picker=$('bg-color');
+var button=$('bgColorButton');
+if(!picker||!button||button.dataset.pickerBound==='1')return;
+button.dataset.pickerBound='1';
+var open=function(event){
+if(event){event.preventDefault();event.stopPropagation();}
+if(picker.jscolor&&typeof picker.jscolor.show==='function')picker.jscolor.show();
+};
+button.addEventListener('click',open);
+button.addEventListener('mousedown',function(event){event.preventDefault();event.stopPropagation();});
+}
+
+// 画布背景の十六進値ラベルと色の四角形を同期する。
+function syncExportBackgroundLabel(){
+var picker=$('bg-color');
+var label=$('bgColorValue');
+if(!picker)return;
+var hex=typeof rgbToHex==='function'
+?rgbToHex(String(picker.value||'')).toUpperCase()
+:String(picker.value||'').toUpperCase();
+if(label)label.textContent=hex;
+var preview=$('bgColorSwatch');
+if(preview)preview.style.backgroundColor=hex;
+}
+
+// 位深度は PNG のときだけ有効。jpeg/webp では無効だと分かるようにする。
+function syncExportBitDepthState(){
+var formatElement=$('outputImageFormat');
+var bitDepthElement=$('outputBitDepth');
+if(!formatElement||!bitDepthElement)return;
+var update=function(){
+var isPng=typeof resolveExportFormat==='function'
+? resolveExportFormat(formatElement.value)==='png'
+: formatElement.value==='png';
+bitDepthElement.disabled=!isPng;
+bitDepthElement.title=isPng?'PNG 实际写出的位深度。灰度 / 24位 RGB 会丢弃透明度。':'当前输出格式不是 PNG，位深度不生效。';
+var hint=$('outputBitDepthHint');
+if(hint)hint.style.display=isPng?'':'none';
+syncExportPagePlan();
+};
+formatElement.addEventListener('change',update);
+update();
+}
+
+var exportPagePlanSyncing=false;
+// 「入力中」の欄。編集中は表示も値も触らず、フォーカスが外れた時にだけ検証と同期を行う。
+var exportPixelEditing=null;
+// DPI 欄を編集中かどうか。編集中は入力途中の値を勝手に直さない。
+var exportDpiEditing=false;
+// 直前に確定した有効な DPI。空欄や負数のような「意味の無い」入力が来た時は、
+// 既定値 300 ではなくこの値へ戻す。打ち間違いで使っていた設定が飛ばないようにするため。
+var lastValidExportDpi=null;
+
+// 現在の画面が使う DPI。空欄・負数・非数値の間は既定値 300 ではなく
+// 直前の有効値を使う。打ち間違いで設定が 300 に戻ってしまうのを避けるため。
+function currentExportDpi(){
+var element=$('outputDpi');
+var raw=element?element.value:300;
+if(typeof NaiMangaPageSize!=='undefined'&&typeof NaiMangaPageSize.normalizeExportDpi==='function'){
+var normalized=NaiMangaPageSize.normalizeExportDpi(raw);
+return normalized===null?exportDpiFallback():normalized;
+}
+return parseFloat(raw)||300;
+}
+
+// 直前の有効値。まだ一度も確定していなければ既定の 300。
+function exportDpiFallback(){
+if(lastValidExportDpi!==null)return lastValidExportDpi;
+return typeof NaiMangaPageSize!=='undefined'?NaiMangaPageSize.EXPORT_DPI_DEFAULT:300;
+}
+
+// UI 入力の検証。意味のある数値なら 0.01 刻みの値、空欄・負数・非数値は null。
+function normalizeExportDpiInput(raw){
+return typeof NaiMangaPageSize!=='undefined'&&typeof NaiMangaPageSize.normalizeExportDpi==='function'
+?NaiMangaPageSize.normalizeExportDpi(raw)
+:null;
+}
+
+function setExportDpi(value){
+var element=$('outputDpi');
+if(!element)return;
+// 画素欄からの逆算で書き換わった値も、次の「直前の有効値」になる。
+var remembered=normalizeExportDpiInput(value);
+if(remembered!==null)lastValidExportDpi=remembered;
+var next=String(value);
+if(element.value===next)return;
+element.value=next;
+// 画素欄から逆算した DPI はプログラムからの書き換えなので、change が発火しない。
+// 設定の自動保存は input/change を拾うため、ここで明示的に知らせて保存対象にする。
+element.dispatchEvent(new Event('input',{bubbles:true}));
+}
+
+function currentCanvasSizeForPreview(){
+var width=Math.max(1,Math.round(
+typeof canvas!=='undefined'&&canvas?canvas.getWidth():1654
+));
+var height=Math.max(1,Math.round(
+typeof canvas!=='undefined'&&canvas?canvas.getHeight():2339
+));
+return {width:width,height:height};
+}
+
+// 横/竖それぞれの実出力画素を返す。下地は書き出し側と同じ画布の画素寸法を使う。
+// A4 の mm 寸法を 200dpi で換算すると 1654x2339 とは 1px ずれるため、
+// mm を下地にするとプレビューと実際の書き出しが食い違う。
+function exportPlanForOrientation(dpi,landscape){
+if(typeof NaiMangaPageSize==='undefined')return null;
+var size=currentCanvasSizeForPreview();
+var longEdge=Math.max(size.width,size.height);
+var shortEdge=Math.min(size.width,size.height);
+return landscape
+?NaiMangaPageSize.planExportPage(dpi,longEdge,shortEdge)
+:NaiMangaPageSize.planExportPage(dpi,shortEdge,longEdge);
+}
+
+// 出力画素のプレビュー。編集中の欄には絶対に触らない。
+// 入力の途中で書き戻すと、打っている数字が勝手に戻ってしまうため。
+function updateExportPagePlanDisplay(dpi,force){
+if(typeof NaiMangaPageSize==='undefined')return;
+var active=force?null:(exportPixelEditing||document.activeElement);
+[false,true].forEach(function(landscape){
+var plan=exportPlanForOrientation(dpi,landscape);
+if(!plan)return;
+var prefix=landscape?'exportPxLandscape':'exportPxPortrait';
+var widthField=$(prefix+'Width');
+var heightField=$(prefix+'Height');
+if(widthField&&active!==widthField)widthField.value=plan.width;
+if(heightField&&active!==heightField)heightField.value=plan.height;
+});
+var note=$('exportPxCappedNote');
+var portraitPlan=exportPlanForOrientation(dpi,false);
+if(note)note.style.display=(portraitPlan&&portraitPlan.capped)?'':'none';
+}
+
+// 保存された DPI が範囲外だと、欄の表示だけが実書き出しと食い違う。
+// 編集中は触らず、確定済みのときだけ正規化後の値を書き戻す。
+// 空欄・負数のような「意味の無い」値は既定値 300 ではなく直前の有効値へ戻す。
+function syncExportDpiField(){
+var element=$('outputDpi');
+if(!element)return;
+// 入力中は入力途中の値をそのまま見せる。
+if(exportDpiEditing||document.activeElement===element)return;
+var normalized=normalizeExportDpiInput(element.value);
+if(normalized===null){
+normalized=exportDpiFallback();
+element.value=String(normalized);
+}else if(element.value!==String(normalized)){
+element.value=String(normalized);
+}
+lastValidExportDpi=normalized;
+}
+
+// 外部要因（canvas のリサイズ、設定読み込み、DPI 確定）からの同期。
+// 編集中の欄は updateExportPagePlanDisplay 側が除外するので、ここでは触らない。
+function syncExportPagePlan(){
+if(typeof NaiMangaPageSize==='undefined')return;
+if(exportPagePlanSyncing)return;
+exportPagePlanSyncing=true;
+try{
+syncExportDpiField();
+updateExportPagePlanDisplay(currentExportDpi());
+}finally{
+exportPagePlanSyncing=false;
+}
+}
+
+// 画素欄の確定処理。フォーカスが外れた時にだけ呼ぶ。
+// 入力中は値を書き換えないので、打っている途中で数字が戻ることはない。
+// commitExportPixelEdge が「受け付けた / 受け付けなかった」を返し、
+// 受け付けなかった時だけ他の欄と表示を確定値へ戻す。
+function commitExportPixelEdge(input){
+if(!input)return false;
+if(typeof NaiMangaPageSize==='undefined')return false;
+var typed=Math.round(parseFloat(input.value));
+if(!isFinite(typed)||typed<=0){
+syncExportPagePlan();
+return false;
+}
+var size=currentCanvasSizeForPreview();
+var landscape=input.id.indexOf('Landscape')>=0;
+var isWidth=input.getAttribute('data-edge')==='width';
+// 横向きの幅は長辺、縦向きの高さが長辺。それ以外は短辺として扱う。
+var longEdgeIsWidth=landscape;
+var useShortEdge=isWidth?!longEdgeIsWidth:longEdgeIsWidth;
+var dpi=NaiMangaPageSize.resolveDpiForPixelEdge(size.width,size.height,typed,useShortEdge);
+if(dpi===null){
+notifyExportPixelRange(input);
+updateExportPagePlanDisplay(currentExportDpi(),true);
+return false;
+}
+setExportDpi(dpi);
+exportPagePlanSyncing=true;
+try{
+updateExportPagePlanDisplay(dpi);
+scheduleExportSizeEstimate();
+}finally{
+exportPagePlanSyncing=false;
+}
+// 逆算で書き換えた DPI は input イベントを出さないため、設定の自動保存に載らない。
+// DPI 欄の input は自動保存とサイズ概算の両方を起動するので、同じ経路に載せる。
+var dpiField=$('outputDpi');
+if(dpiField)dpiField.dispatchEvent(new Event('input',{bubbles:true}));
+return true;
+}
+
+// 上限を超える値を入れた時だけ、一度だけ知らせる。
+function notifyExportPixelRange(input){
+if(!input||input.dataset.planRejectNotified==='1')return;
+input.dataset.planRejectNotified='1';
+var size=currentCanvasSizeForPreview();
+var capLong=NaiMangaPageSize.exportMaxLongEdge(Math.max(size.width,size.height),Math.min(size.width,size.height));
+if(typeof createToastError==='function'){
+createToastError('画布像素','输入的像素超出输出范围。画布最长边最多约 '+capLong+' 像素（输出上限）。',5000);
+}
+}
+
+// 不正な DPI を入れた時だけ、一度だけ知らせる。
+function notifyExportDpiRange(){
+var dpiElement=$('outputDpi');
+if(!dpiElement||dpiElement.dataset.dpiRejectNotified==='1')return;
+dpiElement.dataset.dpiRejectNotified='1';
+if(typeof createToastError!=='function')return;
+var min=typeof NaiMangaPageSize!=='undefined'?NaiMangaPageSize.EXPORT_DPI_MIN:96;
+var max=typeof NaiMangaPageSize!=='undefined'?NaiMangaPageSize.EXPORT_DPI_MAX:1800;
+createToastError('下载 DPI','下载 DPI 需要在 '+min+' ～ '+max+' 之间。已恢复到上一次的有效值 '+exportDpiFallback()+'。',5000);
+}
+
+// DPI 欄の確定処理。フォーカスが外れた時と Enter でだけ呼ぶ。
+// 負数や空欄は直前の有効値へ戻し、範囲外の正数は MIN/MAX へ丸める。
+function commitExportDpi(){
+var dpiElement=$('outputDpi');
+if(!dpiElement)return;
+exportDpiEditing=false;
+var before=dpiElement.value;
+var normalized=normalizeExportDpiInput(before);
+if(normalized===null){
+// 打ち間違い（-5 など）で設定が 300 に飛ばないよう、直前の有効値へ戻す。
+var fallback=exportDpiFallback();
+dpiElement.value=String(fallback);
+lastValidExportDpi=fallback;
+notifyExportDpiRange();
+}else{
+lastValidExportDpi=normalized;
+if(before!==String(normalized))dpiElement.value=String(normalized);
+}
+// プログラム側で書き換えた確定値も設定の自動保存に載せる。
+if(dpiElement.value!==before)dpiElement.dispatchEvent(new Event('input',{bubbles:true}));
+syncExportPagePlan();
+scheduleExportSizeEstimate();
+}
+
+function bindExportPagePlanEvents(){
+var dpiElement=$('outputDpi');
+if(dpiElement&&dpiElement.dataset.planBound!=='1'){
+dpiElement.dataset.planBound='1';
+// 起動時に欄へ入っている値が、最初の「直前の有効値」。
+lastValidExportDpi=normalizeExportDpiInput(dpiElement.value);
+dpiElement.addEventListener('focus',function(){
+exportDpiEditing=true;
+delete dpiElement.dataset.dpiRejectNotified;
+});
+dpiElement.addEventListener('input',function(){
+// 空欄や負数のように意味の無い値の間は、換算結果も概算も触らない。
+// 確定前の値を画面に出さないため、反映は blur / Enter に任せる。
+if(normalizeExportDpiInput(dpiElement.value)===null)return;
+// 画素欄を編集中でなければ、その場で換算結果を追従させる。
+syncExportPagePlan();
+scheduleExportSizeEstimate();
+});
+// blur（フォーカスが外れた時）と change（Enter 確定）の両方で一度だけ確定する。
+// Enter ではフォーカスが残るため、blur だけに任せると画素欄が古いままになる。
+dpiElement.addEventListener('blur',commitExportDpi);
+dpiElement.addEventListener('change',commitExportDpi);
+dpiElement.addEventListener('keydown',function(event){
+if(event.key!=='Enter')return;
+event.preventDefault();
+commitExportDpi();
+});
+}
+['exportPxPortraitWidth','exportPxPortraitHeight','exportPxLandscapeWidth','exportPxLandscapeHeight'].forEach(function(id){
+var element=$(id);
+if(!element||element.dataset.planBound==='1')return;
+element.dataset.planBound='1';
+// 入力中は記録だけ。ここで表示や他の欄を触ると打っている数字が戻ってしまう。
+element.addEventListener('focus',function(){
+exportPixelEditing=element;
+delete element.dataset.planRejectNotified;
+});
+element.addEventListener('input',function(){exportPixelEditing=element;});
+// フォーカスが外れた時に、ここで初めて検証して確定値を反映する。
+element.addEventListener('blur',function(){
+if(exportPixelEditing===element)exportPixelEditing=null;
+commitExportPixelEdge(element);
+});
+// Enter での確定（change）も同じ経路に乗せる。押下だけでフォーカスが残る場合がある。
+// commitExportPixelEdge は編集中の欄を書き換えないので、ここで確定しても打った値は残る。
+element.addEventListener('change',function(){commitExportPixelEdge(element);});
+// number の change はブラウザ次第で発火しないため、Enter は明示的に拾う。
+element.addEventListener('keydown',function(event){
+if(event.key!=='Enter')return;
+event.preventDefault();
+commitExportPixelEdge(element);
+});
+});
+}
+
+// PNG はロスレスなので品質は効かない。選べないことが分かるように無効化する。
+function syncExportQualityAvailability(){
+var formatElement=$('outputImageFormat');
+var qualityElement=$('outputImageQuality');
+if(!formatElement||!qualityElement)return;
+var update=function(){
+var lossless=typeof resolveExportFormat==='function'
+? resolveExportFormat(formatElement.value)==='png'
+: formatElement.value==='png';
+qualityElement.disabled=lossless;
+qualityElement.title=lossless?'PNG 是无损格式，品质设置不生效。':'JPEG / WebP 的压缩品质。';
+syncExportSizeEstimate();
+};
+formatElement.addEventListener('change',update);
+update();
+}
+
+// 出力サイズの概算表示。実際に数タイル書き出すため重い。連打と編集中の連続更新を避けるため遅延させる。
+var exportEstimateTimer=null;
+var exportEstimateRunning=false;
+var exportEstimatePending=false;
+// canvas のイベント登録は 1 回だけ。何度 syncExportSizeEstimate が呼ばれても
+// リスナーを積み増さない（積み増すと 1 操作で何度も排程される）。
+var exportEstimateCanvasBound=false;
+
+function renderExportSizeEstimate(){
+var label=$('outputImageEstimate');
+if(!label)return;
+if(typeof estimateExportSize!=='function'||typeof formatByteSize!=='function'){
+label.textContent='-';
+return;
+}
+if(exportEstimateRunning){
+exportEstimatePending=true;
+return;
+}
+var formatElement=$('outputImageFormat');
+var qualityElement=$('outputImageQuality');
+var dpiElement=$('outputDpi');
+var dpi=parseFloat(dpiElement?dpiElement.value:300);
+if(!isFinite(dpi)||dpi<=0){
+label.textContent='-';
+label.title='';
+return;
+}
+var format=formatElement?formatElement.value:'png';
+var quality=qualityElement?qualityElement.value:0.92;
+var multiplier=resolveExportMultiplierForDpi(dpi,canvas.width,canvas.height);
+label.textContent='计算中…';
+exportEstimateRunning=true;
+// 直前の描画を先に反映させてから、同期処理の書き出しに入る。
+setTimeout(function(){
+var result=null;
+try{
+result=estimateExportSize(format,quality,multiplier,canvas.width,canvas.height);
+}catch(error){
+result=null;
+}
+exportEstimateRunning=false;
+var node=$('outputImageEstimate');
+if(!node)return;
+if(!result){
+node.textContent='-';
+node.title='画布尺寸无法用于估算。';
+}else{
+var isUpperBound=result.upperBound!==null&&result.upperBound!==undefined;
+node.textContent=(isUpperBound?'至多 ':'')+formatByteSize(result.bytes)+(isUpperBound?'':' 左右');
+// 実出力は fabric の toCanvasElement を通り、canvas 幅は切り捨てられる。
+// Math.round だと 1px 大きく出て、下の画素プレビュー（floor 基準）と食い違う。
+// 一緛性を保つため、プレビューと同じ planExportPage を使う。
+var dimensionPlan=typeof NaiMangaPageSize!=='undefined'
+?NaiMangaPageSize.planExportPage(currentExportDpi(),canvas.width,canvas.height)
+:null;
+var dimension=dimensionPlan
+?dimensionPlan.width+' x '+dimensionPlan.height
+:Math.floor(canvas.width*result.multiplier)+' x '+Math.floor(canvas.height*result.multiplier);
+var detail;
+if(isUpperBound){
+detail='当前画面接近纯色，压缩率无法从取样推断，因此给的是上限：'+formatByteSize(result.bytes)+' 以内。\n';
+}else{
+var range=formatByteSize(result.low)+' ~ '+formatByteSize(result.high);
+detail='按当前设置导出约为 '+formatByteSize(result.bytes)+'（多数情况落在 '+range+'）。\n';
+}
+detail+='输出像素 '+dimension+'，格式 '+result.format.toUpperCase();
+if(result.quality!==null&&result.quality!==undefined)detail+='，品质 '+Math.round(result.quality*100)+'%';
+if(result.capped)detail+='。\n已触及导出上限，实际尺寸小于设定 DPI。';
+node.title=detail;
+}
+if(exportEstimatePending){
+exportEstimatePending=false;
+scheduleExportSizeEstimate();
+}
+},0);
+}
+
+function scheduleExportSizeEstimate(delay){
+if(exportEstimateTimer)clearTimeout(exportEstimateTimer);
+exportEstimateTimer=setTimeout(function(){
+exportEstimateTimer=null;
+renderExportSizeEstimate();
+},typeof delay==='number'?delay:350);
+}
+
+function syncExportSizeEstimate(){
+bindExportPagePlanEvents();
+var label=$('outputImageEstimate');
+if(!label)return;
+['outputImageFormat','outputImageQuality','outputDpi'].forEach(function(id){
+var element=$(id);
+if(!element||element.dataset.estimateBound)return;
+element.dataset.estimateBound='1';
+element.addEventListener('change',function(){scheduleExportSizeEstimate();});
+element.addEventListener('input',function(){scheduleExportSizeEstimate();});
+});
+if(!exportEstimateCanvasBound&&typeof canvas!=='undefined'&&canvas&&canvas.on){
+exportEstimateCanvasBound=true;
+['object:added','object:modified','object:removed'].forEach(function(eventName){
+canvas.on(eventName,function(){scheduleExportSizeEstimate();});
+});
+}
+scheduleExportSizeEstimate(600);
+}
 
 let canvasContinerScale=1;
 

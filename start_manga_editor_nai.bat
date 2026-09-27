@@ -15,7 +15,9 @@ if not exist "%launcher%" (
 set "powershell_exe=%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe"
 if not exist "%powershell_exe%" set "powershell_exe=powershell.exe"
 
-"%powershell_exe%" -NoLogo -NoProfile -STA -ExecutionPolicy Bypass -File "%launcher%"
+rem The server runs in the foreground of this console, so this blocks until it stops.
+rem Closing the window => CTRL_CLOSE_EVENT => the Job Object kills the child python.
+"%powershell_exe%" -NoLogo -NoProfile -STA -ExecutionPolicy Bypass -File "%launcher%" %*
 set "exit_code=%errorlevel%"
 
 endlocal & exit /b %exit_code%

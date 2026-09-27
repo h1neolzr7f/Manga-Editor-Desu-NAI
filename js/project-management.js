@@ -195,7 +195,10 @@ view_layers_checkbox:{id:'view_layers_checkbox',default:true,type:'checkbox'},
 view_controls_checkbox:{id:'view_controls_checkbox',default:false,type:'checkbox'},
 knifePanelSpaceSize:{id:'knifePanelSpaceSize',default:'20'},
 canvasBgColor:{id:'bg-color',default:'#ffffff'},
-canvasDpi:{id:'outputDpi',default:'450'},
+canvasDpi:{id:'outputDpi',default:'300'},
+outputImageFormat:{id:'outputImageFormat',default:'png'},
+outputBitDepth:{id:'outputBitDepth',default:'argb'},
+outputImageQuality:{id:'outputImageQuality',default:'0.92'},
 canvasGridLineSize:{id:'gridSizeInput',default:'10'},
 canvasMarginFromPanel:{id:'marginFromPanel',default:20},
 novelaiApiUrl:{id:'novelaiApiUrl',default:'https://image.novelai.net'},
@@ -390,6 +393,14 @@ localStorage.setItem('localSettingsData',JSON.stringify(parsed));
 }catch(error){/* ignore */}
 }
 
+// 画布メニューの出力画素プレビューは、保存した DPI を読んだ後に作り直す。
+// canvas-manager.js の DOMContentLoaded の方が先に走るため、
+// ここで追いつかせないと起動直後の表示が初期値のまま残る。
+function syncExportPlanAfterSettingsLoad(){
+if(typeof syncExportPagePlan==='function')syncExportPagePlan();
+if(typeof scheduleExportSizeEstimate==='function')scheduleExportSizeEstimate(0);
+}
+
 function loadSettingsLocalStrage(){
 var stored=localStorage.getItem('localSettingsData');
 var secrets=readSecretStore();
@@ -406,6 +417,7 @@ applyAssemblyPageSizeMigration();
 if(typeof syncJsColorFromInputs==='function'){
 syncJsColorFromInputs();
 }
+syncExportPlanAfterSettingsLoad();
 return;
 }
 var data=JSON.parse(stored);
@@ -517,6 +529,23 @@ if(typeof enforceNovelAIOnlyMode==='function'){
 enforceNovelAIOnlyMode();
 }
 updateWorkflowType();
+syncExportPlanAfterSettingsLoad();
+}
+
+// 保存値の検証。今は DPI だけ。空欄や負数をそのまま保存すると、
+// 次回起動時に読み込んだ値が既定 300 へ化けて「設定が勝手に戻る」ように見える。
+// 不正値の間は直前の保存値（それも不正ならスキーマ既定）を据え置く。
+function sanitizeSettingsValueForStorage(cfg,el,previous){
+var raw=(cfg.type==='checkbox')?el.checked:el.value;
+if(cfg.id!=='outputDpi')return raw;
+var hasNormalizer=typeof NaiMangaPageSize!=='undefined'&&typeof NaiMangaPageSize.normalizeExportDpi==='function';
+if(hasNormalizer){
+var normalized=NaiMangaPageSize.normalizeExportDpi(raw);
+if(normalized!==null)return String(normalized);
+var carried=NaiMangaPageSize.normalizeExportDpi(previous);
+if(carried!==null)return String(carried);
+}
+return cfg.default;
 }
 
 function saveSettingsLocalStrage(silent){
@@ -524,12 +553,14 @@ if(!silent)createToast('设置','已保存本机设置。',1500);
 apiMode=apis.NOVELAI;
 var data={externalAI:apiMode};
 var secrets=readSecretStore();
+var previous=null;
+try{ previous=JSON.parse(localStorage.getItem('localSettingsData')||'null'); }catch(error){ previous=null; }
 Object.keys(SETTINGS_SCHEMA).forEach(function(key){
 var cfg=SETTINGS_SCHEMA[key];
 var el=$(cfg.id);
 if(!el)return;
 if(cfg.secret){secrets[key]=(cfg.type==='checkbox')?el.checked:el.value;return;}
-data[key]=(cfg.type==='checkbox')?el.checked:el.value;
+data[key]=sanitizeSettingsValueForStorage(cfg,el,previous?previous[key]:undefined);
 });
 writeSecretStore(secrets);
 if(typeof getSelectedValueByGroup==='function'){

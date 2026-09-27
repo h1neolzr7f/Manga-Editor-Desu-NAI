@@ -419,6 +419,79 @@ color: var(--text-color-C);
  margin-right: var(--margin-right-2);
 }
 
+/* 画布背景：选项栏宽度に合わせたボタン。左に十六進値、右に色の白い正方形。 */
+.nai-bg-item input.jscolor-color-picker {
+position: absolute;
+width: 1px;
+height: 1px;
+padding: 0;
+border: 0;
+opacity: 0;
+pointer-events: none;
+}
+
+.nai-bg-button {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 8px;
+flex: 1 1 auto;
+min-width: 0;
+width: 100%;
+margin-left: 10px;
+padding: 2px 6px;
+border: 1px solid var(--nav-border, var(--color-accent-hover));
+border-radius: 4px;
+background: var(--btn-bg, rgba(255,255,255,0.07));
+color: var(--color-text-primary);
+cursor: pointer;
+font: inherit;
+}
+
+.nai-bg-button:hover {
+background: var(--btn-hover-bg, rgba(255,255,255,0.15));
+}
+
+.nai-bg-value {
+flex: 1 1 auto;
+min-width: 0;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+text-align: left;
+font-variant-numeric: tabular-nums;
+}
+
+.nai-bg-swatch {
+flex: 0 0 auto;
+width: 14px;
+height: 14px;
+border: 1px solid rgba(0,0,0,0.45);
+border-radius: 2px;
+background-color: #ffffff;
+}
+
+/* 位深度は表示文字が長いので、固定幅だと判切れる。自動幅にする。 */
+#outputBitDepth {
+width: auto;
+min-width: 96px;
+max-width: 160px;
+}
+
+/* 灰色の小さい注記。画布メニューの中で行の下に敷く。 */
+.nai-bg-note,
+.nai-px-note {
+margin: 0 10px 6px 10px;
+font-size: 10px;
+line-height: 1.4;
+color: var(--color-text-secondary);
+opacity: 0.75;
+}
+
+.nai-px-note {
+color: var(--color-accent-hover);
+}
+
 .dropdown-item-mini-text {
  width: var(--dropdown-item-mini-text-width);
 }

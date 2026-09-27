@@ -27,6 +27,12 @@
     "test:proxy-guards": "python scripts/proxy-guard-smoke-test.py",
     "test:layout": "node scripts/layout-smoke-test.cjs",
     "test:page-size": "node scripts/manga-page-size-smoke-test.cjs"
+    ,"test:fabric-text-focus": "node scripts/fabric-text-focus-smoke-test.cjs"
+    ,"test:image-export": "node scripts/image-export-smoke-test.cjs"
+    ,"test:png-bit-depth": "node scripts/png-bit-depth-smoke-test.cjs"
+    ,"test:image-export-integration": "node scripts/image-export-integration-test.cjs"
+    ,"index": "node scripts/gen-project-index.cjs"
+    ,"check:index": "node scripts/gen-project-index.cjs --check"
   },
   "devDependencies": {
     "eslint": "^8.57.0",

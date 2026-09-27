@@ -1,21 +1,29 @@
 @echo off
+rem ASCII-only on purpose: changing the console codepage in the middle of a batch
+rem file makes cmd.exe resume reading at shifted byte offsets and mangle non-ASCII
+rem lines. All Chinese UI text lives in start_manga_editor_nai.ps1 instead.
 chcp 65001 >nul
-title Manga Editor Desu · nai学长魔改版
+title Manga Editor Desu NAI
 cd /d "%~dp0"
+
+rem Forward optional launcher switches, e.g. -NoBrowser / -NoPrompt. A plain
+rem double-click passes none of them, which is the normal mode.
+call "%~dp0start_manga_editor_nai.bat" %*
+set "NAI_EXIT=%ERRORLEVEL%"
+
 echo.
-echo  ========================================
-echo   Manga Editor Desu  ·  nai学长魔改版
-echo   致敬原作 new-sankaku / manga-editor-desu
-echo  ========================================
-echo.
-echo  正在启动本机服务，请稍等...
-echo  浏览器应打开 http://127.0.0.1:8000
-echo  不要双击 index.html
-echo.
-call "%~dp0start_manga_editor_nai.bat"
-if errorlevel 1 (
+if not "%NAI_EXIT%"=="0" (
+  echo  ========================================
+  echo   Startup failed. See user_data\start.log
+  echo  ========================================
   echo.
-  echo  启动失败。请查看 user_data\start.log，或重新运行安装程序。
-  echo  也可打开「先看我.txt」
   pause
+  exit /b %NAI_EXIT%
 )
+
+echo  ========================================
+echo   Local service stopped. You can close this window.
+echo  ========================================
+echo.
+pause
+exit /b 0

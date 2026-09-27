@@ -1,5 +1,20 @@
 # プロジェクト構造
 
+## まず索引を引く
+
+ディレクトリを眺める前に、目的別の索引を使ってください。
+
+| 知りたいこと | 見るファイル |
+|-------------|-------------|
+| 機能から入口ファイル・主要関数・DOM id・テストを引く | `llm_doc/feature-map.md` |
+| 横断索引の入口（シンボル / DOM id / ファイル / 読み込み順 / テスト） | `llm_doc/project-index.md` |
+| 関数やグローバルがどこで定義されているか | `llm_doc/index/symbols.md` |
+| id を参照している JS を逆引き | `llm_doc/index/dom-ids.md` |
+| script/CSS の読み込み順と `?v=` の現在値 | `llm_doc/index/load-order.md` |
+| 本機サービスの構成・停止方法・オフラインで開ける理由 | `llm_doc/backend-and-offline.md` |
+
+索引は `npm run index` で再生成、`npm run check:index` で鮮度確認できます（`llm_doc/feature-map.md` は手作業）。
+
 ## ディレクトリ構成
 ```
 manga-editor-desu/
@@ -71,6 +86,7 @@ new fabric.Canvas("mangaImageCanvas",{
 4. **グローバル変数** - `canvas`, `stateStack`, `ModeManager`等
 
 ## script読み込み順（index.html）
+正確な現在値（ファイルごとの `?v=` と行番号）は `llm_doc/index/load-order.md` にあります。以下は概略です。
 1. サードパーティ（fabric.js, i18next, hotkeys等）
 2. core（logger, settings, error handler）
 3. fabric管理
@@ -82,3 +98,21 @@ new fabric.Canvas("mangaImageCanvas",{
 9. simulator/local-tools 扩展（依赖 Canvas、历史和 UI）
 10. auto-save, compression
 11. font, service worker
+
+## 起動スクリプト（一键启动）
+
+入口は 3 段。ユーザーが触るのは `一键启动.bat` だけ。
+
+| ファイル | 役割 |
+|---------|------|
+| `一键启动.bat` | 入口。**ASCII のみ**で書く（コードページ切替をまたぐと cmd.exe がバイト位置ずれを起こし、非 ASCII 行を壊して別コマンドとして実行してしまう） |
+| `start_manga_editor_nai.bat` | `powershell.exe -STA -File start_manga_editor_nai.ps1` を呼ぶ。他のスクリプトからも呼べる |
+| `start_manga_editor_nai.ps1` | 本体。中国語 UI 文言はすべてここ（UTF-8 BOM 付き）に置く |
+
+- サービスは**同じコンソールのフォアグラウンド**で動く。ウィンドウは閉じない。
+- 就緒後に `http://127.0.0.1:8000/index.html#` をブラウザで開く（`-NoBrowser` で抑止、`-NoPrompt` でダイアログ抑止）。
+- 子プロセスは **Windows Job Object**（`JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE`）+ `taskkill /T /F` で管理。ウィンドウを閉じると python も終了しポート 8000 が解放される。
+- 8000 が既に本機サービスなら**ブラウザだけ**開き、他人のプロセスは殺さない。別プログラムが占めている場合は友好なエラーを出して終了コード 1。
+- `NAI_QUIET=1` を付けて起動するのでアクセスログは出ない（未設定時は従来どおり）。失敗時は `user_data\start.log`。
+
+バックエンドのルート一覧、プロキシの詳細、Service Worker キャッシュの挙動、「サーバーを止めてもページが開く」理由は `llm_doc/backend-and-offline.md` を参照。

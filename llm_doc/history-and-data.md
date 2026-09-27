@@ -46,6 +46,22 @@ saveStateByManual();
 - 保存時`convertImageMapBlobUrls()`で`blob:`→`data:`に変換済み
 - オブジェクト（2D配列等）は`JSON.stringify()`で文字列化して保存
 
+## 画像の書き出し（ダウンロード）
+`js/core/util/image-util.js`が担当。UIは「画布」メニューの 下载 DPI / 导出格式 / 导出品质。
+
+| 関数 | 役割 |
+|------|------|
+| `resolveExportFormat(format)` | `jpg`→`jpeg`、未対応形式は`png`へフォールバック |
+| `normalizeExportQuality(quality)` | 0.5〜0.98にクランプ。1超はパーセント扱い（`92`→0.92） |
+| `resolveExportMultiplier(multiplier,w,h)` | 長辺`EXPORT_MAX_EDGE`(8192)・総画素`EXPORT_MAX_PIXELS`(40MP)を超えないよう倍率を縮小 |
+| `exportCanvasDataURL(multiplier,format,quality)` | 上記を通して`canvas.toDataURL`を呼ぶ唯一の入口 |
+
+- `getCropAndDownloadLink()`はUIの形式/品質を読み、`forcedFormat`を渡すとUIを無視する（クリップボード用）。
+- `canvas2DataURL()`も`exportCanvasDataURL`経由なので、パネル単体の切り出し（×3 PNG）も上限内に収まる。
+- PNGは常にロスレス（`quality`を渡さない）。JPEG/WebPのみ品質が効く。
+- 上限に当たった時のみ`notifyExportLimitReached()`がトースト表示する。
+- プロジェクトのプレビュー画像は`getCropAndDownloadLinkByMultiplier(1,'jpeg',0.8)`（JPEG品質0.8）。
+
 ## パラメータ保存
 
 ### ストレージ使い分け

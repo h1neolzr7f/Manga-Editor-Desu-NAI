@@ -22,6 +22,10 @@ except ImportError:
 
 mimetypes.add_type('application/javascript', '.js')
 
+# 启动器会设 NAI_QUIET=1，把每个请求的访问日志静音，让一键启动的控制台只留启动信息。
+# 不设该变量时保持原样，99_server.bat / 直接跑 ps1 的调试流程不受影响。
+QUIET_REQUESTS = (os.environ.get('NAI_QUIET') or '').strip().lower() in ('1', 'true', 'yes', 'on')
+
 TOOL_JOBS = {}
 DIRECTOR_DEFAULT_MODEL = 'deepseek-v4-flash'
 DIRECTOR_DYNAMIC_MODELS = set()
@@ -388,6 +392,11 @@ def _is_allowed_tagger_url(url):
 
 class CORSRequestHandler(SimpleHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
+    
+    def log_message(self, format, *args):
+        if QUIET_REQUESTS:
+            return
+        return super(CORSRequestHandler, self).log_message(format, *args)
     
     def end_headers(self):
         origin = cors_allow_origin(self.headers.get('Origin'))
