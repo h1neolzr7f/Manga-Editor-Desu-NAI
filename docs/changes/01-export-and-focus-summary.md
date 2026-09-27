@@ -59,5 +59,5 @@ node scripts/manga-page-size-smoke-test.cjs     # manga page size smoke test pas
 
 ## 已知注意点（详见 02 审查文档）
 
-- 默认 PNG 导出会经 `getExportBitDepthForFormat` 走位深度重写，**默认模式 `rgb` 会丢弃透明度**（`js/project-management.js:200` 与 `index.html:477` 的默认值）。
-- 导出上限常量在 `js/core/util/image-util.js:5-6` 与 `js/core/manga-page-size.js:123-124` 各存一份，需人工保持一致。
+- 上游整合时已把 PNG 默认位深度从 `rgb` 改为 `argb`，因此默认导出会保留透明度；用户仍可显式选择 24 位 RGB / 灰度来压平透明度。
+- 导出上限常量已统一由 `js/core/manga-page-size.js` 提供，`image-util.js` 仅引用该来源并保留单测回退值。
