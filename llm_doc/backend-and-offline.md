@@ -54,7 +54,7 @@ POST:
 | パス | 実装 | 用途 |
 |------|------|------|
 | `/nai-proxy/generate-image` | `_proxy_novelai`（458行） | 出図 |
-| `/director-proxy/chat-completions` | `_proxy_director`（495行） | 导演（tokendance ゲートウェイ） |
+| `/director-proxy/chat-completions` | `_proxy_director`（495行） | 导演（用户自行配置的 OpenAI 兼容网关；无默认第三方地址） |
 | `/tagger-proxy/interrogate` | `_proxy_tagger`（542行） | タガー |
 | `/nai-tools/start-material-previews` | `_start_tool_job`（322行）→ `run_job`（334行） | 素材プレビュー生成ジョブ |
 | `/nai-tools/start-comic-demo` | 同上 | 5ページ漫画サンプル生成ジョブ |

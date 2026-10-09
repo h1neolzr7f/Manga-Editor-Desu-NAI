@@ -36,7 +36,8 @@ print('proxy guard smoke test passed')
 import subprocess
 import sys
 for name in ('local-secret-guard-test.py', 'server-port-conflict-test.py',
-             'nai-error-readable-test.py', 'local-tools-origin-test.py'):
+             'nai-error-readable-test.py', 'local-tools-origin-test.py',
+             'no-third-party-director-test.py'):
     result = subprocess.run([sys.executable, str(root / 'scripts' / name)],
                             cwd=str(root), capture_output=True, text=True,
                             encoding='utf-8', errors='replace')

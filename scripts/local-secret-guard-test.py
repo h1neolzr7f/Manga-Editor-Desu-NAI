@@ -75,7 +75,7 @@ class SecretGuardTest(unittest.TestCase):
     def setUp(self):
         self.capture = Capture()
         self.env = mock.patch.dict(os.environ, {
-            "NOVELAI_API_KEY": NAI_SECRET, "TOKENDANCE_API_KEY": DIRECTOR_SECRET,
+            "NOVELAI_API_KEY": NAI_SECRET, "DIRECTOR_API_KEY": DIRECTOR_SECRET,
             "DIRECTOR_API_URL": DEFAULT_DIRECTOR, "GPT_IMAGE_API_KEY": "env-gpt-secret"})
         self.env.start()
         self.opener = mock.patch.object(srv, "_build_proxy_opener", self.capture.opener)

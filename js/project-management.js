@@ -223,7 +223,7 @@ naiBatchAutoGenerateAfterPrompts:{id:'naiBatchAutoGenerateAfterPrompts',default:
 naiDirectorStoreDrafts:{id:'naiDirectorStoreDrafts',default:true,type:'checkbox'},
 naiDirectorUseApi:{id:'naiDirectorUseApi',default:true,type:'checkbox'},
 naiDirectorUseProxy:{id:'naiDirectorUseProxy',default:true,type:'checkbox'},
-naiDirectorApiUrl:{id:'naiDirectorApiUrl',default:'https://tokendance.space/gateway/v1'},
+naiDirectorApiUrl:{id:'naiDirectorApiUrl',default:''},
 naiDirectorApiKey:{id:'naiDirectorApiKey',default:'',secret:true},
 naiDirectorModel:{id:'naiDirectorModel',default:'deepseek-v4-flash'},
 naiDirectorTimeout:{id:'naiDirectorTimeout',default:'30'},
@@ -451,6 +451,22 @@ if(localStorage.getItem('naiBatchDirectorDefaultMigratedV4')!=='1'&&$('naiBatchD
 $('naiBatchDirectorEnabled').checked=true;
 data.naiBatchDirectorEnabled=true;
 localStorage.setItem('naiBatchDirectorDefaultMigratedV4','1');
+}
+// The Director used to ship with a third-party gateway prefilled. There is no default
+// any more: a saved URL without a user-entered Director key is that old default, so
+// clear it (the Director stays off until the user configures their own gateway).
+if(localStorage.getItem('naiDirectorNoDefaultUrlV1')!=='1'){
+var dirUrlEl=$('naiDirectorApiUrl');
+if(!secrets.naiDirectorApiKey&&dirUrlEl&&dirUrlEl.value){
+dirUrlEl.value='';
+data.naiDirectorApiUrl='';
+try{
+var dirStore=JSON.parse(localStorage.getItem('localSettingsData')||'{}');
+dirStore.naiDirectorApiUrl='';
+localStorage.setItem('localSettingsData',JSON.stringify(dirStore));
+}catch(error){/* ignore */}
+}
+localStorage.setItem('naiDirectorNoDefaultUrlV1','1');
 }
 if(localStorage.getItem('naiDirectorModelMigratedV5')!=='1'){
 var modelEl=$('naiDirectorModel');

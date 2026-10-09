@@ -40,7 +40,7 @@ async function startServer() {
   }
   let logs = '';
   server = spawn(python, ['99_server.py'], {
-    cwd: ROOT, env: { ...process.env, NAI_QUIET: '1', GPT_IMAGE_API_KEY: '', NOVELAI_API_KEY: '', TOKENDANCE_API_KEY: '' },
+    cwd: ROOT, env: { ...process.env, NAI_QUIET: '1', GPT_IMAGE_API_KEY: '', NOVELAI_API_KEY: '', DIRECTOR_API_KEY: '' },
     stdio: ['ignore', 'pipe', 'pipe']
   });
   server.stdout.on('data', b => { logs += b; });

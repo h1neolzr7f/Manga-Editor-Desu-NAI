@@ -15,7 +15,10 @@ function resolve(extra) {
   return JSON.parse(line);
 }
 const fake = 'pst-' + 'x'.repeat(60);
-assert.deepEqual(resolve({ NOVELAI_API_KEY: fake }), { nai: true, director: false });
-assert.deepEqual(resolve({ NOVELAI_API_KEY: fake, DIRECTOR_API_KEY: fake }), { nai: true, director: false });
-assert.deepEqual(resolve({ NOVELAI_API_KEY: fake, DIRECTOR_API_KEY: 'sk-director-test-key' }), { nai: true, director: true });
+const gw = 'https://director.example.test/v1/chat/completions';
+// No third-party default gateway: without a configured URL the Director is never contacted.
+assert.deepEqual(resolve({ NOVELAI_API_KEY: fake }), { nai: true, director: false, directorUrl: '' });
+assert.deepEqual(resolve({ NOVELAI_API_KEY: fake, DIRECTOR_API_KEY: 'sk-director-test-key' }), { nai: true, director: false, directorUrl: '' });
+assert.deepEqual(resolve({ NOVELAI_API_KEY: fake, DIRECTOR_API_KEY: fake, DIRECTOR_API_URL: gw }), { nai: true, director: false, directorUrl: gw });
+assert.deepEqual(resolve({ NOVELAI_API_KEY: fake, DIRECTOR_API_KEY: 'sk-director-test-key', DIRECTOR_API_URL: gw }), { nai: true, director: true, directorUrl: gw });
 console.log('PASS NAI pipeline never sends the NovelAI token to the Director');

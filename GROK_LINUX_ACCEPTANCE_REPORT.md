@@ -55,10 +55,11 @@
 | `07c8640` | **P2→已修复 check-translations**：补齐 69 个 key 在各语言中缺失的 359 处翻译；新增 GPT 面板 78 个 `mgpt_*` key（8 种语言），zh 与代码内中文完全一致，所以中文界面不变。 | `npm run check-translations`（exit 0）、`scripts/gpt-panel-i18n-test.cjs` |
 | `efc155b` | **P2→已修复 GPT 面板 4 项**：<br>① **透明区域**：选区部分透明时，把原选区的 alpha 乘回补丁（可关闭）。<br>② **切到人物**：选区只框到图片/组合对象的 15%–98% 时提示，并提供“扩展到完整对象”按钮（页面级背景、选区内的小局部修改不提示）。<br>③ **极端强制比例**：所选尺寸与选区比例差太大时自动改用最接近的比例并说明（可关闭，关闭时保留旧提示）。<br>④ 面板所有文字走 i18next（`tr()`）。<br>同时更新脚本版本号和 service worker 缓存名，避免用户拿到旧缓存。 | smoke 测试新增断言；浏览器测试新增 3 项（共 35 项）；`gpt-panel-i18n-test.cjs` |
 | `c70d434` | **P1 NovelAI 状态检查失效（真实 NovelAI 发现）**：`api.novelai.net/user/subscription` 现在返回 400 “update to the image URL”，“检查 NAI”按钮和 safe-status 全部失败。改为先请求 `image.novelai.net`，只有在 400/404/410 时才回退旧域名；结果中增加 Anlas 余额。<br>**P1 免费额度**：步数原来允许 1–50，而 Opus 免费生图只到 28 步，超出会消耗 Anlas，与设置页“贴合会员免费生图规则”的安全策略矛盾。前端与本地代理都限制为 ≤ 28（代理可用 `NAI_MAX_STEPS` 调整），输入框上限改为 28。 | `nai-error-readable-test.py` 新增域名回退与步数限制测试；`novelai-readable-error-test.cjs` 新增前端步数限制断言 |
-| `b42a572` | **P1 令牌泄露（真实测试发现）**：`scripts/nai-pipeline-smoke-test.mjs` 在没有 Director key 时会把 **NovelAI token 当作 Director key** 发给第三方 Director（默认 `tokendance.space`）。现在绝不复用 NovelAI token（`pst-` 开头的也拒绝），没有 Director key 时跳过该步骤。 | `scripts/nai-pipeline-credentials-test.cjs`（修复前失败），已串入 `test:proxy-guards` |
+| `b42a572` | **P1 令牌泄露（真实测试发现）**：`scripts/nai-pipeline-smoke-test.mjs` 在没有 Director key 时会把 **NovelAI token 当作 Director key** 发给第三方 Director（当时代码里预填的第三方默认网关，该域名现已从项目中彻底删除）。现在绝不复用 NovelAI token（`pst-` 开头的也拒绝），没有 Director key 时跳过该步骤。 | `scripts/nai-pipeline-credentials-test.cjs`（修复前失败），已串入 `test:proxy-guards` |
 | `a4112e6` | 新增 opt-in 的 NovelAI 真实验收脚本 `scripts/nai-real-acceptance.cjs`：浏览器内逐个检查请求（≤1024×1024、≤28 步、1 张、只做文生图），并在前后读取 Anlas 余额，有任何消耗即失败。 | 真实运行 2 次，7/7 PASS |
 | `8353e8f` | 真实 GPT 验收脚本新增 case H（切到人物 → 扩展）、I（透明页面），以及第 4 轮真实调用证据 | 真实运行 3 次 |
 | `7e12699` | CI 修复：`local-tools-origin-test.py` 在没有 Pillow 的 runner 上注入桩模块（上一轮 CI 4 个 job 全部因 `No module named 'PIL'` 失败） | 本地有/无 Pillow 都 7/7；CI 全绿 |
+| （本提交） | **删除第三方 Director 默认网关**：项目里不再有任何第三方 Director 地址。涉及 `99_server.py`、`index.html`、设置默认值、`.env.example`、`start_manga_editor_nai.ps1`、`99_test_nai_pipeline.bat`、pipeline 脚本、文档和测试，旧的 `*_API_KEY` 变量名统一改成 `DIRECTOR_API_KEY`。<br>• 没配置 URL 时，导演代理返回 400，不发出任何请求。<br>• NovelAI 令牌（`pst-…` 或 `.env` 中的 NOVELAI_API_KEY）发往非 `novelai.net` 主机时，服务端（403）和前端（`js/ai/prompt/director-safety.js`）都会拒绝。<br>• 旧版本自动保存的默认 URL（没有用户填写的导演 key）会被一次性清空。 | `scripts/no-third-party-director-test.py`（10 项；仓库全文件含 zip 扫描），已串入 `test:proxy-guards` |
 | 报告提交 | 报告与脱敏证据：`docs/acceptance/grok-linux/` | — |
 
 克隆时 feat 分支已经包含以下修复。本轮逐项复测并补充了测试：
@@ -139,7 +140,7 @@
 - **P1**：无未修复项。Windows 实机属于 NOT TESTED，不是已知缺陷，但在发布 Windows 包前必须验证。
 - **本轮已修复**（上一版 P2 列表）：check-translations 与 GPT 面板 i18n（`07c8640`、`efc155b`）、NovelAI 401 可读错误（`500bd7a`）、Ctrl+Shift+Z（`d098b0d`）、8765 sidecar 的 Origin/Host（`05808cc`）、极端强制比例（`efc155b`，自动切换）、透明区域（`efc155b`）、切到人物（`efc155b`，警告 + 扩展）。
 - **本轮真实测试新发现并已修复**：NovelAI 订阅接口迁移（`c70d434`）、步数超出免费额度（`c70d434`）、NAI pipeline 脚本复用 NovelAI token 作 Director key（`b42a572`）。
-- **安全事件（需要用户处理）**：在修复 `b42a572` 之前运行 `test:nai-pipeline` 时，旧脚本把 NovelAI token 作为 Bearer 发给了 `https://tokendance.space/gateway/v1/chat/completions`（对方返回 401 “API 密钥不存在”）。token 没有写进仓库、日志或截图，但已经离开本机到达第三方服务，**建议在 NovelAI 账号设置里重新生成 Persistent API Token**。
+- **安全事件（需要用户处理）**：在修复 `b42a572` 之前运行 `test:nai-pipeline` 时，旧脚本把 NovelAI token 作为 Bearer 发给了当时预填的第三方 Director 默认网关（域名已从项目中删除；对方返回 401 “API 密钥不存在”）。token 没有写进仓库、日志或截图，但已经离开本机到达第三方服务，**建议在 NovelAI 账号设置里重新生成 Persistent API Token**。
 - **仍然存在 / 无法在本环境解决**
   1. 人物一致性依赖模型，不能保证 100%。切到人物时现在会提示并可扩展，但如果人物是整页底图里的像素（不是独立对象），无法自动识别，仍需手动框住整个人物。
   2. `keepAlpha` 默认开启：如果用户本来就想在透明区域里画新内容，并且选区里同时有不透明部分，需要取消勾选“保留原选区的透明区域”。全透明的选区不受影响。

@@ -281,7 +281,29 @@ def cors_allow_origin(origin):
 
 LOCAL_HOSTNAMES = ('127.0.0.1', 'localhost', '::1')
 NULL_ORIGIN_API_PREFIXES = ('/nai-proxy/', '/director-proxy/', '/tagger-proxy/')
-DEFAULT_DIRECTOR_API_URL = 'https://tokendance.space/gateway/v1/chat/completions'
+# No third-party default: the Director gateway is only used when the user configures
+# a URL (UI field or DIRECTOR_API_URL in .env).
+DEFAULT_DIRECTOR_API_URL = ''
+NOVELAI_OFFICIAL_HOSTS = ('novelai.net',)
+
+
+def is_novelai_official_url(url):
+    try:
+        host = (urllib.parse.urlsplit(url).hostname or '').lower()
+    except Exception:
+        return False
+    return any(host == h or host.endswith('.' + h) for h in NOVELAI_OFFICIAL_HOSTS)
+
+
+def looks_like_novelai_token(token, environ=None):
+    env = environ if environ is not None else os.environ
+    value = (token or '').strip()
+    if value.lower().startswith('bearer '):
+        value = value[7:].strip()
+    if not value:
+        return False
+    nai = (env.get('NOVELAI_API_KEY') or env.get('NAI_API_KEY') or '').strip()
+    return value.startswith('pst-') or (bool(nai) and value == nai)
 
 def is_trusted_local_request(client_address, headers):
     """Whether a request may use secrets loaded from .env / the environment.
@@ -357,20 +379,37 @@ def resolve_nai_token(authorization_header, environ=None, allow_env=True):
 
 def resolve_director_credentials(headers, trusted, environ=None):
     """Return (token, upstream_url, error). An env token is only ever sent to the
-    env-configured DIRECTOR_API_URL and only for trusted same-origin callers."""
+    env-configured DIRECTOR_API_URL and only for trusted same-origin callers.
+
+    There is no built-in gateway: without a user-configured URL nothing is sent
+    ('no_url'). A NovelAI token is never forwarded to a non-NovelAI host
+    ('novelai_token')."""
     env = environ if environ is not None else os.environ
     default_url = (env.get('DIRECTOR_API_URL') or DEFAULT_DIRECTOR_API_URL).strip()
     requested = (headers.get('X-Director-Api-Url') or '').strip()
     url = requested or default_url
+    if not url:
+        return '', '', 'no_url'
     header_token = (headers.get('Authorization') or '').strip()
     if header_token:
+        if looks_like_novelai_token(header_token, env) and not is_novelai_official_url(url):
+            return '', url, 'novelai_token'
         return header_token, url, None
-    env_token = (env.get('TOKENDANCE_API_KEY') or env.get('DIRECTOR_API_KEY') or '').strip()
+    env_token = (env.get('DIRECTOR_API_KEY') or '').strip()
     if not env_token or not trusted:
         return '', url, None
+    if looks_like_novelai_token(env_token, env) and not is_novelai_official_url(url):
+        return '', url, 'novelai_token'
     if url.rstrip('/') != default_url.rstrip('/'):
         return '', url, 'destination'
     return env_token, url, None
+
+
+DIRECTOR_CREDENTIAL_ERRORS = {
+    'no_url': (400, 'Director API URL is not configured. Enter an OpenAI-compatible gateway URL in the Director settings (or DIRECTOR_API_URL in .env). 未配置导演 API 地址。'),
+    'novelai_token': (403, 'Refusing to send a NovelAI token to a non-NovelAI Director gateway. Use the gateway\'s own key. 拒绝把 NovelAI 令牌发送到非 NovelAI 的导演网关。'),
+    'destination': (403, 'The .env director key is only sent to DIRECTOR_API_URL. Enter a key in the UI for other gateways.'),
+}
 
 def _env_int(name, fallback):
     try:
@@ -641,7 +680,8 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
     def _proxy_director(self, body=None):
         token, upstream_url, credential_error = resolve_director_credentials(self.headers, self._trusted_local())
         if credential_error:
-            self._send_json({'error': 'The .env director key is only sent to DIRECTOR_API_URL. Enter a key in the UI for other gateways.'}, 403)
+            status, message = DIRECTOR_CREDENTIAL_ERRORS.get(credential_error, DIRECTOR_CREDENTIAL_ERRORS['destination'])
+            self._send_json({'error': message, 'code': credential_error}, status)
             return
         if token and not token.lower().startswith('bearer '):
             token = 'Bearer ' + token
@@ -725,7 +765,8 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
     def _proxy_director_models(self):
         token, upstream_url, credential_error = resolve_director_credentials(self.headers, self._trusted_local())
         if credential_error:
-            self._send_json({'error': 'The .env director key is only sent to DIRECTOR_API_URL. Enter a key in the UI for other gateways.'}, 403)
+            status, message = DIRECTOR_CREDENTIAL_ERRORS.get(credential_error, DIRECTOR_CREDENTIAL_ERRORS['destination'])
+            self._send_json({'error': message, 'code': credential_error}, status)
             return
         if token and not token.lower().startswith('bearer '):
             token = 'Bearer ' + token

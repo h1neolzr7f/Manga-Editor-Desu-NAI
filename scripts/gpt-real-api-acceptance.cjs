@@ -76,7 +76,7 @@ async function startServer() {
   server = spawn(python, ['99_server.py'], {
     cwd: ROOT, stdio: ['ignore', 'ignore', 'pipe'],
     env: { ...process.env, NAI_QUIET: '1', GPT_IMAGE_API_KEY: readKey(), GPT_IMAGE_TRUSTED_BASE_URL: BASE_URL,
-      NOVELAI_API_KEY: '', TOKENDANCE_API_KEY: '' }
+      NOVELAI_API_KEY: '', DIRECTOR_API_KEY: '' }
   });
   let err = '';
   server.stderr.on('data', b => { err = (err + b).slice(-4000); });

@@ -2405,7 +2405,7 @@ const b = `<svg viewBox="0 0 100 100" width="100%" height="100%" style="position
 </tr>
 <tr>
 <td class="us-field-label">导演 API</td>
-<td><div class="nai-director-api-row"><input type="text" id="naiDirectorApiUrl" value="https://tokendance.space/gateway/v1" placeholder="https://tokendance.space/gateway/v1"><div class="nai-director-model-row"><input type="text" id="naiDirectorModel" value="deepseek-v4-flash" placeholder="deepseek-v4-flash"><button id="naiDirectorRefreshModels" class="us-btn-s" type="button">刷新</button></div></div><div class="nai-setting-help">OpenAI-compatible /chat/completions 接口；NovelAI 仍只负责最终生图。模型名必须小写。</div><div id="naiDirectorModelList" class="nai-director-model-list"></div></td>
+<td><div class="nai-director-api-row"><input type="text" id="naiDirectorApiUrl" value="" placeholder="自行填写 OpenAI 兼容网关，例如 https://your-gateway.example/v1"><div class="nai-director-model-row"><input type="text" id="naiDirectorModel" value="deepseek-v4-flash" placeholder="deepseek-v4-flash"><button id="naiDirectorRefreshModels" class="us-btn-s" type="button">刷新</button></div></div><div class="nai-setting-help">OpenAI-compatible /chat/completions 接口（无默认第三方地址，不填则不调用导演 API；请使用该网关自己的 key，NovelAI 令牌不会发往这里）；NovelAI 仍只负责最终生图。模型名必须小写。</div><div id="naiDirectorModelList" class="nai-director-model-list"></div></td>
 <td><label class="nai-inline-check"><input type="checkbox" id="naiDirectorUseProxy" checked> 本地代理</label></td>
 </tr>
 <tr>
@@ -2570,12 +2570,13 @@ const b = `<svg viewBox="0 0 100 100" width="100%" height="100%" style="position
     <script src="js/ai/director/scene-plan-schema.js?v=1.3" defer></script>
     <script src="js/ai/director/scene-plan-service.js?v=1.3" defer></script>
     <script src="js/ai/director/scene-plan-controller.js?v=1.4" defer></script>
-    <script src="js/ai/prompt/novelai-composition-director.js?v=8.10" defer></script>
+    <script src="js/ai/prompt/director-safety.js?v=1.0" defer></script>
+    <script src="js/ai/prompt/novelai-composition-director.js?v=8.11" defer></script>
     <script src="js/ai/provider/novelai-provider.js?v=8.12" defer></script>
     <script src="js/ai/queue/spinner.js?v=7.5" defer></script>
     <script src="js/ai/queue/task-queue.js?v=7.2" defer></script>
     <script src="js/ai/queue/generation-task-manager.js?v=8.7" defer></script>
-    <script src="js/ai/ai-settings.js?v=8.6" defer></script>
+    <script src="js/ai/ai-settings.js?v=8.7" defer></script>
     <script src="js/ai/ai-management.js?v=7.6" defer></script>
     <script src="js/ai/role/role-assignment-ui.js?v=7.6" defer></script>
     <script src="js/ai/ui/unified-settings-window.js?v=7.5" defer></script>
