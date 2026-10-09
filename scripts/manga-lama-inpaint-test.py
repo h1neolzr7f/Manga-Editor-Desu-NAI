@@ -33,9 +33,10 @@ class Tests(unittest.TestCase):
             with self.assertRaises(SmartOcrError):
                 lama.inpaint(URL, "data:image/png;base64,invalid")
 
+    @mock.patch.object(lama,"compose_masked",return_value=FakeImage())
     @mock.patch.object(lama,"decode_pair",return_value=(FakeImage(),FakeImage()))
     @mock.patch.object(lama,"get_model",return_value=lambda image,mask:FakeImage())
-    def test_returned_image_is_explicit_local_preview_only(self,model,decode):
+    def test_returned_image_is_explicit_local_preview_only(self,model,decode,compose):
         result=lama.inpaint(URL,URL)
         self.assertEqual(result["engine"],"simple-lama-local")
         self.assertEqual(result["width"],300)
