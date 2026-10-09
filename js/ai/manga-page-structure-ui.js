@@ -6,7 +6,7 @@
   const core = window.MangaPageStructure;
   if (!core) return;
   const state = {
-    graph:null, canvas:null, snapshot:'', pending:false,
+    graph:null, canvas:null, snapshot:'', previewPixels:null, pending:false,
     overlay:null, overlayVisible:true
   };
   const $ = id => document.getElementById(id);
@@ -51,7 +51,15 @@
     if(!state.graph) return;
     const linked=core.attachText(state.graph.panels,currentDrafts(),state.graph);
     state.graph.texts=linked.texts;
-    state.graph.bubbleCandidates=linked.bubbleCandidates;
+    const detector=window.MangaBubbleDetector;
+    const detected=detector && state.previewPixels &&
+      typeof detector.findCandidates==='function' ?
+      detector.findCandidates(state.previewPixels,state.graph.panels,linked.texts,state.graph) : [];
+    const linkedTextIds=new Set(detected.flatMap(b=>b.textIds||[]));
+    state.graph.bubbleCandidates=[
+      ...detected,
+      ...linked.bubbleCandidates.filter(b=>!linkedTextIds.has(b.textId))
+    ];
     const textEditor=window.MangaSmartTextEditor;
     if(textEditor && typeof textEditor.setPanelAssignments==='function') {
       textEditor.setPanelAssignments(linked.texts.map(t=>({
@@ -66,6 +74,7 @@
   function invalidate(reason) {
     state.graph=null;
     state.snapshot='';
+    state.previewPixels=null;
     state.canvas=null;
     clearOverlay();
     const list=$('mangaPageList');
@@ -205,8 +214,11 @@
     }
     const unknown=(state.graph.texts||[]).filter(x=>!x.panelId).length;
     const bubbleCount=(state.graph.bubbleCandidates||[]).length;
+    const enclosed=(state.graph.bubbleCandidates||[]).filter(
+      x=>x.source==='enclosed-light-region').length;
     say('识别到 '+state.graph.panels.length+' 个候选分镜、'+bubbleCount+
-      ' 个文字周边候选区域；有 '+unknown+' 条文字归属不明确。结果可手动修正。');
+      ' 个气泡候选（封闭浅色区域 '+enclosed+' 个、其余为文字框外扩）；有 '+
+      unknown+' 条文字归属不明确。都需要人工核对。');
   }
   async function analyze() {
     const c=getCanvas();
@@ -226,6 +238,7 @@
         maxPanels:12
       });
       state.graph={...next,texts:[],bubbleCandidates:[]};
+      state.previewPixels=pixels;
       state.canvas=c;
       state.snapshot=screenshot;
       updateAssociations();
