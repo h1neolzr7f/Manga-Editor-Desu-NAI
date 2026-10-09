@@ -5,6 +5,7 @@ This deliberately does not share the AI director's model normalization logic.
 """
 import base64
 import binascii
+import http.client
 import ipaddress
 import json
 import os
@@ -33,33 +34,101 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         raise ImageProxyError("上游重定向已被拒绝，请填写最终 HTTPS API 地址。", 502)
 
 
-def _valid_public_url(value, allow_query=False):
-    parsed = urllib.parse.urlsplit(str(value or "").strip())
-    if (parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password
-            or (parsed.query and not allow_query) or parsed.fragment or parsed.port not in (None, 443)):
-        raise ImageProxyError("API 地址必须是公开 HTTPS URL，不得包含凭据、查询参数或自定义端口。")
-    hostname = parsed.hostname.lower().rstrip(".")
-    if hostname == "localhost" or hostname.endswith((".localhost", ".local", ".internal")):
-        raise ImageProxyError("不允许向内网地址转发图像请求。")
+def _check_address(ip, is_literal):
+    ip = ipaddress.ip_address(str(ip).split("%", 1)[0])
+    # Clash TUN's fake-IP DNS returns 198.18.0.0/15 for otherwise public domains.
+    # Never accept direct IP literals or other private/reserved DNS results.
+    if not ip.is_global and not (not is_literal and ip in CLASH_FAKE_IP):
+        raise ImageProxyError("API 主机名解析到非公网 IP，已拒绝访问。")
+
+
+def _is_ip_literal(hostname):
     try:
-        addresses = socket.getaddrinfo(hostname, 443, type=socket.SOCK_STREAM)
+        ipaddress.ip_address(hostname)
+    except ValueError:
+        return False
+    return True
+
+
+def _resolve_checked(hostname, port=443):
+    """Resolve once and validate every address; callers connect to these exact IPs."""
+    try:
+        addresses = socket.getaddrinfo(hostname, port, type=socket.SOCK_STREAM)
     except OSError as exc:
         raise ImageProxyError("无法解析 API 主机名。", 502) from exc
     if not addresses:
         raise ImageProxyError("无法解析 API 主机名。", 502)
-    # Clash TUN's fake-IP DNS returns 198.18.0.0/15 for otherwise public domains.
-    # Never accept direct IP literals or other private/reserved DNS results.
-    try:
-        ipaddress.ip_address(hostname)
-    except ValueError:
-        is_literal = False
-    else:
-        is_literal = True
+    literal = _is_ip_literal(hostname)
     for address in addresses:
-        ip = ipaddress.ip_address(address[4][0])
-        if not ip.is_global and not (not is_literal and ip in CLASH_FAKE_IP):
-            raise ImageProxyError("API 主机名解析到非公网 IP，已拒绝访问。")
+        _check_address(address[4][0], literal)
+    return addresses
+
+
+def _https_proxy_for(hostname):
+    """Configured HTTPS proxy (env vars, or the Windows registry via urllib)."""
+    try:
+        proxies = urllib.request.getproxies()
+        if urllib.request.proxy_bypass(hostname):
+            return ""
+    except Exception:
+        return ""
+    return proxies.get("https") or ""
+
+
+def _valid_public_url(value, allow_query=False):
+    parsed = urllib.parse.urlsplit(str(value or "").strip())
+    try:
+        port = parsed.port
+    except ValueError as exc:
+        raise ImageProxyError("API 地址端口无效。") from exc
+    if (parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password
+            or (parsed.query and not allow_query) or parsed.fragment or port not in (None, 443)):
+        raise ImageProxyError("API 地址必须是公开 HTTPS URL，不得包含凭据、查询参数或自定义端口。")
+    hostname = parsed.hostname.lower().rstrip(".")
+    if hostname == "localhost" or hostname.endswith((".localhost", ".local", ".internal")):
+        raise ImageProxyError("不允许向内网地址转发图像请求。")
+    if _is_ip_literal(hostname.strip("[]")):
+        raise ImageProxyError("请填写 API 域名，不允许直接使用 IP 地址。")
+    if _https_proxy_for(hostname):
+        # The HTTP(S) proxy resolves the name; local DNS may be poisoned or empty there.
+        return parsed
+    _resolve_checked(hostname)
     return parsed
+
+
+class _PinnedHTTPSConnection(http.client.HTTPSConnection):
+    """Validates the resolved IP at connect time and connects to exactly that IP.
+
+    Closes the DNS-rebinding window between _valid_public_url() and the real
+    connection. TLS still verifies the certificate for the original hostname.
+    Through an HTTP proxy (CONNECT tunnel) the proxy performs resolution.
+    """
+
+    def connect(self):
+        if getattr(self, "_tunnel_host", None):
+            return super().connect()
+        last_error = None
+        sock = None
+        for family, socktype, proto, _, sockaddr in _resolve_checked(self.host, self.port):
+            try:
+                sock = socket.socket(family, socktype, proto)
+                if self.timeout is not socket._GLOBAL_DEFAULT_TIMEOUT:
+                    sock.settimeout(self.timeout)
+                sock.connect(sockaddr)
+                break
+            except OSError as exc:
+                last_error = exc
+                if sock is not None:
+                    sock.close()
+                sock = None
+        if sock is None:
+            raise last_error or OSError("connection failed")
+        self.sock = self._context.wrap_socket(sock, server_hostname=self.host)
+
+
+class _PinnedHTTPSHandler(urllib.request.HTTPSHandler):
+    def https_open(self, req):
+        return self.do_open(_PinnedHTTPSConnection, req, context=self._context)
 
 
 def _endpoint(base_url, operation):
@@ -124,7 +193,7 @@ def _multipart(fields, images):
 
 def _opener():
     # No redirects: upstream URLs and returned image links both must pass checks.
-    return urllib.request.build_opener(NoRedirect())
+    return urllib.request.build_opener(NoRedirect(), _PinnedHTTPSHandler())
 
 
 def _extract_image(raw, opener):
@@ -207,10 +276,12 @@ def request_image_edit(payload, key):
     except urllib.error.HTTPError as exc:
         raw = exc.read(2048).decode("utf-8", "replace")
         try:
-            error = json.loads(raw).get("error", {})
-            message = error.get("message", raw) if isinstance(error, dict) else str(error)
+            parsed_error = json.loads(raw)
         except ValueError:
-            message = raw
+            parsed_error = None
+        # Gateways return {"error":{...}}, {"error":"..."}, lists or plain text.
+        error = parsed_error.get("error", raw) if isinstance(parsed_error, dict) else raw
+        message = error.get("message", raw) if isinstance(error, dict) else str(error)
         message = str(message).replace(key, "[redacted]")[:300]
         raise ImageProxyError("上游 HTTP " + str(exc.code) + "：" + message, 502) from exc
     except urllib.error.URLError as exc:
