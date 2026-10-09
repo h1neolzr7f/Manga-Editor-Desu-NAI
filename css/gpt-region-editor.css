@@ -15,10 +15,11 @@
 .manga-gpt-panel[hidden] { display: none !important; }
 .manga-gpt-panel * { box-sizing: border-box; }
 .manga-gpt-panel label { display: block; margin: 8px 0; flex: 1; min-width: 0; }
-.manga-gpt-panel input:not([type=file]), .manga-gpt-panel select, .manga-gpt-panel textarea {
+.manga-gpt-panel input:not([type=file]):not([type=checkbox]), .manga-gpt-panel select, .manga-gpt-panel textarea {
   display: block; width: 100%; padding: 7px; margin-top: 3px;
   border: 1px solid #4a6074; border-radius: 6px; background: #0f1b26; color: #fff;
 }
+.manga-gpt-panel input[type=checkbox] { display: inline-block; width: auto; vertical-align: middle; }
 .manga-gpt-panel input[type=file] { display: block; width: 100%; margin-top: 4px; }
 .manga-gpt-panel button {
   cursor: pointer; color: #fff; background: #285c79;
