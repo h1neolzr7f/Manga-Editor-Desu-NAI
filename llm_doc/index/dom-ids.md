@@ -40,7 +40,7 @@
 | `ToneNoiseButton` | index.html:1884 |  |
 | `ToneRainButton` | index.html:1892 |  |
 | `ToneSnowButton` | index.html:1888 |  |
-| `a` | index.html:63 | index.html:72, js/ai/comfyui/v2/comfyui-workflow-editor-tab.js:615, js/ai/manga-character-bible-ui.js:149, js/ai/manga-page-structure-ui.js:327, js/ai/panel-pipeline-review.js:201, js/assets/asset-pack.js:8, js/core/compression/lz4.js:207, js/core/util/image-util.js:658, js/dashboard/dashboard-ui.js:967, js/local-tools/background-removal-client.js:494, js/project-management.js:42, js/sidebar/pen/pen-tools.js:637, js/simulator/chat-controller.js:295, js/simulator/longshot-exporter.js:29, js/simulator/simulator-controller.js:100, js/simulator/story-composer-controller.js:264, js/svg/manga-panels-image-vertical.js:2, js/ui/imagePromptHelper/image-prompt-helper.js:118, scripts/manga-bubble-detector-test.cjs:42, scripts/novelai-readable-error-test.cjs:35, scripts/simulator-timeline-smoke-test.cjs:7 |
+| `a` | index.html:63 | index.html:72, js/ai/comfyui/v2/comfyui-workflow-editor-tab.js:615, js/ai/manga-character-bible-ui.js:149, js/ai/manga-page-structure-ui.js:338, js/ai/panel-pipeline-review.js:201, js/assets/asset-pack.js:8, js/core/compression/lz4.js:207, js/core/util/image-util.js:658, js/dashboard/dashboard-ui.js:967, js/local-tools/background-removal-client.js:494, js/project-management.js:42, js/sidebar/pen/pen-tools.js:637, js/simulator/chat-controller.js:295, js/simulator/longshot-exporter.js:29, js/simulator/simulator-controller.js:100, js/simulator/story-composer-controller.js:264, js/svg/manga-panels-image-vertical.js:2, js/ui/imagePromptHelper/image-prompt-helper.js:118, scripts/manga-bubble-detector-test.cjs:42, scripts/novelai-readable-error-test.cjs:35, scripts/simulator-timeline-smoke-test.cjs:7 |
 | `add` | index.html:788 | js/ai/comfyui/v2/comfyui-default-object-info.js:2337, js/ai/manga-lama-inpaint-ui.js:9, js/core/svg/google-icon-names.js:11, js/layer/blend/blend.js:2, js/ui/third/base-translation/base-de.js:147, js/ui/third/base-translation/base-en.js:152, js/ui/third/base-translation/base-es.js:147, js/ui/third/base-translation/base-fr.js:147, js/ui/third/base-translation/base-ja.js:152, js/ui/third/base-translation/base-ko.js:147, js/ui/third/base-translation/base-ru.js:147, js/ui/third/base-translation/base-zh.js:152 |
 | `addHeart` | index.html:892 | js/ui/visual-studio.js:472 |
 | `addHexagon` | index.html:884 | js/ui/visual-studio.js:472 |
@@ -191,7 +191,7 @@
 | `dashboardWeeklyProgressText` | index.html:2958 | js/dashboard/dashboard-ui.js:919 |
 | `dashboardWordcloud` | index.html:2845 | js/dashboard/dashboard-ui.js:208, js/ui/third/i18next.js:4011 |
 | `desu-nav` | index.html:212 | index.html:132 |
-| `edit` | index.html:790 | js/ai/gpt-region-editor.js:457, js/core/svg/google-icon-helper.js:64, js/core/svg/google-icon-names.js:11, js/sidebar/panel/panel-manager.js:449, js/ui/canvas-object-menu.js:11, js/ui/util/mode-manager.js:346, scripts/full-feature-e2e.cjs:336, scripts/gpt-browser-acceptance.cjs:880, scripts/gpt-real-api-acceptance.cjs:209, scripts/gpt-region-editor-smoke-test.cjs:66 |
+| `edit` | index.html:790 | js/ai/gpt-region-editor.js:457, js/core/svg/google-icon-helper.js:78, js/core/svg/google-icon-names.js:11, js/sidebar/panel/panel-manager.js:449, js/ui/canvas-object-menu.js:11, js/ui/util/mode-manager.js:346, scripts/full-feature-e2e.cjs:346, scripts/gpt-browser-acceptance.cjs:880, scripts/gpt-real-api-acceptance.cjs:209, scripts/gpt-region-editor-smoke-test.cjs:66 |
 | `esApi-controls-mini` | index.html:2169 |  |
 | `esApiControlsPanel` | index.html:2166 |  |
 | `exportPxCappedNote` | index.html:424 | js/canvas-manager.js:346 |
@@ -264,7 +264,7 @@
 | `manga-effect-area` | index.html:1747 | js/sidebar/sidebar.js:91, js/ui/visual-studio.js:326 |
 | `manga-effect-buttons` | index.html:1750 |  |
 | `manga-effect-settings` | index.html:1795 | js/sidebar/effect/effect-manager.js:116, js/ui/glfx-ui.js:197 |
-| `manga-tone-area` | index.html:1876 | js/sidebar/sidebar.js:90, js/ui/visual-studio.js:324, scripts/full-feature-e2e.cjs:239 |
+| `manga-tone-area` | index.html:1876 | js/sidebar/sidebar.js:90, js/ui/visual-studio.js:324, scripts/full-feature-e2e.cjs:245 |
 | `manga-tone-buttons` | index.html:1879 |  |
 | `manga-tone-settings` | index.html:1906 | js/sidebar/tone/tone-manager.js:139 |
 | `mangaImageCanvas` | index.html:2125 | js/assets/asset-library-controller.js:195, js/core/settings.js:10 |
@@ -441,8 +441,8 @@
 | `panelVariedMangaPerPage` | index.html:959 | js/panel/random-cut.js:81 |
 | `pen-tool-buttons` | index.html:1830 |  |
 | `pinokio` | html/API_Help/comfyui_settings.html:54 |  |
-| `projectLoad` | index.html:234 | js/project-management.js:23, js/shortcut.js:190, js/ui/third/base-translation/base-de.js:468, js/ui/third/base-translation/base-en.js:396, js/ui/third/base-translation/base-es.js:389, js/ui/third/base-translation/base-fr.js:391, js/ui/third/base-translation/base-ja.js:473, js/ui/third/base-translation/base-ko.js:391, js/ui/third/base-translation/base-ru.js:390, js/ui/third/base-translation/base-zh.js:402, scripts/full-feature-e2e.cjs:212 |
-| `projectSave` | index.html:228 | js/project-management.js:22, js/shortcut.js:182, js/ui/third/base-translation/base-de.js:469, js/ui/third/base-translation/base-en.js:395, js/ui/third/base-translation/base-es.js:388, js/ui/third/base-translation/base-fr.js:390, js/ui/third/base-translation/base-ja.js:474, js/ui/third/base-translation/base-ko.js:390, js/ui/third/base-translation/base-ru.js:389, js/ui/third/base-translation/base-zh.js:401, scripts/full-feature-e2e.cjs:202 |
+| `projectLoad` | index.html:234 | js/project-management.js:23, js/shortcut.js:190, js/ui/third/base-translation/base-de.js:468, js/ui/third/base-translation/base-en.js:396, js/ui/third/base-translation/base-es.js:389, js/ui/third/base-translation/base-fr.js:391, js/ui/third/base-translation/base-ja.js:473, js/ui/third/base-translation/base-ko.js:391, js/ui/third/base-translation/base-ru.js:390, js/ui/third/base-translation/base-zh.js:402, scripts/full-feature-e2e.cjs:218 |
+| `projectSave` | index.html:228 | js/project-management.js:22, js/shortcut.js:182, js/ui/third/base-translation/base-de.js:469, js/ui/third/base-translation/base-en.js:395, js/ui/third/base-translation/base-es.js:388, js/ui/third/base-translation/base-fr.js:390, js/ui/third/base-translation/base-ja.js:474, js/ui/third/base-translation/base-ko.js:390, js/ui/third/base-translation/base-ru.js:389, js/ui/third/base-translation/base-zh.js:401, scripts/full-feature-e2e.cjs:208 |
 | `prompt-A` | index.html:2197 | js/ai/ui/ai-ui-util.js:42 |
 | `prompt-E` | index.html:2211 | js/ai/ui/ai-ui-util.js:43 |
 | `prompt-F` | index.html:2222 | js/ai/ui/ai-ui-util.js:44 |
@@ -489,7 +489,7 @@
 | `sfxPaletteList` | index.html:1666 | js/sidebar/text/sfx-palette.js:107, js/ui/visual-studio.js:93 |
 | `sfxPaletteStyle` | index.html:1669 | js/sidebar/text/sfx-palette.js:127 |
 | `shadowButton` | index.html:1683 |  |
-| `shape-area` | index.html:1979 | js/sidebar/sidebar.js:92, js/ui/visual-ps-tools.js:162, js/ui/visual-studio.js:330, scripts/full-feature-e2e.cjs:168 |
+| `shape-area` | index.html:1979 | js/sidebar/sidebar.js:92, js/ui/visual-ps-tools.js:162, js/ui/visual-studio.js:330, scripts/full-feature-e2e.cjs:174 |
 | `shape-preview-area` | index.html:1981 |  |
 | `shortcutGrid` | index.html:2267 | js/shortcut.js:319 |
 | `shortcutModal` | index.html:2259 | js/shortcut.js:360 |
@@ -575,7 +575,7 @@
 | `skewX-control` | index.html:1947 | js/ui/control/common-control-management.js:2 |
 | `skewY-control` | index.html:1950 | js/ui/control/common-control-management.js:2 |
 | `sp-manga-toastContainer` | index.html:2255 | js/ui/toast.js:13, scripts/nai-real-acceptance.cjs:112 |
-| `speech-bubble-area` | index.html:1443 | js/sidebar/sidebar.js:84, js/sidebar/speechBubble/speech-bubble-effect.js:303, js/ui/visual-studio.js:317, scripts/full-feature-e2e.cjs:142 |
+| `speech-bubble-area` | index.html:1443 | js/sidebar/sidebar.js:84, js/sidebar/speechBubble/speech-bubble-effect.js:303, js/ui/visual-studio.js:317, scripts/full-feature-e2e.cjs:148 |
 | `speech-bubble-area1` | index.html:1449 | js/sidebar/sidebar.js:47, js/sidebar/speechBubble/speech-bubble-effect.js:303 |
 | `speech-bubble-area2` | index.html:1494 | js/sidebar/sidebar.js:48 |
 | `speech-bubble-preview` | index.html:1488 | js/sidebar/panel/panel-manager.js:420, js/sidebar/speechBubble/speech-bubble-effect.js:137, js/ui/visual-studio.js:92 |
@@ -606,21 +606,21 @@
 | `svg-container-template` | index.html:703 | js/sidebar/panel/panel-manager.js:408, js/sidebar/sidebar.js:3, js/sidebar/speechBubble/speech-bubble-effect.js:293, js/ui/beginner-guide.js:187, js/ui/visual-studio.js:315 |
 | `svg-preview-area-landscape` | index.html:724 | js/sidebar/sidebar.js:105, js/sidebar/speechBubble/speech-bubble-effect.js:136, js/ui/visual-studio.js:91 |
 | `svg-preview-area-vertical` | index.html:723 | js/sidebar/sidebar.js:104, js/sidebar/speechBubble/speech-bubble-effect.js:135, js/ui/visual-studio.js:90 |
-| `svgDownload` | index.html:267 | js/project-management.js:697, scripts/full-feature-e2e.cjs:231 |
-| `svg_icon_fillColor` | index.html:2020 | js/core/svg/google-icon-helper.js:140, js/project-management.js:269 |
-| `svg_icon_fillOpacity` | index.html:2026 | js/core/svg/google-icon-helper.js:141, js/project-management.js:271 |
-| `svg_icon_iconStyle` | index.html:2003 | js/core/svg/google-icon-helper.js:41, js/project-management.js:267 |
-| `svg_icon_lineColor` | index.html:2016 | js/core/svg/google-icon-helper.js:139, js/project-management.js:268 |
-| `svg_icon_lineWidth` | index.html:2023 | js/core/svg/google-icon-helper.js:142, js/project-management.js:270 |
-| `svg_icon_results` | index.html:2049 | js/core/svg/google-icon-helper.js:39 |
-| `svg_icon_searchInput` | index.html:1996 | js/core/svg/google-icon-helper.js:70 |
-| `svg_icon_shadowBlur` | index.html:2037 | js/core/svg/google-icon-helper.js:170, js/project-management.js:273 |
-| `svg_icon_shadowColor` | index.html:2034 | js/core/svg/google-icon-helper.js:169, js/project-management.js:272 |
-| `svg_icon_shadowOffsetX` | index.html:2040 | js/core/svg/google-icon-helper.js:171, js/project-management.js:274 |
-| `svg_icon_shadowOffsetY` | index.html:2043 | js/core/svg/google-icon-helper.js:172, js/project-management.js:275 |
+| `svgDownload` | index.html:267 | js/project-management.js:697, scripts/full-feature-e2e.cjs:237 |
+| `svg_icon_fillColor` | index.html:2020 | js/core/svg/google-icon-helper.js:154, js/project-management.js:269 |
+| `svg_icon_fillOpacity` | index.html:2026 | js/core/svg/google-icon-helper.js:155, js/project-management.js:271 |
+| `svg_icon_iconStyle` | index.html:2003 | js/core/svg/google-icon-helper.js:55, js/project-management.js:267 |
+| `svg_icon_lineColor` | index.html:2016 | js/core/svg/google-icon-helper.js:153, js/project-management.js:268 |
+| `svg_icon_lineWidth` | index.html:2023 | js/core/svg/google-icon-helper.js:156, js/project-management.js:270 |
+| `svg_icon_results` | index.html:2049 | js/core/svg/google-icon-helper.js:53 |
+| `svg_icon_searchInput` | index.html:1996 | js/core/svg/google-icon-helper.js:84 |
+| `svg_icon_shadowBlur` | index.html:2037 | js/core/svg/google-icon-helper.js:184, js/project-management.js:273 |
+| `svg_icon_shadowColor` | index.html:2034 | js/core/svg/google-icon-helper.js:183, js/project-management.js:272 |
+| `svg_icon_shadowOffsetX` | index.html:2040 | js/core/svg/google-icon-helper.js:185, js/project-management.js:274 |
+| `svg_icon_shadowOffsetY` | index.html:2043 | js/core/svg/google-icon-helper.js:186, js/project-management.js:275 |
 | `table-header` | html/functionList.html:42 | html/functionList.html:293 |
 | `template-orientation-toggle` | index.html:707 | js/sidebar/sidebar.js:103, js/sidebar/speechBubble/speech-bubble-effect.js:294 |
-| `text-area` | index.html:1586 | js/sidebar/sidebar.js:86, js/ui/visual-studio.js:319, scripts/full-feature-e2e.cjs:149 |
+| `text-area` | index.html:1586 | js/sidebar/sidebar.js:86, js/ui/visual-studio.js:319, scripts/full-feature-e2e.cjs:155 |
 | `text-area2` | index.html:1660 | js/sidebar/sidebar.js:87, js/ui/visual-studio.js:322 |
 | `text-area2-settings` | index.html:1739 | js/sidebar/text/text-2-manager.js:126 |
 | `text-preview-area` | index.html:1588 | js/sidebar/text/text-effect.js:494 |
@@ -683,7 +683,7 @@
 | `blendSelectedInfo` | js/layer/blend/blend.js:215 |
 | `btm-dialog-cancel` | js/ui/bottom-bar.js:434 |
 | `btm-dialog-submit` | js/ui/bottom-bar.js:435 |
-| `canvas-area .area-header` | js/ai/gpt-region-editor.js:1053, js/ai/manga-character-bible-ui.js:181, js/ai/manga-page-structure-ui.js:335, js/ai/manga-smart-text-editor.js:436 |
+| `canvas-area .area-header` | js/ai/gpt-region-editor.js:1053, js/ai/manga-character-bible-ui.js:181, js/ai/manga-page-structure-ui.js:346, js/ai/manga-smart-text-editor.js:436 |
 | `checSD_WebUI_Announce` | js/ai/ai-management.js:128 |
 | `closeButton` | js/ai/comfyui/v2/comfyui-workflow-interact.js:146 |
 | `com-fill` | js/ui/canvas-object-menu.js:475 |
@@ -816,7 +816,7 @@
 | `languageFlag` | js/ui/third/i18next.js:5694 |
 | `line-style` | js/sidebar/pen/pen-tools.js:123 |
 | `manga-tone-buttons button, #manga-effect-buttons button, #pen-tool-buttons button, #image-text-tool-buttons button, .visual-shape-grid button, .visual-text-grid button` | js/ui/visual-studio.js:110 |
-| `mangaBubbleList` | js/ai/manga-page-structure-ui.js:166 |
+| `mangaBubbleList` | js/ai/manga-page-structure-ui.js:175 |
 | `mangaCharacterCards` | js/ai/manga-character-bible-ui.js:85 |
 | `mangaCharacterImport` | js/ai/manga-character-bible-ui.js:156 |
 | `mangaCharacterName` | js/ai/manga-character-bible-ui.js:126 |
@@ -826,33 +826,33 @@
 | `mangaCharacterSave` | js/ai/manga-character-bible-ui.js:121 |
 | `mangaCharacterStatus` | js/ai/manga-character-bible-ui.js:50 |
 | `mangaCharacterTraits` | js/ai/manga-character-bible-ui.js:129 |
-| `mangaGptApply` | scripts/full-feature-e2e.cjs:347, scripts/gpt-browser-acceptance.cjs:1110 |
-| `mangaGptGenerate` | scripts/full-feature-e2e.cjs:383, scripts/gpt-browser-acceptance.cjs:197, scripts/gpt-real-api-acceptance.cjs:246 |
+| `mangaGptApply` | scripts/full-feature-e2e.cjs:358, scripts/gpt-browser-acceptance.cjs:1110 |
+| `mangaGptGenerate` | scripts/full-feature-e2e.cjs:396, scripts/gpt-browser-acceptance.cjs:197, scripts/gpt-real-api-acceptance.cjs:246 |
 | `mangaGptMode` | scripts/gpt-browser-acceptance.cjs:876 |
 | `mangaGptOpen` | scripts/gpt-browser-acceptance.cjs:1136 |
-| `mangaGptPanel` | scripts/full-feature-e2e.cjs:335, scripts/gpt-browser-acceptance.cjs:608 |
-| `mangaGptPreview` | scripts/full-feature-e2e.cjs:345, scripts/gpt-browser-acceptance.cjs:877 |
-| `mangaGptPrompt` | scripts/full-feature-e2e.cjs:328, scripts/gpt-browser-acceptance.cjs:875 |
-| `mangaGptReferenceList` | scripts/full-feature-e2e.cjs:328, scripts/gpt-browser-acceptance.cjs:1087 |
+| `mangaGptPanel` | scripts/full-feature-e2e.cjs:345, scripts/gpt-browser-acceptance.cjs:608 |
+| `mangaGptPreview` | scripts/gpt-browser-acceptance.cjs:877 |
+| `mangaGptPrompt` | scripts/full-feature-e2e.cjs:338, scripts/gpt-browser-acceptance.cjs:875 |
+| `mangaGptReferenceList` | scripts/full-feature-e2e.cjs:338, scripts/gpt-browser-acceptance.cjs:1087 |
 | `mangaGptReplaceText` | scripts/gpt-browser-acceptance.cjs:410 |
-| `mangaGptStatus` | scripts/full-feature-e2e.cjs:347, scripts/gpt-browser-acceptance.cjs:204, scripts/gpt-real-api-acceptance.cjs:138 |
+| `mangaGptStatus` | scripts/full-feature-e2e.cjs:358, scripts/gpt-browser-acceptance.cjs:204, scripts/gpt-real-api-acceptance.cjs:138 |
 | `mangaGptSubtitle` | scripts/gpt-browser-acceptance.cjs:409 |
-| `mangaLamaConfirm` | js/ai/manga-lama-inpaint-ui.js:108, scripts/full-feature-e2e.cjs:298, scripts/gpt-browser-acceptance.cjs:741, scripts/manga-real-ui-acceptance.cjs:96 |
-| `mangaLamaGenerate` | js/ai/manga-lama-inpaint-ui.js:263, scripts/full-feature-e2e.cjs:294, scripts/gpt-browser-acceptance.cjs:819, scripts/manga-real-ui-acceptance.cjs:92 |
-| `mangaLamaMaskCanvas` | js/ai/manga-lama-inpaint-ui.js:61, scripts/full-feature-e2e.cjs:294, scripts/gpt-browser-acceptance.cjs:736, scripts/manga-real-ui-acceptance.cjs:91 |
+| `mangaLamaConfirm` | js/ai/manga-lama-inpaint-ui.js:108, scripts/full-feature-e2e.cjs:307, scripts/gpt-browser-acceptance.cjs:741, scripts/manga-real-ui-acceptance.cjs:96 |
+| `mangaLamaGenerate` | js/ai/manga-lama-inpaint-ui.js:263, scripts/full-feature-e2e.cjs:303, scripts/gpt-browser-acceptance.cjs:819, scripts/manga-real-ui-acceptance.cjs:92 |
+| `mangaLamaMaskCanvas` | js/ai/manga-lama-inpaint-ui.js:61, scripts/full-feature-e2e.cjs:303, scripts/gpt-browser-acceptance.cjs:736, scripts/manga-real-ui-acceptance.cjs:91 |
 | `mangaLamaPreviewImg` | js/ai/manga-lama-inpaint-ui.js:109, scripts/gpt-browser-acceptance.cjs:792 |
 | `mangaLamaPreviewPanel` | js/ai/manga-lama-inpaint-ui.js:163, scripts/gpt-browser-acceptance.cjs:740 |
-| `mangaLamaStatus` | js/ai/manga-lama-inpaint-ui.js:16, scripts/full-feature-e2e.cjs:299, scripts/gpt-browser-acceptance.cjs:750, scripts/manga-real-ui-acceptance.cjs:97 |
-| `mangaPageAnalyze` | js/ai/manga-page-structure-ui.js:276 |
-| `mangaPageClose` | js/ai/manga-page-structure-ui.js:360 |
-| `mangaPageDirection` | js/ai/manga-page-structure-ui.js:284 |
-| `mangaPageExport` | js/ai/manga-page-structure-ui.js:372 |
-| `mangaPageList` | js/ai/manga-edit-planner-ui.js:116, js/ai/manga-page-structure-ui.js:80 |
+| `mangaLamaStatus` | js/ai/manga-lama-inpaint-ui.js:16, scripts/full-feature-e2e.cjs:308, scripts/gpt-browser-acceptance.cjs:750, scripts/manga-real-ui-acceptance.cjs:97 |
+| `mangaPageAnalyze` | js/ai/manga-page-structure-ui.js:286 |
+| `mangaPageClose` | js/ai/manga-page-structure-ui.js:371 |
+| `mangaPageDirection` | js/ai/manga-page-structure-ui.js:294 |
+| `mangaPageExport` | js/ai/manga-page-structure-ui.js:383 |
+| `mangaPageList` | js/ai/manga-edit-planner-ui.js:116, js/ai/manga-page-structure-ui.js:89 |
 | `mangaPageOverlay .manga-page-bubble-outline` | scripts/gpt-browser-acceptance.cjs:930 |
 | `mangaPageOverlay .manga-page-outline` | scripts/gpt-browser-acceptance.cjs:903 |
-| `mangaPagePanel` | js/ai/manga-edit-planner-ui.js:69, js/ai/manga-page-structure-ui.js:232, scripts/gpt-browser-acceptance.cjs:1013 |
-| `mangaPageShowBubbles` | js/ai/manga-page-structure-ui.js:369 |
-| `mangaPageShowOverlay` | js/ai/manga-page-structure-ui.js:365 |
+| `mangaPagePanel` | js/ai/manga-edit-planner-ui.js:69, js/ai/manga-page-structure-ui.js:241, scripts/gpt-browser-acceptance.cjs:1013 |
+| `mangaPageShowBubbles` | js/ai/manga-page-structure-ui.js:380 |
+| `mangaPageShowOverlay` | js/ai/manga-page-structure-ui.js:376 |
 | `mangaPageStatus` | js/ai/manga-page-structure-ui.js:22 |
 | `mangaPlannerBox` | js/ai/manga-edit-planner-ui.js:89 |
 | `mangaPlannerConfirm` | js/ai/manga-edit-planner-ui.js:24 |
@@ -866,7 +866,7 @@
 | `mangaSmartLanguage` | js/ai/manga-smart-text-editor.js:218 |
 | `mangaSmartManual` | js/ai/manga-smart-text-editor.js:466 |
 | `mangaSmartRegions` | js/ai/manga-smart-text-editor.js:120 |
-| `mangaSmartStatus` | js/ai/manga-smart-text-editor.js:34, scripts/full-feature-e2e.cjs:277, scripts/manga-real-ui-acceptance.cjs:72 |
+| `mangaSmartStatus` | js/ai/manga-smart-text-editor.js:34, scripts/full-feature-e2e.cjs:284, scripts/manga-real-ui-acceptance.cjs:72 |
 | `mangaSmartTextPanel` | js/ai/manga-edit-planner-ui.js:66, js/ai/manga-smart-text-editor.js:149, scripts/gpt-browser-acceptance.cjs:1043 |
 | `modelSettingsOverlay` | js/ai/ui/model-settings-window.js:15 |
 | `msLocalContainer` | js/ai/comfyui/v2/comfyui-util-v2.js:2, js/ai/ui/model-settings-window.js:47 |
@@ -1054,7 +1054,7 @@
 - js/ui/util/tagify-util.js : `i`
 - js/ui/visual-ps-tools.js : `naiHistoryClose`, `naiHistoryList`, `naiHistoryPanel`, `naiPropFill`, `naiPropStroke`, `shape-area`, `sidebar .icon-wrapper[data-ps-tool]`
 - js/ui/visual-studio.js : `addHeart`, `addHexagon`, `addPentagon`, `addSquare`, `addStar`, `addTallRect`, `addTriangle`, `addWideRect`, `asset-library-area`, `brushPresetGrid`, `cutout-area`, `head-id .left_area`, `manga-effect-area`, `manga-tone-area`, `manga-tone-buttons button, #manga-effect-buttons button, #pen-tool-buttons button, #image-text-tool-buttons button, .visual-shape-grid button, .visual-text-grid button`, `naiBrushCursor`, `naiOptBrushSize`, `naiPropFill`, `naiPropOpacity`, `naiPropShadow`, `naiPropStrip`, `naiPropStroke`, `naiPropStrokeW`, `naiToolOptionsBar`, `naiToolOptionsControls`, `naiToolOptionsMain`, `panel-manager-area`, `ps-tools-area`, `sfxPaletteList`, `shape-area`, `sidebar .icon-wrapper[data-target]`, `speech-bubble-area`, `speech-bubble-preview`, `svg-container-template`, `svg-preview-area-landscape`, `svg-preview-area-vertical`, `text-area`, `text-area2`, `tool-area`, `tool-settings input[type="range"]`, `verticalText`
-- scripts/full-feature-e2e.cjs : `edit`, `manga-tone-area`, `mangaGptApply`, `mangaGptGenerate`, `mangaGptPanel`, `mangaGptPreview`, `mangaGptPrompt`, `mangaGptReferenceList`, `mangaGptStatus`, `mangaLamaConfirm`, `mangaLamaGenerate`, `mangaLamaMaskCanvas`, `mangaLamaStatus`, `mangaSmartStatus`, `projectLoad`, `projectSave`, `shape-area`, `speech-bubble-area`, `svgDownload`, `text-area`
+- scripts/full-feature-e2e.cjs : `edit`, `manga-tone-area`, `mangaGptApply`, `mangaGptGenerate`, `mangaGptPanel`, `mangaGptPrompt`, `mangaGptReferenceList`, `mangaGptStatus`, `mangaLamaConfirm`, `mangaLamaGenerate`, `mangaLamaMaskCanvas`, `mangaLamaStatus`, `mangaSmartStatus`, `projectLoad`, `projectSave`, `shape-area`, `speech-bubble-area`, `svgDownload`, `text-area`
 - scripts/gen-project-index.cjs : `id`
 - scripts/gpt-browser-acceptance.cjs : `edit`, `mangaGptApply`, `mangaGptGenerate`, `mangaGptMode`, `mangaGptOpen`, `mangaGptPanel`, `mangaGptPreview`, `mangaGptPrompt`, `mangaGptReferenceList`, `mangaGptReplaceText`, `mangaGptStatus`, `mangaGptSubtitle`, `mangaLamaConfirm`, `mangaLamaGenerate`, `mangaLamaMaskCanvas`, `mangaLamaPreviewImg`, `mangaLamaPreviewPanel`, `mangaLamaStatus`, `mangaPageOverlay .manga-page-bubble-outline`, `mangaPageOverlay .manga-page-outline`, `mangaPagePanel`, `mangaPlannerPreview`, `mangaSmartTextPanel`
 - scripts/gpt-real-api-acceptance.cjs : `edit`, `mangaGptGenerate`, `mangaGptStatus`

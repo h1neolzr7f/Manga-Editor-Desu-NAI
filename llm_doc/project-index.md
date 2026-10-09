@@ -28,7 +28,7 @@
 | .mjs | 2 |
 | .ps1 | 3 |
 | .py | 32 |
-| シンボル | 11278 |
+| シンボル | 11284 |
 | DOM id 定義 | 637 |
 | script 読み込み | 230 |
 | stylesheet 読み込み | 43 |
@@ -51,8 +51,8 @@
 | `MangaImporter` | js/ai/manga-importer.js:2518 |
 | `MangaLamaInpaintUI` | js/ai/manga-lama-inpaint-ui.js:343 |
 | `MangaModelRequest` | js/ai/manga-model-request.js:43 |
-| `MangaPageStructure` | js/ai/manga-page-structure.js:242 |
-| `MangaPageStructureUI` | js/ai/manga-page-structure-ui.js:379 |
+| `MangaPageStructure` | js/ai/manga-page-structure.js:273 |
+| `MangaPageStructureUI` | js/ai/manga-page-structure-ui.js:390 |
 | `MangaSmartTextCore` | js/ai/manga-smart-text-core.js:61 |
 | `MangaSmartTextEditor` | js/ai/manga-smart-text-editor.js:472 |
 | `MangaTextInkMask` | js/ai/manga-text-ink-mask.js:91 |

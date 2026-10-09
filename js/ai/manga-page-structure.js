@@ -90,6 +90,37 @@
       return a.y - b.y || (direction === 'ltr' ? a.x - b.x : b.x - a.x);
     });
   }
+  // Pages built in this editor already know their panels (templates, knife tool).
+  // Use those exact rectangles instead of guessing from pixels: art that crosses a
+  // gutter (an imported picture, a big bubble) would otherwise merge panels.
+  function fromEditorPanels(rects, options) {
+    options = options || {};
+    const width = Number(options.pageWidth) || 1;
+    const height = Number(options.pageHeight) || 1;
+    const direction = options.direction === 'ltr' ? 'ltr' : 'rtl';
+    const clean = (Array.isArray(rects) ? rects : []).map(r => {
+      const x0 = Math.max(0, Math.min(width, Number(r && r.x)));
+      const y0 = Math.max(0, Math.min(height, Number(r && r.y)));
+      const x1 = Math.max(0, Math.min(width, Number(r && r.x) + Number(r && r.width)));
+      const y1 = Math.max(0, Math.min(height, Number(r && r.y) + Number(r && r.height)));
+      return {x:x0, y:y0, width:x1 - x0, height:y1 - y0};
+    }).filter(r => [r.x,r.y,r.width,r.height].every(Number.isFinite) && r.width >= 16 && r.height >= 16);
+    // Shapes are image frames in this editor too; one sitting inside a panel (a star,
+    // an inset frame) is decoration of that panel, not a separate reading step.
+    const area = r => r.width * r.height;
+    const overlap = (a, b) => Math.max(0, Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x)) *
+      Math.max(0, Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y));
+    const topLevel = clean.filter((r, i) => !clean.some((o, j) => j !== i && area(o) > area(r) &&
+      overlap(r, o) >= area(r) * 0.9)).slice(0, 16);
+    if (!topLevel.length) return null;
+    const cleanTop = topLevel;
+    const panels = sortedPanels(cleanTop, direction).map((r,i)=>({
+      id:'panel-'+(i+1), order:i+1,
+      x:Math.round(r.x), y:Math.round(r.y), width:Math.round(r.width), height:Math.round(r.height),
+      source:'editor-panel', verified:false
+    }));
+    return {schemaVersion:pageSchemaVersion, direction, width, height, panels};
+  }
   function analyze(image, options) {
     options = options || {};
     const width = Number(options.pageWidth) || (image && image.width) || 1;
@@ -240,6 +271,6 @@
   }
 
   root.MangaPageStructure = Object.freeze({
-    pageSchemaVersion, analyze, attachText, splitPanel, removePanel, planPanelEdit
+    pageSchemaVersion, analyze, fromEditorPanels, attachText, splitPanel, removePanel, planPanelEdit
   });
 })(typeof window !== 'undefined' ? window : this);

@@ -4,7 +4,7 @@
 
 - 抽出対象: `root.X=` / `window.X=` / `globalThis.X=`、行頭の `function X` / `var X` / `let X` / `const X`
 - 抽出範囲: js / cjs / mjs と、html のインライン `<script>`（行番号は元ファイル基準）
-- 合計 11278 件 / ユニーク名 5978 件
+- 合計 11284 件 / ユニーク名 5983 件
 
 ## シンボル → 定義
 
@@ -36,6 +36,7 @@
 | `BUILTIN` | var | js/local-tools/cutout-presets.js:6 |
 | `BUILTIN` | var | js/sidebar/pen/brush-presets.js:6 |
 | `BUILTIN` | var | js/sidebar/text/sfx-palette.js:7 |
+| `BUNDLED_ICON_DIR` | var | js/core/svg/google-icon-helper.js:33 |
 | `BY_ID` | var | js/simulator/site-ui-parts.js:79 |
 | `C` | var | js/core/util/fabric-util.js:479 |
 | `CACHE_VERSION` | var | service-worker.js:2 |
@@ -127,7 +128,7 @@
 | `GUIDED_SPLIT_RATIO_CANDIDATES` | var | js/panel/layout-templates.js:27 |
 | `HtmlCanvasUtil` | var | js/core/util/html-canvas-util.js:3 |
 | `I2I` | function | js/ai/ai-management.js:38 |
-| `ICON_ZH` | var | js/core/svg/google-icon-helper.js:60 |
+| `ICON_ZH` | var | js/core/svg/google-icon-helper.js:74 |
 | `IMAGE_EXT` | var | scripts/vendor-free-public-assets.cjs:13 |
 | `IMPORTED_PREFIX` | var | js/assets/asset-store.js:5 |
 | `ImageUtil` | var | js/core/util/image-util.js:34 |
@@ -234,8 +235,8 @@
 | `MangaImporter` | global | js/ai/manga-importer.js:2518 |
 | `MangaLamaInpaintUI` | global | js/ai/manga-lama-inpaint-ui.js:343 |
 | `MangaModelRequest` | global | js/ai/manga-model-request.js:43 |
-| `MangaPageStructure` | global | js/ai/manga-page-structure.js:242 |
-| `MangaPageStructureUI` | global | js/ai/manga-page-structure-ui.js:379 |
+| `MangaPageStructure` | global | js/ai/manga-page-structure.js:273 |
+| `MangaPageStructureUI` | global | js/ai/manga-page-structure-ui.js:390 |
 | `MangaPanelsImage_Landscape` | var | js/svg/manga-panels-image-landscape.js:1 |
 | `MangaPanelsImage_Vertical` | var | js/svg/manga-panels-image-vertical.js:1 |
 | `MangaSmartTextCore` | global | js/ai/manga-smart-text-core.js:61 |
@@ -650,7 +651,7 @@
 | `addTallTrap` | function | js/sidebar/panel/panel-template.js:352 |
 | `addTemporary` | function | js/sidebar/speechBubble/speech-bubble-freehand.js:32 |
 | `addTextArea` | function | js/sidebar/sidebar-ui.js:233 |
-| `addToCanvas` | function | js/core/svg/google-icon-helper.js:164 |
+| `addToCanvas` | function | js/core/svg/google-icon-helper.js:178 |
 | `addToCanvas` | function | js/simulator/extra-renderers/renderer-kit.js:204 |
 | `addToneEventListener` | function | js/sidebar/tone/tone-manager.js:310 |
 | `addToneEventListener` | function | js/sidebar/tone/tone.js:211 |
@@ -688,7 +689,7 @@
 | `aiProgressState` | var | js/ai/queue/spinner.js:3 |
 | `aiTaskMap` | var | js/ai/queue/generation-task-manager.js:3 |
 | `aiTaskOrderCounter` | var | js/ai/queue/generation-task-manager.js:4 |
-| `alias` | var | js/core/svg/google-icon-helper.js:81 |
+| `alias` | var | js/core/svg/google-icon-helper.js:95 |
 | `alignActive` | function | js/ui/visual-studio.js:252 |
 | `alignText` | function | js/sidebar/text/text-effect.js:277 |
 | `all` | var | js/ai/manga-importer.js:308 |
@@ -1505,6 +1506,7 @@
 | `bulgeRadius` | var | js/ui/control/glfx-control.js:330 |
 | `bulgeStrength` | var | js/ui/control/glfx-control.js:333 |
 | `bundled` | var | scripts/asset-library-smoke-test.cjs:90 |
+| `bundledIconURL` | function | js/core/svg/google-icon-helper.js:34 |
 | `button` | var | js/ai/ai-settings.js:93 |
 | `button` | var | js/ai/comfyui/v2/comfyui-workflow-editor-tab.js:50 |
 | `button` | var | js/assets/asset-library-controller.js:214 |
@@ -2363,7 +2365,7 @@
 | `count` | var | js/ui/imagePromptHelper/image-prompt-helper.js:348 |
 | `count` | var | js/ui/imagePromptHelper/image-prompt-helper.js:356 |
 | `count` | var | js/ui/imagePromptHelper/image-prompt-helper.js:386 |
-| `count` | var | scripts/full-feature-e2e.cjs:47 |
+| `count` | var | scripts/full-feature-e2e.cjs:51 |
 | `count` | var | scripts/generate-original-starter-svgs.cjs:312 |
 | `count` | var | scripts/remove-spaces.cjs:61 |
 | `count` | var | scripts/remove-spaces.cjs:82 |
@@ -2998,7 +3000,7 @@
 | `displayList` | var | js/layer/layer-management.js:206 |
 | `displayMsg` | var | js/ai/provider/falai-provider.js:322 |
 | `displayRadius` | var | js/ai/inpainting/inpaint-mask.js:81 |
-| `displaySVG` | function | js/core/svg/google-icon-helper.js:121 |
+| `displaySVG` | function | js/core/svg/google-icon-helper.js:135 |
 | `displayValue` | var | js/ui/custom-html-component.js:69 |
 | `dist` | var | js/sidebar/panel/knife/knife-split-engine.js:420 |
 | `dist` | var | js/ui/visual-ps-tools.js:485 |
@@ -3628,11 +3630,12 @@
 | `features_en` | var | html/functionList.html:169 |
 | `fenced` | var | js/ai/prompt/novelai-composition-director.js:697 |
 | `fetchHeaders` | var | js/ai/comfyui/v2/comfyui-util-v2.js:378 |
-| `fetchIconSvg` | function | js/core/svg/google-icon-helper.js:30 |
+| `fetchIconSvg` | function | js/core/svg/google-icon-helper.js:44 |
 | `fetchOptions` | var | js/ai/comfyui/v2/comfyui-util-v2.js:161 |
 | `fetchOptions` | var | js/ai/comfyui/v2/comfyui-util-v2.js:287 |
 | `fetchOptions` | var | js/ai/prompt/novelai-composition-director.js:778 |
 | `fetchSdAdModels` | function | js/ai/sdwebui/sdwebui-multi-call-api.js:2 |
+| `fetchText` | function | js/core/svg/google-icon-helper.js:40 |
 | `fh` | var | js/panel/random-cut.js:85 |
 | `fieldControl` | function | js/simulator/simulator-studio.js:230 |
 | `fiftyPxColor` | var | js/panel/grid.js:12 |
@@ -3692,8 +3695,8 @@
 | `fillAllMask` | function | js/ai/inpainting/inpaint-editor.js:90 |
 | `fillArea` | var | js/sidebar/speechBubble/speech-bubble-effect.js:72 |
 | `fillChatStore` | function | js/simulator/simulator-studio.js:471 |
-| `fillColor` | var | js/core/svg/google-icon-helper.js:140 |
-| `fillColor` | var | js/core/svg/google-icon-helper.js:166 |
+| `fillColor` | var | js/core/svg/google-icon-helper.js:154 |
+| `fillColor` | var | js/core/svg/google-icon-helper.js:180 |
 | `fillColor` | var | js/sidebar/speechBubble/speech-bubble-effect.js:4 |
 | `fillColor` | var | js/sidebar/tone/tone.js:131 |
 | `fillColor` | var | js/ui/canvas-object-menu.js:219 |
@@ -3709,8 +3712,8 @@
 | `fillLayer` | var | js/layer/blend/blend.js:653 |
 | `fillLight` | var | js/ai/angle/camera-widget.js:52 |
 | `fillModels` | function | js/local-tools/background-removal-client.js:172 |
-| `fillOpacity` | var | js/core/svg/google-icon-helper.js:141 |
-| `fillOpacity` | var | js/core/svg/google-icon-helper.js:167 |
+| `fillOpacity` | var | js/core/svg/google-icon-helper.js:155 |
+| `fillOpacity` | var | js/core/svg/google-icon-helper.js:181 |
 | `fillOptions` | function | js/ui/visual-studio.js:284 |
 | `fillPartStore` | function | js/simulator/simulator-studio.js:487 |
 | `fillSelect` | function | js/simulator/simulator-studio.js:305 |
@@ -3785,6 +3788,7 @@
 | `finishLocal` | function | js/local-tools/background-removal-client.js:373 |
 | `finishLocal` | function | js/local-tools/background-removal-client.js:430 |
 | `finished` | var | js/assets/boot-guard.js:16 |
+| `first` | var | js/core/svg/google-icon-helper.js:46 |
 | `first` | var | js/core/util/png-bit-depth.js:92 |
 | `first` | var | js/panel/layout-templates.js:189 |
 | `first` | var | js/panel/layout-templates.js:271 |
@@ -4607,6 +4611,7 @@
 | `help` | var | js/ai/inpainting/inpaint-workflow.js:59 |
 | `help` | var | js/ui/beginner-guide.js:62 |
 | `helpTitle` | var | js/ai/ui/ai-ui-util.js:7 |
+| `helper` | var | scripts/offline-icon-fonts-test.cjs:21 |
 | `heuristic` | function | js/ai/director/scene-plan-controller.js:13 |
 | `hex` | var | js/canvas-manager.js:234 |
 | `hex` | var | js/core/util/image-util.js:456 |
@@ -4756,10 +4761,9 @@
 | `iconList` | var | js/core/svg/google-icon-names.js:10 |
 | `iconName` | var | js/ui/canvas-object-menu.js:129 |
 | `iconName` | var | js/ui/canvas-object-menu.js:142 |
-| `iconResults` | var | js/core/svg/google-icon-helper.js:151 |
-| `iconURL` | var | js/core/svg/google-icon-helper.js:31 |
-| `iconURL` | var | js/core/svg/google-icon-helper.js:44 |
-| `iconURL` | var | js/core/svg/google-icon-helper.js:86 |
+| `iconResults` | var | js/core/svg/google-icon-helper.js:165 |
+| `iconURL` | var | js/core/svg/google-icon-helper.js:58 |
+| `iconURL` | var | js/core/svg/google-icon-helper.js:100 |
 | `id` | var | js/ai/ai-settings.js:80 |
 | `id` | var | js/ai/comfyui/v2/comfyui-workflow-editor-tab.js:233 |
 | `id` | var | js/ai/comfyui/v2/comfyui-workflow-editor.js:125 |
@@ -5687,8 +5691,8 @@
 | `line` | var | scripts/gen-project-index.cjs:83 |
 | `line` | var | scripts/gen-project-index.cjs:236 |
 | `line` | function | scripts/generate-site-ui-svgs.cjs:32 |
-| `lineColor` | var | js/core/svg/google-icon-helper.js:139 |
-| `lineColor` | var | js/core/svg/google-icon-helper.js:165 |
+| `lineColor` | var | js/core/svg/google-icon-helper.js:153 |
+| `lineColor` | var | js/core/svg/google-icon-helper.js:179 |
 | `lineColor` | var | js/sidebar/tone/speedline.js:47 |
 | `lineColor` | var | scripts/manga-smart-text-test.cjs:29 |
 | `lineCounts` | var | js/ai/manga-importer.js:642 |
@@ -5717,8 +5721,8 @@
 | `lineThickness` | var | js/sidebar/text/vertical-textbox.js:517 |
 | `lineThickness` | var | js/sidebar/text/vertical-textbox.js:525 |
 | `lineTopOffset` | var | js/sidebar/text/vertical-textbox.js:414 |
-| `lineWidth` | var | js/core/svg/google-icon-helper.js:142 |
-| `lineWidth` | var | js/core/svg/google-icon-helper.js:168 |
+| `lineWidth` | var | js/core/svg/google-icon-helper.js:156 |
+| `lineWidth` | var | js/core/svg/google-icon-helper.js:182 |
 | `lineWidth` | var | js/sidebar/tone/rain-tone.js:53 |
 | `lineWidthSlider` | var | js/ui/canvas-object-menu.js:439 |
 | `lines` | var | js/ai/director/scene-plan-service.js:29 |
@@ -5854,6 +5858,7 @@
 | `loc` | var | js/sidebar/text/vertical-textbox.js:562 |
 | `loc` | var | js/ui/visual-ps-tools.js:319 |
 | `loc` | var | js/ui/visual-ps-tools.js:366 |
+| `local` | var | js/core/svg/google-icon-helper.js:45 |
 | `localColorKeyDataUrl` | function | js/local-tools/background-removal-client.js:339 |
 | `localEditor` | var | js/ai/comfyui/v2/comfyui-workflow-editor.js:304 |
 | `localEditor` | var | js/ai/ui/model-settings-window.js:3 |
@@ -6050,7 +6055,7 @@
 | `match` | var | js/simulator/simulator-studio.js:214 |
 | `match` | var | js/simulator/story-engine.js:232 |
 | `match` | var | scripts/check-translations.cjs:49 |
-| `matchedIcons` | var | js/core/svg/google-icon-helper.js:82 |
+| `matchedIcons` | var | js/core/svg/google-icon-helper.js:96 |
 | `matches` | var | js/dashboard/prompt-frequency-storage.js:168 |
 | `matchesTags` | var | js/assets/asset-store.js:218 |
 | `matchesText` | var | js/assets/asset-store.js:217 |
@@ -6412,7 +6417,7 @@
 | `name` | var | js/assets/asset-scanner.js:68 |
 | `name` | var | js/assets/image2-client.js:20 |
 | `name` | var | js/core/compression/lz4.js:154 |
-| `name` | var | js/core/svg/google-icon-helper.js:111 |
+| `name` | var | js/core/svg/google-icon-helper.js:125 |
 | `name` | var | js/dashboard/dashboard-ui.js:851 |
 | `name` | var | js/dashboard/dashboard-ui.js:953 |
 | `name` | var | js/local-tools/background-removal-client.js:131 |
@@ -6434,6 +6439,7 @@
 | `names` | var | scripts/gen-project-index.cjs:191 |
 | `names` | var | scripts/gen-project-index.cjs:216 |
 | `names` | var | scripts/gen-project-index.cjs:297 |
+| `names` | var | scripts/offline-icon-fonts-test.cjs:16 |
 | `narrator` | var | js/simulator/story-composer-controller.js:46 |
 | `natH` | var | js/local-tools/background-removal-client.js:226 |
 | `natH` | var | js/ui/visual-ps-tools.js:307 |
@@ -6513,7 +6519,7 @@
 | `newSettings` | var | js/ui/canvas-object-menu.js:513 |
 | `newSize` | var | js/sidebar/text/text-effect.js:505 |
 | `newState` | var | js/ai/queue/generation-task-manager.js:227 |
-| `newSvgContent` | var | js/core/svg/google-icon-helper.js:190 |
+| `newSvgContent` | var | js/core/svg/google-icon-helper.js:204 |
 | `newTab` | var | js/ai/comfyui/v2/comfyui-workflow-editor.js:257 |
 | `newText` | var | js/sidebar/text/vertical-textbox.js:228 |
 | `newTextbox` | var | js/sidebar/speechBubble/speech-bubble-freehand.js:631 |
@@ -6569,7 +6575,7 @@
 | `noBorder` | var | scripts/manga-bubble-detector-test.cjs:33 |
 | `noDataError` | var | js/local-tools/background-removal-client.js:422 |
 | `noInk` | var | scripts/manga-bubble-detector-test.cjs:36 |
-| `noResultsDiv` | var | js/core/svg/google-icon-helper.js:95 |
+| `noResultsDiv` | var | js/core/svg/google-icon-helper.js:109 |
 | `noShowPrompt` | function | js/ui/ai/auto-prompt-ui.js:167 |
 | `noShowPrompt` | global | js/ui/ai/auto-prompt-ui.js:178 |
 | `node` | var | js/ai/comfyui/v2/comfyui-util-v2.js:186 |
@@ -6744,7 +6750,7 @@
 | `ny` | var | js/ai/manga-importer.js:169 |
 | `ny` | var | js/core/util/fabric-util.js:415 |
 | `obj` | var | js/ai/manga-importer.js:1678 |
-| `obj` | var | js/core/svg/google-icon-helper.js:195 |
+| `obj` | var | js/core/svg/google-icon-helper.js:209 |
 | `obj` | var | js/fabric/fabric-management.js:33 |
 | `obj` | var | js/fabric/fabric-management.js:112 |
 | `obj` | var | js/fabric/fabric-management.js:313 |
@@ -7191,7 +7197,7 @@
 | `pageId` | var | js/ui/beginner-guide.js:95 |
 | `pageId` | var | js/ui/beginner-guide.js:237 |
 | `pageIds` | var | js/layer/layer-management.js:30 |
-| `pageImage` | var | scripts/full-feature-e2e.cjs:48 |
+| `pageImage` | var | scripts/full-feature-e2e.cjs:52 |
 | `pageLayerTitle` | function | js/layer/layer-management.js:19 |
 | `pageList` | var | js/ai/prompt/auto/auto-prompt-util.js:136 |
 | `pageList` | var | js/ai/prompt/auto/auto-prompt-util.js:214 |
@@ -7318,7 +7324,7 @@
 | `parsed` | var | js/ai/prompt/novelai-composition-director.js:805 |
 | `parsed` | var | js/ai/prompt/novelai-composition-director.js:885 |
 | `parsed` | var | js/ai/queue/generation-task-manager.js:240 |
-| `parsed` | var | js/core/svg/google-icon-helper.js:104 |
+| `parsed` | var | js/core/svg/google-icon-helper.js:118 |
 | `parsed` | var | js/core/util/image-util.js:449 |
 | `parsed` | var | js/core/util/png-bit-depth.js:532 |
 | `parsed` | var | js/local-tools/cutout-presets.js:21 |
@@ -7336,7 +7342,7 @@
 | `parsedGray` | var | scripts/image-export-integration-test.cjs:249 |
 | `parsedJson` | var | js/layer/image-history-management.js:159 |
 | `parsedRgb` | var | scripts/image-export-integration-test.cjs:231 |
-| `parser` | var | js/core/svg/google-icon-helper.js:177 |
+| `parser` | var | js/core/svg/google-icon-helper.js:191 |
 | `parser` | var | js/sidebar/speechBubble/speech-bubble-text.js:8 |
 | `part` | var | js/simulator/extra-renderer-factory.js:96 |
 | `part` | var | js/simulator/site-ui-parts.js:307 |
@@ -7894,7 +7900,7 @@
 | `queries` | var | js/ai/provider/falai-provider.js:56 |
 | `query` | var | js/ai/provider/novelai-provider.js:38 |
 | `query` | var | js/assets/asset-library-controller.js:86 |
-| `query` | var | js/core/svg/google-icon-helper.js:71 |
+| `query` | var | js/core/svg/google-icon-helper.js:85 |
 | `queryLower` | var | js/dashboard/prompt-frequency-storage.js:167 |
 | `queue` | var | js/ai/queue/spinner.js:62 |
 | `queue` | var | js/core/debug.js:213 |
@@ -7965,7 +7971,7 @@
 | `ratios` | var | js/panel/layout-templates.js:119 |
 | `raw` | var | js/assets/asset-store.js:68 |
 | `raw` | var | js/canvas-manager.js:274 |
-| `raw` | var | js/core/svg/google-icon-helper.js:70 |
+| `raw` | var | js/core/svg/google-icon-helper.js:84 |
 | `raw` | var | js/core/util/png-bit-depth.js:465 |
 | `raw` | var | js/local-tools/cutout-presets.js:20 |
 | `raw` | var | js/project-management.js:353 |
@@ -8230,7 +8236,7 @@
 | `removeTemporary` | function | js/sidebar/speechBubble/speech-bubble-freehand.js:37 |
 | `removeTimeout` | var | js/sidebar/pen/pen-tools.js:799 |
 | `removeTooltips` | function | js/ui/third/tippy.js:4 |
-| `removeUnnecessaryElements` | function | js/core/svg/google-icon-helper.js:157 |
+| `removeUnnecessaryElements` | function | js/core/svg/google-icon-helper.js:171 |
 | `removeUserPreset` | function | js/local-tools/cutout-presets.js:75 |
 | `removeUserPreset` | function | js/sidebar/pen/brush-presets.js:107 |
 | `removed` | var | js/panel/layout-templates.js:105 |
@@ -8503,9 +8509,9 @@
 | `results` | var | scripts/manga-real-ui-acceptance.cjs:19 |
 | `results` | var | scripts/nai-pipeline-smoke-test.mjs:265 |
 | `results` | var | scripts/nai-real-acceptance.cjs:51 |
-| `resultsDiv` | var | js/core/svg/google-icon-helper.js:39 |
-| `resultsDiv` | var | js/core/svg/google-icon-helper.js:72 |
-| `resultsDiv` | var | js/core/svg/google-icon-helper.js:123 |
+| `resultsDiv` | var | js/core/svg/google-icon-helper.js:53 |
+| `resultsDiv` | var | js/core/svg/google-icon-helper.js:86 |
+| `resultsDiv` | var | js/core/svg/google-icon-helper.js:137 |
 | `retag` | var | js/ai/manga-importer.js:2477 |
 | `retry` | var | js/panel/random-cut.js:23 |
 | `retryDelay` | var | js/ai/comfyui/v2/comfyui-util-v2.js:240 |
@@ -8690,8 +8696,8 @@
 | `sandbox2` | var | scripts/gpt-region-editor-smoke-test.cjs:114 |
 | `sanitizePromptParts` | function | js/ai/prompt/novelai-composition-director.js:157 |
 | `sanitizeSettingsValueForStorage` | function | js/project-management.js:554 |
-| `sanitizeSvgMarkup` | function | js/core/svg/google-icon-helper.js:102 |
-| `sanitized` | var | js/core/svg/google-icon-helper.js:125 |
+| `sanitizeSvgMarkup` | function | js/core/svg/google-icon-helper.js:116 |
+| `sanitized` | var | js/core/svg/google-icon-helper.js:139 |
 | `saturation` | var | js/ui/control/glfx-control.js:178 |
 | `save` | var | js/local-tools/background-removal-client.js:486 |
 | `saveButton` | var | js/project-management.js:22 |
@@ -8923,8 +8929,8 @@
 | `sdwebuiOriginalParents` | var | js/ai/ui/model-settings-window.js:12 |
 | `sdwebuiT2IProcessQueue` | var | js/ai/sdwebui/sdwebui-single-call-api.js:37 |
 | `search` | var | js/assets/asset-library-controller.js:236 |
-| `searchIcon` | function | js/core/svg/google-icon-helper.js:69 |
-| `searchInitialIcons` | function | js/core/svg/google-icon-helper.js:38 |
+| `searchIcon` | function | js/core/svg/google-icon-helper.js:83 |
+| `searchInitialIcons` | function | js/core/svg/google-icon-helper.js:52 |
 | `searchTagify` | function | js/ui/util/tagify-util.js:17 |
 | `searchvalue` | var | js/ui/util/tagify-util.js:80 |
 | `second` | var | js/core/util/png-bit-depth.js:95 |
@@ -9093,7 +9099,7 @@
 | `serialize` | function | js/simulator/chat-scene.js:108 |
 | `serialize` | function | js/simulator/scene-serializer.js:24 |
 | `serialized` | var | js/simulator/extra-renderers/renderer-kit.js:193 |
-| `serializer` | var | js/core/svg/google-icon-helper.js:189 |
+| `serializer` | var | js/core/svg/google-icon-helper.js:203 |
 | `serverAddress` | var | js/ai/comfyui/comfyui-management.js:51 |
 | `serverAddress` | var | js/ai/comfyui/comfyui-management.js:201 |
 | `serverAddress` | var | js/ai/comfyui/util/comfyui-util.js:53 |
@@ -9177,10 +9183,10 @@
 | `setupTimeline` | function | js/simulator/playback-controller.js:93 |
 | `sfx` | var | scripts/page-studio-smoke-test.cjs:86 |
 | `sh` | var | js/local-tools/background-removal-client.js:243 |
-| `shadowBlur` | var | js/core/svg/google-icon-helper.js:170 |
-| `shadowColor` | var | js/core/svg/google-icon-helper.js:169 |
-| `shadowOffsetX` | var | js/core/svg/google-icon-helper.js:171 |
-| `shadowOffsetY` | var | js/core/svg/google-icon-helper.js:172 |
+| `shadowBlur` | var | js/core/svg/google-icon-helper.js:184 |
+| `shadowColor` | var | js/core/svg/google-icon-helper.js:183 |
+| `shadowOffsetX` | var | js/core/svg/google-icon-helper.js:185 |
+| `shadowOffsetY` | var | js/core/svg/google-icon-helper.js:186 |
 | `shadowUse` | var | js/sidebar/text/custom/optimized-aurora-text.js:54 |
 | `shape` | var | js/sidebar/panel/panel-template.js:300 |
 | `shape` | var | js/ui/visual-ps-tools.js:208 |
@@ -9687,9 +9693,9 @@
 | `studio` | var | scripts/page-studio-smoke-test.cjs:70 |
 | `studioIcon` | var | js/simulator/simulator-studio.js:821 |
 | `studioIcon` | var | js/simulator/simulator-studio.js:1000 |
-| `style` | var | js/core/svg/google-icon-helper.js:41 |
-| `style` | var | js/core/svg/google-icon-helper.js:74 |
-| `style` | var | js/core/svg/google-icon-helper.js:174 |
+| `style` | var | js/core/svg/google-icon-helper.js:55 |
+| `style` | var | js/core/svg/google-icon-helper.js:88 |
+| `style` | var | js/core/svg/google-icon-helper.js:188 |
 | `style` | var | js/layer/floating-window-management.js:64 |
 | `style` | var | js/layer/floating-window-management.js:73 |
 | `style` | var | js/project-management.js:165 |
@@ -9751,8 +9757,8 @@
 | `summary` | var | js/dashboard/performance-storage.js:537 |
 | `summary` | var | js/simulator/story-composer-controller.js:74 |
 | `supportedFormats` | var | js/core/util/image-util.js:94 |
-| `svg` | var | js/core/svg/google-icon-helper.js:106 |
-| `svg` | var | js/core/svg/google-icon-helper.js:132 |
+| `svg` | var | js/core/svg/google-icon-helper.js:120 |
+| `svg` | var | js/core/svg/google-icon-helper.js:146 |
 | `svg` | var | js/project-management.js:698 |
 | `svg` | var | js/sidebar/speechBubble/speech-bubble-text.js:10 |
 | `svg` | function | scripts/generate-original-starter-svgs.cjs:7 |
@@ -9761,10 +9767,10 @@
 | `svgData` | var | js/sidebar/speechBubble/speech-bubble-effect.js:97 |
 | `svgData` | var | js/sidebar/speechBubble/speech-bubble-freehand.js:584 |
 | `svgDataLoaded` | var | js/sidebar/speechBubble/speech-bubble-effect.js:138 |
-| `svgDoc` | var | js/core/svg/google-icon-helper.js:178 |
+| `svgDoc` | var | js/core/svg/google-icon-helper.js:192 |
 | `svgDownload` | function | js/project-management.js:704 |
-| `svgElement` | var | js/core/svg/google-icon-helper.js:124 |
-| `svgElement` | var | js/core/svg/google-icon-helper.js:179 |
+| `svgElement` | var | js/core/svg/google-icon-helper.js:138 |
+| `svgElement` | var | js/core/svg/google-icon-helper.js:193 |
 | `svgGroup` | var | js/sidebar/tone/focusline.js:220 |
 | `svgHttp` | var | js/sidebar/text/custom/custom-text-util.js:1 |
 | `svgObj` | var | js/sidebar/speechBubble/speech-bubble-text.js:353 |
@@ -10643,8 +10649,8 @@
 | `unitX` | var | js/sidebar/panel/knife/knife-split-engine.js:442 |
 | `unitY` | var | js/sidebar/panel/knife/knife-split-engine.js:443 |
 | `unlocked` | var | js/dashboard/dashboard-ui.js:946 |
-| `unnecessaryPaths` | var | js/core/svg/google-icon-helper.js:158 |
-| `unnecessaryRects` | var | js/core/svg/google-icon-helper.js:160 |
+| `unnecessaryPaths` | var | js/core/svg/google-icon-helper.js:172 |
+| `unnecessaryRects` | var | js/core/svg/google-icon-helper.js:174 |
 | `unsafe` | var | scripts/manga-text-ink-mask-test.cjs:45 |
 | `up` | var | js/core/util/png-bit-depth.js:190 |
 | `up` | var | js/core/util/png-bit-depth.js:467 |
@@ -10713,8 +10719,8 @@
 | `updatePreview` | function | js/sidebar/pen/pen-tools.js:788 |
 | `updatePropStrip` | function | js/ui/visual-studio.js:220 |
 | `updateRainTone` | function | js/sidebar/tone/rain-tone.js:78 |
-| `updateSVGElementStyles` | function | js/core/svg/google-icon-helper.js:138 |
-| `updateSVGStyles` | function | js/core/svg/google-icon-helper.js:150 |
+| `updateSVGElementStyles` | function | js/core/svg/google-icon-helper.js:152 |
+| `updateSVGStyles` | function | js/core/svg/google-icon-helper.js:164 |
 | `updateSamplerDropdown` | function | js/ai/ai-management.js:139 |
 | `updateSdWebuiVisibility` | function | js/ai/ui/model-settings-window.js:168 |
 | `updateShape` | function | js/sidebar/speechBubble/speech-bubble-freehand.js:383 |
@@ -10846,7 +10852,7 @@
 | `value` | var | js/core/manga-page-size.js:94 |
 | `value` | var | js/core/manga-page-size.js:163 |
 | `value` | var | js/core/manga-page-size.js:223 |
-| `value` | var | js/core/svg/google-icon-helper.js:112 |
+| `value` | var | js/core/svg/google-icon-helper.js:126 |
 | `value` | var | js/core/util/image-util.js:414 |
 | `value` | var | js/core/util/image-util.js:430 |
 | `value` | var | js/core/util/image-util.js:440 |

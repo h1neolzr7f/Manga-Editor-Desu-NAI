@@ -111,8 +111,8 @@
 | js/ai/manga-importer.js | 2524 |  |
 | js/ai/manga-lama-inpaint-ui.js | 344 | Optional local masked inpainting: preview first, commit as editable Fabric image layer. |
 | js/ai/manga-model-request.js | 44 | Shared POST helper for the optional local models (Tesseract, Manga OCR, LaMa). |
-| js/ai/manga-page-structure-ui.js | 380 | Manga page structure inspector: Fabric snapshot -> sampled pixels -> reviewable panels. |
-| js/ai/manga-page-structure.js | 245 | Manga page structure v1: deterministic, low-cost XY-cut candidates. |
+| js/ai/manga-page-structure-ui.js | 391 | Manga page structure inspector: Fabric snapshot -> sampled pixels -> reviewable panels. |
+| js/ai/manga-page-structure.js | 276 | Manga page structure v1: deterministic, low-cost XY-cut candidates. |
 | js/ai/manga-smart-text-core.js | 64 | Shared, dependency-free geometry and light-bubble erase rules. |
 | js/ai/manga-smart-text-editor.js | 481 | Smart manga lettering workflow. |
 | js/ai/manga-text-ink-mask.js | 92 | Conservative dark-ink proposal for a user-selected TEXT rectangle. |
@@ -170,7 +170,7 @@
 | js/core/manga-page-size.js | 256 |  |
 | js/core/service/worker-register.js | 115 |  |
 | js/core/settings.js | 170 | FabricCanvas2HtmlCanvas Scale |
-| js/core/svg/google-icon-helper.js | 215 |  |
+| js/core/svg/google-icon-helper.js | 229 |  |
 | js/core/svg/google-icon-names.js | 12 |  |
 | js/core/util/anime-util.js | 11 |  |
 | js/core/util/array-buffer-utils.js | 53 |  |
@@ -340,7 +340,7 @@
 | scripts/cutout-color-key-smoke-test.py | 36 |  |
 | scripts/cutout-presets-smoke-test.cjs | 34 |  |
 | scripts/fabric-text-focus-smoke-test.cjs | 145 | fabric の編集用 textarea がスクロールを起こさないことを検証する。 |
-| scripts/full-feature-e2e.cjs | 406 | Full-feature end-to-end walk-through in real Chromium against the real 99_server.py. |
+| scripts/full-feature-e2e.cjs | 420 | Full-feature end-to-end walk-through in real Chromium against the real 99_server.py. |
 | scripts/gen-project-index.cjs | 722 | プロジェクト索引の自動生成。 |
 | scripts/generate-original-starter-svgs.cjs | 326 |  |
 | scripts/generate-site-ui-svgs.cjs | 391 |  |
@@ -370,7 +370,7 @@
 | scripts/manga-ocr-preclean-test.py | 119 | !/usr/bin/env python3 |
 | scripts/manga-ocr-refiner-test.py | 94 |  |
 | scripts/manga-page-size-smoke-test.cjs | 47 |  |
-| scripts/manga-page-structure-test.cjs | 94 | Red/green contract: inspect page pixels, split only credible gutters and |
+| scripts/manga-page-structure-test.cjs | 116 | Red/green contract: inspect page pixels, split only credible gutters and |
 | scripts/manga-real-model-acceptance.py | 133 | !/usr/bin/env python3 |
 | scripts/manga-real-ui-acceptance.cjs | 160 | REAL (unmocked) Chromium acceptance for the local OCR -> Manga OCR -> LaMa flow. |
 | scripts/manga-smart-ocr-runtime-test.py | 21 |  |
@@ -385,7 +385,7 @@
 | scripts/no-third-party-director-test.py | 231 |  |
 | scripts/novelai-batch-tools.mjs | 680 |  |
 | scripts/novelai-readable-error-test.cjs | 39 | Regression: NovelAI errors shown to the user are readable (JSON from the local proxy, |
-| scripts/offline-icon-fonts-test.cjs | 16 | Regression: icon fonts came only from fonts.gstatic.com, so offline (or where Google |
+| scripts/offline-icon-fonts-test.cjs | 23 | Regression: icon fonts came only from fonts.gstatic.com, so offline (or where Google |
 | scripts/page-studio-smoke-test.cjs | 106 |  |
 | scripts/png-bit-depth-smoke-test.cjs | 351 |  |
 | scripts/portability-smoke-test.cjs | 22 | Portability regressions: npm scripts must not depend on a bare `python` alias (absent on |
