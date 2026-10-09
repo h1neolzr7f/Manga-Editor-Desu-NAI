@@ -10,7 +10,7 @@ function frame(w,h,bubbles,gapped=false){
   for (let [x0,y0,x1,y1] of bubbles){
     for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
       if(y>=y0+3&&y<y1-3&&x>=x0+3&&x<x1-3)continue;
-      if(gapped&&x===x0&&y>=y0+5&&y<y1-5)continue;
+      if(gapped&&x<x0+3&&y>=y0+5&&y<y1-5)continue;
       const i=4*(y*w+x);
       data[i]=data[i+1]=data[i+2]=20;
     }
