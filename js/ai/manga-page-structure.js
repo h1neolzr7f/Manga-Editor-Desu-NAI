@@ -132,7 +132,7 @@
     if (!Array.isArray(panels)||!Array.isArray(input)||!dimensions) return result;
     const maxW=Number(dimensions.width),maxH=Number(dimensions.height);
     if (!(maxW>0 && maxH>0)) return result;
-    for(const item of input.slice(0,120)){
+    for(const [sourceIndex,item] of input.slice(0,120).entries()){
       if (!item || typeof item.text!=='string' || !item.text.trim()) continue;
       const rect={x:Number(item.x),y:Number(item.y),width:Number(item.width),height:Number(item.height)};
       if (![rect.x,rect.y,rect.width,rect.height].every(Number.isFinite) ||
@@ -144,7 +144,7 @@
       const unambiguous=best && best.share>=.82 && (!scores[1] || scores[1].share<.15);
       const panelId=unambiguous?best.panel.id:null;
       const record={...rect,text:item.text,confidence:Number(item.confidence)||0,
-        panelId,id:'text-'+(result.texts.length+1)};
+        panelId,id:'text-'+(result.texts.length+1),sourceIndex};
       result.texts.push(record);
       if(panelId){
         const marginX=Math.max(4,Math.round(rect.width*.17));
