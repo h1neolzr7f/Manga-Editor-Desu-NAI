@@ -30,12 +30,15 @@ assert mod.cors_allow_origin('https://evil.example') == ''
 assert mod.cors_allow_origin('null') == 'null'
 print('proxy guard smoke test passed')
 
-# Cross-site secret-borrowing regressions (NovelAI / director / tools); also run in CI via this file.
+# Extra regressions run from here so existing CI jobs cover them without workflow edits:
+# cross-site secret borrowing (NovelAI / director / tools / null-origin static reads) and
+# busy-port handling.
 import subprocess
 import sys
-result = subprocess.run([sys.executable, str(root / 'scripts' / 'local-secret-guard-test.py')],
-                        cwd=str(root), capture_output=True, text=True)
-if result.returncode != 0:
-    print(result.stdout[-4000:], result.stderr[-4000:])
-    raise SystemExit('local secret guard regression failed')
-print('local secret guard regression passed')
+for name in ('local-secret-guard-test.py', 'server-port-conflict-test.py'):
+    result = subprocess.run([sys.executable, str(root / 'scripts' / name)],
+                            cwd=str(root), capture_output=True, text=True)
+    if result.returncode != 0:
+        print(result.stdout[-4000:], result.stderr[-4000:])
+        raise SystemExit(name + ' regression failed')
+    print(name + ' passed')

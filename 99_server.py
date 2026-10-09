@@ -875,7 +875,14 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     daemon_threads = True
-    allow_reuse_address = True
+    # On Windows SO_REUSEADDR lets a second process silently bind a port that is already
+    # serving (both then receive requests). Use exclusive binding there instead.
+    allow_reuse_address = os.name != 'nt'
+
+    def server_bind(self):
+        if os.name == 'nt' and hasattr(socket, 'SO_EXCLUSIVEADDRUSE'):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        return super().server_bind()
     request_queue_size = 500
     timeout = 60
 
@@ -883,9 +890,15 @@ if __name__ == '__main__':
     ensure_user_data_dirs()
     PORT = 8000
     ADDRESS = (os.environ.get('NAI_BIND') or '127.0.0.1').strip() or '127.0.0.1'
-    socketserver.TCPServer.allow_reuse_address = True
-    
-    with ThreadedTCPServer((ADDRESS, PORT), CORSRequestHandler) as httpd:
+    try:
+        httpd_instance = ThreadedTCPServer((ADDRESS, PORT), CORSRequestHandler)
+    except OSError as error:
+        print(f"[ERROR] 端口 {PORT} 已被占用或无法监听（{error}）。")
+        print(f"[ERROR] Port {PORT} is busy or cannot be bound. Close the other program using it "
+              f"(Linux: ss -ltnp | grep :{PORT}; Windows: netstat -ano | findstr :{PORT}) and retry.")
+        raise SystemExit(98)
+
+    with httpd_instance as httpd:
         with ThreadPoolExecutor(max_workers=500) as executor:
             print(f"Server running at http://{ADDRESS or '127.0.0.1'}:{PORT}")
             try:
