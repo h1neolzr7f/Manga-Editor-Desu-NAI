@@ -16,8 +16,3 @@ var steps=[
 ];
 return steps;
 }
-function tutorialIntroLegacy(){
-var intro=introJs();
-intro.setOptions({steps:generateSteps()});
-intro.start();
-}

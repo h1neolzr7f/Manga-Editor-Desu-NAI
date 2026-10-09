@@ -83,12 +83,3 @@ OP_updateLoadingState(overlay,options);
 return overlay;
 }
 
-function OP_showLoadingWithIcon(icon) {
-const overlay=OP_showLoading({
-icon: icon,
-step: '处理中',
-substep: '请稍候…',
-progress: 50
-});
-setTimeout(()=>OP_hideLoading(overlay),1000*30);
-}

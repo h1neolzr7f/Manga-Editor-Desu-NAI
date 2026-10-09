@@ -2,14 +2,6 @@ function avtive(object) {
 canvas.setActiveObject(object).requestRenderAll();
 }
 
-function notAvtive(object) {
-canvas.discardActiveObject().requestRenderAll();
-}
-
-
-
-
-
 function isPanel(activeObject) {
 return (activeObject&&activeObject.isPanel);
 }
@@ -54,15 +46,6 @@ return (activeObject&&activeObject.type==='group');
 
 function isShapes(activeObject) {
 return (activeObject&&['path','rect','circle','triangle','polygon'].includes(activeObject.type));
-}
-
-function isPutImage(activeObject) {
-
-if (activeObject.isIcon) {
-return true;
-}
-
-return (activeObject&&["image","rect","circle","path","group","polygon"].includes(activeObject.type));
 }
 
 function isLayerPreview(activeObject) {
@@ -311,22 +294,6 @@ var layers=canvas.getObjects();
 var matchingObject=layers.find(layer=>layer.guids&&layer.guids.includes(searchGuid));
 return matchingObject;
 }
-
-function getObjectByGUID(searchGuid) {
-if(!searchGuid){
-return;
-}
-
-var layers=canvas.getObjects();
-var matchingObject=layers.find(layer=>layer.guid===guid);
-return matchingObject;
-}
-
-
-
-
-
-
 
 function removeClipPath(activeObject,action) {
 let canvas=activeObject.canvas;
@@ -725,10 +692,6 @@ ScaleY: newClipPath.scaleY
 
 
 
-function getPathPoints(path) {
-return path.path.map(cmd=>cmd[0]==="M"||cmd[0]==="L" ? {x: cmd[1],y: cmd[2]} : null).filter(point=>point!==null);
-}
-
 function calculateTransformedPath(originalPoints,transform) {
 const angleRad=transform.angle*Math.PI/180;
 const sin=Math.sin(angleRad);
@@ -819,33 +782,6 @@ var randomIndex=Math.floor(Math.random()*panelList.length);
 return panelList[randomIndex];
 }
 
-function getPanelCoordinates(panel) {
-const points=panel.points;
-const coords=points.map(point=>{
-const scaledX=point.x*panel.scaleX;
-const scaledY=point.y*panel.scaleY;
-
-let rotatedX=scaledX;
-let rotatedY=scaledY;
-if (panel.angle) {
-const radian=panel.angle*Math.PI/180;
-rotatedX=scaledX*Math.cos(radian)-scaledY*Math.sin(radian);
-rotatedY=scaledX*Math.sin(radian)+scaledY*Math.cos(radian);
-}
-
-return {
-x: rotatedX+panel.left,
-y: rotatedY+panel.top
-};
-});
-
-
-return coords;
-}
-
-
-
-
 function fitImageToCanvas(fabricImage) {
 const canvasWidth=canvas.width;
 const canvasHeight=canvas.height;
@@ -927,15 +863,3 @@ return true;
 return false;
 }
 
-function isSpeechBubbleRect(obj){
-if (obj&&obj.customType&&obj.customType==='speechBubbleRect') {
-return true;
-}
-return false;
-}
-
-function getRectTargetObject(obj){
-const targetObj=obj.targetObject;
-const rect=canvas.getObjects().find(obj=>obj.type==='rect'&&obj.targetObject===targetObj);
-return rect;
-}

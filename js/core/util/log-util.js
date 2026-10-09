@@ -1,25 +1,5 @@
 
 
-function objectToJsonString(obj) {
-const seen=new WeakSet();
-return JSON.stringify(obj,(key,value)=>{
-if (typeof value==="object"&&value!==null) {
-if (seen.has(value)) {
-return "[Circular]";
-}
-seen.add(value);
-}
-if (typeof value==="function") {
-return "[Function]";
-}
-if (value instanceof HTMLElement) {
-return `[HTMLElement: ${value.tagName}]`;
-}
-return value;
-},2);
-}
-
-
 const syncLog=(...args)=>{
 const getDetailedInfo=(arg)=>{
 if (arg===null) return 'null';

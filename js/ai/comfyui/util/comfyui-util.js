@@ -42,18 +42,6 @@ const newWorkflow=builder.build();
 return newWorkflow;
 }
 
-function comfyuiGetValueById(id) {
-const el=$(id);
-if (!el) return "";
-return el.type==="checkbox" ? el.checked : el.value;
-}
-
-
-function comfyuiGetUrl(){
-const serverAddress=hostInput.value+":"+portInput.value;
-return `http://${serverAddress}/`;
-}
-
 var generateFilenameIndex=0;
 function generateFilename() {
 const now=new Date();
@@ -101,8 +89,3 @@ return true;
 }
 }
 
-async function notExistsWorkflowNodeVsComfyUI(workflowClassType,repo){
-var nodeNames=await repo.getNodeNames();
-var setB=new Set(nodeNames);
-return!setB.has(workflowClassType);
-}

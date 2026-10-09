@@ -32,12 +32,6 @@ return element;
 }
 
 
-function createMergeNode(inValue) {
-const node=createSvgElement("feMergeNode");
-setAttributes(node,{in: inValue});
-return node;
-}
-
 function getFirstNCharsDefault(textarea) {
 return getFirstNChars(textarea,20);
 }

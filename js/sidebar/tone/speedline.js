@@ -138,23 +138,6 @@ updateDrawingSpeedlines();
 $(MODE_SPEED_LINE+'-grad-check').addEventListener("input",updateDrawingSpeedlines);
 }
 
-function removeSppedLineEventListener() {
-const updateSpeedLineValueAndDrawing=(id)=>{
-updateSpeedLineValue(id);
-updateDrawingSpeedlines();
-};
-
-[MODE_SPEED_LINE+'-density',MODE_SPEED_LINE+'-grad-start',MODE_SPEED_LINE+'-grad-end',MODE_SPEED_LINE+'-color'].forEach(
-(id)=>{
-const inputElement=$(id);
-const listener=updateSpeedLineValueAndDrawing.bind(null,id);
-inputElement.removeEventListener("input",listener);
-}
-);
-
-$(MODE_SPEED_LINE+'-grad-check').removeEventListener("input",updateDrawingSpeedlines);
-}
-
 function updateSpeedLineCanvas() {
 if (isDrawingSpeedLine) {
 return;

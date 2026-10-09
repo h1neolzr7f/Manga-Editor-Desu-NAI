@@ -21,14 +21,14 @@
 | 種別 | 件数 |
 |------|------|
 | .bat | 14 |
-| .cjs | 48 |
+| .cjs | 49 |
 | .css | 45 |
 | .html | 11 |
 | .js | 249 |
 | .mjs | 2 |
 | .ps1 | 3 |
 | .py | 32 |
-| シンボル | 11315 |
+| シンボル | 11094 |
 | DOM id 定義 | 637 |
 | script 読み込み | 230 |
 | stylesheet 読み込み | 43 |
@@ -59,7 +59,7 @@
 | `NaiBackgroundRemovalClient` | js/local-tools/background-removal-client.js:531 |
 | `NaiBeginnerGuide` | js/ui/beginner-guide.js:504 |
 | `NaiBrushPresets` | js/sidebar/pen/brush-presets.js:127 |
-| `NaiCanvasView` | js/canvas-manager.js:960 |
+| `NaiCanvasView` | js/canvas-manager.js:956 |
 | `NaiCharacterCards` | js/ai/prompt/auto/character-card-manager.js:535 |
 | `NaiComicAssetBlobStore` | js/assets/asset-blob-store.js:69 |
 | `NaiComicAssetLibraryController` | js/assets/asset-library-controller.js:293 |
@@ -105,7 +105,7 @@
 | `NaiLocalToolsDefaultUrl` | js/local-tools/local-tools-client.js:97 |
 | `NaiMangaPageSize` | js/core/manga-page-size.js:230 |
 | `NaiPageStudio` | js/sidebar/page/page-studio.js:606 |
-| `NaiPanelPipelineReview` | js/ai/panel-pipeline-review.js:258 |
+| `NaiPanelPipelineReview` | js/ai/panel-pipeline-review.js:211 |
 | `NaiPngBitDepth` | js/core/util/png-bit-depth.js:563 |
 | `NaiPsTools` | js/ui/visual-ps-tools.js:605 |
 | `NaiScenePlanController` | js/ai/director/scene-plan-controller.js:64 |
@@ -126,45 +126,45 @@
 | `applyPanelLayoutForCurrentPage` | js/panel/layout-templates.js:383 |
 | `applyPanelLayoutTemplate` | js/panel/layout-templates.js:382 |
 | `autoMultiGenerate` | js/ai/prompt/auto/auto-generation.js:104 |
-| `autoMultiPromptSet` | js/ai/prompt/auto/auto-prompt-util.js:829 |
-| `buildBatchPanelRoughPrompt` | js/ai/prompt/auto/auto-prompt-util.js:841 |
-| `buildBatchStoryboardContext` | js/ai/prompt/auto/auto-prompt-util.js:844 |
-| `buildCharacterCardsBrief` | js/ai/prompt/auto/auto-prompt-util.js:843 |
-| `getBatchDirectorCharacterCards` | js/ai/prompt/auto/auto-prompt-util.js:842 |
-| `getBatchDirectorSignature` | js/ai/prompt/auto/auto-prompt-util.js:839 |
-| `getBatchDirectorUserPrompt` | js/ai/prompt/auto/auto-prompt-util.js:838 |
-| `getBatchPanelSignature` | js/ai/prompt/auto/auto-prompt-util.js:840 |
+| `autoMultiPromptSet` | js/ai/prompt/auto/auto-prompt-util.js:800 |
+| `buildBatchPanelRoughPrompt` | js/ai/prompt/auto/auto-prompt-util.js:812 |
+| `buildBatchStoryboardContext` | js/ai/prompt/auto/auto-prompt-util.js:815 |
+| `buildCharacterCardsBrief` | js/ai/prompt/auto/auto-prompt-util.js:814 |
+| `getBatchDirectorCharacterCards` | js/ai/prompt/auto/auto-prompt-util.js:813 |
+| `getBatchDirectorSignature` | js/ai/prompt/auto/auto-prompt-util.js:810 |
+| `getBatchDirectorUserPrompt` | js/ai/prompt/auto/auto-prompt-util.js:809 |
+| `getBatchPanelSignature` | js/ai/prompt/auto/auto-prompt-util.js:811 |
 | `getNaiCharacterCardsForDirector` | js/ai/prompt/auto/character-card-manager.js:541 |
-| `isBatchAcceptanceGateEnabled` | js/ai/prompt/auto/auto-prompt-util.js:835 |
-| `isBatchAcceptancePassed` | js/ai/prompt/auto/auto-prompt-util.js:836 |
-| `isBatchDirectorEnabled` | js/ai/prompt/auto/auto-prompt-util.js:834 |
+| `isBatchAcceptanceGateEnabled` | js/ai/prompt/auto/auto-prompt-util.js:806 |
+| `isBatchAcceptancePassed` | js/ai/prompt/auto/auto-prompt-util.js:807 |
+| `isBatchDirectorEnabled` | js/ai/prompt/auto/auto-prompt-util.js:805 |
 | `loadPanelLayoutPrefs` | js/panel/layout-templates.js:384 |
 | `mangaImportDirectorCurrentPage` | js/ai/manga-importer.js:2521 |
 | `mangaImportGenerateWithNai` | js/ai/manga-importer.js:2523 |
 | `mangaImportPickFiles` | js/ai/manga-importer.js:2519 |
 | `mangaImportPreflightCurrentPage` | js/ai/manga-importer.js:2522 |
 | `mangaImportRetagCurrentPage` | js/ai/manga-importer.js:2520 |
-| `markBatchAcceptancePassed` | js/ai/prompt/auto/auto-prompt-util.js:837 |
+| `markBatchAcceptancePassed` | js/ai/prompt/auto/auto-prompt-util.js:808 |
 | `naiBatchAcceptancePreviewPrompt` | js/ai/prompt/auto/auto-prompt-util.js:188 |
 | `naiBatchAcceptancePreviewSignature` | js/ai/prompt/auto/auto-prompt-util.js:187 |
-| `naiBatchConfirmAcceptance` | js/ai/prompt/auto/auto-prompt-util.js:833 |
-| `naiBatchDirectorNeedsRun` | js/ai/prompt/auto/auto-prompt-util.js:831 |
-| `naiBatchDirectorSetPrompts` | js/ai/prompt/auto/auto-prompt-util.js:830 |
-| `naiBatchRunAcceptancePanel` | js/ai/prompt/auto/auto-prompt-util.js:832 |
+| `naiBatchConfirmAcceptance` | js/ai/prompt/auto/auto-prompt-util.js:804 |
+| `naiBatchDirectorNeedsRun` | js/ai/prompt/auto/auto-prompt-util.js:802 |
+| `naiBatchDirectorSetPrompts` | js/ai/prompt/auto/auto-prompt-util.js:801 |
+| `naiBatchRunAcceptancePanel` | js/ai/prompt/auto/auto-prompt-util.js:803 |
 | `naiDirectorAvailableModels` | js/ai/ai-settings.js:77 |
 | `naiLastBatchAcceptanceSignature` | js/ai/prompt/auto/auto-prompt-util.js:203 |
 | `naiLastBatchDirectorSignature` | js/ai/prompt/auto/auto-prompt-util.js:732 |
 | `naiPsTool` | js/ui/visual-ps-tools.js:91 |
 | `naiSpacePan` | js/ui/beginner-guide.js:440, js/ui/beginner-guide.js:446 |
-| `noShowPrompt` | js/ui/ai/auto-prompt-ui.js:178 |
+| `noShowPrompt` | js/ui/ai/auto-prompt-ui.js:169 |
 | `onerror` | js/core/global-error-handler.js:3 |
 | `recommendPanelLayouts` | js/panel/layout-templates.js:386 |
 | `renderPanelLayoutRecommendations` | js/panel/layout-templates.js:387 |
 | `resetFlexGenSizeForPanels` | js/sidebar/panel/panel-template.js:241 |
 | `runAllTests` | js/core/debug.js:403 |
-| `setPanelPipelineStatus` | js/ai/prompt/auto/auto-prompt-util.js:845 |
-| `showI2IPrompts` | js/ui/ai/auto-prompt-ui.js:177 |
-| `showT2IPrompts` | js/ui/ai/auto-prompt-ui.js:176 |
+| `setPanelPipelineStatus` | js/ai/prompt/auto/auto-prompt-util.js:816 |
+| `showI2IPrompts` | js/ui/ai/auto-prompt-ui.js:168 |
+| `showT2IPrompts` | js/ui/ai/auto-prompt-ui.js:167 |
 
 ## 行数の多いファイル（上位25）
 
@@ -180,21 +180,21 @@
 | scripts/gpt-browser-acceptance.cjs | 1154 | Real headless Chromium acceptance test against the actual HTML/Fabric runtime. |
 | js/ai/gpt-region-editor.js | 1149 | Manga-NAI-GPT: isolated, non-destructive image editing surface. |
 | js/simulator/simulator-studio.js | 1110 | 模拟器启动页与各类型单开工作区 |
-| js/dashboard/dashboard-ui.js | 1060 | ダッシュボードUIコンポーネント（モーダル表示） |
-| js/canvas-manager.js | 1019 |  |
-| js/core/util/fabric-util.js | 941 |  |
+| js/dashboard/dashboard-ui.js | 1057 | ダッシュボードUIコンポーネント（モーダル表示） |
+| js/canvas-manager.js | 1015 |  |
 | js/sidebar/speechBubble/speech-bubble-freehand.js | 868 |  |
+| js/core/util/fabric-util.js | 865 |  |
 | js/sidebar/pen/pen-tools.js | 855 |  |
 | css/ui/dashboard.css | 853 | Dashboard Modal Overlay |
 | js/core/util/image-util.js | 847 | image-util.js - Fabric.js画像オブジェクトの処理（変換、WebP、クロップ、反転、色変換など） |
-| js/ai/prompt/auto/auto-prompt-util.js | 846 | generatePageList(btmGetGuidsSize()); |
+| js/ai/prompt/auto/auto-prompt-util.js | 817 | generatePageList(btmGetGuidsSize()); |
 | css/simulator-chat.css | 790 | simulator-chat-area .simulator-chat-panel{ |
-| js/sidebar/panel/panel-manager.js | 769 | function handleSelection(e) { |
+| js/sidebar/panel/panel-manager.js | 753 | function handleSelection(e) { |
 | js/core/font/font-manager-core.js | 750 |  |
 | js/ui/canvas-object-menu.js | 734 | Canvas object right-click context menu |
 | js/ui/imagePromptHelper/image-prompt-helper.js | 730 |  |
 | scripts/gen-project-index.cjs | 722 | プロジェクト索引の自動生成。 |
-| js/layer/blend/blend.js | 719 | ブレンドモードUI - カテゴリ分類・プレビュー・適用処理 |
+| js/project-management.js | 712 | Runtime image generation is NovelAI-only. Legacy provider modules may still |
 
 ## 再生成
 

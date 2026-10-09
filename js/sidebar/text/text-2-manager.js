@@ -399,6 +399,3 @@ break;
 }
 
 
-function clearActiveT2Button() {
-// $(MODE_T2_SHADOW + 'Button').classList.remove('active-button');
-}

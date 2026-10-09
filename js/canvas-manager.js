@@ -159,10 +159,6 @@ window.addEventListener("resize",function(){
 adjustCanvasSize(true);
 });
 
-function adjustCanvasSizeWithContainer(windowWidth,windowHeight) {
-fitCanvasViewToContainer(true);
-}
-
 // True when the page holds anything the user placed (panels, images, text, shapes).
 // Template placeholders such as "拖放或生成图片" do not count. An image imported or
 // dropped onto an empty page sets the page size; on a page with content it is fitted.

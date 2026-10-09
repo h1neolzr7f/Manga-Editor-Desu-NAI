@@ -117,14 +117,6 @@ document.body.appendChild(floatingWindow);
 setupInteractJS(floatingWindow);
 }
 
-function recreateFloatingWindow() {
-const existingWindow=$("blendFloatingWindow");
-if(existingWindow){
-existingWindow.remove();
-}
-createFloatingWindow();
-}
-
 function setupInteractJS(element) {
 interact(element)
 .draggable({
@@ -315,16 +307,6 @@ return HtmlCanvasUtil.createScaledCanvas(sourceCanvas,maxWidth,maxHeight);
 function isBlendChecked(layer) {
 var id=getGUID(layer);
 return blendCheckedSet.has(id);
-}
-
-function updateLayerPreviewStyle(layer,previewContainer) {
-if(isBlendChecked(layer)){
-previewContainer.classList.remove("unchecked");
-previewContainer.classList.add("checked");
-}else{
-previewContainer.classList.add("unchecked");
-previewContainer.classList.remove("checked");
-}
 }
 
 var blendDragState=null;

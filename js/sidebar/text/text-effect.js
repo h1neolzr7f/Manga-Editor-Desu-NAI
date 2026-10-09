@@ -135,51 +135,6 @@ FontSelectorManager.syncSelected(textObj.fontFamily);
 updateBoldToggleUI();
 }
 
-function applyCSSTextEffect() {
-var firstTextEffectColorPicker=$('firstTextEffectColorPicker').value;
-var secondTextEffectColorPicker=$('secondTextEffectColorPicker').value;
-
-const activeObject=canvas.getActiveObject();
-if (isText(activeObject)) {
-if (!activeObject.shadow) {
-// Apply a shadow using the first color picker's value
-activeObject.set("shadow",firstTextEffectColorPicker+" 5px 5px 10px");
-} else {
-// Toggle shadow off
-activeObject.set("shadow",null);
-}
-canvas.renderAll();
-}
-}
-
-
-function applyVividGradientEffect() {
-const activeObject=canvas.getActiveObject();
-if (isText(activeObject)) {
-var firstTextEffectColorPicker=$('firstTextEffectColorPicker').value;
-var secondTextEffectColorPicker=$('secondTextEffectColorPicker').value;
-
-const gradient=new fabric.Gradient({
-type: "linear",
-gradientUnits: "pixels",
-coords: {x1: 0,y1: activeObject.height/2,x2: activeObject.width,y2: activeObject.height/2},
-colorStops: [
-{offset: 0,color: firstTextEffectColorPicker},
-{offset: 0.5,color: secondTextEffectColorPicker,opacity: 0.5},
-{offset: 1,color: firstTextEffectColorPicker}
-]
-});
-
-if (isVerticalText(activeObject)) {
-activeObject.set("fill",gradient);
-canvas.renderAll();
-} else {
-activeObject.set("fill",gradient);
-canvas.renderAll();
-}
-}
-}
-
 function applyInnerShadow() {
 const activeObject=canvas.getActiveObject();
 if (isText(activeObject)) {
@@ -200,45 +155,6 @@ canvas.renderAll();
 }
 
 
-function drawNeonJitterEffect(textObject) {
-const activeObject=canvas.getActiveObject();
-if (isText(activeObject)) {
-const gradient=new fabric.Gradient({
-type: "linear",
-gradientUnits: "pixels",
-coords: {x1: 0,y1: 0,x2: canvas.width,y2: 0},
-colorStops: [
-{offset: 0,color: "red"},
-{offset: 0.15,color: "orange"},
-{offset: 0.3,color: "yellow"},
-{offset: 0.5,color: "green"},
-{offset: 0.65,color: "blue"},
-{offset: 0.8,color: "indigo"},
-{offset: 1,color: "violet"},
-],
-});
-activeObject.set("fill",gradient);
-
-// Jitter Effect
-activeObject.initDimensions();
-for (let i=0;i<10;i++) {
-activeObject.clone(function (clonedText) {
-clonedText.set({
-shadow: `rgba(${255 * Math.random()}, ${255 * Math.random()}, ${255 * Math.random()
-            }, 0.5) 10px 10px 10px`,
-});
-clonedText.set({
-left: activeObject.left+Math.random()*5,
-top: activeObject.top+Math.random()*5,
-});
-canvas.add(clonedText);
-});
-}
-}
-}
-
-
-
 function applyInnerShadow() {
 const activeObject=canvas.getActiveObject();
 if (isText(activeObject)) {
@@ -250,26 +166,6 @@ offsetX: 5,
 offsetY: 5,
 },
 });
-canvas.renderAll();
-}
-}
-
-function applyNeonEffect() {
-const activeObject=canvas.getActiveObject();
-if (isText(activeObject)) {
-
-var firstTextEffectColorPicker=$('firstTextEffectColorPicker').value;
-var secondTextEffectColorPicker=$('secondTextEffectColorPicker').value;
-
-if (!activeObject.fill||!activeObject.shadow) {
-activeObject.set({
-fill: firstTextEffectColorPicker,
-shadow: {
-color: secondTextEffectColorPicker,
-blur: 20,
-},
-});
-}
 canvas.renderAll();
 }
 }
@@ -335,18 +231,6 @@ canvas.add(textbox);
 canvas.setActiveObject(textbox);
 canvas.requestRenderAll();
 // updateLayerPanel();
-}
-
-function toggleShadow() {
-var activeObject=canvas.getActiveObject();
-if (isText(activeObject)) {
-var hasShadow=activeObject.shadow!=null;
-activeObject.set(
-"shadow",
-hasShadow ? null : "rgba(0,0,0,0.3) 5px 5px 5px"
-);
-canvas.renderAll();
-}
 }
 
 function toggleBold() {
@@ -447,22 +331,6 @@ setJsColorValue("textBgColorPicker",isTransparent?"rgba(0,0,0,0)":next);
 canvas.renderAll();
 }
 
-function changeNeonColor(color) {
-neonColor=color;
-var activeObject=canvas.getActiveObject();
-if (isText(activeObject)) {
-updateNeonEffect(activeObject);
-}
-}
-
-function changeNeonIntensity(intensity) {
-neonIntensity=parseFloat(intensity);
-var activeObject=canvas.getActiveObject();
-if (isText(activeObject)) {
-updateNeonEffect(activeObject);
-}
-}
-
 function updateNeonEffect(activeObject) {
 if (isText(activeObject)) {
 if (!isNeonEnabled) {
@@ -490,18 +358,3 @@ canvas.renderAll();
 
 
 
-function changeFont(font) {
-$("text-preview-area").style.fontFamily=font;
-}
-
-
-
-function isFontAvailableForLanguage(font,text) {
-const canvas=document.createElement('canvas');
-const context=canvas.getContext('2d');
-context.font='72px monospace';
-const baselineSize=context.measureText(text).width;
-context.font=`72px ${font}, monospace`;
-const newSize=context.measureText(text).width;
-return newSize!==baselineSize;
-}

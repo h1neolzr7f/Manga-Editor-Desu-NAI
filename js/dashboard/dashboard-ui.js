@@ -1055,6 +1055,3 @@ MODE_LABELS:MODE_LABELS,
 function openDashboardModal(){
 DashboardUI.open();
 }
-function closeDashboardModal(){
-DashboardUI.close();
-}

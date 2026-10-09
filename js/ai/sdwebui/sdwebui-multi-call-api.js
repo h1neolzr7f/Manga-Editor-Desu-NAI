@@ -17,29 +17,6 @@ createToastError("Fetch Error","APIからデータを取得できませんでし
 }
 
 
-async function sendClipToServer() {
-const dualClip=getSelectedTagifyValues("clipDropdownId");
-
-const data=JSON.stringify({
-forge_additional_modules: dualClip
-});
-
-fetch(sdWebUIUrls.options,{
-method: 'POST',
-headers: {
-'Accept': 'application/json',
-'Content-Type': 'application/json'
-},
-body: data
-})
-.then(response=>response.json())
-.then(data=>{})
-.catch((error)=>{
-sdwebuiLogger.error('Error:',error);
-createToastError("Fetch Error","Failed to apply the model.");
-});
-}
-
 async function sendModelToServer() {
 const modelValue=basePrompt.text2img_model;
 sdwebuiLogger.debug("sendModelToServer",$("basePrompt_model").value);

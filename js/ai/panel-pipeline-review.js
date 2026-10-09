@@ -57,12 +57,6 @@ setPanelPipelineStatusSafe(panel,'AUTO_OK',detail||'自动审查通过（生成�
 if(typeof updateLayerPanel==='function')updateLayerPanel();
 }
 
-function markPanelAutoFlagged(panel,detail){
-if(!panel)return;
-setPanelPipelineStatusSafe(panel,'AUTO_FLAGGED',detail||'自动审查标记：建议检查或重生成');
-if(typeof updateLayerPanel==='function')updateLayerPanel();
-}
-
 function onPanelGenerationSuccess(panel,type){
 if(!panel)return;
 setPanelPipelineStatusSafe(panel,'GEN_OK',(type||'T2I')+' 完成');
@@ -81,47 +75,6 @@ function onPanelGenerationFailure(panel,message){
 if(!panel)return;
 setPanelPipelineStatusSafe(panel,'GEN_FAIL',message||'生图失败');
 if(typeof updateLayerPanel==='function')updateLayerPanel();
-}
-
-function countPanelsByStatus(statusList){
-var counts={};
-(statusList||[]).forEach(function(panel){
-var key=panel.naiPipelineStatus||'UNKNOWN';
-counts[key]=(counts[key]||0)+1;
-});
-return counts;
-}
-
-function summarizeProjectPipelineReview(){
-var guids=typeof btmGetGuids==='function'?btmGetGuids():[];
-var totalPanels=0;
-var review=0;
-var ok=0;
-var genOk=0;
-var fail=0;
-guids.forEach(function(guid){
-var data=typeof btmProjectsMap!=='undefined'?btmProjectsMap.get(guid):null;
-if(!data||!data.panelSnapshots)return;
-(data.panelSnapshots||[]).forEach(function(snap){
-totalPanels+=1;
-if(snap.status==='MANUAL_REVIEW')review+=1;
-else if(snap.status==='MANUAL_OK')ok+=1;
-else if(snap.status==='GEN_OK')genOk+=1;
-else if(snap.status==='GEN_FAIL')fail+=1;
-});
-});
-return {pages:guids.length,totalPanels:totalPanels,review:review,ok:ok,genOk:genOk,fail:fail};
-}
-
-function collectPanelSnapshotsOnCanvas(){
-return getPanelObjectList().map(function(panel,index){
-return {
-guid:getGUID(panel),
-name:panel.name||('panel '+(index+1)),
-status:panel.naiPipelineStatus||'',
-detail:panel.naiPipelineStatusDetail||''
-};
-});
 }
 
 async function finishBatchGenerationReview(){

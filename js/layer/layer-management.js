@@ -84,37 +84,6 @@ else if(window.NaiComicExtraRendererFactory)window.NaiComicExtraRendererFactory.
 return row;
 }
 
-function getLayerTypeIcon(layer){
-if(isSpeechBubbleSVG(layer)||isFreehandBubblePath(layer)){
-return '<i class="material-icons">chat_bubble_outline</i>';
-}
-if(isPanel(layer)){
-return '<i class="material-icons">crop_landscape</i>';
-}
-if(isImage(layer)){
-return '<i class="material-icons">image</i>';
-}
-if(isVerticalText(layer)){
-return '<i class="material-icons">text_rotation_none</i>';
-}
-if(isText(layer)){
-return '<i class="material-icons">text_fields</i>';
-}
-if(isPath(layer)){
-return '<i class="material-icons">gesture</i>';
-}
-if(isGroup(layer)){
-return '<i class="material-icons">folder</i>';
-}
-return '<i class="material-icons">layers</i>';
-}
-
-function putLayerBtnSeparator(buttonsDiv){
-var sep=document.createElement("span");
-sep.className="layer-btn-separator";
-buttonsDiv.appendChild(sep);
-}
-
 let lastUpdateTime=0;
 let updateLayerPanelTimer=null;
 let pendingUpdate=false;
@@ -545,14 +514,6 @@ lastHighlightGuid=activeObject?activeObject.guid:null;
 updateLayerPanel();
 }
 
-
-function getLayerIndexByActiveObject(targetObject) {
-if (!targetObject||!finalLayerOrder||finalLayerOrder.length===0) return-1;
-
-const normalIndex=finalLayerOrder.findIndex(item=>item.layer===targetObject);
-const result=finalLayerOrder.length-normalIndex;
-return result;
-}
 
 function LayersUp() {
 var activeObject=canvas.getActiveObject();

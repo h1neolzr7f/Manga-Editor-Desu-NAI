@@ -81,22 +81,6 @@ if(window.NaiPageStudio&&typeof window.NaiPageStudio.syncGridOverlay==='function
 }
 
 
-function darkenColor(color,percent) {
-if (percent===0) return color;
-var num=parseInt(color.slice(1),16),
-amt=Math.round(2.55*percent),
-R=(num>>16)-amt,
-G=(num>>8&0x00FF)-amt,
-B=(num&0x0000FF)-amt;
-
-R=Math.max(Math.min(255,R),0);
-G=Math.max(Math.min(255,G),0);
-B=Math.max(Math.min(255,B),0);
-
-return '#'+(
-(1<<24)+(R<<16)+(G<<8)+B
-).toString(16).slice(1).toUpperCase();
-}
 function removeGrid() {
 canvas.setBackgroundImage(null,canvas.renderAll.bind(canvas));
 if(window.NaiPageStudio&&typeof window.NaiPageStudio.syncGridOverlay==='function'){

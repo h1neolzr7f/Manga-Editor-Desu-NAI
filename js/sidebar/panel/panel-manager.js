@@ -248,22 +248,6 @@ frameBounds.top+frameBounds.height;
 return within;
 }
 
-function adjustImageToFitFrame(image,frame) {
-let frameBounds=frame.getBoundingRect();
-let scale=Math.min(
-frameBounds.width/image.getScaledWidth(),
-frameBounds.height/image.getScaledHeight()
-);
-image.set({
-left: frameBounds.left+(frameBounds.width-image.width*scale)/2,
-top: frameBounds.top+(frameBounds.height-image.height*scale)/2,
-scaleX: scale,
-scaleY: scale,
-});
-}
-
-
-
 /** Load SVG(Verfical, Landscope) */
 function loadSVGPlusReset(svgString,isLand=false,addOnly=false) {
 if(!addOnly){

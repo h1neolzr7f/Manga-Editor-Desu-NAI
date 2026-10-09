@@ -138,25 +138,6 @@ comfyuiSockets.delete(key);
 }
 }
 
-async function comfyuiCancelPrompt(promptId){
-try{
-await comfyuiFetch(comfyUIUrls.interrupt,{
-method:"POST",
-headers:{"Content-Type":"application/json"}
-});
-await comfyuiFetch(comfyUIUrls.queue,{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({delete:[promptId]})
-});
-var tag=getComfyUIProviderTag();
-comfyuiLogger.info('['+tag+'] Cancelled prompt: '+promptId);
-}catch(error){
-var tag=getComfyUIProviderTag();
-comfyuiLogger.error('['+tag+'] Cancel prompt error:',error);
-}
-}
-
 async function comfyuiApiHeartbeat() {
 const labelfw=$("ExternalService_Heartbeat_Label_fw");
 

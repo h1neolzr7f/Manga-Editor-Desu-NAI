@@ -54,16 +54,6 @@ tasks[i].order=i+1;
 aiTaskOrderCounter=tasks.length;
 }
 
-function getAiTaskDisplayOrder(taskId){
-var task=aiTaskMap.get(taskId);
-if(!task)return 0;
-var tasks=getAiTasksForLayer(task.layerGuid,task.canvasGuid);
-for(var i=0;i<tasks.length;i++){
-if(tasks[i].taskId===taskId)return i+1;
-}
-return task.order;
-}
-
 function updateAiTaskStatus(taskId,status){
 var task=aiTaskMap.get(taskId);
 if(task){
@@ -90,12 +80,6 @@ tasks.push(task);
 });
 tasks.sort(function(a,b){return a.order-b.order;});
 return tasks;
-}
-
-function clearAllAiTasks(){
-aiTaskMap.clear();
-aiTaskOrderCounter=0;
-updateLayerPanel();
 }
 
 function refreshAiTaskIndicator(taskId){
@@ -132,10 +116,6 @@ targetLayerGuid:taskInfo.targetLayerGuid||null
 generationTaskMap.set(canvasGuid,info);
 generationTaskLogger.debug("registerGenerationTask",canvasGuid,info);
 return info;
-}
-
-function getGenerationTask(canvasGuid){
-return generationTaskMap.get(canvasGuid);
 }
 
 function removeGenerationTask(canvasGuid){

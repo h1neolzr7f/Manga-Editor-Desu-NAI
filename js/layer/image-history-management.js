@@ -22,12 +22,6 @@ function setNotSave(activeObject){
 activeObject.saveHistory=false;
 return activeObject;
 }
-function setSave(activeObject){
-activeObject.saveHistory=true;
-return activeObject;
-}
-
-
 function isSaveObject(activeObject){
 if(activeObject){
 if(activeObject.saveHistory==true){
@@ -65,14 +59,6 @@ function removeByNotSave(obj){
 if (obj) {
 changeDoNotSaveHistory();
 canvas.remove(obj);
-changeDoSaveHistory();
-}
-}
-
-function addByNotSave(obj){
-if (obj) {
-changeDoNotSaveHistory();
-canvas.add(obj);
 changeDoSaveHistory();
 }
 }

@@ -112,41 +112,6 @@ success: true,
 };
 }
 
-async function comfyui_handleFileUpload_v2(input) {
-const file=input.files[0];
-const nodeId=input.dataset.nodeId;
-const inputName=input.dataset.inputName;
-const previewTargetId=input.dataset.previewTarget;
-
-if (!file) return;
-
-try {
-const uploadResult=await comfyui_uploadImage_v2(file);
-
-if (uploadResult.success) {
-const previewContainer=document.querySelector(
-`[data-preview-id="${previewTargetId}"]`
-);
-const previewImage=previewContainer?.querySelector("img");
-
-if (previewContainer&&previewImage) {
-const reader=new FileReader();
-reader.onload=(e)=>{
-previewImage.src=e.target.result;
-previewContainer.classList.remove("hidden");
-};
-reader.readAsDataURL(file);
-}
-
-if (workflow[nodeId]&&inputName) {
-workflow[nodeId].inputs[inputName]=uploadResult.name;
-}
-}
-} catch (error) {
-comfyuiLogger.error('['+getComfyUIProviderTag()+'] ファイルアップロードエラー:',error);
-}
-}
-
 //type=input output temp
 //subfolder: <subfolder>
 async function comfyui_view_image_v2(filename,type="input",serverAddress,authHeaders) {

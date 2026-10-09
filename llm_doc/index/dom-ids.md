@@ -5,7 +5,7 @@
 - 定義: index.html / html 配下の `id="..."`
 - 参照: `$('id')` / `getElementById('id')` / `querySelector('#id')` と、定義済み id と一致する文字列リトラル
   （`['a','b'].forEach(function(id){$(id);})` のような動的参照を抽うため。js と html インライン script が対象）
-- 定義 637 件 / 参照 811 件
+- 定義 637 件 / 参照 806 件
 
 ## id → 定義と参照
 
@@ -24,7 +24,7 @@
 | `EffectGlowButton` | index.html:1785 |  |
 | `EnhanceDarkButton` | index.html:1775 |  |
 | `EraserButton` | index.html:1859 |  |
-| `ExternalService_Heartbeat_Container` | index.html:2178 | js/ai/ai-management.js:89 |
+| `ExternalService_Heartbeat_Container` | index.html:2178 | js/ai/ai-management.js:85 |
 | `FocusingLineButton` | index.html:1900 |  |
 | `InformationCoordinate` | index.html:1926 | js/project-management.js:277, js/ui/control/information-control.js:2 |
 | `InformationFPS` | index.html:1920 | js/project-management.js:276, js/ui/control/information-control.js:1 |
@@ -40,7 +40,7 @@
 | `ToneNoiseButton` | index.html:1884 |  |
 | `ToneRainButton` | index.html:1892 |  |
 | `ToneSnowButton` | index.html:1888 |  |
-| `a` | index.html:63 | index.html:72, js/ai/comfyui/v2/comfyui-workflow-editor-tab.js:615, js/ai/manga-character-bible-ui.js:149, js/ai/manga-page-structure-ui.js:338, js/ai/panel-pipeline-review.js:201, js/assets/asset-pack.js:8, js/core/compression/lz4.js:207, js/core/util/image-util.js:658, js/dashboard/dashboard-ui.js:967, js/local-tools/background-removal-client.js:494, js/project-management.js:42, js/sidebar/pen/pen-tools.js:637, js/simulator/chat-controller.js:295, js/simulator/longshot-exporter.js:29, js/simulator/simulator-controller.js:100, js/simulator/story-composer-controller.js:264, js/svg/manga-panels-image-vertical.js:2, js/ui/imagePromptHelper/image-prompt-helper.js:118, scripts/manga-bubble-detector-test.cjs:42, scripts/novelai-readable-error-test.cjs:35, scripts/simulator-timeline-smoke-test.cjs:7 |
+| `a` | index.html:63 | index.html:72, js/ai/comfyui/v2/comfyui-workflow-editor-tab.js:615, js/ai/manga-character-bible-ui.js:149, js/ai/manga-page-structure-ui.js:338, js/ai/panel-pipeline-review.js:154, js/assets/asset-pack.js:8, js/core/compression/lz4.js:207, js/core/util/image-util.js:658, js/dashboard/dashboard-ui.js:967, js/local-tools/background-removal-client.js:494, js/project-management.js:42, js/sidebar/pen/pen-tools.js:637, js/simulator/chat-controller.js:295, js/simulator/longshot-exporter.js:29, js/simulator/simulator-controller.js:100, js/simulator/story-composer-controller.js:264, js/svg/manga-panels-image-vertical.js:2, js/ui/imagePromptHelper/image-prompt-helper.js:118, scripts/manga-bubble-detector-test.cjs:42, scripts/novelai-readable-error-test.cjs:35, scripts/simulator-timeline-smoke-test.cjs:7 |
 | `add` | index.html:788 | js/ai/comfyui/v2/comfyui-default-object-info.js:2337, js/ai/manga-lama-inpaint-ui.js:9, js/core/svg/google-icon-names.js:11, js/layer/blend/blend.js:2, js/ui/third/base-translation/base-de.js:147, js/ui/third/base-translation/base-en.js:152, js/ui/third/base-translation/base-es.js:147, js/ui/third/base-translation/base-fr.js:147, js/ui/third/base-translation/base-ja.js:152, js/ui/third/base-translation/base-ko.js:147, js/ui/third/base-translation/base-ru.js:147, js/ui/third/base-translation/base-zh.js:152 |
 | `addHeart` | index.html:892 | js/ui/visual-studio.js:472 |
 | `addHexagon` | index.html:884 | js/ui/visual-studio.js:472 |
@@ -54,8 +54,8 @@
 | `align-left` | index.html:1637 |  |
 | `align-right` | index.html:1643 |  |
 | `angle-control` | index.html:1935 | js/ui/control/common-control-management.js:2 |
-| `apiHeartbeatCheckbox` | index.html:309 | js/ai/ai-management.js:108, js/ai/ai-settings.js:412, js/project-management.js:243 |
-| `apiSettingsUrlHelpe` | index.html:2172 | js/ai/comfyui/v2/comfyui-workflow-interact.js:32, js/ai/ui/ai-ui-util.js:9 |
+| `apiHeartbeatCheckbox` | index.html:309 | js/ai/ai-management.js:104, js/ai/ai-settings.js:412, js/project-management.js:243 |
+| `apiSettingsUrlHelpe` | index.html:2172 | js/ai/comfyui/v2/comfyui-workflow-interact.js:32 |
 | `applyFlexGenSizeBtn` | index.html:1001 | js/sidebar/panel/panel-template.js:222 |
 | `asset-library-area` | index.html:1370 | js/sidebar/sidebar.js:83, js/ui/visual-studio.js:338 |
 | `assetLibraryExportButton` | index.html:1380 | js/assets/asset-library-controller.js:270 |
@@ -97,13 +97,13 @@
 | `basePrompt_seed` | index.html:2224 | js/ai/prompt/base-event-listener.js:9, js/project-management.js:308 |
 | `basePrompt_width` | index.html:2213 | js/ai/prompt/base-event-listener.js:7, js/project-management.js:310 |
 | `beginnerToolHud` | index.html:2080 | js/ui/beginner-guide.js:21 |
-| `bg-color` | index.html:392 | js/ai/manga-importer.js:1701, js/canvas-manager.js:198, js/core/util/image-util.js:627, js/layer/image-history-management.js:316, js/project-management.js:197, js/sidebar/panel/panel-manager.js:296 |
-| `bgColorButton` | index.html:393 | js/canvas-manager.js:218 |
-| `bgColorSwatch` | index.html:395 | js/canvas-manager.js:238 |
-| `bgColorValue` | index.html:394 | js/canvas-manager.js:232 |
+| `bg-color` | index.html:392 | js/ai/manga-importer.js:1701, js/canvas-manager.js:194, js/core/util/image-util.js:627, js/layer/image-history-management.js:302, js/project-management.js:197, js/sidebar/panel/panel-manager.js:280 |
+| `bgColorButton` | index.html:393 | js/canvas-manager.js:214 |
+| `bgColorSwatch` | index.html:395 | js/canvas-manager.js:234 |
+| `bgColorValue` | index.html:394 | js/canvas-manager.js:228 |
 | `blend` | html/Minual/effect.html:45 | js/sidebar/text/custom/optimized-water-text.js:58, js/ui/third/base-translation/base-de.js:173, js/ui/third/base-translation/base-en.js:178, js/ui/third/base-translation/base-es.js:173, js/ui/third/base-translation/base-fr.js:173, js/ui/third/base-translation/base-ja.js:178, js/ui/third/base-translation/base-ko.js:173, js/ui/third/base-translation/base-ru.js:173, js/ui/third/base-translation/base-zh.js:178 |
 | `blendButton` | index.html:1781 |  |
-| `bold-toggle-btn` | index.html:1613 | js/sidebar/text/text-effect.js:367 |
+| `bold-toggle-btn` | index.html:1613 | js/sidebar/text/text-effect.js:251 |
 | `brokenButton` | index.html:1701 |  |
 | `brushPresetGrid` | index.html:1829 | js/sidebar/pen/pen-tools.js:758, js/ui/visual-studio.js:94 |
 | `btm-drawer` | index.html:2243 | index.html:134, js/ui/bottom-bar.js:4 |
@@ -117,7 +117,7 @@
 | `bubbleStrokeColor` | index.html:1455 | js/project-management.js:254, js/sidebar/speechBubble/speech-bubble-effect.js:5 |
 | `bubbleStrokewidht` | index.html:1466 | js/project-management.js:257, js/sidebar/speechBubble/speech-bubble-effect.js:3 |
 | `c2bw` | html/Minual/effect.html:25 |  |
-| `canvas-area` | index.html:2058 | js/canvas-manager.js:915 |
+| `canvas-area` | index.html:2058 | js/canvas-manager.js:911 |
 | `canvas-container` | index.html:2124 | js/canvas-manager.js:42, js/sidebar/panel/panel-manager.js:7 |
 | `canvas-help-text` | index.html:2084 | js/ui/beginner-guide.js:62, js/ui/util/mode-change.js:29 |
 | `canvasEmptyHint` | index.html:2128 | js/ui/beginner-guide.js:152, scripts/layout-smoke-test.cjs:66 |
@@ -126,14 +126,14 @@
 | `canvasEmptyHintTemplate` | index.html:2139 |  |
 | `clearMode` | index.html:2064 | js/ui/beginner-guide.js:50, js/ui/third/base-translation/base-de.js:262, js/ui/third/base-translation/base-en.js:268, js/ui/third/base-translation/base-es.js:262, js/ui/third/base-translation/base-fr.js:262, js/ui/third/base-translation/base-ja.js:267, js/ui/third/base-translation/base-ko.js:262, js/ui/third/base-translation/base-ru.js:262, js/ui/third/base-translation/base-zh.js:267, js/ui/third/tippy.js:89, js/ui/util/mode-manager.js:358 |
 | `cloudButton` | index.html:1707 |  |
-| `comfyui` | html/API_Help/comfyui_settings.html:29 | js/ai/comfyui/comfyui-management.js:297, js/ai/inpainting/inpaint-editor.js:109, js/core/logger.js:169 |
+| `comfyui` | html/API_Help/comfyui_settings.html:29 | js/ai/comfyui/comfyui-management.js:278, js/ai/inpainting/inpaint-editor.js:109, js/core/logger.js:169 |
 | `control-area` | index.html:1913 | js/sidebar/sidebar.js:93 |
 | `control-preview-area` | index.html:1915 |  |
-| `controls` | index.html:2164 | js/project-management.js:655, js/shortcut.js:75, js/sidebar/panel/panel-manager.js:667, js/ui/beginner-guide.js:352 |
+| `controls` | index.html:2164 | js/project-management.js:655, js/shortcut.js:75, js/sidebar/panel/panel-manager.js:651, js/ui/beginner-guide.js:352 |
 | `customPanelSizeX` | index.html:749 | js/project-management.js:248, js/sidebar/panel/panel-template.js:156, js/ui/third/base-translation/base-de.js:332, js/ui/third/base-translation/base-en.js:338, js/ui/third/base-translation/base-es.js:331, js/ui/third/base-translation/base-fr.js:332, js/ui/third/base-translation/base-ja.js:337, js/ui/third/base-translation/base-ko.js:332, js/ui/third/base-translation/base-ru.js:332, js/ui/third/base-translation/base-zh.js:343 |
 | `customPanelSizeY` | index.html:754 | js/project-management.js:249, js/sidebar/panel/panel-template.js:157, js/ui/third/base-translation/base-de.js:333, js/ui/third/base-translation/base-en.js:339, js/ui/third/base-translation/base-es.js:332, js/ui/third/base-translation/base-fr.js:333, js/ui/third/base-translation/base-ja.js:338, js/ui/third/base-translation/base-ko.js:333, js/ui/third/base-translation/base-ru.js:333, js/ui/third/base-translation/base-zh.js:344 |
 | `cutChangeRate` | index.html:987 | js/project-management.js:285, js/sidebar/panel/knife/knife-split-engine.js:73, js/ui/third/base-translation/base-de.js:117, js/ui/third/base-translation/base-en.js:122, js/ui/third/base-translation/base-es.js:117, js/ui/third/base-translation/base-fr.js:117, js/ui/third/base-translation/base-ja.js:121, js/ui/third/base-translation/base-ko.js:117, js/ui/third/base-translation/base-ru.js:117, js/ui/third/base-translation/base-zh.js:122 |
-| `cutout-area` | index.html:1286 | js/layer/layer-button.js:55, js/local-tools/background-removal-client.js:519, js/sidebar/sidebar.js:89, js/ui/canvas-object-menu.js:562, js/ui/visual-studio.js:335 |
+| `cutout-area` | index.html:1286 | js/layer/layer-button.js:29, js/local-tools/background-removal-client.js:519, js/sidebar/sidebar.js:89, js/ui/canvas-object-menu.js:562, js/ui/visual-studio.js:335 |
 | `cutoutHealthButton` | index.html:1358 | js/local-tools/background-removal-client.js:478 |
 | `cutoutOriginalPreview` | index.html:1363 | js/local-tools/background-removal-client.js:191 |
 | `cutoutPresetDeleteButton` | index.html:1301 | js/local-tools/background-removal-client.js:488 |
@@ -191,21 +191,21 @@
 | `dashboardWeeklyProgressText` | index.html:2958 | js/dashboard/dashboard-ui.js:919 |
 | `dashboardWordcloud` | index.html:2845 | js/dashboard/dashboard-ui.js:208, js/ui/third/i18next.js:4011 |
 | `desu-nav` | index.html:212 | index.html:132 |
-| `edit` | index.html:790 | js/ai/gpt-region-editor.js:457, js/core/svg/google-icon-helper.js:78, js/core/svg/google-icon-names.js:11, js/sidebar/panel/panel-manager.js:449, js/ui/canvas-object-menu.js:11, js/ui/util/mode-manager.js:346, scripts/full-feature-e2e.cjs:351, scripts/gpt-browser-acceptance.cjs:880, scripts/gpt-real-api-acceptance.cjs:209, scripts/gpt-region-editor-smoke-test.cjs:66 |
+| `edit` | index.html:790 | js/ai/gpt-region-editor.js:457, js/core/svg/google-icon-helper.js:78, js/core/svg/google-icon-names.js:11, js/sidebar/panel/panel-manager.js:433, js/ui/canvas-object-menu.js:11, js/ui/util/mode-manager.js:346, scripts/full-feature-e2e.cjs:351, scripts/gpt-browser-acceptance.cjs:880, scripts/gpt-real-api-acceptance.cjs:209, scripts/gpt-region-editor-smoke-test.cjs:66 |
 | `esApi-controls-mini` | index.html:2169 |  |
 | `esApiControlsPanel` | index.html:2166 |  |
-| `exportPxCappedNote` | index.html:424 | js/canvas-manager.js:346 |
-| `exportPxLandscapeHeight` | index.html:421 | js/canvas-manager.js:496 |
-| `exportPxLandscapeWidth` | index.html:418 | js/canvas-manager.js:496 |
-| `exportPxPortraitHeight` | index.html:412 | js/canvas-manager.js:496 |
-| `exportPxPortraitWidth` | index.html:409 | js/canvas-manager.js:496 |
+| `exportPxCappedNote` | index.html:424 | js/canvas-manager.js:342 |
+| `exportPxLandscapeHeight` | index.html:421 | js/canvas-manager.js:492 |
+| `exportPxLandscapeWidth` | index.html:418 | js/canvas-manager.js:492 |
+| `exportPxPortraitHeight` | index.html:412 | js/canvas-manager.js:492 |
+| `exportPxPortraitWidth` | index.html:409 | js/canvas-manager.js:492 |
 | `featureTable` | html/functionList.html:40 |  |
 | `flexGenH` | index.html:1000 | js/panel/random-cut.js:85, js/sidebar/panel/panel-template.js:226 |
 | `flexGenW` | index.html:998 | js/panel/random-cut.js:84, js/sidebar/panel/panel-template.js:225 |
-| `fontSelector` | index.html:1610 | js/core/font/font-dropdown.js:282, js/sidebar/speechBubble/speech-bubble-freehand.js:634, js/sidebar/speechBubble/speech-bubble-text.js:206, js/sidebar/text/text-effect.js:304, js/sidebar/text/vertical-text.js:5 |
+| `fontSelector` | index.html:1610 | js/core/font/font-dropdown.js:282, js/sidebar/speechBubble/speech-bubble-freehand.js:634, js/sidebar/speechBubble/speech-bubble-text.js:206, js/sidebar/text/text-effect.js:200, js/sidebar/text/vertical-text.js:5 |
 | `fontSizeSlider` | index.html:1631 | js/project-management.js:298, js/sidebar/speechBubble/speech-bubble-freehand.js:635, js/sidebar/speechBubble/speech-bubble-text.js:207, js/sidebar/text/text-effect.js:127, js/sidebar/text/vertical-text.js:6 |
 | `fontStrokeWidthSlider` | index.html:1634 | js/project-management.js:299, js/sidebar/speechBubble/speech-bubble-freehand.js:636, js/sidebar/speechBubble/speech-bubble-text.js:208, js/sidebar/text/text-effect.js:130, js/sidebar/text/vertical-text.js:7 |
-| `gridSizeInput` | index.html:470 | js/panel/grid.js:120, js/project-management.js:202 |
+| `gridSizeInput` | index.html:470 | js/panel/grid.js:104, js/project-management.js:202 |
 | `head-id` | index.html:603 | index.html:133 |
 | `horizontalRandomPanelCount` | index.html:981 | js/panel/random-cut.js:11, js/project-management.js:283 |
 | `i` | index.html:96 | index.html:96, js/sidebar/pen/pen-tools.js:672, js/sidebar/sidebar.js:68, js/svg/manga-panels-image-vertical.js:21, js/ui/imagePromptHelper/image-prompt-helper.js:376, js/ui/util/tagify-util.js:13 |
@@ -224,7 +224,7 @@
 | `image2Width` | index.html:1277 | js/assets/image2-controller.js:15 |
 | `imageCopy` | index.html:262 | js/ui/third/base-translation/base-de.js:441, js/ui/third/base-translation/base-en.js:400, js/ui/third/base-translation/base-es.js:393, js/ui/third/base-translation/base-fr.js:395, js/ui/third/base-translation/base-ja.js:446, js/ui/third/base-translation/base-ko.js:395, js/ui/third/base-translation/base-ru.js:394, js/ui/third/base-translation/base-zh.js:406 |
 | `imageDownload` | index.html:256 | js/ui/third/base-translation/base-de.js:442, js/ui/third/base-translation/base-en.js:399, js/ui/third/base-translation/base-es.js:392, js/ui/third/base-translation/base-fr.js:394, js/ui/third/base-translation/base-ja.js:447, js/ui/third/base-translation/base-ko.js:394, js/ui/third/base-translation/base-ru.js:393, js/ui/third/base-translation/base-zh.js:405, scripts/beginner-ux-guards-test.cjs:29 |
-| `imageInput` | index.html:2062 | js/canvas-manager.js:974, scripts/import-image-keeps-page-test.cjs:19 |
+| `imageInput` | index.html:2062 | js/canvas-manager.js:970, scripts/import-image-keeps-page-test.cjs:19 |
 | `intro_asset-library-area` | index.html:619 |  |
 | `intro_auto-generate-area` | index.html:624 | js/ui/third/tippy.js:49 |
 | `intro_content` | index.html:2122 | js/ui/canvas-object-menu.js:721 |
@@ -254,8 +254,8 @@
 | `k` | index.html:96 | index.html:96, js/ai/comfyui/v2/comfyui-default-object-info.js:5671, js/svg/manga-panels-image-vertical.js:24, js/ui/beginner-guide.js:305 |
 | `knifeModeButton` | index.html:762 | js/sidebar/panel/knife/knife-mode.js:10, js/ui/util/mode-manager.js:199 |
 | `knifePanelSpaceSize` | index.html:768 | js/project-management.js:196, js/sidebar/panel/knife/knife-split-engine.js:376 |
-| `layer-content` | index.html:2158 | js/layer/layer-management.js:150 |
-| `layer-panel` | index.html:2149 | js/project-management.js:654, js/shortcut.js:68, js/sidebar/panel/panel-manager.js:664 |
+| `layer-content` | index.html:2158 | js/layer/layer-management.js:119 |
+| `layer-panel` | index.html:2149 | js/project-management.js:654, js/shortcut.js:68, js/sidebar/panel/panel-manager.js:648 |
 | `layerSelectPageButton` | index.html:2152 | js/ui/beginner-guide.js:497 |
 | `layeredButton` | index.html:1713 |  |
 | `left-control` | index.html:1944 | js/ui/control/common-control-management.js:2 |
@@ -325,19 +325,19 @@
 | `naiDirectorUseApi` | index.html:2407 | js/ai/ai-settings.js:196, js/ai/prompt/novelai-composition-director.js:433, js/project-management.js:224 |
 | `naiDirectorUseProxy` | index.html:2413 | js/ai/ai-settings.js:196, js/ai/prompt/novelai-composition-director.js:434, js/project-management.js:225 |
 | `naiDirectorUseTagAnchors` | index.html:2407 | js/ai/ai-settings.js:196, js/ai/prompt/novelai-composition-director.js:952, js/project-management.js:218 |
-| `naiExportAllPagesPngButton` | index.html:1078 | js/ai/panel-pipeline-review.js:248 |
+| `naiExportAllPagesPngButton` | index.html:1078 | js/ai/panel-pipeline-review.js:201 |
 | `naiGenerateComicDemo` | index.html:2463 | js/ai/ai-settings.js:393 |
 | `naiGenerateMaterialPreviews` | index.html:2463 | js/ai/ai-settings.js:361 |
-| `naiGoNextReviewPanelButton` | index.html:1077 | js/ai/panel-pipeline-review.js:241 |
+| `naiGoNextReviewPanelButton` | index.html:1077 | js/ai/panel-pipeline-review.js:194 |
 | `naiHealthCheck` | index.html:2459 | js/ai/ai-settings.js:384, scripts/nai-real-acceptance.cjs:152 |
 | `naiHistoryClose` | index.html:2118 | js/ui/visual-ps-tools.js:591 |
 | `naiHistoryList` | index.html:2119 | js/ui/visual-ps-tools.js:536 |
 | `naiHistoryPanel` | index.html:2117 | js/ui/visual-ps-tools.js:555 |
 | `naiMarkPanelsForManualReview` | index.html:1073 | js/ai/panel-pipeline-review.js:23, js/project-management.js:288 |
 | `naiMaterialPreviewStatus` | index.html:2463 | js/ai/ai-settings.js:375 |
-| `naiObjectBiggerBtn` | index.html:2113 | js/canvas-manager.js:952 |
-| `naiObjectFitBtn` | index.html:2114 | js/canvas-manager.js:954 |
-| `naiObjectSmallerBtn` | index.html:2112 | js/canvas-manager.js:953 |
+| `naiObjectBiggerBtn` | index.html:2113 | js/canvas-manager.js:948 |
+| `naiObjectFitBtn` | index.html:2114 | js/canvas-manager.js:950 |
+| `naiObjectSmallerBtn` | index.html:2112 | js/canvas-manager.js:949 |
 | `naiPageSizeBadge` | index.html:2081 | js/canvas-manager.js:53 |
 | `naiPropFill` | index.html:2089 | js/ui/visual-ps-tools.js:229, js/ui/visual-studio.js:227 |
 | `naiPropOpacity` | index.html:2092 | js/ui/visual-studio.js:227 |
@@ -359,11 +359,11 @@
 | `naiToolOptionsBar` | index.html:2086 | js/ui/visual-studio.js:285 |
 | `naiToolOptionsControls` | index.html:2103 | js/ui/visual-studio.js:287 |
 | `naiToolOptionsMain` | index.html:2087 | js/ui/visual-studio.js:286 |
-| `naiZoomFitBtn` | index.html:2109 | js/canvas-manager.js:951 |
-| `naiZoomInBtn` | index.html:2108 | js/canvas-manager.js:949 |
-| `naiZoomLabel` | index.html:2107 | js/canvas-manager.js:655 |
-| `naiZoomLabelHeader` | index.html:2079 | js/canvas-manager.js:655 |
-| `naiZoomOutBtn` | index.html:2106 | js/canvas-manager.js:950 |
+| `naiZoomFitBtn` | index.html:2109 | js/canvas-manager.js:947 |
+| `naiZoomInBtn` | index.html:2108 | js/canvas-manager.js:945 |
+| `naiZoomLabel` | index.html:2107 | js/canvas-manager.js:651 |
+| `naiZoomLabelHeader` | index.html:2079 | js/canvas-manager.js:651 |
+| `naiZoomOutBtn` | index.html:2106 | js/canvas-manager.js:946 |
 | `naiZoomTools` | index.html:2104 |  |
 | `navbar-logo` | index.html:213 | js/ui/util/mode-change.js:44 |
 | `navbarDropdownCanvas` | index.html:383 |  |
@@ -374,7 +374,7 @@
 | `navbarDropdownPrompt` | index.html:362 |  |
 | `navbarDropdownView` | index.html:324 |  |
 | `navbarNavDropdown` | index.html:218 |  |
-| `negativeAreaId` | index.html:2203 | js/ai/novelai-only-mode.js:85, js/ai/ui/ai-ui-util.js:47 |
+| `negativeAreaId` | index.html:2203 | js/ai/novelai-only-mode.js:85, js/ai/ui/ai-ui-util.js:7 |
 | `novelaiApiKey` | index.html:2329 | js/ai/ai-settings.js:135, js/ai/prompt/director-safety.js:16, js/ai/provider/novelai-provider.js:16, js/project-management.js:206, js/ui/beginner-guide.js:323, scripts/nai-real-acceptance.cjs:102 |
 | `novelaiApiKeyToggle` | index.html:2330 | js/ai/ai-settings.js:133 |
 | `novelaiApiUrl` | index.html:2319 | js/ai/ai-settings.js:180, js/ai/provider/novelai-provider.js:24, js/project-management.js:204 |
@@ -398,13 +398,13 @@
 | `opacity-control` | index.html:1953 | js/ui/control/common-control-management.js:2 |
 | `other-controls-mini` | index.html:2234 | js/ui/ai/auto-prompt-ui.js:83 |
 | `otherControlsPanel` | index.html:2231 |  |
-| `outputBitDepth` | index.html:439 | js/canvas-manager.js:245, js/core/util/image-util.js:618, js/project-management.js:200, js/ui/third/base-translation/base-de.js:405, js/ui/third/base-translation/base-en.js:485, js/ui/third/base-translation/base-es.js:478, js/ui/third/base-translation/base-fr.js:480, js/ui/third/base-translation/base-ja.js:410, js/ui/third/base-translation/base-ko.js:480, js/ui/third/base-translation/base-ru.js:479, js/ui/third/base-translation/base-zh.js:491, scripts/image-export-smoke-test.cjs:368 |
-| `outputBitDepthHint` | index.html:445 | js/canvas-manager.js:253, js/ui/third/base-translation/base-de.js:409, js/ui/third/base-translation/base-en.js:489, js/ui/third/base-translation/base-es.js:482, js/ui/third/base-translation/base-fr.js:484, js/ui/third/base-translation/base-ja.js:414, js/ui/third/base-translation/base-ko.js:484, js/ui/third/base-translation/base-ru.js:483, js/ui/third/base-translation/base-zh.js:495, scripts/image-export-smoke-test.cjs:368 |
-| `outputDpi` | index.html:403 | js/canvas-manager.js:273, js/core/util/image-util.js:667, js/project-management.js:198, scripts/image-export-smoke-test.cjs:150 |
-| `outputImageEstimate` | index.html:461 | js/canvas-manager.js:549, js/ui/third/base-translation/base-de.js:399, js/ui/third/base-translation/base-en.js:479, js/ui/third/base-translation/base-es.js:472, js/ui/third/base-translation/base-fr.js:474, js/ui/third/base-translation/base-ja.js:404, js/ui/third/base-translation/base-ko.js:474, js/ui/third/base-translation/base-ru.js:473, js/ui/third/base-translation/base-zh.js:485 |
+| `outputBitDepth` | index.html:439 | js/canvas-manager.js:241, js/core/util/image-util.js:618, js/project-management.js:200, js/ui/third/base-translation/base-de.js:405, js/ui/third/base-translation/base-en.js:485, js/ui/third/base-translation/base-es.js:478, js/ui/third/base-translation/base-fr.js:480, js/ui/third/base-translation/base-ja.js:410, js/ui/third/base-translation/base-ko.js:480, js/ui/third/base-translation/base-ru.js:479, js/ui/third/base-translation/base-zh.js:491, scripts/image-export-smoke-test.cjs:368 |
+| `outputBitDepthHint` | index.html:445 | js/canvas-manager.js:249, js/ui/third/base-translation/base-de.js:409, js/ui/third/base-translation/base-en.js:489, js/ui/third/base-translation/base-es.js:482, js/ui/third/base-translation/base-fr.js:484, js/ui/third/base-translation/base-ja.js:414, js/ui/third/base-translation/base-ko.js:484, js/ui/third/base-translation/base-ru.js:483, js/ui/third/base-translation/base-zh.js:495, scripts/image-export-smoke-test.cjs:368 |
+| `outputDpi` | index.html:403 | js/canvas-manager.js:269, js/core/util/image-util.js:667, js/project-management.js:198, scripts/image-export-smoke-test.cjs:150 |
+| `outputImageEstimate` | index.html:461 | js/canvas-manager.js:545, js/ui/third/base-translation/base-de.js:399, js/ui/third/base-translation/base-en.js:479, js/ui/third/base-translation/base-es.js:472, js/ui/third/base-translation/base-fr.js:474, js/ui/third/base-translation/base-ja.js:404, js/ui/third/base-translation/base-ko.js:474, js/ui/third/base-translation/base-ru.js:473, js/ui/third/base-translation/base-zh.js:485 |
 | `outputImageEstimateRow` | index.html:458 |  |
-| `outputImageFormat` | index.html:430 | js/canvas-manager.js:244, js/core/util/image-util.js:673, js/project-management.js:199, js/ui/third/base-translation/base-de.js:397, js/ui/third/base-translation/base-en.js:477, js/ui/third/base-translation/base-es.js:470, js/ui/third/base-translation/base-fr.js:472, js/ui/third/base-translation/base-ja.js:402, js/ui/third/base-translation/base-ko.js:472, js/ui/third/base-translation/base-ru.js:471, js/ui/third/base-translation/base-zh.js:483 |
-| `outputImageQuality` | index.html:449 | js/canvas-manager.js:526, js/core/util/image-util.js:674, js/project-management.js:201, js/ui/third/base-translation/base-de.js:398, js/ui/third/base-translation/base-en.js:478, js/ui/third/base-translation/base-es.js:471, js/ui/third/base-translation/base-fr.js:473, js/ui/third/base-translation/base-ja.js:403, js/ui/third/base-translation/base-ko.js:473, js/ui/third/base-translation/base-ru.js:472, js/ui/third/base-translation/base-zh.js:484 |
+| `outputImageFormat` | index.html:430 | js/canvas-manager.js:240, js/core/util/image-util.js:673, js/project-management.js:199, js/ui/third/base-translation/base-de.js:397, js/ui/third/base-translation/base-en.js:477, js/ui/third/base-translation/base-es.js:470, js/ui/third/base-translation/base-fr.js:472, js/ui/third/base-translation/base-ja.js:402, js/ui/third/base-translation/base-ko.js:472, js/ui/third/base-translation/base-ru.js:471, js/ui/third/base-translation/base-zh.js:483 |
+| `outputImageQuality` | index.html:449 | js/canvas-manager.js:522, js/core/util/image-util.js:674, js/project-management.js:201, js/ui/third/base-translation/base-de.js:398, js/ui/third/base-translation/base-en.js:478, js/ui/third/base-translation/base-es.js:471, js/ui/third/base-translation/base-fr.js:473, js/ui/third/base-translation/base-ja.js:403, js/ui/third/base-translation/base-ko.js:473, js/ui/third/base-translation/base-ru.js:472, js/ui/third/base-translation/base-zh.js:484 |
 | `page-landscape` | index.html:739 | js/sidebar/panel/panel-template.js:163 |
 | `page-portrait` | index.html:735 | js/sidebar/panel/panel-template.js:162 |
 | `page-title` | html/functionList.html:37 | html/functionList.html:294 |
@@ -426,7 +426,7 @@
 | `pagePaperSwatches` | index.html:805 | js/sidebar/page/page-studio.js:576 |
 | `panel-manager-area` | index.html:728 | js/sidebar/sidebar.js:79, js/ui/beginner-guide.js:179, js/ui/visual-studio.js:328 |
 | `panel-manager-items` | index.html:730 |  |
-| `panelFillColor` | index.html:780 | js/project-management.js:251, js/sidebar/page/page-studio.js:457, js/sidebar/panel/panel-manager.js:554, js/simulator/story-to-manga.js:89 |
+| `panelFillColor` | index.html:780 | js/project-management.js:251, js/sidebar/page/page-studio.js:457, js/sidebar/panel/panel-manager.js:538, js/simulator/story-to-manga.js:89 |
 | `panelLayoutModeRandom` | index.html:954 |  |
 | `panelLayoutModeTemplate` | index.html:951 |  |
 | `panelLayoutRecommendButton` | index.html:969 | js/panel/layout-templates.js:368 |
@@ -434,18 +434,18 @@
 | `panelLayoutTemplateButton` | index.html:968 | js/panel/layout-templates.js:366 |
 | `panelLayoutTemplateSelect` | index.html:966 | js/panel/layout-templates.js:30, js/panel/random-cut.js:106, js/project-management.js:287 |
 | `panelLayoutTemplateWrap` | index.html:962 | js/panel/layout-templates.js:69 |
-| `panelOpacity` | index.html:786 | js/project-management.js:253, js/sidebar/panel/panel-manager.js:552, js/ui/third/base-translation/base-de.js:362, js/ui/third/base-translation/base-en.js:368, js/ui/third/base-translation/base-es.js:361, js/ui/third/base-translation/base-fr.js:362, js/ui/third/base-translation/base-ja.js:367, js/ui/third/base-translation/base-ko.js:364, js/ui/third/base-translation/base-ru.js:362, js/ui/third/base-translation/base-zh.js:373 |
+| `panelOpacity` | index.html:786 | js/project-management.js:253, js/sidebar/panel/panel-manager.js:536, js/ui/third/base-translation/base-de.js:362, js/ui/third/base-translation/base-en.js:368, js/ui/third/base-translation/base-es.js:361, js/ui/third/base-translation/base-fr.js:362, js/ui/third/base-translation/base-ja.js:367, js/ui/third/base-translation/base-ko.js:364, js/ui/third/base-translation/base-ru.js:362, js/ui/third/base-translation/base-zh.js:373 |
 | `panelRandomCutButton` | index.html:973 | js/panel/random-cut.js:135 |
-| `panelStrokeColor` | index.html:776 | js/project-management.js:250, js/sidebar/page/page-studio.js:469, js/sidebar/panel/panel-manager.js:534, js/simulator/story-to-manga.js:90 |
-| `panelStrokeWidth` | index.html:783 | js/project-management.js:252, js/sidebar/page/page-studio.js:470, js/sidebar/panel/panel-manager.js:533, js/simulator/story-to-manga.js:91 |
+| `panelStrokeColor` | index.html:776 | js/project-management.js:250, js/sidebar/page/page-studio.js:469, js/sidebar/panel/panel-manager.js:518, js/simulator/story-to-manga.js:90 |
+| `panelStrokeWidth` | index.html:783 | js/project-management.js:252, js/sidebar/page/page-studio.js:470, js/sidebar/panel/panel-manager.js:517, js/simulator/story-to-manga.js:91 |
 | `panelVariedMangaPerPage` | index.html:959 | js/panel/random-cut.js:81 |
 | `pen-tool-buttons` | index.html:1830 |  |
 | `pinokio` | html/API_Help/comfyui_settings.html:54 |  |
 | `projectLoad` | index.html:234 | js/project-management.js:23, js/shortcut.js:190, js/ui/third/base-translation/base-de.js:469, js/ui/third/base-translation/base-en.js:396, js/ui/third/base-translation/base-es.js:389, js/ui/third/base-translation/base-fr.js:391, js/ui/third/base-translation/base-ja.js:474, js/ui/third/base-translation/base-ko.js:391, js/ui/third/base-translation/base-ru.js:390, js/ui/third/base-translation/base-zh.js:402, scripts/beginner-ux-guards-test.cjs:29, scripts/full-feature-e2e.cjs:218 |
 | `projectSave` | index.html:228 | js/project-management.js:22, js/shortcut.js:182, js/ui/third/base-translation/base-de.js:470, js/ui/third/base-translation/base-en.js:395, js/ui/third/base-translation/base-es.js:388, js/ui/third/base-translation/base-fr.js:390, js/ui/third/base-translation/base-ja.js:475, js/ui/third/base-translation/base-ko.js:390, js/ui/third/base-translation/base-ru.js:389, js/ui/third/base-translation/base-zh.js:401, scripts/beginner-ux-guards-test.cjs:29, scripts/full-feature-e2e.cjs:208 |
-| `prompt-A` | index.html:2197 | js/ai/ui/ai-ui-util.js:42 |
-| `prompt-E` | index.html:2211 | js/ai/ui/ai-ui-util.js:43 |
-| `prompt-F` | index.html:2222 | js/ai/ui/ai-ui-util.js:44 |
+| `prompt-A` | index.html:2197 | js/ai/ui/ai-ui-util.js:2 |
+| `prompt-E` | index.html:2211 | js/ai/ui/ai-ui-util.js:3 |
+| `prompt-F` | index.html:2222 | js/ai/ui/ai-ui-util.js:4 |
 | `prompt-manager-area` | index.html:1412 | js/sidebar/sidebar.js:81 |
 | `ps-tools-area` | index.html:1808 | js/ui/visual-studio.js:332 |
 | `pwa-install-button` | index.html:585 | js/core/service/worker-register.js:84 |
@@ -578,7 +578,7 @@
 | `speech-bubble-area` | index.html:1443 | js/sidebar/sidebar.js:84, js/sidebar/speechBubble/speech-bubble-effect.js:303, js/ui/visual-studio.js:317, scripts/full-feature-e2e.cjs:148 |
 | `speech-bubble-area1` | index.html:1449 | js/sidebar/sidebar.js:47, js/sidebar/speechBubble/speech-bubble-effect.js:303 |
 | `speech-bubble-area2` | index.html:1494 | js/sidebar/sidebar.js:48 |
-| `speech-bubble-preview` | index.html:1488 | js/sidebar/panel/panel-manager.js:420, js/sidebar/speechBubble/speech-bubble-effect.js:137, js/ui/visual-studio.js:92 |
+| `speech-bubble-preview` | index.html:1488 | js/sidebar/panel/panel-manager.js:404, js/sidebar/speechBubble/speech-bubble-effect.js:137, js/ui/visual-studio.js:92 |
 | `speech-bubble-svg-preview-area1` | index.html:1452 |  |
 | `speech-bubble-svg-preview-area2` | index.html:1500 |  |
 | `speechBubbleLineSizeSlider` | index.html:1485 | js/project-management.js:258 |
@@ -603,7 +603,7 @@
 | `storyComposerTemplate` | index.html:1168 | js/simulator/simulator-studio.js:951, js/simulator/story-composer-controller.js:95 |
 | `storyComposerTitle` | index.html:1154 | js/simulator/story-composer-controller.js:110 |
 | `storyComposerTypes` | index.html:1157 | js/simulator/story-composer-controller.js:272 |
-| `svg-container-template` | index.html:703 | js/sidebar/panel/panel-manager.js:408, js/sidebar/sidebar.js:3, js/sidebar/speechBubble/speech-bubble-effect.js:293, js/ui/beginner-guide.js:187, js/ui/visual-studio.js:315 |
+| `svg-container-template` | index.html:703 | js/sidebar/panel/panel-manager.js:392, js/sidebar/sidebar.js:3, js/sidebar/speechBubble/speech-bubble-effect.js:293, js/ui/beginner-guide.js:187, js/ui/visual-studio.js:315 |
 | `svg-preview-area-landscape` | index.html:724 | js/sidebar/sidebar.js:105, js/sidebar/speechBubble/speech-bubble-effect.js:136, js/ui/visual-studio.js:91 |
 | `svg-preview-area-vertical` | index.html:723 | js/sidebar/sidebar.js:104, js/sidebar/speechBubble/speech-bubble-effect.js:135, js/ui/visual-studio.js:90 |
 | `svgDownload` | index.html:267 | js/project-management.js:697, scripts/full-feature-e2e.cjs:237 |
@@ -623,14 +623,14 @@
 | `text-area` | index.html:1586 | js/sidebar/sidebar.js:86, js/ui/visual-studio.js:319, scripts/full-feature-e2e.cjs:155 |
 | `text-area2` | index.html:1660 | js/sidebar/sidebar.js:87, js/ui/visual-studio.js:322 |
 | `text-area2-settings` | index.html:1739 | js/sidebar/text/text-2-manager.js:126 |
-| `text-preview-area` | index.html:1588 | js/sidebar/text/text-effect.js:494 |
+| `text-preview-area` | index.html:1588 |  |
 | `textBgColorPicker` | index.html:1628 | js/project-management.js:297, js/sidebar/text/text-effect.js:122, js/sidebar/text/vertical-text.js:19 |
 | `textColorPicker` | index.html:1620 | js/project-management.js:295, js/sidebar/speechBubble/speech-bubble-freehand.js:643, js/sidebar/speechBubble/speech-bubble-text.js:217, js/sidebar/text/text-effect.js:113, js/sidebar/text/vertical-text.js:16 |
 | `textOutlineColorPicker` | index.html:1624 | js/project-management.js:296, js/sidebar/speechBubble/speech-bubble-freehand.js:644, js/sidebar/speechBubble/speech-bubble-text.js:218, js/sidebar/text/text-effect.js:117, js/sidebar/text/vertical-text.js:17 |
 | `thrillButton` | index.html:1726 |  |
 | `tiltRandom` | index.html:984 | js/project-management.js:284, js/sidebar/panel/knife/knife-split-engine.js:70 |
 | `toggleAiPanelButton` | index.html:2083 | js/ui/beginner-guide.js:409 |
-| `toggleGridButton` | index.html:464 | js/panel/grid.js:119 |
+| `toggleGridButton` | index.html:464 | js/panel/grid.js:103 |
 | `toneList` | html/Minual/screen-tone.html:61 |  |
 | `tool-area` | index.html:1826 | js/sidebar/pen/pen-tools.js:663, js/sidebar/sidebar.js:63, js/ui/util/event-delegator.js:62, js/ui/visual-studio.js:340 |
 | `tool-settings` | index.html:1868 | js/sidebar/pen/pen-tools.js:114 |
@@ -639,10 +639,10 @@
 | `unifiedSettingsOverlay` | index.html:2273 | js/ai/ui/unified-settings-window.js:4 |
 | `usTabAI` | index.html:2280 | js/ui/third/i18next.js:1537 |
 | `verticalRandomPanelCount` | index.html:978 | js/panel/random-cut.js:10, js/project-management.js:282, js/ui/third/base-translation/base-de.js:114, js/ui/third/base-translation/base-en.js:119, js/ui/third/base-translation/base-es.js:114, js/ui/third/base-translation/base-fr.js:114, js/ui/third/base-translation/base-ja.js:118, js/ui/third/base-translation/base-ko.js:114, js/ui/third/base-translation/base-ru.js:114, js/ui/third/base-translation/base-zh.js:119 |
-| `verticalText` | index.html:1599 | js/layer/layer-management.js:244, js/sidebar/text/vertical-text.js:3, js/ui/visual-studio.js:395 |
-| `view_controls_checkbox` | index.html:342 | js/project-management.js:195, js/shortcut.js:75, js/sidebar/panel/panel-manager.js:666, js/ui/beginner-guide.js:349 |
-| `view_layers_checkbox` | index.html:333 | js/project-management.js:194, js/shortcut.js:68, js/sidebar/panel/panel-manager.js:663 |
-| `view_prompt_checkbox` | index.html:351 | js/project-management.js:247, js/shortcut.js:220, js/sidebar/panel/panel-manager.js:669 |
+| `verticalText` | index.html:1599 | js/layer/layer-management.js:213, js/sidebar/text/vertical-text.js:3, js/ui/visual-studio.js:395 |
+| `view_controls_checkbox` | index.html:342 | js/project-management.js:195, js/shortcut.js:75, js/sidebar/panel/panel-manager.js:650, js/ui/beginner-guide.js:349 |
+| `view_layers_checkbox` | index.html:333 | js/project-management.js:194, js/shortcut.js:68, js/sidebar/panel/panel-manager.js:647 |
+| `view_prompt_checkbox` | index.html:351 | js/project-management.js:247, js/shortcut.js:220, js/sidebar/panel/panel-manager.js:653 |
 | `wildButton` | index.html:1689 |  |
 | `zebraButton` | index.html:1732 |  |
 | `zoomFit` | index.html:2076 | js/ui/third/base-translation/base-de.js:314, js/ui/third/base-translation/base-en.js:320, js/ui/third/base-translation/base-es.js:313, js/ui/third/base-translation/base-fr.js:314, js/ui/third/base-translation/base-ja.js:319, js/ui/third/base-translation/base-ko.js:314, js/ui/third/base-translation/base-ru.js:314, js/ui/third/base-translation/base-zh.js:325, js/ui/third/tippy.js:88 |
@@ -656,7 +656,7 @@
 | `AdetailerCheck` | js/ai/sdwebui/sdwebui-settings.js:113 |
 | `AdetilerModelsNegative` | js/ai/sdwebui/sdwebui-settings.js:118 |
 | `AdetilerModelsPrompt` | js/ai/sdwebui/sdwebui-settings.js:117 |
-| `ExternalService_Heartbeat_Label_fw` | js/ai/comfyui/comfyui-management.js:161, js/ai/provider/falai-provider.js:191, js/ai/provider/novelai-provider.js:148 |
+| `ExternalService_Heartbeat_Label_fw` | js/ai/comfyui/comfyui-management.js:142, js/ai/provider/falai-provider.js:191, js/ai/provider/novelai-provider.js:148 |
 | `T2-Orientation-horizontal` | js/sidebar/text/text-2-manager.js:139 |
 | `T2-Orientation-vertical` | js/sidebar/text/text-2-manager.js:138 |
 | `T2-align-center` | js/sidebar/text/text-2-manager.js:136 |
@@ -671,20 +671,17 @@
 | `angle-modal` | js/ai/angle/angle-editor.js:21 |
 | `angle-original-img` | js/ai/angle/angle-editor.js:56 |
 | `angle-prompt` | js/ai/angle/angle-editor.js:45 |
-| `ar_height` | js/sidebar/panel/panel-template.js:248 |
-| `ar_width` | js/sidebar/panel/panel-template.js:247 |
-| `basePrompt_cfg_scale` | js/ai/ui/ai-ui-util.js:22 |
-| `basePrompt_model` | js/ai/sdwebui/sdwebui-multi-call-api.js:45 |
-| `blendApplyButton` | js/layer/blend/blend.js:220 |
-| `blendFillColor` | js/layer/blend/blend.js:652 |
-| `blendFloatingWindow` | js/layer/blend/blend.js:121 |
-| `blendImageListBody` | js/layer/blend/blend.js:436 |
-| `blendModes` | js/layer/blend/blend.js:235 |
-| `blendSelectedInfo` | js/layer/blend/blend.js:215 |
-| `btm-dialog-cancel` | js/ui/bottom-bar.js:434 |
-| `btm-dialog-submit` | js/ui/bottom-bar.js:435 |
+| `basePrompt_model` | js/ai/sdwebui/sdwebui-multi-call-api.js:22 |
+| `blendApplyButton` | js/layer/blend/blend.js:212 |
+| `blendFillColor` | js/layer/blend/blend.js:634 |
+| `blendFloatingWindow` | js/layer/blend/blend.js:491 |
+| `blendImageListBody` | js/layer/blend/blend.js:418 |
+| `blendModes` | js/layer/blend/blend.js:227 |
+| `blendSelectedInfo` | js/layer/blend/blend.js:207 |
+| `btm-dialog-cancel` | js/ui/bottom-bar.js:430 |
+| `btm-dialog-submit` | js/ui/bottom-bar.js:431 |
 | `canvas-area .area-header` | js/ai/gpt-region-editor.js:1053, js/ai/manga-character-bible-ui.js:181, js/ai/manga-page-structure-ui.js:346, js/ai/manga-smart-text-editor.js:436 |
-| `checSD_WebUI_Announce` | js/ai/ai-management.js:128 |
+| `checSD_WebUI_Announce` | js/ai/ai-management.js:124 |
 | `closeButton` | js/ai/comfyui/v2/comfyui-workflow-interact.js:146 |
 | `com-fill` | js/ui/canvas-object-menu.js:475 |
 | `com-lineWidth` | js/ui/canvas-object-menu.js:439 |
@@ -719,7 +716,7 @@
 | `fabricjs-language-selector` | js/ui/canvas-object-menu.js:2 |
 | `falaiApiKey` | js/ai/provider/falai-provider.js:19 |
 | `featureTable tbody` | html/functionList.html:267 |
-| `firstTextEffectColorPicker` | js/sidebar/text/text-effect.js:139 |
+| `firstTextEffectColorPicker` | js/sidebar/text/text-effect.js:340 |
 | `fm-fontFileUpload` | js/ui/font/user-font-manager.js:107 |
 | `fm-fontManagerModal` | js/core/font/font-manager-core.js:500 |
 | `fm-localFontInput` | js/core/font/font-manager-core.js:378 |
@@ -774,9 +771,9 @@
 | `glfxZoomStrength` | js/ui/control/glfx-control.js:27 |
 | `glowOutLineColorPicker` | js/sidebar/effect/effect-manager.js:119 |
 | `glowOutLineSlider` | js/sidebar/effect/effect-manager.js:118 |
-| `gradientDirection` | js/layer/blend/blend.js:620 |
-| `gradientEnd` | js/layer/blend/blend.js:645 |
-| `gradientStart` | js/layer/blend/blend.js:643 |
+| `gradientDirection` | js/layer/blend/blend.js:602 |
+| `gradientEnd` | js/layer/blend/blend.js:627 |
+| `gradientStart` | js/layer/blend/blend.js:625 |
 | `h div` | index.html:118 |
 | `head-id .left_area` | js/ui/visual-studio.js:44 |
 | `id` | scripts/gen-project-index.cjs:188 |
@@ -896,7 +893,6 @@
 | `promptRun` | js/ui/ai/auto-prompt-ui.js:119 |
 | `runpodComfyUIUrl` | js/ai/provider/runpod-comfyui-provider.js:23 |
 | `sdWebUIPageUrl` | js/ai/provider/local-sdwebui-provider.js:19, js/ai/sdwebui/sdwebui-settings.js:3 |
-| `secondTextEffectColorPicker` | js/sidebar/text/text-effect.js:140 |
 | `sidebar .icon-wrapper i.active` | js/simulator/simulator-studio.js:820 |
 | `sidebar .icon-wrapper[data-action="openSimulatorStudio"] i` | js/simulator/simulator-studio.js:821 |
 | `sidebar .icon-wrapper[data-action='selectCrop']` | js/sidebar/pen/pen-tools.js:699 |
@@ -906,7 +902,7 @@
 | `sidebar .icon-wrapper[data-ps-tool]` | js/ui/visual-ps-tools.js:113 |
 | `sidebar .icon-wrapper[data-target="tool-area"]` | js/sidebar/pen/pen-tools.js:669 |
 | `sidebar .icon-wrapper[data-target]` | js/sidebar/sidebar.js:66, js/ui/visual-studio.js:418 |
-| `sourceImages` | js/layer/blend/blend.js:333 |
+| `sourceImages` | js/layer/blend/blend.js:315 |
 | `sp-manga-toastMessageContainer` | js/ui/toast.js:49 |
 | `speed-line-style` | js/sidebar/tone/speedline.js:81 |
 | `t2_shadow_dualShadow` | js/sidebar/text/custom/optimized-shadow-text.js:121 |
@@ -967,7 +963,7 @@
 - js/ai/role/role-assignment-ui.js : `roleMatrixBody`
 - js/ai/sdwebui/sdwebui-multi-call-api.js : `basePrompt_model`
 - js/ai/sdwebui/sdwebui-settings.js : `AdetailerCheck`, `AdetilerModelsNegative`, `AdetilerModelsPrompt`, `sdWebUIPageUrl`
-- js/ai/ui/ai-ui-util.js : `apiSettingsUrlHelpe`, `basePrompt_cfg_scale`, `negativeAreaId`, `prompt-A`, `prompt-E`, `prompt-F`
+- js/ai/ui/ai-ui-util.js : `negativeAreaId`, `prompt-A`, `prompt-E`, `prompt-F`
 - js/ai/ui/model-settings-window.js : `modelSettingsOverlay`, `msLocalContainer`, `msRunpodContainer`, `msSDWebuiContainer`
 - js/ai/ui/unified-settings-window.js : `unifiedSettingsOverlay`
 - js/assets/asset-library-controller.js : `assetLibraryExportButton`, `assetLibraryGroups`, `assetLibraryImportButton`, `assetLibraryInput`, `assetLibraryList`, `assetLibraryNext`, `assetLibraryPackInput`, `assetLibraryPageLabel`, `assetLibraryPager`, `assetLibraryPrev`, `assetLibraryRestoreButton`, `assetLibrarySearch`, `assetLibraryStatus`, `assetLibraryTags`, `mangaImageCanvas`, `simulatorWorkspaceTabs`
@@ -1001,7 +997,7 @@
 - js/sidebar/panel/knife/knife-mode.js : `knifeModeButton`
 - js/sidebar/panel/knife/knife-split-engine.js : `cutChangeRate`, `knifePanelSpaceSize`, `tiltRandom`
 - js/sidebar/panel/panel-manager.js : `bg-color`, `canvas-container`, `controls`, `edit`, `layer-panel`, `panelFillColor`, `panelOpacity`, `panelStrokeColor`, `panelStrokeWidth`, `speech-bubble-preview`, `svg-container-template`, `view_controls_checkbox`, `view_layers_checkbox`, `view_prompt_checkbox`
-- js/sidebar/panel/panel-template.js : `CustomPanelButton`, `applyFlexGenSizeBtn`, `ar_height`, `ar_width`, `customPanelSizeX`, `customPanelSizeY`, `flexGenH`, `flexGenW`, `page-landscape`, `page-portrait`, `resetFlexGenSizeBtn`
+- js/sidebar/panel/panel-template.js : `CustomPanelButton`, `applyFlexGenSizeBtn`, `customPanelSizeX`, `customPanelSizeY`, `flexGenH`, `flexGenW`, `page-landscape`, `page-portrait`, `resetFlexGenSizeBtn`
 - js/sidebar/pen/pen-tools.js : `a`, `brushPresetGrid`, `customBrushAngle`, `customBrushApplyButton`, `customBrushColor`, `customBrushDeleteButton`, `customBrushEngine`, `customBrushExportButton`, `customBrushFollowPath`, `customBrushHardness`, `customBrushImportInput`, `customBrushName`, `customBrushOpacity`, `customBrushPresetSelect`, `customBrushSaveButton`, `customBrushScatter`, `customBrushSize`, `customBrushSmoothing`, `customBrushSpacing`, `customBrushTaperEnd`, `customBrushTaperStart`, `customBrushTipInput`, `i`, `line-style`, `pen-tool-buttons [data-brush]`, `sidebar .icon-wrapper[data-action='selectCrop']`, `sidebar .icon-wrapper[data-action='selectEraser']`, `sidebar .icon-wrapper[data-action='selectMarquee']`, `sidebar .icon-wrapper[data-action='selectMove']`, `sidebar .icon-wrapper[data-target="tool-area"]`, `tool-area`, `tool-settings`
 - js/sidebar/sidebar-ui.js : `settingsAutoSaveCheckbox`
 - js/sidebar/sidebar.js : `asset-library-area`, `auto-generate-area`, `control-area`, `cutout-area`, `i`, `manga-effect-area`, `manga-tone-area`, `panel-manager-area`, `prompt-manager-area`, `shape-area`, `sidebar .icon-wrapper[data-target]`, `sidebarMore`, `sidebarMoreToggle`, `simulator-chat-area`, `speech-bubble-area`, `speech-bubble-area1`, `speech-bubble-area2`, `speechBubbleTabs`, `svg-container-template`, `svg-preview-area-landscape`, `svg-preview-area-vertical`, `template-orientation-toggle`, `text-area`, `text-area2`, `tool-area`
@@ -1012,7 +1008,7 @@
 - js/sidebar/text/custom/optimized-water-text.js : `blend`
 - js/sidebar/text/sfx-palette.js : `sfxPaletteAdd`, `sfxPaletteInput`, `sfxPaletteList`, `sfxPaletteStyle`
 - js/sidebar/text/text-2-manager.js : `T2-Orientation-horizontal`, `T2-Orientation-vertical`, `T2-align-center`, `T2-align-left`, `T2-align-right`, `text-area2-settings`
-- js/sidebar/text/text-effect.js : `bold-toggle-btn`, `firstTextEffectColorPicker`, `fontSelector`, `fontSizeSlider`, `fontStrokeWidthSlider`, `secondTextEffectColorPicker`, `text-preview-area`, `textBgColorPicker`, `textColorPicker`, `textOutlineColorPicker`
+- js/sidebar/text/text-effect.js : `bold-toggle-btn`, `firstTextEffectColorPicker`, `fontSelector`, `fontSizeSlider`, `fontStrokeWidthSlider`, `textBgColorPicker`, `textColorPicker`, `textOutlineColorPicker`
 - js/sidebar/text/vertical-text.js : `fontSelector`, `fontSizeSlider`, `fontStrokeWidthSlider`, `textBgColorPicker`, `textColorPicker`, `textOutlineColorPicker`, `verticalText`
 - js/sidebar/tone/speedline.js : `speed-line-style`
 - js/sidebar/tone/tone-manager.js : `manga-tone-settings`

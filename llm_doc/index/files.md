@@ -76,16 +76,16 @@
 | html/common.css | 343 |  |
 | html/functionList.html | 321 |  |
 | index.html | 3079 |  |
-| js/ai/ai-management.js | 153 | AI機能の中央ルーター: プロバイダーレジストリ経由でディスパッチ |
+| js/ai/ai-management.js | 144 | AI機能の中央ルーター: プロバイダーレジストリ経由でディスパッチ |
 | js/ai/ai-settings.js | 422 |  |
 | js/ai/angle/angle-editor.js | 103 | アングル変更エディタ（モーダルオーバーレイ） |
 | js/ai/angle/camera-widget.js | 494 | 3Dカメラウィジェット（アングル選択用） |
-| js/ai/comfyui/comfyui-management.js | 511 |  |
-| js/ai/comfyui/util/comfyui-util.js | 108 |  |
+| js/ai/comfyui/comfyui-management.js | 492 |  |
+| js/ai/comfyui/util/comfyui-util.js | 91 |  |
 | js/ai/comfyui/util/comfyui-workflow-builder.js | 157 |  |
 | js/ai/comfyui/v2/comfyui-default-object-info.js | 10475 |  |
 | js/ai/comfyui/v2/comfyui-object-info-repository.js | 57 |  |
-| js/ai/comfyui/v2/comfyui-util-v2.js | 502 |  |
+| js/ai/comfyui/v2/comfyui-util-v2.js | 467 |  |
 | js/ai/comfyui/v2/comfyui-workflow-editor-tab.js | 623 | "Upscaler" |
 | js/ai/comfyui/v2/comfyui-workflow-editor.js | 308 |  |
 | js/ai/comfyui/v2/comfyui-workflow-interact.js | 239 |  |
@@ -118,9 +118,9 @@
 | js/ai/manga-text-ink-mask.js | 92 | Conservative dark-ink proposal for a user-selected TEXT rectangle. |
 | js/ai/nai-status-format.js | 25 | Human-readable NovelAI subscription status for the "检查 NAI" toast. |
 | js/ai/novelai-only-mode.js | 132 |  |
-| js/ai/panel-pipeline-review.js | 270 | 分镜流水线状态 + 生图后人工审阅 |
+| js/ai/panel-pipeline-review.js | 223 | 分镜流水线状态 + 生图后人工审阅 |
 | js/ai/prompt/auto/auto-generation.js | 105 |  |
-| js/ai/prompt/auto/auto-prompt-util.js | 846 | generatePageList(btmGetGuidsSize()); |
+| js/ai/prompt/auto/auto-prompt-util.js | 817 | generatePageList(btmGetGuidsSize()); |
 | js/ai/prompt/auto/character-card-manager.js | 544 |  |
 | js/ai/prompt/auto/prompt-map.js | 193 |  |
 | js/ai/prompt/auto/story-prompt-map.js | 114 |  |
@@ -134,15 +134,15 @@
 | js/ai/provider/novelai-provider.js | 581 | NovelAI provider: direct browser call to the official image API. |
 | js/ai/provider/provider-registry.js | 100 | プロバイダーレジストリ: プロバイダー登録とRole→プロバイダーのルーティング管理 |
 | js/ai/provider/runpod-comfyui-provider.js | 55 | RunPod ComfyUIプロバイダー: クラウド上のComfyUIに認証付きHTTPS接続 |
-| js/ai/queue/generation-task-manager.js | 322 |  |
-| js/ai/queue/spinner.js | 119 | AI進捗表示（レイヤー上インジケータ、キャンセル） |
+| js/ai/queue/generation-task-manager.js | 302 |  |
+| js/ai/queue/spinner.js | 116 | AI進捗表示（レイヤー上インジケータ、キャンセル） |
 | js/ai/queue/task-queue.js | 89 |  |
 | js/ai/role/ai-roles.js | 38 | NovelAI-only role definitions. |
 | js/ai/role/role-assignment-ui.js | 78 | Role Assignment: Role×プロバイダーのマトリクスUI |
-| js/ai/sdwebui/sdwebui-multi-call-api.js | 214 |  |
+| js/ai/sdwebui/sdwebui-multi-call-api.js | 191 |  |
 | js/ai/sdwebui/sdwebui-settings.js | 148 |  |
 | js/ai/sdwebui/sdwebui-single-call-api.js | 143 |  |
-| js/ai/ui/ai-ui-util.js | 48 |  |
+| js/ai/ui/ai-ui-util.js | 8 |  |
 | js/ai/ui/model-settings-window.js | 198 |  |
 | js/ai/ui/unified-settings-window.js | 38 |  |
 | js/assets/asset-blob-store.js | 70 |  |
@@ -158,10 +158,10 @@
 | js/assets/image2-job-store.js | 15 |  |
 | js/assets/original-starter-pack.js | 107 |  |
 | js/assets/site-ui-pack.js | 86 |  |
-| js/canvas-manager.js | 1019 |  |
+| js/canvas-manager.js | 1015 |  |
 | js/core/auto-save.js | 235 | 自動保存機能：IndexedDBへの定期保存と起動時の復元 |
 | js/core/compression/lz4.js | 226 |  |
-| js/core/compression/project-compression.js | 393 |  |
+| js/core/compression/project-compression.js | 327 |  |
 | js/core/debug.js | 404 |  |
 | js/core/font/font-dropdown.js | 295 |  |
 | js/core/font/font-manager-core.js | 750 |  |
@@ -175,29 +175,29 @@
 | js/core/util/anime-util.js | 11 |  |
 | js/core/util/array-buffer-utils.js | 53 |  |
 | js/core/util/fabric-text-focus.js | 74 | fabric の IText / Textbox は、入力用の 1px の textarea を |
-| js/core/util/fabric-util.js | 941 |  |
+| js/core/util/fabric-util.js | 865 |  |
 | js/core/util/html-canvas-util.js | 91 | html-canvas-util.js - HTMLキャンバスに対する低レベル操作（境界検出、スケーリング、ピクセル処理） |
 | js/core/util/image-analyzer-util.js | 121 |  |
 | js/core/util/image-util.js | 847 | image-util.js - Fabric.js画像オブジェクトの処理（変換、WebP、クロップ、反転、色変換など） |
 | js/core/util/js-util.js | 20 |  |
 | js/core/util/load-util.js | 94 | ユーティリティ関数：エラーハンドリングとログ出力を行う |
-| js/core/util/log-util.js | 48 |  |
+| js/core/util/log-util.js | 28 |  |
 | js/core/util/png-bit-depth.js | 583 | png-bit-depth.js - PNG のビット深度変換（グレースケール / 24bit RGB / 32bit ARGB）を行うブラウザ向けエンコーダ |
-| js/core/util/share-util.js | 15 |  |
-| js/dashboard/dashboard-ui.js | 1060 | ダッシュボードUIコンポーネント（モーダル表示） |
+| js/core/util/share-util.js | 8 |  |
+| js/dashboard/dashboard-ui.js | 1057 | ダッシュボードUIコンポーネント（モーダル表示） |
 | js/dashboard/performance-storage.js | 609 | パフォーマンス統計のlocalforage永続化 |
 | js/dashboard/prompt-frequency-storage.js | 194 | プロンプトタグ頻度のlocalforage永続化 |
 | js/db/user-font-repository.js | 83 | font-repository.js |
 | js/fabric/fabric-management.js | 694 |  |
-| js/layer/blend/blend.js | 719 | ブレンドモードUI - カテゴリ分類・プレビュー・適用処理 |
+| js/layer/blend/blend.js | 701 | ブレンドモードUI - カテゴリ分類・プレビュー・適用処理 |
 | js/layer/floating-window-management.js | 80 |  |
-| js/layer/image-history-management.js | 372 |  |
-| js/layer/layer-button.js | 303 |  |
-| js/layer/layer-management.js | 579 |  |
+| js/layer/image-history-management.js | 358 |  |
+| js/layer/layer-button.js | 94 |  |
+| js/layer/layer-management.js | 540 |  |
 | js/local-tools/background-removal-client.js | 545 |  |
 | js/local-tools/cutout-presets.js | 107 |  |
 | js/local-tools/local-tools-client.js | 98 |  |
-| js/panel/grid.js | 153 |  |
+| js/panel/grid.js | 137 |  |
 | js/panel/layout-templates.js | 388 | 常见漫画分镜模板（直线切分，可后期手调刀线） |
 | js/panel/random-cut.js | 136 |  |
 | js/project-management.js | 712 | Runtime image generation is NovelAI-only. Legacy provider modules may still |
@@ -213,8 +213,8 @@
 | js/sidebar/panel/knife/knife-mode.js | 81 | knife-mode.js |
 | js/sidebar/panel/knife/knife-split-engine.js | 519 | knife-split-engine.js |
 | js/sidebar/panel/knife/knife-state.js | 57 | knife-state.js |
-| js/sidebar/panel/panel-manager.js | 769 | function handleSelection(e) { |
-| js/sidebar/panel/panel-template.js | 612 |  |
+| js/sidebar/panel/panel-manager.js | 753 | function handleSelection(e) { |
+| js/sidebar/panel/panel-template.js | 404 |  |
 | js/sidebar/pen/brush-presets.js | 138 |  |
 | js/sidebar/pen/custom-brush.js | 274 |  |
 | js/sidebar/pen/fabric/brushes/crayon_brush.js | 120 | CrayonBrush class |
@@ -229,12 +229,12 @@
 | js/sidebar/pen/fabric/util/util.extend.js | 13 |  |
 | js/sidebar/pen/original-brush.js | 481 |  |
 | js/sidebar/pen/pen-tools.js | 855 |  |
-| js/sidebar/sidebar-ui.js | 248 |  |
+| js/sidebar/sidebar-ui.js | 211 |  |
 | js/sidebar/sidebar.js | 118 |  |
 | js/sidebar/speechBubble/speech-bubble-effect.js | 304 |  |
 | js/sidebar/speechBubble/speech-bubble-freehand.js | 868 |  |
 | js/sidebar/speechBubble/speech-bubble-text.js | 453 |  |
-| js/sidebar/text/custom/custom-text-util.js | 48 |  |
+| js/sidebar/text/custom/custom-text-util.js | 42 |  |
 | js/sidebar/text/custom/optimized-aurora-text.js | 127 |  |
 | js/sidebar/text/custom/optimized-broken-text.js | 137 |  |
 | js/sidebar/text/custom/optimized-cloud-text.js | 141 |  |
@@ -247,14 +247,14 @@
 | js/sidebar/text/custom/optimized-wild-text.js | 123 |  |
 | js/sidebar/text/custom/optimized-zebra-text.js | 141 |  |
 | js/sidebar/text/sfx-palette.js | 148 |  |
-| js/sidebar/text/text-2-manager.js | 404 |  |
-| js/sidebar/text/text-effect.js | 507 |  |
+| js/sidebar/text/text-2-manager.js | 401 |  |
+| js/sidebar/text/text-effect.js | 360 |  |
 | js/sidebar/text/vertical-text.js | 37 |  |
 | js/sidebar/text/vertical-textbox.js | 589 |  |
 | js/sidebar/tone/focusline.js | 230 |  |
 | js/sidebar/tone/rain-tone.js | 106 |  |
 | js/sidebar/tone/snow-tone.js | 181 |  |
-| js/sidebar/tone/speedline.js | 184 |  |
+| js/sidebar/tone/speedline.js | 167 |  |
 | js/sidebar/tone/tone-manager.js | 397 |  |
 | js/sidebar/tone/tone-noise.js | 145 |  |
 | js/sidebar/tone/tone.js | 220 |  |
@@ -287,9 +287,9 @@
 | js/svg/manga-panels-image-landscape.js | 30 |  |
 | js/svg/manga-panels-image-vertical.js | 43 |  |
 | js/svg/speechbubble.js | 50 |  |
-| js/ui/ai/auto-prompt-ui.js | 179 |  |
+| js/ui/ai/auto-prompt-ui.js | 170 |  |
 | js/ui/beginner-guide.js | 523 |  |
-| js/ui/bottom-bar.js | 466 | {guid, { imageLink, blob }} blob is lz4 |
+| js/ui/bottom-bar.js | 462 | {guid, { imageLink, blob }} blob is lz4 |
 | js/ui/canvas-object-menu.js | 734 | Canvas object right-click context menu |
 | js/ui/control/common-control-management.js | 60 |  |
 | js/ui/control/glfx-control.js | 456 |  |
@@ -301,7 +301,7 @@
 | js/ui/imagePromptHelper/hc-image-prompt-helper.js | 36 |  |
 | js/ui/imagePromptHelper/image-prompt-helper.js | 730 |  |
 | js/ui/imagePromptHelper/prompt-helper.js | 208 |  |
-| js/ui/overlay-progress.js | 94 |  |
+| js/ui/overlay-progress.js | 85 |  |
 | js/ui/prompt-manager.js | 63 |  |
 | js/ui/third/base-translation/base-de.js | 563 |  |
 | js/ui/third/base-translation/base-en.js | 578 |  |
@@ -312,9 +312,9 @@
 | js/ui/third/base-translation/base-ru.js | 556 |  |
 | js/ui/third/base-translation/base-zh.js | 604 |  |
 | js/ui/third/i18next.js | 5754 | "yyyyMMddHHmmss_SSS": { |
-| js/ui/third/intro.js | 23 |  |
+| js/ui/third/intro.js | 18 |  |
 | js/ui/third/tippy.js | 94 | Tooltip initialization using Tippy.js |
-| js/ui/toast.js | 130 | createToast(NieR風): success/info, createToastError(DbD風): error/warning |
+| js/ui/toast.js | 119 | createToast(NieR風): success/info, createToastError(DbD風): error/warning |
 | js/ui/tutorial.js | 429 |  |
 | js/ui/util/event-delegator.js | 94 | event-delegator.js - document-level event delegation utility |
 | js/ui/util/focus-trap.js | 85 | focus-trap.js - モーダル用フォーカストラップユーティリティ |
@@ -394,6 +394,7 @@
 | scripts/project-load-open-page-test.cjs | 43 | Regression: "Load project" only added page thumbnails; when the canvas was empty |
 | scripts/proxy-chain-negative-test.py | 269 |  |
 | scripts/proxy-guard-smoke-test.py | 66 |  |
+| scripts/remove-dead-functions.cjs | 36 | Usage: node scripts/remove-dead-functions.cjs list.tsv  (file<TAB>line<TAB>name per row). |
 | scripts/remove-spaces.cjs | 84 | JSファイルからインデントと不要なスペースを削除するスクリプト |
 | scripts/run-python.cjs | 29 | !/usr/bin/env node |
 | scripts/scene-plan-smoke-test.cjs | 9 |  |

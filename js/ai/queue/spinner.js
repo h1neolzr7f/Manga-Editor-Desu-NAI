@@ -72,9 +72,6 @@ aiProgressState.currentTaskId=null;
 }
 }
 
-function updateAiProgressDisplay(){
-}
-
 function renderAiTaskIndicators(detailsDiv,layerGuid){
 var currentCanvasGuid=getCanvasGUID();
 var tasks=getAiTasksForLayer(layerGuid,currentCanvasGuid);

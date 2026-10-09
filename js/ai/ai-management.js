@@ -42,10 +42,6 @@ return provider.executeI2I(layer,spinner.id);
 }
 }
 
-async function aiRembg(layer,spinner){
-createToastError('NovelAI Only','背景删除已移除');
-}
-
 async function aiUpscale(layer,spinner){
 createToastError('NovelAI Only','高清放大已移除');
 }
@@ -146,8 +142,3 @@ function updateVaeDropdown(models) {
 }
 
 
-//Before:ABC.safetensors [23e4fa2b6f]
-//After :ABC.safetensors
-function removeHashStr(str) {
-return str.replace(/\s*\[[^\]]+\]\s*$/,'');
-}

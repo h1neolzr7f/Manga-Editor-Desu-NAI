@@ -408,10 +408,6 @@ const guids=Array.from(btmProjectsMap.keys());
 return guids[index];
 }
 
-function btmGetFirstGuidByIndex() {
-return Array.from(btmProjectsMap.keys())[0];
-}
-
 function btmShowAddPageDialog(guid) {
 var dialog=document.createElement("div");
 dialog.className="btm-dialog-overlay";
