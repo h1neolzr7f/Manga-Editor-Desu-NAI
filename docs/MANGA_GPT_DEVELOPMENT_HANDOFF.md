@@ -35,6 +35,8 @@
 
 ## 4. 发布门禁与 P0/P1 执行顺序
 
+**P0 最新修复（本交接 PR）：** `99_server.py` 已增加代理入口的同源门禁：不可信 `Origin: null`、跨端口、DNS rebinding Host、跨站 `Sec-Fetch-Site` 在读取请求体和转发到 NovelAI / Director / Tagger 前被拒绝；OPTIONS 同样受保护；不会再向 `null` 返回允许读取的 CORS 头。HTTP 负测已写入 `scripts/local-secret-guard-test.py`（含攻击者自带 Token 的路径）。**修复代码存在不等于新 CI 已通过，需查看 PR #12 新提交的 Checks；其他模块仍待全面安全审查。**
+
 **P0：安全必须先核对。** 全面复核 `99_server.py` / 代理：不可信 Origin 和 `null` 来源、不同 Host、跨站 preflight、`/tagger-proxy`、`/director-proxy`、loopback SSRF、重定向、DNS rebinding、上传尺寸/超时与敏感 Key。加入真实 HTTP 恶意请求负例（上游接收次数应为 0）。**曾有旧脚本把 NovelAI Persistent API Token 发往第三方 Director 网关的记录：使用该旧 Token 的账号应主动更换 Token。** 不把 Key 写入仓库、测试日志、截图和报告；用户过去在聊天里给出的第三方 Key 不允许从历史消息直接复制到项目。
 
 **P1：功能可用性。** 真漫画日文 OCR、真实 LaMa（含 CPU/GPU/首用模型）、人物参考图与区域对齐、项目保存与重载、撤销重做、mask 外像素一致性、局部改图清晰度、中文路径 Windows 10/11、启动器与便携 ZIP、代理/TUN、原有 NovelAI 真调用。存在任意缺口时保留 Draft。
