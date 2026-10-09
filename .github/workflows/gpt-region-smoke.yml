@@ -1,0 +1,46 @@
+name: Manga-NAI-GPT offline checks
+
+on:
+  pull_request:
+    paths:
+      - "gpt_image_proxy.py"
+      - "99_server.py"
+      - "index.html"
+      - "js/ai/gpt-region-editor.js"
+      - "css/gpt-region-editor.css"
+      - "scripts/gpt-*-smoke-test.*"
+      - ".github/workflows/gpt-region-smoke.yml"
+  push:
+    branches:
+      - "feat/manga-nai-gpt-region-editor"
+    paths:
+      - "gpt_image_proxy.py"
+      - "99_server.py"
+      - "index.html"
+      - "js/ai/gpt-region-editor.js"
+      - "css/gpt-region-editor.css"
+      - "scripts/gpt-*-smoke-test.*"
+      - ".github/workflows/gpt-region-smoke.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Python syntax
+        run: python -m py_compile gpt_image_proxy.py 99_server.py
+      - name: GPT image proxy contract
+        run: python scripts/gpt-image-proxy-smoke-test.py
+      - name: GPT canvas editor smoke
+        run: node scripts/gpt-region-editor-smoke-test.cjs
+      - name: Existing layout smoke
+        run: npm test
