@@ -5,7 +5,7 @@
   'use strict';
   const $=id=>document.getElementById(id);
   const MAX_PIXELS=3_000_000;
-  let ongoing=false, ticket=0, approved=null, prepared=null, brushMode='add', brushRadius=12, painting=false;
+  let ongoing=false, ticket=0, approved=null, prepared=null, brushMode='add', brushRadius=12, painting=false, lastPointer=null;
   const node=(tag,text)=>{
     const n=document.createElement(tag);
     if(text!==undefined)n.textContent=text;
@@ -82,10 +82,16 @@
     const x=Math.max(0,Math.min(crop.width,(event.clientX-rect.left)/rect.width*crop.width));
     const y=Math.max(0,Math.min(crop.height,(event.clientY-rect.top)/rect.height*crop.height));
     const g=crop.maskCanvas.getContext('2d');
-    g.beginPath();
-    g.arc(x,y,brushRadius,0,Math.PI*2);
     g.fillStyle=brushMode==='add'?'#fff':'#000';
-    g.fill();
+    const gap=lastPointer?Math.hypot(x-lastPointer.x,y-lastPointer.y):0;
+    const steps=Math.max(1,Math.ceil(gap/Math.max(1,brushRadius*.5)));
+    for(let i=0;i<=steps;i++){
+      const t=i/steps;
+      const px=lastPointer?lastPointer.x+(x-lastPointer.x)*t:x;
+      const py=lastPointer?lastPointer.y+(y-lastPointer.y)*t:y;
+      g.beginPath();g.arc(px,py,brushRadius,0,Math.PI*2);g.fill();
+    }
+    lastPointer={x,y};
     approved=null;
     $('mangaLamaConfirm').disabled=true;
     $('mangaLamaPreviewImg').hidden=true;
@@ -158,11 +164,11 @@
     maskCanvas.addEventListener('pointerdown',e=>{
       if(e.button!==0||!prepared||ongoing)return;
       e.preventDefault();
-      painting=true;maskCanvas.setPointerCapture(e.pointerId);markPoint(e);
+      painting=true;lastPointer=null;maskCanvas.setPointerCapture(e.pointerId);markPoint(e);
     });
     maskCanvas.addEventListener('pointermove',e=>{if(painting)markPoint(e);});
-    maskCanvas.addEventListener('pointerup',()=>{painting=false;});
-    maskCanvas.addEventListener('pointercancel',()=>{painting=false;});
+    maskCanvas.addEventListener('pointerup',()=>{painting=false;lastPointer=null;});
+    maskCanvas.addEventListener('pointercancel',()=>{painting=false;lastPointer=null;});
     return panel;
   }
   function cancel(){
@@ -170,7 +176,7 @@
     ongoing=false;
     approved=null;
     prepared=null;
-    painting=false;
+    painting=false;lastPointer=null;
     const panel=$('mangaLamaPreviewPanel');
     if(panel)panel.hidden=true;
     if($('mangaLamaConfirm'))$('mangaLamaConfirm').disabled=true;
@@ -244,10 +250,18 @@
     const pixels=ctx.getImageData(0,0,crop.width,crop.height);
     const mask=crop.maskCanvas.getContext('2d',{willReadFrequently:true})
       .getImageData(0,0,crop.width,crop.height).data;
-    for(let i=0;i<mask.length;i+=4) {
-      // Only hand-painted mask pixels become part of the overlay layer.
-      // All artwork outside this zone remains the underlying original pixels.
-      pixels.data[i+3]=Math.round(pixels.data[i+3]*(mask[i]/255));
+    const soft=document.createElement('canvas');
+    soft.width=crop.width;soft.height=crop.height;
+    const sg=soft.getContext('2d',{willReadFrequently:true});
+    // Feather the INNER edge of an irregular brush mask without touching
+    // any original pixel outside the user's explicitly painted region.
+    sg.filter='blur(3px)';
+    sg.drawImage(crop.maskCanvas,0,0);
+    const feather=sg.getImageData(0,0,crop.width,crop.height).data;
+    for(let i=0;i<mask.length;i+=4){
+      pixels.data[i+3]=mask[i]>=128
+        ?Math.round(pixels.data[i+3]*(Math.min(mask[i],feather[i])/255))
+        :0;
     }
     ctx.putImageData(pixels,0,0);
     return output.toDataURL('image/png');
