@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from http.server import SimpleHTTPRequestHandler
 import socketserver
 import os
+import sys
 import mimetypes
 import urllib.error
 import urllib.parse
@@ -893,6 +894,10 @@ if __name__ == '__main__':
     try:
         httpd_instance = ThreadedTCPServer((ADDRESS, PORT), CORSRequestHandler)
     except OSError as error:
+        try:
+            sys.stdout.reconfigure(errors='replace')  # non-CJK consoles must not crash on the hint
+        except Exception:
+            pass
         print(f"[ERROR] 端口 {PORT} 已被占用或无法监听（{error}）。")
         print(f"[ERROR] Port {PORT} is busy or cannot be bound. Close the other program using it "
               f"(Linux: ss -ltnp | grep :{PORT}; Windows: netstat -ano | findstr :{PORT}) and retry.")

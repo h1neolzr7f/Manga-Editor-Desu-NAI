@@ -26,7 +26,7 @@ class PortConflictTest(unittest.TestCase):
         blocker.listen(1)
         try:
             result = subprocess.run([sys.executable, "99_server.py"], cwd=str(ROOT), capture_output=True,
-                                    text=True, timeout=20, env=dict(os.environ, PYTHONIOENCODING="utf-8"))
+                                    text=True, encoding="utf-8", errors="replace", timeout=20, env=dict(os.environ, PYTHONIOENCODING="cp1252"))
         finally:
             blocker.close()
         self.assertEqual(result.returncode, 98, result.stdout + result.stderr)
