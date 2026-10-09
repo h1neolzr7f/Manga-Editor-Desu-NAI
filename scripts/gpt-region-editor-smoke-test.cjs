@@ -61,7 +61,7 @@ const elements = Object.fromEntries([
   'mangaGptApply', 'mangaGptReplaceText', 'mangaGptMode',
   'mangaGptReferences', 'mangaGptReferenceList', 'mangaGptPreview',
   'mangaGptUrl', 'mangaGptModel', 'mangaGptSize', 'mangaGptKey',
-  'mangaGptPrompt', 'mangaGptSubtitle', 'mangaGptAllowUpscale'
+  'mangaGptPrompt', 'mangaGptSubtitle', 'mangaGptAllowUpscale', 'mangaGptCancel', 'mangaGptIncludeText'
 ].map(id => [id, new MockNode('input')]));
 elements.mangaGptMode.value = 'edit';
 elements.mangaGptUrl.value = 'https://api.example.com/v1';
@@ -82,16 +82,34 @@ const fakeDocument = {
   readyState: 'loading',
   events: {},
   body: new MockNode('body'),
-  createElement: tag => new MockNode(tag),
+  createElement: tag => {
+    const node = new MockNode(tag);
+    if (tag === 'canvas') {
+      node.drawn = [];
+      node.getContext = () => ({ fillRect() {}, drawImage: (...args) => node.drawn.push(args), set fillStyle(v) {} });
+      node.toDataURL = () => 'data:image/png;base64,UEFEREVE';
+      createdCanvases.push(node);
+    }
+    return node;
+  },
   getElementById: id => elements[id] || null,
   querySelector: selector => selector === '#canvas-area .area-header' ? new MockNode('header') : null,
   addEventListener(name, cb) { this.events[name] = cb; }
 };
 let saved = 0;
+const createdCanvases = [];
+class MockImage {
+  set src(value) { this._src = value; this.width = 1600; this.height = 1800; setTimeout(() => this.onload(), 0); }
+}
 let proxyCalls = 0;
+const windowListeners = {};
+const windowMock = {
+  addEventListener(name, cb) { (windowListeners[name] = windowListeners[name] || new Set()).add(cb); },
+  removeEventListener(name, cb) { if (windowListeners[name]) windowListeners[name].delete(cb); }
+};
 let proxyBody;
 const sandbox2 = {
-  document: fakeDocument, window: {}, canvas: page,
+  document: fakeDocument, window: windowMock, canvas: page, Image: MockImage, setTimeout, clearTimeout,
   location: { protocol: 'http:', origin: 'http://127.0.0.1:8000' },
   fabric: {
     Image: {
@@ -126,22 +144,46 @@ overlay.handlers.pointerdown({ button: 0, clientX: 15, clientY: 20,
   pointerId: 1, preventDefault() {} });
 overlay.handlers.pointerup({ clientX: 95, clientY: 110 });
 assert(overlay.removed, 'selection overlay must not remain after crop');
+assert.equal((windowListeners.scroll || new Set()).size, 0, 'scroll listener removed after selection');
+
+// A page scroll / resize during selection aborts it instead of mapping to the wrong pixels.
+const savedRegionStatus = elements.mangaGptStatus.textContent;
+elements.mangaGptSelect.handlers.click();
+const overlay2 = fakeDocument.body.children.at(-1);
+assert.equal(windowListeners.scroll.size, 1);
+[...windowListeners.scroll][0]();
+assert(overlay2.removed, 'overlay removed when the page scrolls');
+assert.match(elements.mangaGptStatus.textContent, /重新点/);
+assert.equal(windowListeners.scroll.size, 0);
+assert.equal(windowListeners.resize.size, 0);
+elements.mangaGptStatus.textContent = savedRegionStatus;
 
 (async () => {
   await elements.mangaGptGenerate.handlers.click();
   assert.equal(proxyCalls, 1);
   assert.equal(proxyBody.operation, 'edit');
-  assert.equal(proxyBody.image, page.toDataURL());
+  // The 1600x1800 selection is letterboxed (white bars) to the nearest API aspect (1:1)
+  // instead of being cropped, and the matching size is requested explicitly.
+  assert.equal(proxyBody.size, '1024x1024');
+  assert.equal(proxyBody.image, 'data:image/png;base64,UEFEREVE');
+  const padded = createdCanvases.at(-1);
+  assert.equal(padded.width, 1024);
+  assert.equal(padded.height, 1024);
+  const [, dx, dy, dw, dh] = padded.drawn[0];
+  assert(Math.abs(dw / dh - 1600 / 1800) < 1e-9, 'selection keeps its aspect inside the letterbox');
+  assert(dx > 0 && Math.abs(dy) < 1e-9 && Math.abs(dh - 1024) < 1e-9);
   assert.equal(elements.mangaGptApply.disabled, false);
   await elements.mangaGptApply.handlers.click();
   assert(page.added, 'a new Fabric image must be added');
   assert.equal(page.added.left, 300);
   assert.equal(page.added.top, 400);
-  assert.equal(page.added.scaleX, 1800 / 2200);
-  assert.equal(page.added.scaleY, 1800 / 2200);
-  assert.equal(page.added.cropX > 0, true, 'square result is center-cropped horizontally');
+  assert(Math.abs(page.added.scaleX - 1800 / 2200) < 1e-9);
+  assert.equal(page.added.scaleX, page.added.scaleY);
+  assert.equal(page.added.cropX > 0, true, 'letterbox bars are removed horizontally');
   assert.equal(page.added.cropY, 0);
   assert.equal(Math.round(page.added.width * page.added.scaleX), 1600);
+  assert.equal(page.added.name, 'GPT 局部改图');
+  assert.equal(page.added.mangaGptSource, 'openai-compatible-image');
   assert.equal(Math.round(page.added.height * page.added.scaleY), 1800);
   assert.equal(saved, 1, 'one history snapshot for one applied patch');
   assert.equal(page.getWidth(), 2000);
@@ -172,4 +214,37 @@ assert(overlay.removed, 'selection overlay must not remain after crop');
   assert.equal(bubbleText.text, '气泡修改');
   assert.equal(saved, 4);
   console.log('PASS mocked region selection -> HTTP -> Fabric layer -> undo snapshots + vertical/bubble text');
+
+  // ---- Aspect regression matrix: selection (wide/tall/square) x model result (1:1, 3:2, 2:3).
+  const api = sandbox2.window.MangaGPTRegionEditor;
+  const selections = [[900, 300], [300, 900], [500, 500], [1654, 2339], [1200, 1100]];
+  const results = [[1024, 1024], [1536, 1024], [1024, 1536], [1254, 1254]];
+  for (const [w, h] of selections) {
+    const plan = api.letterboxPlan(w, h, 'auto');
+    const [pw, ph] = plan.size.split('x').map(Number);
+    assert(Math.abs(plan.width / plan.height - pw / ph) < 0.01, 'padded image has API aspect');
+    assert(plan.width <= pw && plan.height <= ph, 'padded upload never exceeds the API size');
+    assert(Math.abs((plan.inner.w * plan.width) / (plan.inner.h * plan.height) - w / h) < 0.01,
+      'selection keeps its aspect inside the padding');
+    for (const [rw, rh] of results) {
+      const rect = api.resultCropRect(rw, rh, { width: w, height: h, plan });
+      assert(Math.abs(rect.w / rect.h - w / h) < 1e-6, 'no stretching: crop has selection aspect');
+      assert(rect.x >= -1e-9 && rect.y >= -1e-9 && rect.x + rect.w <= rw + 1e-6 && rect.y + rect.h <= rh + 1e-6);
+      if (rw / rh === pw / ph) {
+        // Model honoured the requested aspect: the whole selection comes back, nothing trimmed.
+        assert(Math.abs(rect.w - plan.inner.w * rw) < 1e-6 && Math.abs(rect.h - plan.inner.h * rh) < 1e-6);
+      }
+    }
+  }
+  const explicit = api.letterboxPlan(900, 300, '1024x1536');
+  assert.equal(explicit.size, '1024x1536', 'explicit size choice is respected');
+
+  // ---- Lettering stays above the new layer.
+  const art = { type: 'image' }; const t1 = { type: 'vertical-textbox' };
+  const b1 = { customType: 'speechBubbleSVG', type: 'path' }; const patch = { type: 'image' };
+  assert.equal(api.letteringInsertIndex([art, b1, t1, patch], patch), 1);
+  assert.equal(api.letteringInsertIndex([art, patch], patch), 1);
+  assert.equal(api.letteringInsertIndex([b1, art, t1, patch], patch), 2);
+  assert(api.isLettering({ type: 'i-text' }) && api.isLettering({ isSpeechBubble: true }) && !api.isLettering(art));
+  console.log('PASS letterbox aspect matrix (5 selections x 4 result shapes) and lettering z-order');
 })().catch(err => { console.error(err); process.exitCode = 1; });

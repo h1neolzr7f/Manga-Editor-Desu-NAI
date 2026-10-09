@@ -10,8 +10,14 @@
     result: '',
     pending: false,
     references: [],
-    selectionOverlay: null
+    selectionOverlay: null,
+    selectionCleanup: null,
+    controller: null
   };
+
+  const TEXT_TYPES = ['text', 'textbox', 'i-text', 'vertical-textbox'];
+  const SIZE_ASPECTS = { '1024x1024': [1024, 1024], '1536x1024': [1536, 1024], '1024x1536': [1024, 1536] };
+  const REQUEST_TIMEOUT_MS = 180000;
 
   const $g = id => document.getElementById(id);
   const pageCanvas = () => (typeof canvas !== 'undefined' && canvas && typeof canvas.toDataURL === 'function') ? canvas : null;
@@ -40,15 +46,116 @@
     });
   }
 
-  function cropCanvas(c, region) {
-    return c.toDataURL({
-      format: 'png',
-      multiplier: 1,
-      left: region.left,
-      top: region.top,
-      width: region.width,
-      height: region.height
+  // Lettering = editable text and speech bubbles. It stays vector/editable above
+  // the GPT patch instead of being baked into (and possibly garbled by) the model.
+  function isLettering(obj) {
+    if (!obj) return false;
+    if (TEXT_TYPES.includes(obj.type)) return true;
+    if (obj.isSpeechBubble) return true;
+    return obj.customType === 'speechBubbleSVG' || obj.customType === 'speechBubbleText' ||
+      (typeof isFreehandBubblePath === 'function' && isFreehandBubblePath(obj));
+  }
+
+  function cropCanvas(c, region, excludeLettering) {
+    const hidden = [];
+    if (excludeLettering && typeof c.getObjects === 'function') {
+      c.getObjects().forEach(obj => {
+        if (isLettering(obj) && obj.visible !== false) {
+          obj.visible = false;
+          hidden.push(obj);
+        }
+      });
+    }
+    try {
+      return c.toDataURL({
+        format: 'png',
+        multiplier: 1,
+        left: region.left,
+        top: region.top,
+        width: region.width,
+        height: region.height
+      });
+    } finally {
+      hidden.forEach(obj => { obj.visible = true; });
+    }
+  }
+
+  function regionUnchanged(c, r) {
+    return !!r && r.canvas === c && r.canvasWidth === c.getWidth() && r.canvasHeight === c.getHeight() &&
+      cropCanvas(c, r, r.excludeLettering) === r.image;
+  }
+
+  // Pad the selection to an aspect the image API can return (1:1, 3:2, 2:3) instead of
+  // letting the API/our code crop it: nothing inside the selection (heads, hands) is lost.
+  function letterboxPlan(width, height, size) {
+    let key = size;
+    if (!SIZE_ASPECTS[key]) {
+      const ratio = width / height;
+      key = Object.keys(SIZE_ASPECTS).reduce((best, candidate) => {
+        const [w, h] = SIZE_ASPECTS[candidate];
+        const [bw, bh] = SIZE_ASPECTS[best];
+        return Math.abs(Math.log(ratio / (w / h))) < Math.abs(Math.log(ratio / (bw / bh))) ? candidate : best;
+      }, '1024x1024');
+    }
+    const [maxW, maxH] = SIZE_ASPECTS[key];
+    const target = maxW / maxH;
+    let paddedW = width;
+    let paddedH = height;
+    if (width / height > target) paddedH = width / target;
+    else paddedW = height * target;
+    const scale = Math.min(1, maxW / paddedW);
+    const outW = Math.max(1, Math.round(paddedW * scale));
+    const outH = Math.max(1, Math.round(paddedH * scale));
+    const innerW = width * scale;
+    const innerH = height * scale;
+    return {
+      size: key, width: outW, height: outH,
+      inner: { x: (outW - innerW) / 2 / outW, y: (outH - innerH) / 2 / outH, w: innerW / outW, h: innerH / outH }
+    };
+  }
+
+  function letterboxImage(dataUrl, plan) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const out = document.createElement('canvas');
+        out.width = plan.width;
+        out.height = plan.height;
+        const ctx = out.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, out.width, out.height);
+        ctx.drawImage(img, plan.inner.x * out.width, plan.inner.y * out.height,
+          plan.inner.w * out.width, plan.inner.h * out.height);
+        resolve(out.toDataURL('image/png'));
+      };
+      img.onerror = () => reject(new Error('无法准备选区图片。'));
+      img.src = dataUrl;
     });
+  }
+
+  // Source rectangle inside the model result that corresponds to the selection.
+  function resultCropRect(imageWidth, imageHeight, region) {
+    const inner = region.plan ? region.plan.inner : { x: 0, y: 0, w: 1, h: 1 };
+    let x = inner.x * imageWidth;
+    let y = inner.y * imageHeight;
+    let w = inner.w * imageWidth;
+    let h = inner.h * imageHeight;
+    // If the model ignored the requested aspect, keep uniform scale with a minimal centered trim.
+    const aspect = region.width / region.height;
+    if (w / h > aspect) { const nw = h * aspect; x += (w - nw) / 2; w = nw; }
+    else { const nh = w / aspect; y += (h - nh) / 2; h = nh; }
+    return { x, y, w, h };
+  }
+
+  function letteringInsertIndex(objects, inserted) {
+    let index = objects.length - 1;
+    for (let i = objects.length - 1; i >= 0; i--) {
+      const obj = objects[i];
+      if (obj === inserted) continue;
+      if (!isLettering(obj)) break;
+      index = i;
+    }
+    return index;
   }
 
   function normalizeRegion(startX, startY, endX, endY, rect, c) {
@@ -64,6 +171,8 @@
   function cancelSelection() {
     if (state.selectionOverlay) state.selectionOverlay.remove();
     state.selectionOverlay = null;
+    if (state.selectionCleanup) state.selectionCleanup();
+    state.selectionCleanup = null;
   }
 
   function startSelection() {
@@ -89,6 +198,19 @@
     overlay.appendChild(rectangle);
     document.body.appendChild(overlay);
     state.selectionOverlay = overlay;
+    // The overlay is fixed to the canvas rectangle captured now; if the page scrolls,
+    // zooms or resizes the mapping would be wrong, so abort instead of mis-selecting.
+    const abortOnMove = () => {
+      if (state.selectionOverlay !== overlay) return;
+      cancelSelection();
+      feedback('画布位置已变化（滚动/缩放/窗口大小），请重新点“框选区域”。', true);
+    };
+    window.addEventListener('resize', abortOnMove);
+    window.addEventListener('scroll', abortOnMove, true);
+    state.selectionCleanup = () => {
+      window.removeEventListener('resize', abortOnMove);
+      window.removeEventListener('scroll', abortOnMove, true);
+    };
     let start = null;
     overlay.addEventListener('pointerdown', event => {
       if (event.button !== 0 && event.button !== 2) return;
@@ -117,8 +239,10 @@
         return;
       }
       try {
-        const image = cropCanvas(c, region);
-        state.region = { canvas: c, ...region, image, canvasWidth: c.getWidth(), canvasHeight: c.getHeight() };
+        const excludeLettering = !$g('mangaGptIncludeText') || !$g('mangaGptIncludeText').checked;
+        const image = cropCanvas(c, region, excludeLettering);
+        state.region = { canvas: c, ...region, image, excludeLettering,
+          canvasWidth: c.getWidth(), canvasHeight: c.getHeight() };
         state.result = '';
         $g('mangaGptApply').disabled = true;
         $g('mangaGptPreview').src = image;
@@ -148,11 +272,8 @@
     if (operation === 'edit' && (!state.region || state.region.canvas !== c)) {
       return feedback('请先在当前画布框选需要修改的区域。', true);
     }
-    if (operation === 'edit') {
-      const r = state.region;
-      if (r.canvasWidth !== c.getWidth() || r.canvasHeight !== c.getHeight() || cropCanvas(c, r) !== r.image) {
-        return feedback('画布或选中区域已经变化，请重新框选。', true);
-      }
+    if (operation === 'edit' && !regionUnchanged(c, state.region)) {
+      return feedback('画布或选中区域已经变化，请重新框选。', true);
     }
     const apiKey = $g('mangaGptKey').value.trim().replace(/^Bearer\s+/i, '');
     // An empty input lets the localhost relay use optional GPT_IMAGE_API_KEY from .env.
@@ -163,7 +284,12 @@
     $g('mangaGptGenerate').disabled = true;
     $g('mangaGptMode').disabled = true;
     $g('mangaGptApply').disabled = true;
-    feedback('正在请求图像模型。生成可能产生 API 费用。');
+    feedback('正在请求图像模型（可点“取消请求”）。生成可能产生 API 费用。');
+    const controller = typeof AbortController === 'function' ? new AbortController() : null;
+    state.controller = controller;
+    let timedOut = false;
+    const timer = controller ? setTimeout(() => { timedOut = true; controller.abort(); }, REQUEST_TIMEOUT_MS) : null;
+    if ($g('mangaGptCancel')) $g('mangaGptCancel').disabled = !controller;
     try {
       const payload = {
         baseUrl: $g('mangaGptUrl').value.trim(),
@@ -173,14 +299,25 @@
         size: $g('mangaGptSize').value,
         references: operation === 'edit' ? state.references : []
       };
-      if (operation === 'edit') payload.image = state.region.image;
+      if (operation === 'edit') {
+        const plan = letterboxPlan(state.region.width, state.region.height, payload.size);
+        state.region.plan = plan;
+        payload.size = plan.size;
+        payload.image = await letterboxImage(state.region.image, plan);
+      }
       const response = await fetch(imageProxyBase() + '/gpt-image-proxy', {
         method: 'POST',
         headers: Object.assign({ 'Content-Type': 'application/json' },
           apiKey ? { Authorization: 'Bearer ' + apiKey } : {}),
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: controller ? controller.signal : undefined
       });
-      const json = await response.json();
+      let json;
+      try {
+        json = await response.json();
+      } catch (parseError) {
+        throw new Error('本地服务返回了非 JSON 响应（HTTP ' + response.status + '）。');
+      }
       if (!response.ok || !json.ok || !json.image) {
         throw new Error(json.error || '上游没有返回图像。');
       }
@@ -192,8 +329,15 @@
       $g('mangaGptApply').disabled = false;
       feedback('图像已生成，请检查预览后点击“作为新图层应用”。');
     } catch (error) {
-      feedback(error.message || '请求失败。请检查本地服务和上游接口。', true);
+      if (error && error.name === 'AbortError') {
+        feedback(timedOut ? '请求超时（' + (REQUEST_TIMEOUT_MS / 1000) + ' 秒），已取消。' : '已取消请求。', true);
+      } else {
+        feedback(error.message || '请求失败。请检查本地服务和上游接口。', true);
+      }
     } finally {
+      if (timer) clearTimeout(timer);
+      state.controller = null;
+      if ($g('mangaGptCancel')) $g('mangaGptCancel').disabled = true;
       state.pending = false;
       $g('mangaGptGenerate').disabled = false;
       $g('mangaGptMode').disabled = false;
@@ -205,8 +349,7 @@
     if (!c || !state.result) return feedback('没有可应用的结果。', true);
     const isEdit = currentOperation() === 'edit';
     const region = state.region;
-    if (isEdit && (!region || region.canvas !== c || region.canvasWidth !== c.getWidth() ||
-                   region.canvasHeight !== c.getHeight() || cropCanvas(c, region) !== region.image)) {
+    if (isEdit && !regionUnchanged(c, region)) {
       return feedback('画布或选中区域已经改变，请重新框选并生成。', true);
     }
     $g('mangaGptApply').disabled = true;
@@ -219,34 +362,39 @@
       });
       const targetWidth = isEdit ? region.width : image.width;
       const targetHeight = isEdit ? region.height : image.height;
-      // Center-crop to the selected region's aspect ratio before uniform scaling.
-      // Scaling X and Y independently distorted faces and lettering in non-square regions.
-      const aspect = targetWidth / targetHeight;
-      const cropWidth = isEdit ? Math.min(image.width, image.height * aspect) : image.width;
-      const cropHeight = isEdit ? Math.min(image.height, image.width / aspect) : image.height;
-      if (isEdit && (cropWidth < region.width || cropHeight < region.height) &&
+      // Edit: take the selection's own rectangle back out of the letterboxed result and
+      // scale X/Y uniformly (no stretching, no lost heads). Generate: fit inside the page.
+      const crop = isEdit ? resultCropRect(image.width, image.height, region) :
+        { x: 0, y: 0, w: image.width, h: image.height };
+      if (isEdit && (crop.w + 0.5 < region.width || crop.h + 0.5 < region.height) &&
           !$g('mangaGptAllowUpscale').checked) {
-        throw new Error('生成图片中心裁切后的有效像素 (' + Math.floor(cropWidth) + ' × ' +
-          Math.floor(cropHeight) + ') 小于选区 (' + region.width + ' × ' + region.height +
-          ')。已阻止低清晰度放大，可重新生成或勾选允许放大。');
+        throw new Error('生成图片中对应选区的有效像素 (' + Math.floor(crop.w) + ' × ' +
+          Math.floor(crop.h) + ') 小于选区 (' + region.width + ' × ' + region.height +
+          ')。已阻止低清晰度放大，可重新生成、缩小选区或勾选允许放大。');
       }
-      const scale = isEdit ? targetWidth / cropWidth :
+      const scale = isEdit ? targetWidth / crop.w :
         Math.min(1, c.getWidth() / targetWidth, c.getHeight() / targetHeight);
       image.set({
         left: isEdit ? region.left : (c.getWidth() - targetWidth * scale) / 2,
         top: isEdit ? region.top : (c.getHeight() - targetHeight * scale) / 2,
-        cropX: isEdit ? (image.width - cropWidth) / 2 : 0,
-        cropY: isEdit ? (image.height - cropHeight) / 2 : 0,
-        width: cropWidth,
-        height: cropHeight,
+        cropX: crop.x,
+        cropY: crop.y,
+        width: crop.w,
+        height: crop.h,
         scaleX: scale,
         scaleY: scale,
         objectCaching: false
       });
       image.set('mangaGptSource', 'openai-compatible-image');
+      image.set('name', isEdit ? 'GPT 局部改图' : 'GPT 生图');
       if (typeof changeDoNotSaveHistory === 'function') changeDoNotSaveHistory();
       try {
         c.add(image);
+        // Keep editable lettering (text / speech bubbles) above the new picture layer.
+        if (typeof c.getObjects === 'function' && typeof c.moveTo === 'function') {
+          const index = letteringInsertIndex(c.getObjects(), image);
+          if (index < c.getObjects().length - 1) c.moveTo(image, index);
+        }
         c.setActiveObject(image);
         c.requestRenderAll();
         if (typeof updateLayerPanel === 'function') updateLayerPanel();
@@ -256,7 +404,7 @@
       if (typeof saveStateByManual === 'function') saveStateByManual();
       state.result = '';
       state.region = null;
-      feedback('已添加独立图层，按选区比例居中裁切、等比例缩放（不会拉变形）。原图和画布尺寸未改变，可撤销。');
+      feedback('已添加独立图层：取回选区对应部分并等比例缩放（不拉伸、不裁头）。原图和画布尺寸未改变，可撤销。');
     } catch (error) {
       feedback(error.message || '无法插入图层。', true);
       $g('mangaGptApply').disabled = false;
@@ -337,7 +485,8 @@
       '<label>人物 / 风格参考图（最多 3 张）<input id="mangaGptReferences" type="file" multiple accept="image/png,image/jpeg,image/webp"></label>',
       '<div id="mangaGptReferenceList" class="manga-gpt-hint">尚未选择参考图</div>',
       '<label class="manga-gpt-hint"><input id="mangaGptAllowUpscale" type="checkbox"> 允许将低于选区分辨率的生成图放大覆盖（会影响选区清晰度）</label>',
-      '<div class="manga-gpt-row"><button type="button" id="mangaGptGenerate">生成预览</button><button type="button" id="mangaGptApply" disabled>作为新图层应用</button></div>',
+      '<label class="manga-gpt-hint"><input id="mangaGptIncludeText" type="checkbox"> 框选时包含文字/气泡（默认不包含：文字保持可编辑并留在新图层上方）</label>',
+      '<div class="manga-gpt-row"><button type="button" id="mangaGptGenerate">生成预览</button><button type="button" id="mangaGptCancel" disabled>取消请求</button><button type="button" id="mangaGptApply" disabled>作为新图层应用</button></div>',
       '<img id="mangaGptPreview" class="manga-gpt-preview" alt="当前框选或 GPT 生成预览">',
       '<details><summary>原生字幕修改（无需 API）</summary><label>替换选中文字图层<input id="mangaGptSubtitle" type="text" placeholder="输入新的字幕内容"></label>',
       '<button type="button" id="mangaGptReplaceText">替换文字并记录撤销</button></details>',
@@ -348,6 +497,9 @@
     $g('mangaGptClose').addEventListener('click', () => { panel.hidden = true; cancelSelection(); });
     $g('mangaGptSelect').addEventListener('click', startSelection);
     $g('mangaGptGenerate').addEventListener('click', generate);
+    if ($g('mangaGptCancel')) {
+      $g('mangaGptCancel').addEventListener('click', () => { if (state.controller) state.controller.abort(); });
+    }
     $g('mangaGptApply').addEventListener('click', apply);
     $g('mangaGptReplaceText').addEventListener('click', changeSelectedText);
     $g('mangaGptMode').addEventListener('change', () => {
@@ -378,5 +530,6 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render);
   else render();
 
-  window.MangaGPTRegionEditor = { normalizeRegion, startSelection, cancelSelection };
+  window.MangaGPTRegionEditor = { normalizeRegion, startSelection, cancelSelection,
+    letterboxPlan, resultCropRect, letteringInsertIndex, isLettering };
 })();
