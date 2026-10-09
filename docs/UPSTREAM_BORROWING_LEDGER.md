@@ -18,6 +18,9 @@
 - `js/ai/manga-bubble-detector.js`：本轮自编写的四邻域连通域扫描，仅在封闭、近白色区域与 OCR 行对应时生成 `enclosed-light-region` 候选；并非语义模型，既不自动去字也不声称识别气泡尾巴。
 - `js/ai/manga-edit-planner.js` 与 `js/ai/manga-edit-planner-ui.js`：确定性编辑指令分流、预览、人工确认；人物编辑必须重新框选，不会自动调用 GPT 付费接口。
 - `js/ai/manga-page-structure-ui.js`：画布候选框、日漫/普通阅读顺序、人工修订、GPT 整格选区、JSON 导出；用户掌握编辑确认。
+- `js/ai/manga-bubble-detector.js`：原创的**封闭近白色连通区域候选检测**，要求区域不接触画布边界且覆盖 OCR 文字；仅标记 `source: enclosed-light-region`、`verified: false`，不识别气泡尾巴或说话人物。借鉴 Comic Translator 与 BallonsTranslator 将候选检测与 OCR 分离的架构，**没有移植权重、训练代码或具体检测函数**。
+- `scripts/manga-bubble-detector-test.cjs`：合成封闭/开口气泡、多气泡与空白页负测；不代表真实漫画素材召回率。
+
 - `js/ai/manga-smart-text-editor.js`：OCR 行与分镜关联；文字图层仍使用原生 Fabric，未使用第三方 GUI。
 - `js/ai/gpt-region-editor.js`：新增 `selectRegionForPanel(box)`，只预填整个分镜选区，**不自动调用收费 API**。
 - `scripts/manga-page-structure-test.cjs`：合成漫画布局的确定性单测。真实模型的检测精度仍待漫画样本验收。
