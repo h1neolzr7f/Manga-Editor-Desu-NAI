@@ -1,6 +1,6 @@
 # Grok Bot · Linux 实机全量验收规程
 
-目标：从零下载本分支，在一台真实 Linux 机器上完整启动、使用 Chromium/Firefox 操作、观察日志、实际保存文件并复开；仅模拟接口远远不够。**除明确允许的真实 API 请求外，所有自动测试都必须不消耗生图额度**。
+目标：从零下载本分支，在一台真实 Linux 机器上完整启动、使用 Chromium/Firefox 操作、观察日志、实际保存文件并复开；仅模拟接口远远不够。**本任务必须采用“发现 Bug → 修复代码 → 补回归测试 → Linux 实机复测 → 提交 GitHub → 开 PR”闭环，不允许只输出报告后停止。**除明确允许的真实 API 请求外，所有自动测试都必须不消耗生图额度。
 
 **验收分支：** `feat/manga-nai-gpt-region-editor`
 **PR：** https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/pull/5
@@ -19,7 +19,7 @@ npm --version
 - 使用临时目录和独立浏览器配置，不接触个人数据；`.env` 是本机秘密文件，永远不上传仓库、日志或截图。
 - 先在 `main` 运行相同回归命令建立基线，再在开发分支上运行；区分原来已有问题、分支引入问题、环境问题。
 - 检查端口 8000、8765 已被其他进程占用的情况；先记录 PID，**不要误杀其他程序**。
-- 不允许直接 push/merge `main`。如需修复，新建个人测试分支；报告必须说明提交。
+- **有修复权限：** 对能够复现的 Bug 直接修复，补针对性测试。请从 `feat/manga-nai-gpt-region-editor` 新建 `fix/grok-linux-acceptance`（已存在就使用新后缀分支），推送到 GitHub，并向 `feat/manga-nai-gpt-region-editor` 发 Pull Request；不要仅保存在本地或只给建议。- **禁止** push/merge `main` 或自动合并任何 PR。报告中必须附 PR URL、每条修复 commit SHA 和复测记录。
 
 ## 1. 完整离线自动回归（不消耗积分）
 
@@ -106,7 +106,7 @@ Windows PowerShell 一键启动器、双击 BAT、Clash TUN 真机、Inno Setup 
 
 ## 8. 报告格式（必须交付）
 
-生成 `GROK_LINUX_ACCEPTANCE_REPORT.md`，含：
+生成并**提交到 GitHub 修复分支**的 `GROK_LINUX_ACCEPTANCE_REPORT.md`，含：
 - 日期、Linux 发行版/内核、Chrome/Chromium、Node、Python、CPU/RAM、commit SHA；
 - 每个类别 PASS / FAIL / NOT TESTED、测试数量和代码路径；
 - 每个失败的可复现步骤、预期/实际、最小错误日志、截图/录屏路径；
@@ -115,4 +115,14 @@ Windows PowerShell 一键启动器、双击 BAT、Clash TUN 真机、Inno Setup 
 - 总体发布结论：READY / BLOCKED（只要存在 P0/P1 一律 BLOCKED）；
 - 不要改主分支，不要把令牌和密钥上传远端。
 
-尽量一次性完整检查，不要检查一个功能就停下来问用户；能自行复现并修的小问题可在独立测试分支修复后复测并留证据，最终报告必须完整。
+## 9. 修复、提交与交接（强制）
+
+1. 按严重级别优先处理 P0/P1；对每项问题至少提供一个失败前可复现测试，修好后确认该测试 PASS。无法安全修复的说明阻断原因，不得绕过安全检查。
+2. 同时运行修复前/后的回归测试，确保没有破坏 NovelAI、漫画导入、画布导出、项目保存、局部改图、字幕、撤销重做等旧功能。
+3. 将补丁、测试、复现脚本和脱敏报告全部 `git commit`，`git push` 到 `fix/grok-linux-acceptance`，开一个 **base 为 `feat/manga-nai-gpt-region-editor`** 的 GitHub PR。若存在无法修复的阻断事项，仍要提交已完成修复和明确未完成清单。
+4. 报告必须写清“修改了什么 / 为什么 / 哪些用例已通过 / 哪些仍失败或未测”，提供可直接打开的 PR、Actions 链接和提交 SHA。
+5. **交付给 ChatGPT 审核**：我会直接在 GitHub 对照 diff、提交历史、CI 和报告复核。不要请求用户反复搬运错误日志。
+6. 不要修改、合并 `main`，不得提交任何真实 Token、Key 或包含认证头的 HAR/日志。没有凭据的真实生图必须明确标记 NOT TESTED。
+
+尽量一次性完整检查和修复，不要检查一个功能就停下来问用户；发现确定的 Bug 要实际修到代码里，最终必须在 GitHub 上留下可审核的结果。
+
