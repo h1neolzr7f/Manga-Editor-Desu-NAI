@@ -44,7 +44,7 @@ class MangaOcrRefinerTest(unittest.TestCase):
                 refiner.refine_region("data:text/html;base64,AAAA")
 
     @mock.patch.object(refiner,"decode_image",return_value=object())
-    @mock.patch.object(refiner,"get_model",return_value=SimpleNamespace(__call__=lambda *a:""))
+    @mock.patch.object(refiner,"get_model",return_value=lambda image:"")
     def test_empty_hallucinated_result_does_not_replace_draft(self,model,decode):
         with self.assertRaises(original.SmartOcrError):
             refiner.refine_region(DATA)
