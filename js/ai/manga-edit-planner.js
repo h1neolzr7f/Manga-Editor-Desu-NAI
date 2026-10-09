@@ -45,7 +45,11 @@
     // keep the character unchanged" must not route to character inpainting.
     // The object following "preserve / keep" is NOT a change target.
     // Prioritize the first explicit edit clause, not the context to protect.
-    const actionable=text.split(/[，,；;。]?\s*(?:保留|保持|不要|不改变|不修改|不动|维持|不碰)/)[0] || text;
+    const clauses=text.split(/[，,；;。]/);
+    const edits=clauses.filter((part,index)=> index===0 ||
+      !/(?:保留|保持|不变|不修改|不要改|不要动|不动|维持|原样|unchanged|keep|preserve)/i.test(part));
+    const actionable=(edits.join('，') || text)
+      .split(/\s*(?:保留|保持|不要|不改变|不修改|不动|维持|不碰)/)[0] || text;
     const textTask=/(对白|台词|文字|字幕|气泡|台本|dialogue|lettering|caption|subtitle)/i.test(actionable);
     const character=/(人物|角色|少女|女孩|男孩|男人|女人|身体|头发|表情|衣服|发型|服装|主角|人像|脸|参考图|character|face|person)/i.test(actionable);
     const background=/(背景|场景|天气|城市|建筑|天空|雨|雪|background|scene|sky|city)/i.test(actionable);
