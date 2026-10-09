@@ -150,8 +150,9 @@ class LiveHTTPTest(unittest.TestCase):
                 for hostile in ({**self.origin, "Origin": "null"},
                                 {**self.origin, "Origin": "https://evil.example"},
                                 {**self.origin, "Sec-Fetch-Site": "cross-site"}):
-                    status, _, _ = request("POST", "/manga-smart/ocr", data, hostile)
+                    status, headers, _ = request("POST", "/manga-smart/ocr", data, hostile)
                     self.assertEqual(status, 403)
+                    self.assertEqual(headers.get("Connection"), "close", "unread rejected request body must close the connection")
                 self.assertEqual(run.call_count, 1, "hostile caller must never reach OCR")
 
     def test_preflight_rejects_external_origin_for_gpt_route(self):
