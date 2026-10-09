@@ -9,6 +9,7 @@
 | [Manga OCR](https://github.com/kha-white/manga-ocr) | 竖排、注音、复杂日文字体由专门识别器处理；应对气泡整体识别 | 计划中的 `MangaOcrAdapter`；当前 `manga_smart_ocr.py` 依旧采用本地 Tesseract | 已标出替换位置；**尚未接入 Manga OCR** | 无 |
 | [NovelAI Harness](https://github.com/h1neolzr7f/Novelai-harness)（用户自有仓库） | 焦点超采样、参考图、多角色锚点、局部重绘的工作流 | 现有 `js/ai/gpt-region-editor.js` 的区域上下文与后续人物工作流 `CharacterBible` | 复用交互/架构思路；不直接迁入 Flutter/Dart UI | 无 |
 | [PhotoDemon](https://github.com/tannerhelland/PhotoDemon) | 非破坏性图层、选区、撤销/重做、修图预览 | 沿用 Fabric 原生图层和 `js/layer/image-history-management.js` | 借鉴专业编辑的可逆交互体验；**没有引入 PhotoDemon VB6 代码** | 无 |
+| [AI Manga Factory（用户自有漫画流水线）](https://github.com/h1neolzr7f/jm-remix-pipeline) | Director 在真正生成前先输出可检查的分镜/编辑计划，避免直接改坏源素材 | `js/ai/manga-edit-planner.js`、`js/ai/manga-edit-planner-ui.js`、`js/ai/gpt-region-editor.js` | **借鉴计划→确认→执行的工作流思想；V1 是自行编写的本地规则解析器**，不调用模型，不声称具备角色视觉识别 | 无 |
 | Manga-NAI 原生 Fabric 页面编辑器 | 画布序列化、结构化对象、已有文字图层及 GPT 代理 | `js/ai/manga-smart-text-editor.js`、`js/ai/gpt-region-editor.js`、`js/core/settings.js` | **直接复用本项目现有代码与接口** | 项目已有依赖 |
 
 ## 本轮新增代码模块地图
@@ -18,6 +19,9 @@
 - `js/ai/manga-smart-text-editor.js`：OCR 行与分镜关联；文字图层仍使用原生 Fabric，未使用第三方 GUI。
 - `js/ai/gpt-region-editor.js`：新增 `selectRegionForPanel(box)`，只预填整个分镜选区，**不自动调用收费 API**。
 - `scripts/manga-page-structure-test.cjs`：合成漫画布局的确定性单测。真实模型的检测精度仍待漫画样本验收。
+- `js/ai/manga-edit-planner.js`：原创的序号解析器，将“第几格 + 修改描述”归为整格、人物手动框选或本地字幕路径；没有复制 AI Manga Factory Director 的代码。
+- `js/ai/manga-edit-planner-ui.js`：先显示目标和风险，再由用户点击确认后打开已有编辑工具；最终 GPT 费用仍需在原面板人工确认。
+
 
 ## 明确的边界与未来借鉴
 
