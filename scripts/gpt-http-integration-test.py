@@ -174,6 +174,26 @@ class LiveHTTPTest(unittest.TestCase):
                 self.assertEqual(status, 403)
             self.assertEqual(infer.call_count, 1, "cross-site callers must never load model")
 
+    def test_masked_lama_route_blocks_untrusted_model_work(self):
+        import manga_lama_inpaint
+        png = (b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\x0dIHDR" +
+               (320).to_bytes(4,"big") + (240).to_bytes(4,"big") + b"\x08\x06\x00\x00\x00")
+        url = "data:image/png;base64," + base64.b64encode(png).decode("ascii")
+        payload={"image":url,"mask":url}
+        fake={"ok":True,"image":url,"width":320,"height":240,"applied":False}
+        with mock.patch.object(manga_lama_inpaint,"inpaint",return_value=fake) as model:
+            status,_,body=request("POST","/manga-smart/lama-inpaint",payload,self.origin)
+            self.assertEqual(status,200)
+            self.assertFalse(json.loads(body)["applied"])
+            self.assertEqual(model.call_count,1)
+            for hostile in ({**self.origin,"Origin":"null"},
+                            {**self.origin,"Origin":"https://evil.example"},
+                            {**self.origin,"Host":"evil.example:8000"},
+                            {**self.origin,"Sec-Fetch-Site":"cross-site"}):
+                status,_,_=request("POST","/manga-smart/lama-inpaint",payload,hostile)
+                self.assertEqual(status,403)
+            self.assertEqual(model.call_count,1,"never run local heavy models for hostile origins")
+
     def test_preflight_rejects_external_origin_for_gpt_route(self):
         headers = {**self.origin, "Origin": "https://evil.example",
                    "Access-Control-Request-Method": "POST"}

@@ -145,6 +145,30 @@
       refine.disabled=state.busy;
       refine.addEventListener('click',()=>refineWithMangaOCR(draft,i));
       first.append(refine);
+      const lama=make('button','本地 LaMa 去字','manga-smart-small');
+      lama.type='button';
+      lama.title='局部蒙版修复并先预览；不会覆盖原画。需要可选 simple-lama，本机首次使用可能下载模型。';
+      lama.addEventListener('click',()=>{
+        const bridge=window.MangaLamaInpaintUI;
+        const c=getCanvas();
+        if(!bridge || !c || !state.sourceImage) {
+          return message('LaMa 去字功能尚未准备好，请先检测或框选字幕。',true);
+        }
+        bridge.preview({
+          canvas:c,draft,sourceImage:state.sourceImage,
+          validate:()=>state.canvas===c && state.sourceImage===snapshot(c) &&
+            state.drafts[i]===draft,
+          onApplied:()=>{
+            draft.erase=false; // LaMa patch has already removed original text.
+            state.sourceImage=snapshot(c);
+            renderDrafts();
+            if(window.MangaPageStructureUI)window.MangaPageStructureUI.invalidate(
+              'LaMa 修复层已添加，请重新分析分镜。');
+            message('LaMa 修复层已保存为独立图层；这条字幕已自动关闭纯色遮盖。现在可以输入新台词并应用。');
+          }
+        });
+      });
+      first.append(lama);
       const input = document.createElement('textarea');
       input.rows = 2;
       input.value = draft.text;
@@ -424,7 +448,7 @@
       '<div id="mangaSmartRegions" class="manga-smart-regions"></div>',
       '<button id="mangaSmartApply" type="button" disabled>应用为可编辑图层</button>',
       '<p class="manga-smart-hint">自动去字仅适合纯色气泡。复杂背景请先用 GPT 改图擦字，或取消勾选仅插入文字。',
-      '基础 OCR 需要本机 Tesseract 及所选语言包。Manga OCR 精修为可选依赖，首次点击可能联网下载约 400MB 模型；成功后可用缓存离线运行。精修结果须人工确认。</p>',
+      '基础 OCR 需要本机 Tesseract 及所选语言包。复杂背景可点击本地 LaMa 去字，先预览后确认，模型为可选依赖。Manga OCR 精修为可选依赖，首次点击可能联网下载约 400MB 模型；成功后可用缓存离线运行。精修结果须人工确认。</p>',
       '<div id="mangaSmartStatus" role="status"></div>'
     ].join('');
     document.body.appendChild(panel);

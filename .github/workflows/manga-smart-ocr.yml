@@ -5,6 +5,9 @@ on:
     paths:
       - "manga_smart_ocr.py"
       - "manga_ocr_refiner.py"
+      - "manga_lama_inpaint.py"
+      - "scripts/manga-lama-inpaint-test.py"
+      - "scripts/manga-lama-pixel-test.py"
       - "scripts/manga-ocr-refiner-test.py"
       - "scripts/manga-smart-ocr-*.py"
       - "99_server.py"
@@ -33,4 +36,6 @@ jobs:
         run: |
           python scripts/manga-smart-ocr-test.py
           python scripts/manga-ocr-refiner-test.py
+          python scripts/manga-lama-inpaint-test.py
+          python scripts/manga-lama-pixel-test.py
           python scripts/manga-smart-ocr-runtime-test.py
