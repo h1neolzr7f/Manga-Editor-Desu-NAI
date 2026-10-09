@@ -423,6 +423,28 @@ async function run() {
   record('subtitle replace horizontal + vertical with undo/redo', sub.h === '中文新字幕' && sub.v === '新竖排' &&
     sub.vType === 'vertical-textbox' && sub.vUndo === '竖排台词' && sub.vRedo === '新竖排', sub);
 
+  // 6b. Keyboard redo: Ctrl+Shift+Z works like Ctrl+Y; never fires while typing in a field.
+  const keyText = async () => page.evaluate(() => canvas.getObjects().find(o => o.name === 'vtext').text);
+  await page.evaluate(() => { if (document.activeElement) document.activeElement.blur(); canvas.discardActiveObject(); });
+  await page.keyboard.press('Control+z');
+  await page.waitForTimeout(900);
+  const kUndo = await keyText();
+  await page.keyboard.press('Control+Shift+z');
+  await page.waitForTimeout(900);
+  const kRedo = await keyText();
+  await page.keyboard.press('Control+z');
+  await page.waitForTimeout(900);
+  await page.locator('#mangaGptPrompt').focus();
+  await page.keyboard.press('Control+Shift+z');
+  await page.waitForTimeout(900);
+  const kInField = await keyText();
+  await page.evaluate(() => document.activeElement.blur());
+  await page.keyboard.press('Control+y');
+  await page.waitForTimeout(900);
+  const kCtrlY = await keyText();
+  record('Ctrl+Shift+Z redoes (like Ctrl+Y), ignored while typing in a text field',
+    kUndo === '竖排台词' && kRedo === '新竖排' && kInField === '竖排台词' && kCtrlY === '新竖排', { kUndo, kRedo, kInField, kCtrlY });
+
   // 7. History round trip and project save / reload keep patch geometry and metadata.
   const hist = await page.evaluate(async () => {
     const count = () => canvas.getObjects().filter(o => o.mangaGptSource).length;
@@ -505,6 +527,78 @@ async function run() {
   record('selection after zooming in maps to page pixels (±2px)', near(status, 300, 200), { status });
   await page.evaluate(() => zoomFit());
   await page.screenshot({ path: path.join(OUT, 'final.png') });
+
+  // 9b. Extreme forced aspect: the guard switches to the closest API aspect and says so.
+  await page.locator('#mangaGptSize').selectOption('1024x1536');
+  await dragSelect(page, [300, 300], [1100, 500]);
+  await page.locator('#mangaGptGenerate').click();
+  await page.waitForFunction(() => !document.querySelector('#mangaGptGenerate').disabled, null, { timeout: 30000 });
+  const guardOn = { size: mock.calls.at(-1).size, status: await page.locator('#mangaGptStatus').textContent() };
+  await page.locator('#mangaGptAspectGuard').setChecked(false);
+  await page.locator('#mangaGptGenerate').click();
+  await page.waitForFunction(() => !document.querySelector('#mangaGptGenerate').disabled, null, { timeout: 30000 });
+  const guardOff = { size: mock.calls.at(-1).size, status: await page.locator('#mangaGptStatus').textContent() };
+  await page.locator('#mangaGptAspectGuard').setChecked(true);
+  await page.locator('#mangaGptSize').selectOption('auto');
+  record('extreme forced aspect (800x200 into 2:3) auto-switches to 3:2; opt-out keeps size and warns',
+    guardOn.size === '1536x1024' && /已自动改用 1536x1024/.test(guardOn.status) &&
+    guardOff.size === '1024x1536' && /重新构图/.test(guardOff.status), { guardOn, guardOff });
+
+  // 9c. Selection that cuts a character object: warning + one-click expansion to the whole object.
+  await page.evaluate(async () => {
+    const art = document.createElement('canvas'); art.width = 300; art.height = 300;
+    const g = art.getContext('2d'); g.fillStyle = '#c33'; g.fillRect(0, 0, 300, 300);
+    const img = await new Promise(res => fabric.Image.fromURL(art.toDataURL('image/png'), res));
+    img.set({ left: 400, top: 1000, name: 'hero' });
+    canvas.add(img); canvas.renderAll();
+  });
+  status = await dragSelect(page, [250, 1050], [550, 1250]);
+  const cutWarn = { status, expandVisible: await page.locator('#mangaGptExpand').isVisible() };
+  await page.locator('#mangaGptExpand').click();
+  const expanded = { status: await page.locator('#mangaGptStatus').textContent(),
+    expandVisible: await page.locator('#mangaGptExpand').isVisible() };
+  r = await generateAndApply(page);
+  info = await patchInfo(page);
+  await page.evaluate(() => undo());
+  await page.waitForTimeout(800);
+  record('selection cutting an object warns and expands to the whole object (450x300), then applies',
+    /只框到了 1 个对象/.test(cutWarn.status) && /hero/.test(cutWarn.status) && cutWarn.expandVisible &&
+    /已扩展到完整对象：45[01] × 300/.test(expanded.status) && !expanded.expandVisible &&
+    r.applied && Math.abs(info.left - 250) <= 1 && info.top === 1000 && Math.abs(info.w - 450) <= 2 && info.h === 300,
+    { cutWarn, expanded, info: info && { left: info.left, top: info.top, w: info.w, h: info.h } });
+  await page.evaluate(() => { const h = canvas.getObjects().find(o => o.name === 'hero'); if (h) canvas.remove(h); canvas.renderAll(); });
+
+  // 9d. Transparency: a partly transparent selection keeps its transparent pixels (opt-out paints them).
+  const bg = await page.evaluate(() => { const b = canvas.backgroundColor; canvas.backgroundColor = ''; canvas.renderAll(); return b; });
+  await page.evaluate(async () => {
+    const art = document.createElement('canvas'); art.width = 300; art.height = 300;
+    const g = art.getContext('2d'); g.fillStyle = '#2a6'; g.fillRect(0, 0, 150, 300); // right half transparent
+    const img = await new Promise(res => fabric.Image.fromURL(art.toDataURL('image/png'), res));
+    img.set({ left: 1680, top: 1400, name: 'cutout' });
+    canvas.add(img); canvas.renderAll();
+  });
+  const alphaAt = (x, y) => page.evaluate(async ([x, y]) => {
+    const i = new Image(); i.src = canvas.toDataURL({ format: 'png', multiplier: 1 }); await i.decode();
+    const c = document.createElement('canvas'); c.width = i.width; c.height = i.height;
+    const g = c.getContext('2d'); g.drawImage(i, 0, 0); return g.getImageData(x, y, 1, 1).data[3];
+  }, [x, y]);
+  const alpha = {};
+  for (const keep of [true, false]) {
+    await page.locator('#mangaGptKeepAlpha').setChecked(keep);
+    await dragSelect(page, [1680, 1400], [1980, 1700]);
+    const res = await generateAndApply(page);
+    const pi = await patchInfo(page);
+    alpha[keep ? 'keep' : 'off'] = { applied: res.applied, hole: await alphaAt(1900, 1550), solid: await alphaAt(1720, 1550),
+      flag: pi && pi.crop && pi.crop.keepAlpha, status: res.status };
+    await page.evaluate(() => undo());
+    await page.waitForTimeout(800);
+  }
+  await page.locator('#mangaGptKeepAlpha').setChecked(true);
+  await page.evaluate(b => { const o = canvas.getObjects().find(x => x.name === 'cutout'); if (o) canvas.remove(o);
+    canvas.backgroundColor = b; canvas.renderAll(); }, bg);
+  record('region apply keeps the original transparency mask (opt-out fills it)',
+    alpha.keep.applied && alpha.keep.hole === 0 && alpha.keep.solid === 255 && alpha.keep.flag === true &&
+    /恢复透明/.test(alpha.keep.status) && alpha.off.applied && alpha.off.hole === 255 && alpha.off.flag === false, alpha);
 
   // 10. Two editor tabs side by side.
   const page2 = await openEditor(context);

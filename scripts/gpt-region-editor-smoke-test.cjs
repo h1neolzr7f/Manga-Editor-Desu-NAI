@@ -274,6 +274,35 @@ elements.mangaGptStatus.textContent = savedRegionStatus;
   assert.equal(api.aspectMismatch(802, 1240, 'auto'), false);
   const explicit = api.letterboxPlan(900, 300, '1024x1536');
   assert.equal(explicit.size, '1024x1536', 'explicit size choice is respected');
+  // Extreme forced aspect: the guard switches to the closest API aspect (case F -> 3:2).
+  assert.deepEqual({ ...api.effectiveSize(1002, 571, '1024x1536', true) }, { size: '1536x1024', switchedFrom: '1024x1536' });
+  assert.deepEqual({ ...api.effectiveSize(1002, 571, '1024x1536', false) }, { size: '1024x1536', switchedFrom: null });
+  assert.deepEqual({ ...api.effectiveSize(802, 1240, '1024x1536', true) }, { size: '1024x1536', switchedFrom: null });
+  assert.deepEqual({ ...api.effectiveSize(900, 300, 'auto', true) }, { size: 'auto', switchedFrom: null });
+
+  // Selection cutting a character: report objects that are partly covered, not page
+  // backgrounds, not small edits inside a big picture, not fully contained objects.
+  const sel = { left: 100, top: 100, width: 200, height: 200 };
+  const half = { left: 200, top: 100, width: 200, height: 200, name: 'hero' };      // 50% covered
+  const inside = { left: 120, top: 120, width: 50, height: 50, name: 'prop' };      // fully inside
+  const pageBg = { left: 0, top: 0, width: 1000, height: 1000, name: 'page' };         // background
+  const big = { left: 0, top: 0, width: 800, height: 900, name: 'panel art' };       // 5.6% covered
+  const away = { left: 600, top: 600, width: 100, height: 100, name: 'far' };
+  const cutBoxes = api.findCutBoxes([half, inside, pageBg, big, away], sel, 1000, 1000);
+  assert.deepEqual([...cutBoxes.map(b => b.name)], ['hero']);
+  assert.deepEqual({ ...api.expandRegion(sel, cutBoxes, 1000, 1000) }, { left: 100, top: 100, width: 300, height: 200 });
+  assert.deepEqual({ ...api.expandRegion(sel, [{ left: -50, top: 950, width: 100, height: 200 }], 1000, 1000) },
+    { left: 0, top: 100, width: 300, height: 900 }, 'expansion is clamped to the page');
+
+  // Transparency: the original selection's alpha is multiplied into the baked patch.
+  const canvasCount = createdCanvases.length;
+  const mask = new Uint8ClampedArray(4 * 2).fill(255);
+  mask[0] = 0; mask[1] = 128;
+  api.bakePatch({}, { x: 0, y: 0, w: 4, h: 2 }, 1, null, null, mask);
+  const bakeCanvas = createdCanvases.slice(canvasCount)[0];
+  const alpha = Array.from(bakeCanvas.put.data.filter((_, i) => i % 4 === 3));
+  assert.deepEqual(alpha, [0, 128, 255, 255, 255, 255, 255, 255], 'alpha mask restored');
+  assert.equal(api.tr('mgpt_region_selected', '已选中原始画布区域：{w} × {h} 像素。', { w: 3, h: 4 }), '已选中原始画布区域：3 × 4 像素。');
 
   // ---- Lettering stays above the new layer.
   const art = { type: 'image' }; const t1 = { type: 'vertical-textbox' };
@@ -282,5 +311,5 @@ elements.mangaGptStatus.textContent = savedRegionStatus;
   assert.equal(api.letteringInsertIndex([art, patch], patch), 1);
   assert.equal(api.letteringInsertIndex([b1, art, t1, patch], patch), 2);
   assert(api.isLettering({ type: 'i-text' }) && api.isLettering({ isSpeechBubble: true }) && !api.isLettering(art));
-  console.log('PASS letterbox aspect matrix (5 selections x 4 result shapes) and lettering z-order');
+  console.log('PASS letterbox aspect matrix, aspect guard, cut-object detection, alpha mask, lettering z-order');
 })().catch(err => { console.error(err); process.exitCode = 1; });
