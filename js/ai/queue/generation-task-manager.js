@@ -185,7 +185,8 @@ localStateStack.push(JSON.parse(ArrayBufferUtils.fromArrayBufferToString(file.da
 if(localStateStack.length===0){
 throw new Error("No state found");
 }
-var lastState=localStateStack[localStateStack.length-1];
+var savedIndex=Number.isInteger(canvasInfo.historyIndex)&&canvasInfo.historyIndex>=0&&canvasInfo.historyIndex<localStateStack.length?canvasInfo.historyIndex:localStateStack.length-1;
+var lastState=localStateStack[savedIndex];
 var restored=restoreImageLocal(lastState,localImageMap);
 await new Promise(resolve=>{
 offCanvas.loadFromJSON(restored,function(){
@@ -197,7 +198,9 @@ var targetLayer=task.targetLayerGuid?offCanvas.getObjects().find(obj=>obj.guid==
 placeImageLocal(offCanvas,fabricImage,task,targetLayer);
 offCanvas.renderAll();
 var newState=customToJSONLocal(offCanvas,localImageMap);
+localStateStack.splice(savedIndex+1);
 localStateStack.push(JSON.stringify(newState));
+canvasInfo.historyIndex=localStateStack.length-1;
 var previewDataUrl=offCanvas.toDataURL({format:'jpeg',quality:0.8});
 var fileBufferList=await generateProjectFileBufferListCore(localStateStack,localImageMap,canvasInfo,basePromptData,previewDataUrl);
 var newBlob=await lz4Compressor.buffersToLz4Blob(fileBufferList);
