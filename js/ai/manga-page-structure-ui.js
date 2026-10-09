@@ -182,7 +182,24 @@
         renderPanels();drawOverlay();
         say('第 '+panel.order+' 格已手动确认。');
       });
-      actions.append(select,mark);
+      const splitX=el('button','左右拆分');splitX.type='button';
+      const splitY=el('button','上下拆分');splitY.type='button';
+      const remove=el('button','删除误识别');remove.type='button';
+      function updatePanels(next,message){
+        if(!next) return say('无法执行：当前分镜尺寸过小或已到上限。',true);
+        state.graph.panels=next;
+        updateAssociations();renderPanels();drawOverlay();say(message);
+      }
+      splitX.addEventListener('click',()=>updatePanels(
+        core.splitPanel(state.graph.panels,panel.id,'x',state.graph.direction),
+        '已拆分分镜，请核对边界。'));
+      splitY.addEventListener('click',()=>updatePanels(
+        core.splitPanel(state.graph.panels,panel.id,'y',state.graph.direction),
+        '已拆分分镜，请核对边界。'));
+      remove.addEventListener('click',()=>updatePanels(
+        core.removePanel(state.graph.panels,panel.id,state.graph.direction),
+        '已删除误识别分镜，请确认剩余区域。'));
+      actions.append(select,mark,splitX,splitY,remove);
       row.append(header,coords,actions);
       list.append(row);
     }
@@ -265,7 +282,7 @@
       '<label><input type="checkbox" id="mangaPageShowOverlay" checked>画布标注候选分镜</label>',
       '<div id="mangaPageList" class="manga-page-list"></div>',
       '<div class="manga-page-actions"><button id="mangaPageExport" type="button">导出结构 JSON</button></div>',
-      '<p class="manga-page-hint">白色分隔线算法并非语义模型，复杂斜框/无框漫画需要校正。',
+      '<p class="manga-page-hint">白色分隔线算法并非语义模型，复杂斜框/无框漫画可手动调整或拆分。',
       '气泡候选只是 OCR 框外围估计，不能当作实际气泡分割。</p>',
       '<div id="mangaPageStatus" role="status"></div>'
     ].join('');
