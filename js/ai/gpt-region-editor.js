@@ -437,6 +437,29 @@
     }
   }
 
+  // Bridge from local OCR: stage an editable region for optional GPT inpainting.
+  // This NEVER starts a paid request; the user must inspect and click Generate.
+  function selectRegionForTextRemoval(box) {
+    const c = pageCanvas();
+    if (!c || !box || !Number.isFinite(+box.x) || !Number.isFinite(+box.y) ||
+        !Number.isFinite(+box.width) || !Number.isFinite(+box.height)) return false;
+    const margin = Math.max(8, Math.round(Math.min(+box.width, +box.height) * 0.25));
+    const left = Math.max(0, Math.floor(+box.x - margin));
+    const top = Math.max(0, Math.floor(+box.y - margin));
+    const right = Math.min(c.getWidth(), Math.ceil(+box.x + +box.width + margin));
+    const bottom = Math.min(c.getHeight(), Math.ceil(+box.y + +box.height + margin));
+    if (right - left < 2 || bottom - top < 2) return false;
+    const panel = $g('mangaGptPanel');
+    if (!panel) return false;
+    panel.hidden = false;
+    $g('mangaGptMode').value = 'edit';
+    $g('mangaGptSelect').disabled = false;
+    $g('mangaGptPrompt').value = tr('mgpt_ocr_erase_prompt', '擦除框选范围内现有的印刷文字，重建自然背景与气泡边缘，保留原始画风、构图、人物和未选中区域，不要生成新文字。');
+    setRegion(c, { left, top, width: right - left, height: bottom - top },
+      tr('mgpt_ocr_staged', '已从智能字幕定位擦字区域。请确认选区和费用，再点击“生成预览”。'));
+    return true;
+  }
+
   function expandSelection() {
     const c = pageCanvas();
     const region = state.region;
@@ -895,7 +918,7 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render);
   else render();
 
-  window.MangaGPTRegionEditor = { normalizeRegion, startSelection, cancelSelection,
+  window.MangaGPTRegionEditor = { normalizeRegion, startSelection, cancelSelection, selectRegionForTextRemoval,
     letterboxPlan, resultCropRect, letteringInsertIndex, isLettering, contextRect, featherPlan, featherAlpha, estimateDrift, aspectMismatch,
     findCutBoxes, expandRegion, effectiveSize, bakePatch, tr };
 })();

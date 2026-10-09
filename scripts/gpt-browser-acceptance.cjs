@@ -600,6 +600,113 @@ async function run() {
     alpha.keep.applied && alpha.keep.hole === 0 && alpha.keep.solid === 255 && alpha.keep.flag === true &&
     /恢复透明/.test(alpha.keep.status) && alpha.off.applied && alpha.off.hole === 255 && alpha.off.flag === false, alpha);
 
+  // 10. Smart manga text: real Chromium/Fabric UI, fake OCR only, no model charges.
+  await page.evaluate(() => {
+    canvas.clear();
+    canvas.backgroundColor = '#ffffff';
+    canvas.renderAll();
+    const gpt = document.getElementById('mangaGptPanel');
+    if (gpt) gpt.hidden = true;
+  });
+  let smartOcrCalls = 0;
+  await page.route('**/manga-smart/ocr', route => {
+    smartOcrCalls++;
+    const payload = route.request().postDataJSON();
+    assert(/^data:image\/png;base64,/.test(payload.image));
+    assert.equal(payload.language, 'jpn+eng');
+    return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
+      ok: true, width: 2000, height: 2000,
+      regions: [{ text: '旧对白', x: 140, y: 220, width: 180, height: 65, confidence: 95 }]
+    }) });
+  });
+  await page.locator('#mangaSmartOpen').click();
+  await page.locator('#mangaSmartDetect').click();
+  await page.locator('.manga-smart-item textarea').waitFor({ timeout: 20000 });
+  await page.locator('.manga-smart-item textarea').fill('新的台词');
+  await page.locator('#mangaSmartApply').click();
+  await page.waitForFunction(() => canvas.getObjects().some(o => o.mangaSmartText === 'editable-subtitle'),
+    null, { timeout: 25000 });
+  const smartText = await page.evaluate(() => {
+    const objects = canvas.getObjects();
+    const text = objects.find(o => o.mangaSmartText === 'editable-subtitle');
+    const erase = objects.find(o => o.mangaSmartText === 'erase-patch');
+    const save = JSON.stringify(customToJSON());
+    return { text: text?.text, editable: text?.type === 'textbox',
+      erased: erase?.type === 'image', persisted: save.includes('mangaSmartText'),
+      width: canvas.getWidth(), height: canvas.getHeight() };
+  });
+  record('smart OCR -> edit -> uniform bubble erase -> editable persistent Fabric subtitle',
+    smartOcrCalls === 1 && smartText.text === '新的台词' && smartText.editable &&
+    smartText.erased && smartText.persisted && smartText.width === 2000 && smartText.height === 2000,
+    { smartOcrCalls, smartText });
+  const beforeUndoSmart = await page.evaluate(() => canvas.getObjects().length);
+  await page.evaluate(() => undo());
+  await page.waitForFunction(before => canvas.getObjects().length < before, beforeUndoSmart, { timeout: 20000 });
+  await page.evaluate(() => redo());
+  await page.waitForFunction(before => canvas.getObjects().length === before, beforeUndoSmart,
+    { timeout: 20000 });
+  record('smart subtitle applies as one undo/redo history step', true, { restoredObjects: beforeUndoSmart });
+  await page.screenshot({ path: path.join(OUT, 'smart-subtitle.png') });
+
+  // Complex artwork must never be silently painted over by the white-bubble eraser.
+  await page.evaluate(async () => {
+    canvas.clear();
+    const cv = document.createElement('canvas');
+    cv.width = 2000; cv.height = 2000;
+    const g = cv.getContext('2d');
+    g.fillStyle = '#080c22'; g.fillRect(0, 0, 2000, 2000);
+    g.fillStyle = '#ffd733'; g.fillRect(0, 0, 2000, 250);
+    g.fillStyle = '#c82390'; g.fillRect(0, 260, 2000, 280);
+    const img = await new Promise(resolve => fabric.Image.fromURL(cv.toDataURL('image/png'), resolve));
+    canvas.add(img);
+    canvas.backgroundColor = '#fff';
+    canvas.renderAll();
+  });
+  await page.locator('#mangaSmartDetect').click();
+  await page.locator('.manga-smart-item textarea').waitFor({ timeout: 10000 });
+  const objectsBeforeUnsafe = await page.evaluate(() => canvas.getObjects().length);
+  await page.locator('#mangaSmartApply').click();
+  const unsafeResult = {
+    message: await page.locator('#mangaSmartStatus').textContent(),
+    count: await page.evaluate(() => canvas.getObjects().length)
+  };
+  record('smart erase refuses complex artwork rather than painting it white',
+    unsafeResult.count === objectsBeforeUnsafe && /没有安全的自动去字区域/.test(unsafeResult.message),
+    unsafeResult);
+  await page.locator('.manga-smart-item label').filter({ hasText: '自动去字' }).locator('input').uncheck();
+  await page.locator('#mangaSmartApply').click();
+  const manualText = await page.evaluate(() => ({
+    text: canvas.getObjects().find(o => o.mangaSmartText === 'editable-subtitle')?.text,
+    erased: canvas.getObjects().some(o => o.mangaSmartText === 'erase-patch')
+  }));
+  record('smart subtitle can add editable text without erasing complex art',
+    manualText.text === '旧对白' && !manualText.erased, manualText);
+
+  // OCR coordinates are snapshot-based; modifying the picture while a draft is open
+  // must not let it erase a different page state.
+  await page.locator('#mangaSmartDetect').click();
+  await page.locator('.manga-smart-item textarea').waitFor({ timeout: 10000 });
+  await page.evaluate(() => {
+    canvas.add(new fabric.Rect({ left: 20, top: 30, width: 130, height: 80, fill: '#020102' }));
+    canvas.renderAll();
+  });
+  const beforeStale = await page.evaluate(() => canvas.getObjects().length);
+  await page.locator('#mangaSmartApply').click();
+  const stale = { status: await page.locator('#mangaSmartStatus').textContent(),
+    count: await page.evaluate(() => canvas.getObjects().length) };
+  record('OCR application rejects stale page pixels after a canvas edit',
+    /画布在识别后被修改/.test(stale.status) && stale.count === beforeStale, stale);
+  await page.locator('.manga-smart-item button').filter({ hasText: 'GPT 去字' }).click();
+  const staged = await page.evaluate(() => ({
+    panelOpen: !document.getElementById('mangaGptPanel').hidden,
+    prompt: document.getElementById('mangaGptPrompt').value,
+    mode: document.getElementById('mangaGptMode').value,
+    selection: document.getElementById('mangaGptPreview').src.startsWith('data:image/')
+  }));
+  record('smart OCR can stage complex-background text removal in GPT without charging',
+    staged.panelOpen && staged.mode === 'edit' && staged.selection &&
+    /擦除框选范围内/.test(staged.prompt), staged);
+
   // 10. Two editor tabs side by side.
   const page2 = await openEditor(context);
   const two = await page2.evaluate(() => ({ w: canvas.getWidth(), panel: !!document.getElementById('mangaGptOpen') }));

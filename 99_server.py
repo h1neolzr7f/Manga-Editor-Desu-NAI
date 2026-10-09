@@ -582,7 +582,7 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Authorization, Content-Type, Accept, X-Director-Api-Url')
         self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate')
-        self.send_header('Connection', 'keep-alive')
+        self.send_header('Connection', 'close' if self.close_connection else 'keep-alive')
         self.send_header('Service-Worker-Allowed', '/')
         return super(CORSRequestHandler, self).end_headers()
 
@@ -818,6 +818,9 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         # 99_server.py through importlib must not require a modified sys.path.
         from gpt_image_proxy import handle_gpt_image_post
         if handle_gpt_image_post(self):
+            return
+        from manga_smart_ocr import handle_smart_ocr_post
+        if handle_smart_ocr_post(self):
             return
         if self.path == '/nai-proxy/generate-image':
             length = int(self.headers.get('Content-Length', '0') or '0')
