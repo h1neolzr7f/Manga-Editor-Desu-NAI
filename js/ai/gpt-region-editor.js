@@ -461,7 +461,7 @@
   }
 
   // Page inspector bridge: stage a complete panel; never start an API request.
-  function selectRegionForPanel(box) {
+  function selectRegionForPanel(box, instruction) {
     const c=pageCanvas();
     if(!c || !box || ![box.x,box.y,box.width,box.height].every(Number.isFinite))
       return false;
@@ -475,7 +475,10 @@
     panel.hidden=false;
     $g('mangaGptMode').value='edit';
     $g('mangaGptSelect').disabled=false;
-    // Keep the user's last prompt; this bridge changes ONLY the region.
+    // A natural-language instruction is optional. Nothing is sent to the provider
+    // until the human clicks Generate in the existing GPT editor.
+    if(typeof instruction==='string' && instruction.trim())
+      $g('mangaGptPrompt').value=instruction.trim().slice(0,3000);
     setRegion(c,{left,top,width:right-left,height:bottom-top},
       '已定位第 '+(Number(box.order)||1)+' 格。请检查框选和费用，并填写修改描述。');
     return true;
