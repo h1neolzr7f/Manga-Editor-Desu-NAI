@@ -19,6 +19,9 @@
   const SIZE_ASPECTS = { '1024x1024': [1024, 1024], '1536x1024': [1536, 1024], '1024x1536': [1024, 1536] };
   // Longer than the local relay's upstream timeout (300 s) so its readable 504 arrives first.
   const REQUEST_TIMEOUT_MS = 330000;
+  // Mean |residual| (0-255) on the context ring above which the model is considered to have
+  // recomposed the surroundings; measured on real gpt-image-2 results (drift 2-16, recomposed 33-51).
+  const DRIFT_MAX_RESIDUAL = 20;
 
   const $g = id => document.getElementById(id);
   const pageCanvas = () => (typeof canvas !== 'undefined' && canvas && typeof canvas.toDataURL === 'function') ? canvas : null;
@@ -236,7 +239,21 @@
       }
     }
     if (n < Math.max(200, w * h * 0.01)) return null;
-    return sum.map(v => Math.max(-maxOffset, Math.min(maxOffset, Math.round(v / n))));
+    const mean = sum.map(v => v / n);
+    // Only a near-uniform shift is drift. If the model recomposed the scene (moved things,
+    // repainted the margins), the ring no longer matches and a global offset would tint the
+    // patch, so leave the colours alone.
+    let residual = 0;
+    for (let y = Math.max(0, Math.ceil(box.y0)); y < Math.min(h, Math.floor(box.y1)); y++) {
+      for (let x = Math.max(0, Math.ceil(box.x0)); x < Math.min(w, Math.floor(box.x1)); x++) {
+        if (x >= ix0 && x < ix1 && y >= iy0 && y < iy1) continue;
+        const i = (y * w + x) * 4;
+        residual += (Math.abs(sent[i] - got[i] - mean[0]) + Math.abs(sent[i + 1] - got[i + 1] - mean[1]) +
+          Math.abs(sent[i + 2] - got[i + 2] - mean[2])) / 3;
+      }
+    }
+    if (residual / n > DRIFT_MAX_RESIDUAL) return null;
+    return mean.map(v => Math.max(-maxOffset, Math.min(maxOffset, Math.round(v))));
   }
 
   // Bake crop (+ optional colour offset and feather) into a bitmap at the crop's native resolution.

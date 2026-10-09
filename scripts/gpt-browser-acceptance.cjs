@@ -82,7 +82,7 @@ async function installMockModel(page, state) {
         body: JSON.stringify({ ok: false, error: state.fail.error }) });
     }
     if (state.delayMs) await new Promise(r => setTimeout(r, state.delayMs));
-    const image = await page.evaluate(async ({ src, size, force, tint }) => {
+    const image = await page.evaluate(async ({ src, size, force, tint, flip }) => {
       let [w, h] = (size && size !== 'auto' ? size : '1024x1024').split('x').map(Number);
       if (force) [w, h] = force;
       const c = document.createElement('canvas');
@@ -93,6 +93,11 @@ async function installMockModel(page, state) {
         x.imageSmoothingQuality = 'high';
         x.drawImage(img, 0, 0, w, h);
       } else { x.fillStyle = '#33aa77'; x.fillRect(0, 0, w, h); }
+      if (flip) { // a "recomposing" model: mirrored scene
+        const m = document.createElement('canvas'); m.width = w; m.height = h;
+        const mx = m.getContext('2d'); mx.translate(w, 0); mx.scale(-1, 1); mx.drawImage(c, 0, 0);
+        x.clearRect(0, 0, w, h); x.drawImage(m, 0, 0);
+      }
       if (tint) {
         const d = x.getImageData(0, 0, w, h);
         for (let i = 0; i < d.data.length; i += 4) { d.data[i] = Math.min(255, d.data[i] + tint);
@@ -100,7 +105,7 @@ async function installMockModel(page, state) {
         x.putImageData(d, 0, 0);
       }
       return c.toDataURL('image/png');
-    }, { src: payload.image, size: payload.size, force: state.force, tint: state.tint || 0 });
+    }, { src: payload.image, size: payload.size, force: state.force, tint: state.tint || 0, flip: !!state.flip });
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, image }) });
   });
 }
@@ -358,6 +363,17 @@ async function run() {
   record('tone matching removes model colour drift measured on the context ring',
     tone.raw.applied && tone.matched.applied && tone.raw.inside > 20 && tone.matched.inside < tone.raw.inside / 2 &&
     tone.matched.offset.every(v => v <= -20) && tone.matched.outside === 0, tone);
+  // Recomposed result (mirrored + tinted): ring does not match, so no global tint is applied.
+  mock.flip = true;
+  await page.locator('#mangaGptMatchTone').setChecked(true);
+  await dragSelect(page, [300, 900], [900, 1200]);
+  const flipRes = await generateAndApply(page);
+  const flipInfo = await patchInfo(page);
+  mock.flip = false;
+  await page.evaluate(() => undo());
+  await page.waitForTimeout(800);
+  record('tone matching is skipped when the model recomposed the surroundings',
+    flipRes.applied && flipInfo.crop.toneOffset.every(v => v === 0), { offset: flipInfo.crop.toneOffset });
   mock.tint = 0;
   record('feathered edge reduces seam from colour drift, outside untouched',
     seams.hard.applied && seams.feather.applied && seams.feather.seam < seams.hard.seam / 4 &&
