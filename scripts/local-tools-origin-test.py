@@ -22,6 +22,22 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "local_tools"))
 
+try:  # Pillow is an optional local_tools dependency; CI runners may lack it.
+    import PIL  # noqa: F401
+except ImportError:
+    import types
+
+    _cutout = types.ModuleType("cutout")
+    _cutout.DEFAULT_OPTIONS = {}
+    _mm = types.ModuleType("model_manager")
+
+    class _NoModelManager:  # replaced by StubManager in every test
+        pass
+
+    _mm.ModelManager = _NoModelManager
+    sys.modules.setdefault("cutout", _cutout)
+    sys.modules.setdefault("model_manager", _mm)
+
 import server as lt  # noqa: E402
 
 PNG = bytes.fromhex(
