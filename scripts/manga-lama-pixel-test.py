@@ -34,3 +34,24 @@ with mock.patch.object(lama,"get_model",side_effect=AssertionError("should never
         assert exc.status==400
     else:raise AssertionError("expected excessive-mask rejection")
 print("PASS full-frame mask rejected before model initialization")
+
+# Real simple-lama-inpainting pads input bottom/right to a multiple of 8 and returns the
+# padded image (found with the real model on Linux; a 512x512 test hid it).
+odd=Image.new("RGB",(301,183),(25,52,190))
+odd_mask=Image.new("L",(301,183),0)
+ImageDraw.Draw(odd_mask).rectangle((85,55,170,108),fill=255)
+padded=Image.new("RGB",(304,184),(242,33,21))
+with mock.patch.object(lama,"get_model",return_value=lambda image,mask:padded):
+    result=lama.inpaint(url(odd),url(odd_mask))
+out=Image.open(io.BytesIO(base64.b64decode(result["image"].split(",",1)[1]))).convert("RGB")
+assert out.size==(301,183) and result["width"]==301 and result["height"]==183, out.size
+assert out.getpixel((300,182))==odd.getpixel((300,182))
+assert out.getpixel((110,80))==(242,33,21)
+print("PASS modulo-8 padded LaMa output is cropped back to the source size")
+
+for bad in ((296,183),(320,200)):
+    with mock.patch.object(lama,"get_model",return_value=lambda image,mask,b=bad:Image.new("RGB",b)):
+        try:lama.inpaint(url(odd),url(odd_mask))
+        except lama.SmartOcrError as exc:assert exc.status==502
+        else:raise AssertionError("expected size rejection for %r"%(bad,))
+print("PASS LaMa output that is smaller or padded beyond 8px is still rejected")

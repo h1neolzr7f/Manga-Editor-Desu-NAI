@@ -54,7 +54,7 @@ def manga_ocr_cached():
 
 MODELS = {
     "lama": {"label": "LaMa", "size": "约 200MB", "cached": lama_cached},
-    "manga-ocr": {"label": "Manga OCR", "size": "约 450MB", "cached": manga_ocr_cached},
+    "manga-ocr": {"label": "Manga OCR", "size": "约 450–900MB", "cached": manga_ocr_cached},
 }
 _busy = {name: threading.Semaphore(1) for name in MODELS}
 

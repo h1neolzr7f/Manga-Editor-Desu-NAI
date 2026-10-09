@@ -158,7 +158,7 @@
       first.append(refine);
       const lama=make('button','本地 LaMa 去字','manga-smart-small');
       lama.type='button';
-      lama.title='局部蒙版修复并先预览；不会覆盖原画。需要可选 simple-lama，本机首次使用可能下载模型。';
+      lama.title='局部蒙版修复并先预览；不会覆盖原画。需要可选 simple-lama-inpainting；首次使用前会询问是否下载约 200MB 模型。';
       lama.addEventListener('click',()=>{
         const bridge=window.MangaLamaInpaintUI;
         const c=getCanvas();

@@ -128,8 +128,46 @@ def ocr_image(data_url, language="jpn+eng"):
             503)
     if not _TESSERACT_SLOTS.acquire(blocking=False):
         raise SmartOcrError("已有 OCR 任务在运行，请等待完成后再试。", 429)
+    psm = "5" if language.startswith("jpn_vert") else "11"
     try:
-        psm = "5" if language.startswith("jpn_vert") else "11"
+        # Tesseract ignores text enclosed by a closed bubble outline; OCR a copy with
+        # outlines/borders whitened as well (same coordinates), then the original.
+        cleaned = None
+        try:
+            from manga_ocr_preclean import strip_frames
+            cleaned = strip_frames(image, width, height)
+        except Exception:
+            cleaned = None
+        regions = []
+        if cleaned:
+            regions = parse_tsv(_run_tesseract(executable, cleaned, language, psm), width, height, language)
+        original = parse_tsv(_run_tesseract(executable, image, language, psm), width, height, language)
+        regions = merge_regions(regions, original)
+    finally:
+        _TESSERACT_SLOTS.release()
+    return {"ok": True, "width": width, "height": height, "regions": regions,
+            "engine": "tesseract-local", "preclean": bool(cleaned)}
+
+
+def _overlap(a, b):
+    ix = max(0, min(a["x"] + a["width"], b["x"] + b["width"]) - max(a["x"], b["x"]))
+    iy = max(0, min(a["y"] + a["height"], b["y"] + b["height"]) - max(a["y"], b["y"]))
+    small = min(a["width"] * a["height"], b["width"] * b["height"]) or 1
+    return ix * iy / float(small)
+
+
+def merge_regions(primary, extra):
+    """Keep every primary region; add extra regions that do not overlap one (>30%)."""
+    out = list(primary)
+    for region in extra:
+        if all(_overlap(region, kept) <= 0.3 for kept in out):
+            out.append(region)
+    out.sort(key=lambda r: (r["y"], r["x"]))
+    return out[:MAX_REGIONS]
+
+
+def _run_tesseract(executable, image, language, psm):
+    try:
         process = subprocess.run(
             [executable, "stdin", "stdout", "-l", language, "--psm", psm, "tsv"],
             input=image, capture_output=True, text=False, timeout=75, check=False)
@@ -137,8 +175,6 @@ def ocr_image(data_url, language="jpn+eng"):
         raise SmartOcrError("OCR 超过 75 秒，已停止，请缩小画布后重试。", 504) from exc
     except OSError as exc:
         raise SmartOcrError("无法启动 Tesseract OCR，请检查安装路径。", 503) from exc
-    finally:
-        _TESSERACT_SLOTS.release()
     stdout = process.stdout.decode("utf-8", "replace") if isinstance(process.stdout, bytes) else process.stdout
     stderr = process.stderr.decode("utf-8", "replace") if isinstance(process.stderr, bytes) else process.stderr
     if process.returncode:
@@ -148,8 +184,7 @@ def ocr_image(data_url, language="jpn+eng"):
             "未找到 OCR 语言包。请安装所选语言的 Tesseract traineddata。"
             if missing else "Tesseract 识别失败，请确认输入图片可正常打开。",
             503 if missing else 502)
-    return {"ok": True, "width": width, "height": height,
-            "regions": parse_tsv(stdout, width, height, language), "engine": "tesseract-local"}
+    return stdout
 
 
 def handle_smart_ocr_post(handler):

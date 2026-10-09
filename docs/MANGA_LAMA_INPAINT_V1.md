@@ -7,8 +7,8 @@
 1. 用现有 Tesseract OCR 或手动框选获得候选字幕框。
 2. 点击该条字幕旁的 **本地 LaMa 去字**。
 3. 程序对**当前 OCR 文字矩形**周围自动留出上下文，先生成蒙版编辑面板：红色半透明区域代表擦除区。用户可用 **标记去字 / 保留原图** 两种画笔修改蒙版、调节笔刷尺寸、重置到初始 OCR 框；此时不启动模型。
-4. 用户确认蒙版范围后，再点击 **根据蒙版生成本地修复预览**。只有此时才把裁剪图片与实际编辑的 PNG 蒙版送至本机 `/manga-smart/lama-inpaint`，执行可选 LaMa 模型；首次可能下载模型。
-5. 本地安装可选 `simple-lama` 的情况下，调用 LaMa 重建文字区域的背景。后端与前端均限制画布范围：**蒙版外始终恢复原始像素**。输出的 Fabric 图层透明度同样按照实际画笔蒙版，而不再使用 OCR 的粗矩形边框。
+4. 用户确认蒙版范围后，再点击 **根据蒙版生成本地修复预览**。只有此时才把裁剪图片与实际编辑的 PNG 蒙版送至本机 `/manga-smart/lama-inpaint`，执行可选 LaMa 模型；首次使用前会弹窗询问是否下载约 200MB 权重，拒绝则不发出推理请求，推理中可点「取消」中止。
+5. 本地安装可选 `simple-lama-inpainting` 的情况下，调用 LaMa 重建文字区域的背景。后端与前端均限制画布范围：**蒙版外始终恢复原始像素**。输出的 Fabric 图层透明度同样按照实际画笔蒙版，而不再使用 OCR 的粗矩形边框。
 6. 显示修复图片预览。只有用户点击 **确认并作为独立图层应用**，才在 Fabric 画布上添加新修复层；不会修改底层原图，支持撤销/重做、图层删除与原有工程保存。
 7. 应用后自动取消这一条字幕的「纯色覆盖擦字」开关，避免第二次给 LaMa 修好的图叠加白色遮盖。继续修改该条文字后可以用原生 Fabric Textbox 插入新的文字。
 
@@ -23,10 +23,19 @@
 在启动 `99_server.py` 所使用的本地 Python 环境中执行：
 
 ```bash
-python -m pip install simple-lama
+python -m pip install simple-lama-inpainting
 ```
 
-真正的运行时调用来自 [okaris/simple-lama](https://github.com/okaris/simple-lama) 的公开 Python API：`SimpleLama()(PIL.Image, PIL.Image mask)`；首次可能联网下载模型。未安装时仅提示安装，不改变原图。普通纯色气泡去字仍能不用 LaMa 免费执行。
+> PyPI 上**不存在** `simple-lama` 包（404）；正确包名是 `simple-lama-inpainting`（模块 `simple_lama_inpainting`）。
+> 该包 0.1.2 版钉死 `numpy<2`、`pillow<10`，在 Python 3.12/3.13 上没有对应 wheel，直接安装会编译 numpy 失败。已在 Linux / Python 3.13.5 + torch 2.14.1 CPU + numpy 2.5.2 + Pillow 12.3.0 上实测可用的安装方式：
+>
+> ```bash
+> python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+> python -m pip install --no-deps simple-lama-inpainting
+> python -m pip install opencv-python-headless fire
+> ```
+
+真正的运行时调用来自 [enesmsahin/simple-lama-inpainting](https://github.com/enesmsahin/simple-lama-inpainting) 的公开 Python API：`SimpleLama()(PIL.Image, PIL.Image mask)`。权重 `big-lama.pt`（约 196MB）缓存于 `TORCH_HOME/hub/checkpoints/`，也可用环境变量 `LAMA_MODEL` 指向本地文件。服务端未缓存时返回 HTTP 428 `needs_download`，只有用户在弹窗中确认后才带 `allow_download:true` 重发并下载。未安装时仅提示安装，不改变原图。普通纯色气泡去字仍能不用 LaMa 免费执行。
 
 **注意**：默认蒙版以 OCR 文字区域生成的**矩形蒙版**为起点，用户可以用画笔涂抹或擦回，但它仍然不是自动识别出的逐笔画字符分割掩模。即使 LaMa 模型正常运行，也可能移除 OCR 框中的边线、衣服花纹和拟声词。确认预览前绝不应用到漫画。这是后续精确 Text Mask/SAM 分割工作的重点，不可把 V1 宣称为专业笔画级去字。
 
@@ -34,7 +43,7 @@ python -m pip install simple-lama
 
 | 文件 | 实际职责 | 是否复制上游源码 |
 |---|---|---|
-| `manga_lama_inpaint.py` | 可选 `simple_lama.SimpleLama()` 惰性初始化，校验尺寸/蒙版覆盖比例，返回局部 PNG，并在服务端恢复蒙版外像素 | 没有复制；运行时通过公开 Python API 调用上游包 |
+| `manga_lama_inpaint.py` | 可选 `simple_lama_inpainting.SimpleLama()`（兼容旧 `simple_lama`）惰性初始化、下载前 428 确认、单任务 429 忙碌保护，校验尺寸/蒙版覆盖比例，返回局部 PNG，并在服务端恢复蒙版外像素 | 没有复制；运行时通过公开 Python API 调用上游包 |
 | `manga_smart_ocr.py` | 在原同源安全验证下注册 `/manga-smart/lama-inpaint` | 本仓已有 HTTP 路由扩展 |
 | `js/ai/manga-lama-inpaint-ui.js` | 本地蒙版裁切、修复结果预览、用户确认后添加透明修复 Fabric 图层 | 本仓原创代码 |
 | `js/ai/manga-smart-text-editor.js` | 每条 OCR 候选的 LaMa 去字入口及与编辑层/撤销的协作 | 本仓原创代码 |

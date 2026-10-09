@@ -48,7 +48,7 @@
     "index": "node scripts/gen-project-index.cjs",
     "check:index": "node scripts/gen-project-index.cjs --check",
     "test:smart-text": "node scripts/manga-smart-text-test.cjs",
-    "test:smart-ocr": "node scripts/run-python.cjs scripts/manga-smart-ocr-test.py",
+    "test:smart-ocr": "node scripts/run-python.cjs scripts/manga-smart-ocr-test.py && node scripts/run-python.cjs scripts/manga-ocr-preclean-test.py",
     "test:page-structure": "node scripts/manga-page-structure-test.cjs",
     "test:edit-planner": "node scripts/manga-edit-planner-test.cjs",
     "test:bubble": "node scripts/manga-bubble-detector-test.cjs",

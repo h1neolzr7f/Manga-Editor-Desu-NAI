@@ -72,6 +72,12 @@ def decode_pair(image_bytes, mask_bytes, width, height):
 
 def compose_masked(source, generated, mask):
     im=importlib.import_module("PIL.Image")
+    gw,gh=generated.size
+    sw,sh=source.size
+    # simple-lama-inpainting pads bottom/right to a multiple of 8 and returns the padded
+    # result; crop that padding back off. Any other size mismatch is still rejected.
+    if (gw,gh)!=(sw,sh) and sw<=gw<sw+8 and sh<=gh<sh+8:
+        generated=generated.crop((0,0,sw,sh))
     if generated.size!=source.size:raise SmartOcrError("LaMa 修复图尺寸不一致，已拒绝。",502)
     # Even if the model alters every pixel, restore everything outside mask.
     return im.composite(generated.convert("RGB"),source,mask)

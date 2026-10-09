@@ -19,7 +19,7 @@
 python -m pip install manga-ocr
 ```
 
-参考项目 <https://github.com/kha-white/manga-ocr>。首次**主动**点击精修时可能下载约 400MB 的预训练模型，之后可以缓存离线使用。它的依赖通常包含 PyTorch、Transformers 和 Pillow；安装与模型体积远大于 Tesseract，因此不会作为默认强制依赖，也不会在轻量 CI 自动安装。
+参考项目 <https://github.com/kha-white/manga-ocr>。首次**主动**点击精修时，服务端先返回 428 并弹窗询问；确认后下载预训练模型（transformers 5.x 会同时取 `model.safetensors` 与 `pytorch_model.bin`，实测共约 850MB），之后可以缓存离线使用。它的依赖通常包含 PyTorch、Transformers 和 Pillow；安装与模型体积远大于 Tesseract，因此不会作为默认强制依赖，也不会在轻量 CI 自动安装。
 
 ## 为什么是“先检测候选框，再精修文字”
 
