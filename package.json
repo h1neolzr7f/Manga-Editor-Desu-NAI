@@ -24,7 +24,14 @@
     "test:timeline": "node scripts/simulator-timeline-smoke-test.cjs",
     "test:image2": "node scripts/image2-interface-smoke-test.cjs",
     "test:scene-plan": "node scripts/scene-plan-smoke-test.cjs",
-    "test:proxy-guards": "python scripts/proxy-guard-smoke-test.py",
+    "test:proxy-guards": "node scripts/run-python.cjs scripts/proxy-guard-smoke-test.py",
+    "test:secret-guard": "node scripts/run-python.cjs scripts/local-secret-guard-test.py",
+    "test:gpt-proxy": "node scripts/run-python.cjs scripts/gpt-image-proxy-smoke-test.py",
+    "test:gpt-network-guard": "node scripts/run-python.cjs scripts/gpt-proxy-network-guard-test.py",
+    "test:gpt-http": "node scripts/run-python.cjs scripts/gpt-http-integration-test.py",
+    "test:gpt-region": "node scripts/gpt-region-editor-smoke-test.cjs",
+    "test:gpt-browser": "node scripts/gpt-browser-acceptance.cjs",
+    "test:portability": "node scripts/portability-smoke-test.cjs",
     "test:layout": "node scripts/layout-smoke-test.cjs",
     "test:page-size": "node scripts/manga-page-size-smoke-test.cjs"
     ,"test:fabric-text-focus": "node scripts/fabric-text-focus-smoke-test.cjs"
