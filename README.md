@@ -1,3 +1,6 @@
+
+> **Manga-NAI-GPT 正在独立开发分支迭代，尚未合并主线或达到发布验收门禁。** 开发交接、功能完成度、测试范围和最新分支见 [Manga-NAI-GPT 开发交接](docs/MANGA_GPT_DEVELOPMENT_HANDOFF.md)。
+
 # Manga Editor Desu · NovelAI Edition
 
 这是 [new-sankaku/manga-editor-desu](https://github.com/new-sankaku/manga-editor-desu) 的非官方 GPL-3.0 修改发行版。分镜、气泡、图层、刀具、网点、画笔和多页工程等编辑器基础能力来自上游；本仓库维护 NovelAI 接入、本地启动器、模拟器工作区与中文入门流程。
