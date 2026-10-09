@@ -39,8 +39,8 @@ const malformed=detector.findCandidates({width:240,height:160,data:[]},panels,tx
 assert.equal(malformed.length,0,'invalid image input fails closed');
 const two=detector.findCandidates(frame(260,190,[[15,25,100,110],[141,55,235,155]]),
   [{id:'panel-1',order:1,x:0,y:0,width:260,height:190}],
-  [{...txt,x:40,y:55,width:30,height:18,id:'a'},
-   {...txt,x:175,y:88,width:30,height:18,id:'b'}],
+  [{...txt[0],x:40,y:55,width:30,height:18,id:'a'},
+   {...txt[0],x:175,y:88,width:30,height:18,id:'b'}],
   {width:260,height:190});
 assert.equal(two.length,2,'separate text lines associate with separate enclosed regions');
 console.log('PASS enclosed-light region candidate detection with OCR and safe fallback');
