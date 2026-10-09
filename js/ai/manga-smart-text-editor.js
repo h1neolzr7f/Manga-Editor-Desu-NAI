@@ -101,7 +101,7 @@
     finally{
       state.busy=false;
       $('mangaSmartDetect').disabled=false;
-      $('mangaSmartApply').disabled=!state.drafts.length;
+      renderDrafts();
     }
   }
 
@@ -205,7 +205,7 @@
     } finally {
       state.busy = false;
       $('mangaSmartDetect').disabled = false;
-      $('mangaSmartApply').disabled = !state.drafts.length;
+      renderDrafts();
     }
   }
 
