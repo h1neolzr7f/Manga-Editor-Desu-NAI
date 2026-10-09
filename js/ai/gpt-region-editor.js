@@ -597,6 +597,135 @@
     });
   }
 
+  // Long straight dark runs (panel borders, gutters, frame lines) in the ORIGINAL selection.
+  // Image models redraw the region and routinely drop these lines; returning alpha 0 there
+  // lets the original line show through the patch. Returns null when no line is found.
+  function panelLineAlpha(rgba, w, h, options) {
+    const opts = options || {};
+    const dark = opts.dark || 100;
+    const maxThick = opts.maxThick || 12; // thicker than this is a dark fill (hair, clothes), not a line
+    const minH = Math.max(opts.minRun || 40, Math.round(w * (opts.ratio || 0.3)));
+    const minV = Math.max(opts.minRun || 40, Math.round(h * (opts.ratio || 0.3)));
+    const lum = new Float32Array(w * h);
+    const ink = new Uint8Array(w * h);
+    for (let k = 0; k < w * h; k++) {
+      const i = k * 4;
+      lum[k] = rgba[i + 3] > 200 ? rgba[i] * 0.299 + rgba[i + 1] * 0.587 + rgba[i + 2] * 0.114 : 255;
+      if (lum[k] < dark) ink[k] = 1;
+    }
+    // runs along one axis, then drop stacks thicker than maxThick across the other axis
+    function scan(horizontal) {
+      const mark = new Uint8Array(w * h);
+      const outer = horizontal ? h : w, inner = horizontal ? w : h, min = horizontal ? minH : minV;
+      const at = (o, i) => horizontal ? o * w + i : i * w + o;
+      for (let o = 0; o < outer; o++) {
+        let start = -1;
+        for (let i = 0; i <= inner; i++) {
+          const on = i < inner && ink[at(o, i)];
+          if (on && start < 0) start = i;
+          else if (!on && start >= 0) {
+            if (i - start >= min) for (let k = start; k < i; k++) mark[at(o, k)] = 1;
+            start = -1;
+          }
+        }
+      }
+      for (let i = 0; i < inner; i++) {
+        let start = -1;
+        for (let o = 0; o <= outer; o++) {
+          const on = o < outer && mark[at(o, i)];
+          if (on && start < 0) start = o;
+          else if (!on && start >= 0) {
+            if (o - start > maxThick) for (let k = start; k < o; k++) mark[at(k, i)] = 0;
+            start = -1;
+          }
+        }
+      }
+      return mark;
+    }
+    const mh = scan(true), mv = scan(false);
+    // Panel lines are anchored: each end reaches the selection edge or meets a perpendicular
+    // line (frame corner / gutter junction). Long straight strokes inside the art (pleats,
+    // poles, hair) end in the middle of the picture and are left to the model.
+    const edge = opts.edge || 4, near = maxThick + 2;
+    const anchored = (mask, other, horizontal) => {
+      const keep = new Uint8Array(w * h);
+      const outer = horizontal ? h : w, inner = horizontal ? w : h;
+      const at = (o, i) => horizontal ? o * w + i : i * w + o;
+      const meets = (o, i) => {
+        for (let d = -near; d <= near; d++) {
+          for (let e = -near; e <= near; e++) {
+            const oo = o + d, ii = i + e;
+            if (oo >= 0 && oo < outer && ii >= 0 && ii < inner && other[at(oo, ii)]) return true;
+          }
+        }
+        return false;
+      };
+      for (let o = 0; o < outer; o++) {
+        let start = -1;
+        for (let i = 0; i <= inner; i++) {
+          const on = i < inner && mask[at(o, i)];
+          if (on && start < 0) start = i;
+          else if (!on && start >= 0) {
+            const end = i - 1;
+            const okStart = start <= edge || meets(o, start);
+            const okEnd = end >= inner - 1 - edge || meets(o, end);
+            if (okStart && okEnd) for (let k = start; k <= end; k++) keep[at(o, k)] = 1;
+            start = -1;
+          }
+        }
+      }
+      return keep;
+    };
+    const kh = anchored(mh, mv, true), kv = anchored(mv, mh, false);
+    mh.set(kh); mv.set(kv);
+    const alpha = new Uint8ClampedArray(w * h).fill(255);
+    let found = 0;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const k = y * w + x;
+        if (!mh[k] && !mv[k]) continue;
+        found++;
+        alpha[k] = 0;
+        // anti-aliased edge: neighbours that are noticeably darker than paper, never light content
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            const yy = y + dy, xx = x + dx;
+            if (yy >= 0 && yy < h && xx >= 0 && xx < w && lum[yy * w + xx] < 170) alpha[yy * w + xx] = 0;
+          }
+        }
+      }
+    }
+    return found ? alpha : null;
+  }
+
+  function combineAlpha(a, b) {
+    if (!a) return b;
+    if (!b) return a;
+    const out = new Uint8ClampedArray(a.length);
+    for (let k = 0; k < a.length; k++) out[k] = Math.min(a[k], b[k]);
+    return out;
+  }
+
+  function loadPanelLineMask(dataUrl, w, h) {
+    return new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const cv = document.createElement('canvas');
+          cv.width = w;
+          cv.height = h;
+          const ctx = cv.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(panelLineAlpha(ctx.getImageData(0, 0, w, h).data, w, h));
+        } catch (error) {
+          resolve(null);
+        }
+      };
+      img.onerror = () => resolve(null);
+      img.src = dataUrl;
+    });
+  }
+
   function startSelection() {
     const c = pageCanvas();
     if (!c || !c.upperCanvasEl) {
@@ -800,6 +929,7 @@
           { cw: Math.floor(crop.w), ch: Math.floor(crop.h), w: region.width, h: region.height }));
       }
       let alphaRestored = false;
+      let linesKept = false;
       let scale = isEdit ? targetWidth / crop.w :
         Math.min(1, c.getWidth() / targetWidth, c.getHeight() / targetHeight);
       if (isEdit) {
@@ -813,12 +943,17 @@
           offset = null;
         }
         const keepAlpha = !$g('mangaGptKeepAlpha') || $g('mangaGptKeepAlpha').checked;
-        const mask = keepAlpha ? await loadAlphaMask(region.image, Math.max(1, Math.round(crop.w)), Math.max(1, Math.round(crop.h))) : null;
-        alphaRestored = !!mask;
+        const cw = Math.max(1, Math.round(crop.w)), ch = Math.max(1, Math.round(crop.h));
+        const alphaMask = keepAlpha ? await loadAlphaMask(region.image, cw, ch) : null;
+        alphaRestored = !!alphaMask;
+        const keepLines = !$g('mangaGptKeepLines') || $g('mangaGptKeepLines').checked;
+        const lineMask = keepLines ? await loadPanelLineMask(region.image, cw, ch) : null;
+        linesKept = !!lineMask;
+        const mask = combineAlpha(alphaMask, lineMask);
         const baked = bakePatch(image.getElement(), crop, scale, feather, offset, mask);
         const sourceCrop = { x: +crop.x.toFixed(2), y: +crop.y.toFixed(2), w: +crop.w.toFixed(2), h: +crop.h.toFixed(2),
           resultWidth: image.width, resultHeight: image.height, feather: feather ? feather.width : 0,
-          toneOffset: offset || [0, 0, 0], keepAlpha: alphaRestored };
+          toneOffset: offset || [0, 0, 0], keepAlpha: alphaRestored, keepLines: linesKept };
         image = await new Promise((resolve, reject) => {
           fabric.Image.fromURL(baked, img => (img && img.width ? resolve(img) : reject(new Error(tr('mgpt_decode_failed', '生成图片解码失败。')))));
         });
@@ -858,7 +993,8 @@
       state.region = null;
       if ($g('mangaGptExpand')) $g('mangaGptExpand').hidden = true;
       feedback(tr('mgpt_applied', '已添加独立图层：取回选区对应部分并等比例缩放（不拉伸、不裁头）。原图和画布尺寸未改变，可撤销。') +
-        (alphaRestored ? tr('mgpt_alpha_restored', '已按原选区的透明区域恢复透明。') : ''));
+        (alphaRestored ? tr('mgpt_alpha_restored', '已按原选区的透明区域恢复透明。') : '') +
+        (linesKept ? tr('mgpt_lines_kept', '已保留选区内原有的分格线/边框。') : ''));
     } catch (error) {
       feedback(error.message || tr('mgpt_insert_failed', '无法插入图层。'), true);
       $g('mangaGptApply').disabled = false;
@@ -950,6 +1086,7 @@
       hint('mangaGptMatchTone', 'mgpt_match_tone', '按周围画面校正模型整体偏色（用上下文边带测量，最多 ±48）', true),
       hint('mangaGptFeather', 'mgpt_feather', '选区边缘柔化（只在选区内侧过渡，选区外像素不变）', true),
       hint('mangaGptKeepAlpha', 'mgpt_keep_alpha', '保留原选区的透明区域（透明背景/镂空处不被模型画成实色）', true),
+      hint('mangaGptKeepLines', 'mgpt_keep_lines', '保留选区内的分格线/边框直线（模型常把它们抹掉；想改线条时取消勾选）', true),
       hint('mangaGptAspectGuard', 'mgpt_aspect_guard', '所选尺寸与选区比例相差过大时自动改用最接近的比例', true),
       hint('mangaGptIncludeText', 'mgpt_include_text', '框选时包含文字/气泡（默认不包含：文字保持可编辑并留在新图层上方）', false),
       '<div class="manga-gpt-row"><button type="button" id="mangaGptGenerate">' + t('mgpt_generate', '生成预览') +
@@ -1008,5 +1145,5 @@
 
   window.MangaGPTRegionEditor = { normalizeRegion, startSelection, cancelSelection, selectRegionForTextRemoval, selectRegionForPanel, prepareManualEdit, useCharacterCard, referenceSummary,
     letterboxPlan, resultCropRect, letteringInsertIndex, isLettering, contextRect, featherPlan, featherAlpha, estimateDrift, aspectMismatch,
-    findCutBoxes, expandRegion, effectiveSize, bakePatch, tr };
+    findCutBoxes, expandRegion, effectiveSize, bakePatch, panelLineAlpha, combineAlpha, tr };
 })();

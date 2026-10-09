@@ -29,7 +29,7 @@
     "test:gpt-proxy": "node scripts/run-python.cjs scripts/gpt-image-proxy-smoke-test.py",
     "test:gpt-network-guard": "node scripts/run-python.cjs scripts/gpt-proxy-network-guard-test.py",
     "test:gpt-http": "node scripts/run-python.cjs scripts/gpt-http-integration-test.py",
-    "test:gpt-region": "node scripts/gpt-region-editor-smoke-test.cjs",
+    "test:gpt-region": "node scripts/gpt-region-editor-smoke-test.cjs && node scripts/gpt-panel-line-protect-test.cjs",
     "test:gpt-browser": "node scripts/gpt-browser-acceptance.cjs",
     "test:portability": "node scripts/portability-smoke-test.cjs",
     "test:port-conflict": "node scripts/run-python.cjs scripts/server-port-conflict-test.py",
