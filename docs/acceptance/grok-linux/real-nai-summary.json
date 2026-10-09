@@ -1,0 +1,136 @@
+{
+ "results": [
+  {
+   "name": "subscription readable via image.novelai.net (Opus tier 3, active)",
+   "pass": true,
+   "detail": {
+    "tier": 3,
+    "active": true,
+    "anlas": 8005,
+    "safe": {
+     "n_samples": 1,
+     "max_pixels": 1048576,
+     "max_edge": 1536,
+     "max_steps": 28,
+     "queue_concurrency": 1
+    }
+   }
+  },
+  {
+   "name": "invalid token: real NovelAI 401 shown as readable message, nothing added",
+   "pass": true,
+   "detail": {
+    "added": false,
+    "ms": 1004,
+    "toast": "\n    \n        NovelAI\n        NovelAI failed: 401 NovelAI Token 无效、已过期或未填写（401）。请在设置里重新填写 Persistent API Token。 — Unauthorized\n        \n            \n        \n    "
+   }
+  },
+  {
+   "name": "real text-to-image inside Opus free limits adds a picture to the panel",
+   "pass": true,
+   "detail": {
+    "ok": {
+     "added": true,
+     "ms": 9359,
+     "natural": [
+      832,
+      1216
+     ],
+     "seed": 2743923973
+    },
+    "request": {
+     "action": "generate",
+     "model": "nai-diffusion-4-5-full",
+     "w": 832,
+     "h": 1216,
+     "steps": 28,
+     "n": 1,
+     "free": true,
+     "real": true
+    }
+   }
+  },
+  {
+   "name": "\"检查 NAI\" button works against the moved subscription endpoint (tier + Anlas shown)",
+   "pass": true,
+   "detail": {
+    "health": " NovelAI 状态 订阅：已激活会员层级：3无限生图：否Anlas 余额：8005代理：未使用安全请求：samples=1，总像素≤1024×1024，步数≤28，队列并发=1 "
+   }
+  },
+  {
+   "name": "no Anlas spent (balance before == after)",
+   "pass": true,
+   "detail": {
+    "before": 8005,
+    "after": 8005,
+    "spent": 0
+   }
+  },
+  {
+   "name": "every request was free-tier shaped; steps 50 in the UI were clamped to 28",
+   "pass": true,
+   "detail": {
+    "sent": [
+     {
+      "action": "generate",
+      "model": "nai-diffusion-4-5-full",
+      "w": 832,
+      "h": 1216,
+      "steps": 28,
+      "n": 1,
+      "free": true,
+      "real": false
+     },
+     {
+      "action": "generate",
+      "model": "nai-diffusion-4-5-full",
+      "w": 832,
+      "h": 1216,
+      "steps": 28,
+      "n": 1,
+      "free": true,
+      "real": true
+     }
+    ],
+    "blocked": 0
+   }
+  },
+  {
+   "name": "no uncaught page errors",
+   "pass": true,
+   "detail": {
+    "pageErrors": []
+   }
+  }
+ ],
+ "sent": [
+  {
+   "action": "generate",
+   "model": "nai-diffusion-4-5-full",
+   "w": 832,
+   "h": 1216,
+   "steps": 28,
+   "n": 1,
+   "free": true,
+   "real": false
+  },
+  {
+   "action": "generate",
+   "model": "nai-diffusion-4-5-full",
+   "w": 832,
+   "h": 1216,
+   "steps": 28,
+   "n": 1,
+   "free": true,
+   "real": true
+  }
+ ],
+ "before": {
+  "tier": 3,
+  "anlas": 8005
+ },
+ "after": {
+  "tier": 3,
+  "anlas": 8005
+ }
+}

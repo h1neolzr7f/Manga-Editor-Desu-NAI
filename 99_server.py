@@ -3,6 +3,8 @@ from concurrent.futures import ThreadPoolExecutor
 from http.server import SimpleHTTPRequestHandler
 import socketserver
 import os
+import re
+import sys
 import mimetypes
 import urllib.error
 import urllib.parse
@@ -15,6 +17,7 @@ import time
 import uuid
 import socket
 import base64
+import ipaddress
 try:
     import winreg
 except ImportError:
@@ -155,6 +158,41 @@ def _browser_headers(extra=None):
         headers.update(extra)
     return headers
 
+# NovelAI moved /user/* to the image host; api.novelai.net now answers 400 "Please refresh
+# NovelAI.net. If using a third-party tool, update to the image URL." Keep the old host only
+# as a fallback for that specific migration answer.
+NAI_SUBSCRIPTION_URLS = (
+    'https://image.novelai.net/user/subscription',
+    'https://api.novelai.net/user/subscription',
+)
+
+
+def fetch_nai_subscription(token, opener=None):
+    """Return the subscription JSON; raise the last HTTPError/URLError on failure."""
+    opener = opener or _build_proxy_opener()
+    last_error = None
+    for url in NAI_SUBSCRIPTION_URLS:
+        req = urllib.request.Request(url, headers=_browser_headers({'Authorization': token, 'Accept': 'application/json'}))
+        try:
+            with opener.open(req, timeout=30) as response:
+                return json.loads(response.read().decode('utf-8') or '{}')
+        except urllib.error.HTTPError as error:
+            if error.code not in (400, 404, 410):
+                raise
+            last_error = error
+        except urllib.error.URLError as error:
+            last_error = error
+    raise last_error
+
+
+def nai_anlas(data):
+    steps = (data or {}).get('trainingStepsLeft') or {}
+    try:
+        return int(steps.get('fixedTrainingStepsLeft') or 0) + int(steps.get('purchasedTrainingSteps') or 0)
+    except (TypeError, ValueError):
+        return None
+
+
 def _strip_bearer(token):
     token = (token or '').strip()
     if token.lower().startswith('bearer '):
@@ -241,12 +279,137 @@ def cors_allow_origin(origin):
         return ''
     return ''
 
-def resolve_nai_token(authorization_header, environ=None):
+LOCAL_HOSTNAMES = ('127.0.0.1', 'localhost', '::1')
+NULL_ORIGIN_API_PREFIXES = ('/nai-proxy/', '/director-proxy/', '/tagger-proxy/')
+# No third-party default: the Director gateway is only used when the user configures
+# a URL (UI field or DIRECTOR_API_URL in .env).
+DEFAULT_DIRECTOR_API_URL = ''
+NOVELAI_OFFICIAL_HOSTS = ('novelai.net',)
+
+
+def is_novelai_official_url(url):
+    try:
+        host = (urllib.parse.urlsplit(url).hostname or '').lower()
+    except Exception:
+        return False
+    return any(host == h or host.endswith('.' + h) for h in NOVELAI_OFFICIAL_HOSTS)
+
+
+def looks_like_novelai_token(token, environ=None):
+    env = environ if environ is not None else os.environ
+    value = (token or '').strip()
+    if value.lower().startswith('bearer '):
+        value = value[7:].strip()
+    if not value:
+        return False
+    nai = (env.get('NOVELAI_API_KEY') or env.get('NAI_API_KEY') or '').strip()
+    return value.startswith('pst-') or (bool(nai) and value == nai)
+
+def is_trusted_local_request(client_address, headers):
+    """Whether a request may use secrets loaded from .env / the environment.
+
+    Allowed: the editor page itself (exact same-origin Origin) and non-browser
+    local scripts (no Origin, no Sec-Fetch-Site). Rejected: cross-site pages,
+    'null' origins (sandboxed iframes, file://), Sec-Fetch-Site cross-site/same-site,
+    non-loopback peers and DNS-rebinding Host headers.
+    """
+    try:
+        if not ipaddress.ip_address(str(client_address[0]).split('%', 1)[0]).is_loopback:
+            return False
+    except (ValueError, IndexError, TypeError):
+        return False
+    host = (headers.get('Host') or '').strip().lower()
+    try:
+        hostname = urllib.parse.urlsplit('//' + host).hostname or ''
+    except ValueError:
+        return False
+    if not host or hostname not in LOCAL_HOSTNAMES:
+        return False
+    origin = (headers.get('Origin') or '').strip().lower()
+    if origin and origin != 'http://' + host:
+        return False
+    site = (headers.get('Sec-Fetch-Site') or '').strip().lower()
+    if site not in ('', 'same-origin', 'none'):
+        return False
+    return True
+
+NAI_STATUS_MESSAGES = {
+    400: 'NovelAI 拒绝了请求参数（400），请检查尺寸、步数、模型或提示词。',
+    401: 'NovelAI Token 无效、已过期或未填写（401）。请在设置里重新填写 Persistent API Token。',
+    402: 'NovelAI 需要有效订阅或 Anlas 不足（402）。',
+    403: 'NovelAI 拒绝访问（403），可能是账号权限、地区或代理被拦截。',
+    409: 'NovelAI 正在处理同一账号的另一个生成（409），请稍后重试。',
+    429: 'NovelAI 请求过于频繁或并发受限（429），请稍后重试。',
+}
+
+
+def nai_error_payload(status, raw=b'', content_type=''):
+    """Readable JSON error for the browser instead of raw HTML / plain upstream bodies."""
+    text = raw.decode('utf-8', errors='replace') if isinstance(raw, (bytes, bytearray)) else str(raw or '')
+    detail = ''
+    if 'json' in (content_type or '').lower() or text.strip().startswith('{'):
+        try:
+            parsed = json.loads(text)
+            if isinstance(parsed, dict):
+                detail = str(parsed.get('message') or parsed.get('error') or '')
+        except ValueError:
+            detail = ''
+    if not detail and text:
+        stripped = re.sub(r'<(script|style)[^>]*>.*?</\1>', ' ', text, flags=re.S | re.I)
+        stripped = re.sub(r'<[^>]+>', ' ', stripped)
+        detail = re.sub(r'\s+', ' ', stripped).strip()
+    detail = detail[:300]
+    if status in NAI_STATUS_MESSAGES:
+        message = NAI_STATUS_MESSAGES[status]
+    elif 500 <= int(status) < 600:
+        message = f'NovelAI 服务暂时不可用（{status}），请稍后重试。'
+    else:
+        message = f'NovelAI 返回错误（{status}）。'
+    return {'ok': False, 'status': int(status), 'error': message, 'detail': detail}
+
+
+def resolve_nai_token(authorization_header, environ=None, allow_env=True):
     header = (authorization_header or '').strip()
     if header:
         return header
+    if not allow_env:
+        return ''
     env = environ if environ is not None else os.environ
     return (env.get('NOVELAI_API_KEY') or '').strip()
+
+def resolve_director_credentials(headers, trusted, environ=None):
+    """Return (token, upstream_url, error). An env token is only ever sent to the
+    env-configured DIRECTOR_API_URL and only for trusted same-origin callers.
+
+    There is no built-in gateway: without a user-configured URL nothing is sent
+    ('no_url'). A NovelAI token is never forwarded to a non-NovelAI host
+    ('novelai_token')."""
+    env = environ if environ is not None else os.environ
+    default_url = (env.get('DIRECTOR_API_URL') or DEFAULT_DIRECTOR_API_URL).strip()
+    requested = (headers.get('X-Director-Api-Url') or '').strip()
+    url = requested or default_url
+    if not url:
+        return '', '', 'no_url'
+    header_token = (headers.get('Authorization') or '').strip()
+    if header_token:
+        if looks_like_novelai_token(header_token, env) and not is_novelai_official_url(url):
+            return '', url, 'novelai_token'
+        return header_token, url, None
+    env_token = (env.get('DIRECTOR_API_KEY') or '').strip()
+    if not env_token or not trusted:
+        return '', url, None
+    if looks_like_novelai_token(env_token, env) and not is_novelai_official_url(url):
+        return '', url, 'novelai_token'
+    if url.rstrip('/') != default_url.rstrip('/'):
+        return '', url, 'destination'
+    return env_token, url, None
+
+
+DIRECTOR_CREDENTIAL_ERRORS = {
+    'no_url': (400, 'Director API URL is not configured. Enter an OpenAI-compatible gateway URL in the Director settings (or DIRECTOR_API_URL in .env). 未配置导演 API 地址。'),
+    'novelai_token': (403, 'Refusing to send a NovelAI token to a non-NovelAI Director gateway. Use the gateway\'s own key. 拒绝把 NovelAI 令牌发送到非 NovelAI 的导演网关。'),
+    'destination': (403, 'The .env director key is only sent to DIRECTOR_API_URL. Enter a key in the UI for other gateways.'),
+}
 
 def _env_int(name, fallback):
     try:
@@ -317,6 +480,13 @@ def _normalize_novelai_body(body):
         params['width'] = safe_size['width']
         params['height'] = safe_size['height']
         params['n_samples'] = 1
+        # Opus free generation allows at most 28 steps; more steps silently spend Anlas.
+        max_steps = max(1, _env_int('NAI_MAX_STEPS', 28))
+        try:
+            steps = int(params.get('steps') or max_steps)
+        except (TypeError, ValueError):
+            steps = max_steps
+        params['steps'] = max(1, min(max_steps, steps))
     return json.dumps(data, ensure_ascii=False).encode('utf-8')
 
 def _start_tool_job(kind, token, args):
@@ -400,6 +570,12 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
     
     def end_headers(self):
         origin = cors_allow_origin(self.headers.get('Origin'))
+        # 'null' origins (file:// pages, but also sandboxed iframes on ANY website) may only
+        # read the explicit-token proxy APIs, never static files such as user_data/ images,
+        # project files or directory listings.
+        path = urllib.parse.urlsplit(self.path or '').path
+        if origin == 'null' and not path.startswith(NULL_ORIGIN_API_PREFIXES):
+            origin = ''
         if origin:
             self.send_header('Access-Control-Allow-Origin', origin)
             self.send_header('Vary', 'Origin')
@@ -409,6 +585,18 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         self.send_header('Connection', 'keep-alive')
         self.send_header('Service-Worker-Allowed', '/')
         return super(CORSRequestHandler, self).end_headers()
+
+    def _trusted_local(self):
+        return is_trusted_local_request(self.client_address, self.headers)
+
+    def _reject_untrusted(self):
+        """State-changing local tools must not be reachable from other websites."""
+        if self._trusted_local():
+            return False
+        # The request body was not read; never reuse this keep-alive connection.
+        self.close_connection = True
+        self._send_json({'error': 'Only the local editor page (same origin) may call this endpoint.'}, 403)
+        return True
 
     def do_OPTIONS(self):
         self.send_response(204)
@@ -456,11 +644,11 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         return json.dumps(data, ensure_ascii=False).encode('utf-8')
 
     def _proxy_novelai(self, method, upstream_path, body=None):
-        token = resolve_nai_token(self.headers.get('Authorization', ''))
+        token = resolve_nai_token(self.headers.get('Authorization', ''), allow_env=self._trusted_local())
         if token and not token.lower().startswith('bearer '):
             token = 'Bearer ' + token
         if not token:
-            self.send_error(401, 'Missing Authorization header')
+            self._send_json(nai_error_payload(401), 401)
             return
 
         url = 'https://image.novelai.net' + upstream_path
@@ -483,18 +671,18 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(data)
         except urllib.error.HTTPError as error:
-            data = error.read()
-            self.send_response(error.code)
-            self.send_header('Content-Type', error.headers.get('Content-Type', 'text/plain; charset=utf-8'))
-            self.send_header('Content-Length', str(len(data)))
-            self.end_headers()
-            self.wfile.write(data)
+            data = error.read(65536)
+            self._send_json(nai_error_payload(error.code, data, error.headers.get('Content-Type', '')), error.code)
         except Exception as error:
-            self._send_text(f'{type(error).__name__}: {error}', 502)
+            self._send_json({'ok': False, 'status': 502, 'error': '无法连接 NovelAI，请检查网络或代理设置。',
+                             'detail': f'{type(error).__name__}: {error}'[:300]}, 502)
 
     def _proxy_director(self, body=None):
-        token = self.headers.get('Authorization', '') or os.environ.get('TOKENDANCE_API_KEY', '') or os.environ.get('DIRECTOR_API_KEY', '')
-        upstream_url = self.headers.get('X-Director-Api-Url', '') or os.environ.get('DIRECTOR_API_URL', 'https://tokendance.space/gateway/v1/chat/completions')
+        token, upstream_url, credential_error = resolve_director_credentials(self.headers, self._trusted_local())
+        if credential_error:
+            status, message = DIRECTOR_CREDENTIAL_ERRORS.get(credential_error, DIRECTOR_CREDENTIAL_ERRORS['destination'])
+            self._send_json({'error': message, 'code': credential_error}, status)
+            return
         if token and not token.lower().startswith('bearer '):
             token = 'Bearer ' + token
         if not token:
@@ -575,8 +763,11 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             self._send_json({'error': f'{type(error).__name__}: {error}'}, 502)
 
     def _proxy_director_models(self):
-        token = self.headers.get('Authorization', '') or os.environ.get('TOKENDANCE_API_KEY', '') or os.environ.get('DIRECTOR_API_KEY', '')
-        upstream_url = self.headers.get('X-Director-Api-Url', '') or os.environ.get('DIRECTOR_API_URL', 'https://tokendance.space/gateway/v1/chat/completions')
+        token, upstream_url, credential_error = resolve_director_credentials(self.headers, self._trusted_local())
+        if credential_error:
+            status, message = DIRECTOR_CREDENTIAL_ERRORS.get(credential_error, DIRECTOR_CREDENTIAL_ERRORS['destination'])
+            self._send_json({'error': message, 'code': credential_error}, status)
+            return
         if token and not token.lower().startswith('bearer '):
             token = 'Bearer ' + token
         if not token:
@@ -643,7 +834,9 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             self._proxy_tagger()
             return
         if self.path == '/nai-tools/start-material-previews':
-            token = resolve_nai_token(self.headers.get('Authorization', ''))
+            if self._reject_untrusted():
+                return
+            token = resolve_nai_token(self.headers.get('Authorization', ''), allow_env=self._trusted_local())
             if not token:
                 self._send_json({'error': 'Missing Authorization header'}, 401)
                 return
@@ -674,7 +867,9 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             self._send_json({'job_id': job['id'], 'status': job['status']})
             return
         if self.path == '/nai-tools/start-comic-demo':
-            token = resolve_nai_token(self.headers.get('Authorization', ''))
+            if self._reject_untrusted():
+                return
+            token = resolve_nai_token(self.headers.get('Authorization', ''), allow_env=self._trusted_local())
             if not token:
                 self._send_json({'error': 'Missing Authorization header'}, 401)
                 return
@@ -682,6 +877,8 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             self._send_json({'job_id': job['id'], 'status': job['status']})
             return
         if self.path == '/user-assets':
+            if self._reject_untrusted():
+                return
             length = int(self.headers.get('Content-Length', '0') or '0')
             if length > int(USER_ASSET_MAX_BYTES * 1.4) + 8192:
                 self._send_json({'error': 'Payload too large'}, 413)
@@ -700,63 +897,54 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             self._proxy_director_models()
             return
         if self.path.startswith('/nai-proxy/health'):
-            token = resolve_nai_token(self.headers.get('Authorization', ''))
+            token = resolve_nai_token(self.headers.get('Authorization', ''), allow_env=self._trusted_local())
             if token and not token.lower().startswith('bearer '):
                 token = 'Bearer ' + token
             if not token:
-                self._send_json({'ok': False, 'error': 'Missing NovelAI token'}, 401)
+                self._send_json(nai_error_payload(401), 401)
                 return
-            req = urllib.request.Request(
-                'https://api.novelai.net/user/subscription',
-                headers=_browser_headers({'Authorization': token, 'Accept': 'application/json'})
-            )
             try:
-                with _build_proxy_opener().open(req, timeout=30) as response:
-                    data = json.loads(response.read().decode('utf-8') or '{}')
-                    self._send_json({
-                        'ok': True,
-                        'active': data.get('active'),
-                        'tier': data.get('tier'),
-                        'proxy': _get_proxy_url() or '',
-                        'imageGeneration': ((data.get('perks') or {}).get('imageGeneration')),
-                        'unlimitedImageGeneration': ((data.get('perks') or {}).get('unlimitedImageGeneration'))
-                    })
+                data = fetch_nai_subscription(token)
+                self._send_json({
+                    'ok': True,
+                    'active': data.get('active'),
+                    'tier': data.get('tier'),
+                    'proxy': _get_proxy_url() or '',
+                    'imageGeneration': ((data.get('perks') or {}).get('imageGeneration')),
+                    'anlas': nai_anlas(data),
+                    'unlimitedImageGeneration': ((data.get('perks') or {}).get('unlimitedImageGeneration'))
+                })
             except urllib.error.HTTPError as error:
-                body = error.read().decode('utf-8', errors='replace')
-                self._send_json({'ok': False, 'status': error.code, 'error': body}, error.code)
+                self._send_json(nai_error_payload(error.code, error.read(65536), error.headers.get('Content-Type', '')), error.code)
             except Exception as error:
                 self._send_json({'ok': False, 'error': f'{type(error).__name__}: {error}'}, 502)
             return
         if self.path.startswith('/nai-proxy/safe-status'):
-            token = resolve_nai_token(self.headers.get('Authorization', ''))
+            token = resolve_nai_token(self.headers.get('Authorization', ''), allow_env=self._trusted_local())
             if token and not token.lower().startswith('bearer '):
                 token = 'Bearer ' + token
             if not token:
-                self._send_json({'ok': False, 'error': 'Missing NovelAI token'}, 401)
+                self._send_json(nai_error_payload(401), 401)
                 return
-            req = urllib.request.Request(
-                'https://api.novelai.net/user/subscription',
-                headers=_browser_headers({'Authorization': token, 'Accept': 'application/json'})
-            )
             try:
-                with _build_proxy_opener().open(req, timeout=30) as response:
-                    data = json.loads(response.read().decode('utf-8') or '{}')
-                    self._send_json({
-                        'ok': True,
-                        'active': data.get('active'),
-                        'tier': data.get('tier'),
-                        'unlimitedImageGeneration': ((data.get('perks') or {}).get('unlimitedImageGeneration')),
-                        'proxy': _get_proxy_url() or '',
-                        'safeRequest': {
-                            'n_samples': 1,
-                            'max_pixels': _env_int('NAI_MAX_PIXELS', 1024 * 1024),
-                            'max_edge': _env_int('NAI_MAX_EDGE', 1536),
-                            'queue_concurrency': 1
-                        }
-                    })
+                data = fetch_nai_subscription(token)
+                self._send_json({
+                    'ok': True,
+                    'active': data.get('active'),
+                    'tier': data.get('tier'),
+                    'unlimitedImageGeneration': ((data.get('perks') or {}).get('unlimitedImageGeneration')),
+                    'anlas': nai_anlas(data),
+                    'proxy': _get_proxy_url() or '',
+                    'safeRequest': {
+                        'n_samples': 1,
+                        'max_pixels': _env_int('NAI_MAX_PIXELS', 1024 * 1024),
+                        'max_edge': _env_int('NAI_MAX_EDGE', 1536),
+                        'max_steps': max(1, _env_int('NAI_MAX_STEPS', 28)),
+                        'queue_concurrency': 1
+                    }
+                })
             except urllib.error.HTTPError as error:
-                body = error.read().decode('utf-8', errors='replace')
-                self._send_json({'ok': False, 'status': error.code, 'error': body}, error.code)
+                self._send_json(nai_error_payload(error.code, error.read(65536), error.headers.get('Content-Type', '')), error.code)
             except Exception as error:
                 self._send_json({'ok': False, 'error': f'{type(error).__name__}: {error}'}, 502)
             return
@@ -795,7 +983,14 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     daemon_threads = True
-    allow_reuse_address = True
+    # On Windows SO_REUSEADDR lets a second process silently bind a port that is already
+    # serving (both then receive requests). Use exclusive binding there instead.
+    allow_reuse_address = os.name != 'nt'
+
+    def server_bind(self):
+        if os.name == 'nt' and hasattr(socket, 'SO_EXCLUSIVEADDRUSE'):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        return super().server_bind()
     request_queue_size = 500
     timeout = 60
 
@@ -803,9 +998,19 @@ if __name__ == '__main__':
     ensure_user_data_dirs()
     PORT = 8000
     ADDRESS = (os.environ.get('NAI_BIND') or '127.0.0.1').strip() or '127.0.0.1'
-    socketserver.TCPServer.allow_reuse_address = True
-    
-    with ThreadedTCPServer((ADDRESS, PORT), CORSRequestHandler) as httpd:
+    try:
+        httpd_instance = ThreadedTCPServer((ADDRESS, PORT), CORSRequestHandler)
+    except OSError as error:
+        try:
+            sys.stdout.reconfigure(errors='replace')  # non-CJK consoles must not crash on the hint
+        except Exception:
+            pass
+        print(f"[ERROR] 端口 {PORT} 已被占用或无法监听（{error}）。")
+        print(f"[ERROR] Port {PORT} is busy or cannot be bound. Close the other program using it "
+              f"(Linux: ss -ltnp | grep :{PORT}; Windows: netstat -ano | findstr :{PORT}) and retry.")
+        raise SystemExit(98)
+
+    with httpd_instance as httpd:
         with ThreadPoolExecutor(max_workers=500) as executor:
             print(f"Server running at http://{ADDRESS or '127.0.0.1'}:{PORT}")
             try:

@@ -167,5 +167,17 @@ class ImageRelayTest(unittest.TestCase):
             proxy.request_image_edit({"model": "gpt-image-1", "prompt": ""}, "key")
 
 
+class NetworkGuardSuite(unittest.TestCase):
+    """Runs scripts/gpt-proxy-network-guard-test.py so existing CI jobs cover it."""
+
+    def test_network_guard_suite(self):
+        import subprocess
+        import sys as _sys
+        from pathlib import Path as _Path
+        script = _Path(__file__).resolve().parent / "gpt-proxy-network-guard-test.py"
+        result = subprocess.run([_sys.executable, str(script)], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stdout[-3000:] + result.stderr[-3000:])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

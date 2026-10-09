@@ -26,8 +26,9 @@ return window.location.origin;
 
 function getDirectorUpstreamUrl(){
 var input=$('naiDirectorApiUrl');
-var url=input&&input.value?input.value.trim():'https://tokendance.space/gateway/v1';
+var url=input&&input.value?input.value.trim():'';
 url=url.replace(/\/+$/,'');
+if(!url)return '';
 if(/\/chat\/completions$/i.test(url))return url;
 if(/\/v1$/i.test(url))return url+'/chat/completions';
 return url+'/chat/completions';
@@ -95,8 +96,11 @@ button.disabled=true;
 button.textContent='刷新中';
 }
 try{
-var headers={'Accept':'application/json','X-Director-Api-Url':getDirectorUpstreamUrl()};
+var upstream=getDirectorUpstreamUrl();
+if(!upstream)throw new Error('未配置导演 API 地址（无默认第三方网关）');
+var headers={'Accept':'application/json','X-Director-Api-Url':upstream};
 var key=$('naiDirectorApiKey')&&$('naiDirectorApiKey').value?$('naiDirectorApiKey').value.trim():'';
+if(typeof NaiDirectorSafety!=='undefined'&&NaiDirectorSafety.isNovelAiToken(key)&&!NaiDirectorSafety.isNovelAiHost(upstream))throw new Error('导演 key 看起来是 NovelAI 令牌，已拒绝发送到第三方网关');
 if(key)headers.Authorization=/^Bearer\s+/i.test(key)?key:'Bearer '+key;
 var response=await fetch(getDirectorProxyBaseUrl()+'/director-proxy/models',{headers:headers});
 var json=await response.json();
@@ -354,8 +358,9 @@ createToast('NovelAI 状态',[
 '订阅：'+(json.active?'已激活':'未激活'),
 '会员层级：'+(json.tier===undefined?'未知':json.tier),
 '无限生图：'+(json.unlimitedImageGeneration?'是':'否'),
+'Anlas 余额：'+(json.anlas===undefined||json.anlas===null?'未知':json.anlas),
 '代理：'+(json.proxy||'未使用'),
-'安全请求：samples=1，总像素≤1024×1024，队列并发=1'
+'安全请求：samples=1，总像素≤1024×1024，步数≤28，队列并发=1'
 ],6500);
 return json;
 }

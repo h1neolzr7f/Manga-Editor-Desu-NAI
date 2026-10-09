@@ -29,3 +29,34 @@ assert mod.cors_allow_origin('http://127.0.0.1:8000') == 'http://127.0.0.1:8000'
 assert mod.cors_allow_origin('https://evil.example') == ''
 assert mod.cors_allow_origin('null') == 'null'
 print('proxy guard smoke test passed')
+
+# Extra regressions run from here so existing CI jobs cover them without workflow edits:
+# cross-site secret borrowing (NovelAI / director / tools / null-origin static reads) and
+# busy-port handling.
+import subprocess
+import sys
+for name in ('local-secret-guard-test.py', 'server-port-conflict-test.py',
+             'nai-error-readable-test.py', 'local-tools-origin-test.py',
+             'no-third-party-director-test.py'):
+    result = subprocess.run([sys.executable, str(root / 'scripts' / name)],
+                            cwd=str(root), capture_output=True, text=True,
+                            encoding='utf-8', errors='replace')
+    if result.returncode != 0:
+        print(result.stdout[-4000:], result.stderr[-4000:])
+        raise SystemExit(name + ' regression failed')
+    print(name + ' passed')
+
+# Node regressions for the same fixes (readable NovelAI errors + free-quota clamp, the NAI
+# pipeline never reusing the NovelAI token as Director key, GPT panel i18n keys).
+import shutil
+node = shutil.which('node')
+if node:
+    for name in ('novelai-readable-error-test.cjs', 'nai-pipeline-credentials-test.cjs', 'gpt-panel-i18n-test.cjs'):
+        result = subprocess.run([node, str(root / 'scripts' / name)], cwd=str(root), capture_output=True,
+                                text=True, encoding='utf-8', errors='replace')
+        if result.returncode != 0:
+            print(result.stdout[-4000:], result.stderr[-4000:])
+            raise SystemExit(name + ' regression failed')
+        print(name + ' passed')
+else:
+    print('node not found: skipped node regressions')

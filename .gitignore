@@ -183,3 +183,6 @@ generated_outputs/
 models/
 cache/
 local_tools/*.log
+
+# Local test artifacts (Playwright screenshots / traces)
+artifacts/
