@@ -507,8 +507,25 @@ refreshPresetSelect();
 setStatus("已导入 "+count+" 个自定义抠图预设。",false);
 }).catch(function(error){setStatus("导入失败："+error.message,true);});
 });
+// Probe the optional local tools sidecar only when the cutout panel is first shown;
+// probing at startup made every user without it see connection errors in the console.
+var probed=false;
+function probeOnce(){
+if(probed)return;
+probed=true;
 listModels().then(fillModels).catch(function(){});
 checkHealth().catch(function(){});
+}
+var area=element("cutout-area");
+if(area&&typeof MutationObserver==="function"){
+var visible=function(){return area.style.display!=="none"&&area.offsetParent!==null;};
+if(visible())probeOnce();
+else{
+var observer=new MutationObserver(function(){if(visible()){observer.disconnect();probeOnce();}});
+observer.observe(area,{attributes:true,attributeFilter:["style","class","hidden"]});
+}
+}
+setStatus("打开本面板时会自动检查本地抠图服务；未启动时可直接用浏览器颜色抠图。",false);
 }
 
 root.NaiBackgroundRemovalClient={
