@@ -43,9 +43,9 @@
     // A preserved entity is context, not the requested edit target.
     // Examples: "change the sky, keep the characters" and "rewrite text,
     // keep the character unchanged" must not route to character inpainting.
-    const actionable=text.split(/[，,；;。]/).filter(part =>
-      !/(?:保持不变|保持原状|保留原样|维持原样|不要改|不要动|不修改|原封不动|keep unchanged|leave unchanged)/i.test(part)
-    ).join('，') || text;
+    // The object following "preserve / keep" is NOT a change target.
+    // Prioritize the first explicit edit clause, not the context to protect.
+    const actionable=text.split(/[，,；;。]?\s*(?:保留|保持|不要|不改变|不修改|不动|维持|不碰)/)[0] || text;
     const textTask=/(对白|台词|文字|字幕|气泡|台本|dialogue|lettering|caption|subtitle)/i.test(actionable);
     const character=/(人物|角色|少女|女孩|男孩|男人|女人|身体|头发|表情|衣服|发型|服装|主角|人像|脸|参考图|character|face|person)/i.test(actionable);
     const background=/(背景|场景|天气|城市|建筑|天空|雨|雪|background|scene|sky|city)/i.test(actionable);
