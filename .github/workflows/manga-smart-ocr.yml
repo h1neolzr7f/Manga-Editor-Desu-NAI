@@ -1,0 +1,33 @@
+name: Manga Smart OCR native test
+
+on:
+  pull_request:
+    paths:
+      - "manga_smart_ocr.py"
+      - "scripts/manga-smart-ocr-*.py"
+      - "99_server.py"
+      - ".github/workflows/manga-smart-ocr.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ocr-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Tesseract and English/Japanese language packs
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-eng tesseract-ocr-jpn tesseract-ocr-jpn-vert fonts-dejavu-core
+          python -m pip install --disable-pip-version-check "Pillow>=11,<13"
+          tesseract --list-langs
+      - name: Run mocked parser/endpoint and native OCR recognition
+        run: |
+          python scripts/manga-smart-ocr-test.py
+          python scripts/manga-smart-ocr-runtime-test.py
