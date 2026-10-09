@@ -118,6 +118,14 @@
     };
   }
 
+  // A forced output size whose aspect is far from the selection makes the padding dominate;
+  // real gpt-image-2 results then recompose the scene (moved/cut heads, tone boxes).
+  function aspectMismatch(width, height, size) {
+    if (!SIZE_ASPECTS[size]) return false;
+    const [w, h] = SIZE_ASPECTS[size];
+    return Math.abs(Math.log((width / height) / (w / h))) > 0.45;
+  }
+
   function letterboxImage(dataUrl, plan) {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -489,7 +497,9 @@
       state.result = json.image;
       $g('mangaGptPreview').src = json.image;
       $g('mangaGptApply').disabled = false;
-      feedback('图像已生成，请检查预览后点击“作为新图层应用”。');
+      const warnAspect = operation === 'edit' && aspectMismatch(state.region.width, state.region.height, $g('mangaGptSize').value);
+      feedback('图像已生成，请检查预览后点击“作为新图层应用”。' + (warnAspect ?
+        '注意：所选尺寸与选区比例相差较大，模型容易重新构图（人物移位/裁头），建议尺寸选“自动”。' : ''));
     } catch (error) {
       if (error && error.name === 'AbortError') {
         feedback(timedOut ? '请求超时（' + (REQUEST_TIMEOUT_MS / 1000) + ' 秒），已取消。' : '已取消请求。', true);
@@ -717,5 +727,5 @@
   else render();
 
   window.MangaGPTRegionEditor = { normalizeRegion, startSelection, cancelSelection,
-    letterboxPlan, resultCropRect, letteringInsertIndex, isLettering, contextRect, featherPlan, featherAlpha, estimateDrift };
+    letterboxPlan, resultCropRect, letteringInsertIndex, isLettering, contextRect, featherPlan, featherAlpha, estimateDrift, aspectMismatch };
 })();

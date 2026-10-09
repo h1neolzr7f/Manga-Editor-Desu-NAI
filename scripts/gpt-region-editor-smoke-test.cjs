@@ -267,6 +267,11 @@ elements.mangaGptStatus.textContent = savedRegionStatus;
   const cplan = api.letterboxPlan(400, 100, '1024x1024');
   const cr = api.contextRect({ left: 0, top: 0, width: 400, height: 100 }, cplan, 1000, 1000);
   assert(cr.full.top < 0 && cr.clip.top === 0 && cr.clip.left === 0 && cr.clip.height <= Math.ceil(cr.full.height + cr.full.top));
+  // Real case F (1002x571 forced into 1024x1536) recomposed; warn for such mismatches only.
+  assert.equal(api.aspectMismatch(1002, 571, '1024x1536'), true);
+  assert.equal(api.aspectMismatch(802, 1240, '1024x1536'), false);
+  assert.equal(api.aspectMismatch(802, 1240, '1024x1024'), false);
+  assert.equal(api.aspectMismatch(802, 1240, 'auto'), false);
   const explicit = api.letterboxPlan(900, 300, '1024x1536');
   assert.equal(explicit.size, '1024x1536', 'explicit size choice is respected');
 
