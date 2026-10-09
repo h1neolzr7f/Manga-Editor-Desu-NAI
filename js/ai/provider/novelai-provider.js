@@ -373,6 +373,18 @@ parameters:this._buildParameters(base,type,extra),
 _directorPlan:base.directorPlan
 };
 }
+static readableError(status,errorText){
+var text=(errorText===undefined||errorText===null)?'':String(errorText);
+var message='';var detail='';
+try{var parsed=JSON.parse(text);if(parsed&&typeof parsed==='object'){message=parsed.error&&parsed.detail!==undefined?String(parsed.error):'';detail=String(parsed.detail!==undefined?parsed.detail:(parsed.message||parsed.error||''));}}catch(e){}
+if(!message){
+var known={400:'NovelAI 拒绝了请求参数（400），请检查尺寸、步数、模型或提示词。',401:'NovelAI Token 无效、已过期或未填写（401）。请在设置里重新填写 Persistent API Token。',402:'NovelAI 需要有效订阅或 Anlas 不足（402）。',403:'NovelAI 拒绝访问（403），可能是账号权限、地区或代理被拦截。',429:'NovelAI 请求过于频繁或并发受限（429），请稍后重试。'};
+message=known[status]||((status>=500&&status<600)?'NovelAI 服务暂时不可用（'+status+'），请稍后重试。':'NovelAI 返回错误（'+status+'）。');
+if(!detail)detail=text.replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi,' ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+}
+detail=detail.slice(0,300);
+return 'NovelAI failed: '+status+' '+message+(detail?' — '+detail:'');
+}
 _isRetryableNovelAiError(status,errorText){
 errorText=(errorText===undefined||errorText===null)?'':String(errorText);
 if(status===429)return true;
@@ -402,7 +414,8 @@ if(response.ok){
 return this._parseGenerateResponse(response);
 }
 var errorText=await response.text();
-lastError=new Error('NovelAI failed: '+response.status+' '+errorText);
+lastError=new Error(NovelAIProvider.readableError(response.status,errorText));
+lastError.status=response.status;
 if(attempt>=maxAttempts||!this._isRetryableNovelAiError(response.status,errorText)){
 throw lastError;
 }

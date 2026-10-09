@@ -33,6 +33,9 @@
     "test:gpt-browser": "node scripts/gpt-browser-acceptance.cjs",
     "test:portability": "node scripts/portability-smoke-test.cjs",
     "test:port-conflict": "node scripts/run-python.cjs scripts/server-port-conflict-test.py",
+    "test:nai-errors": "node scripts/run-python.cjs scripts/nai-error-readable-test.py && node scripts/novelai-readable-error-test.cjs",
+    "test:local-tools-origin": "node scripts/run-python.cjs scripts/local-tools-origin-test.py",
+    "test:gpt-i18n": "node scripts/gpt-panel-i18n-test.cjs",
     "test:layout": "node scripts/layout-smoke-test.cjs",
     "test:page-size": "node scripts/manga-page-size-smoke-test.cjs"
     ,"test:fabric-text-focus": "node scripts/fabric-text-focus-smoke-test.cjs"

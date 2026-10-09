@@ -35,9 +35,11 @@ print('proxy guard smoke test passed')
 # busy-port handling.
 import subprocess
 import sys
-for name in ('local-secret-guard-test.py', 'server-port-conflict-test.py'):
+for name in ('local-secret-guard-test.py', 'server-port-conflict-test.py',
+             'nai-error-readable-test.py', 'local-tools-origin-test.py'):
     result = subprocess.run([sys.executable, str(root / 'scripts' / name)],
-                            cwd=str(root), capture_output=True, text=True)
+                            cwd=str(root), capture_output=True, text=True,
+                            encoding='utf-8', errors='replace')
     if result.returncode != 0:
         print(result.stdout[-4000:], result.stderr[-4000:])
         raise SystemExit(name + ' regression failed')

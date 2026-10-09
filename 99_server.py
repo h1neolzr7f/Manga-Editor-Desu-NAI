@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from http.server import SimpleHTTPRequestHandler
 import socketserver
 import os
+import re
 import sys
 import mimetypes
 import urllib.error
@@ -275,6 +276,41 @@ def is_trusted_local_request(client_address, headers):
         return False
     return True
 
+NAI_STATUS_MESSAGES = {
+    400: 'NovelAI 拒绝了请求参数（400），请检查尺寸、步数、模型或提示词。',
+    401: 'NovelAI Token 无效、已过期或未填写（401）。请在设置里重新填写 Persistent API Token。',
+    402: 'NovelAI 需要有效订阅或 Anlas 不足（402）。',
+    403: 'NovelAI 拒绝访问（403），可能是账号权限、地区或代理被拦截。',
+    409: 'NovelAI 正在处理同一账号的另一个生成（409），请稍后重试。',
+    429: 'NovelAI 请求过于频繁或并发受限（429），请稍后重试。',
+}
+
+
+def nai_error_payload(status, raw=b'', content_type=''):
+    """Readable JSON error for the browser instead of raw HTML / plain upstream bodies."""
+    text = raw.decode('utf-8', errors='replace') if isinstance(raw, (bytes, bytearray)) else str(raw or '')
+    detail = ''
+    if 'json' in (content_type or '').lower() or text.strip().startswith('{'):
+        try:
+            parsed = json.loads(text)
+            if isinstance(parsed, dict):
+                detail = str(parsed.get('message') or parsed.get('error') or '')
+        except ValueError:
+            detail = ''
+    if not detail and text:
+        stripped = re.sub(r'<(script|style)[^>]*>.*?</\1>', ' ', text, flags=re.S | re.I)
+        stripped = re.sub(r'<[^>]+>', ' ', stripped)
+        detail = re.sub(r'\s+', ' ', stripped).strip()
+    detail = detail[:300]
+    if status in NAI_STATUS_MESSAGES:
+        message = NAI_STATUS_MESSAGES[status]
+    elif 500 <= int(status) < 600:
+        message = f'NovelAI 服务暂时不可用（{status}），请稍后重试。'
+    else:
+        message = f'NovelAI 返回错误（{status}）。'
+    return {'ok': False, 'status': int(status), 'error': message, 'detail': detail}
+
+
 def resolve_nai_token(authorization_header, environ=None, allow_env=True):
     header = (authorization_header or '').strip()
     if header:
@@ -531,7 +567,7 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         if token and not token.lower().startswith('bearer '):
             token = 'Bearer ' + token
         if not token:
-            self.send_error(401, 'Missing Authorization header')
+            self._send_json(nai_error_payload(401), 401)
             return
 
         url = 'https://image.novelai.net' + upstream_path
@@ -554,14 +590,11 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(data)
         except urllib.error.HTTPError as error:
-            data = error.read()
-            self.send_response(error.code)
-            self.send_header('Content-Type', error.headers.get('Content-Type', 'text/plain; charset=utf-8'))
-            self.send_header('Content-Length', str(len(data)))
-            self.end_headers()
-            self.wfile.write(data)
+            data = error.read(65536)
+            self._send_json(nai_error_payload(error.code, data, error.headers.get('Content-Type', '')), error.code)
         except Exception as error:
-            self._send_text(f'{type(error).__name__}: {error}', 502)
+            self._send_json({'ok': False, 'status': 502, 'error': '无法连接 NovelAI，请检查网络或代理设置。',
+                             'detail': f'{type(error).__name__}: {error}'[:300]}, 502)
 
     def _proxy_director(self, body=None):
         token, upstream_url, credential_error = resolve_director_credentials(self.headers, self._trusted_local())
@@ -785,7 +818,7 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             if token and not token.lower().startswith('bearer '):
                 token = 'Bearer ' + token
             if not token:
-                self._send_json({'ok': False, 'error': 'Missing NovelAI token'}, 401)
+                self._send_json(nai_error_payload(401), 401)
                 return
             req = urllib.request.Request(
                 'https://api.novelai.net/user/subscription',
@@ -803,8 +836,7 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
                         'unlimitedImageGeneration': ((data.get('perks') or {}).get('unlimitedImageGeneration'))
                     })
             except urllib.error.HTTPError as error:
-                body = error.read().decode('utf-8', errors='replace')
-                self._send_json({'ok': False, 'status': error.code, 'error': body}, error.code)
+                self._send_json(nai_error_payload(error.code, error.read(65536), error.headers.get('Content-Type', '')), error.code)
             except Exception as error:
                 self._send_json({'ok': False, 'error': f'{type(error).__name__}: {error}'}, 502)
             return
@@ -813,7 +845,7 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             if token and not token.lower().startswith('bearer '):
                 token = 'Bearer ' + token
             if not token:
-                self._send_json({'ok': False, 'error': 'Missing NovelAI token'}, 401)
+                self._send_json(nai_error_payload(401), 401)
                 return
             req = urllib.request.Request(
                 'https://api.novelai.net/user/subscription',
@@ -836,8 +868,7 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
                         }
                     })
             except urllib.error.HTTPError as error:
-                body = error.read().decode('utf-8', errors='replace')
-                self._send_json({'ok': False, 'status': error.code, 'error': body}, error.code)
+                self._send_json(nai_error_payload(error.code, error.read(65536), error.headers.get('Content-Type', '')), error.code)
             except Exception as error:
                 self._send_json({'ok': False, 'error': f'{type(error).__name__}: {error}'}, 502)
             return
