@@ -45,6 +45,7 @@
 | `764fc5b` | 按新的 `.gitattributes` 重新规范 `start_manga_editor_nai.bat` 的换行（内容不变） | 同上 |
 | `01a73d2` | **P1** 用 `Origin: null` 无法再跨域读取静态文件、`user_data` 或目录列表。null 只保留给 `/nai-proxy/`、`/director-proxy/`、`/tagger-proxy/`，且不附带 env key。 | `test_null_origin_cannot_read_static_or_private_files` |
 | `bf5ac9d` | **P2** 8000 端口被占用时，输出中英文提示并以 98 退出，不再打印 traceback。Windows 改用 `SO_EXCLUSIVEADDRUSE`，不再用 `SO_REUSEADDR`（后者会让两个进程悄悄共用同一端口）。不再全局修改 `socketserver.TCPServer`。 | `scripts/server-port-conflict-test.py`（如果 8000 被第三方占用则跳过，不动第三方服务），`npm run test:port-conflict` |
+| `8e20694` | 补充 `bf5ac9d`：在非 UTF-8 控制台（如 Windows cp1252）上，端口占用提示不会因编码而崩溃；测试改为按 UTF-8 解码。这个问题由 PR 的 Windows CI 发现。 | 同上（用 `PYTHONIOENCODING=cp1252` 模拟） |
 | 本报告提交 | 报告与脱敏截图：`docs/acceptance/grok-linux/` | — |
 
 克隆时 feat 分支已经包含以下修复。本轮逐项复测并补充了测试：
@@ -116,7 +117,14 @@
   4. `local_tools/server.py`（8765 端口）接受 `Origin: null` 并且不校验 Host。它不涉及密钥，但跨站可以触发本地抠图或模型下载，消耗 CPU 和带宽。建议与 99_server 共用同一套 trusted-local 判定。
   5. 没有 workflow 权限（gh token 缺 `workflow` scope），所以没有修改 `.github/workflows`。新测试通过现有 CI 已调用的脚本串联执行，CI 仍会覆盖。
 
-## 7. 复现与证据
+## 7. GitHub Actions（PR #6）
+
+- `Legacy regression suite`：**FAIL**，唯一失败的是 `check-translations`。base 分支 run 37890942759 的失败原因相同。
+- `Real Chromium interaction (mock API)`：**PASS**。base 分支在这一项是 FAIL，本分支改写测试并修复代码后转为通过。
+- `Live localhost HTTP / security`、`offline-contract`：PASS。
+- `Windows startup / portable ZIP check`：第一次因端口测试的编码问题失败，已由 `8e20694` 修复。最新结果以 PR 页面为准。
+
+## 8. 复现与证据
 
 - 浏览器验收：`npm install --no-save --ignore-scripts playwright@1.56.1 && npx playwright install chromium && npm run test:gpt-browser`
   - 输出：`artifacts/gpt-browser/`（已加入 .gitignore）
