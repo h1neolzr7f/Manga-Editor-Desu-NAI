@@ -27,11 +27,25 @@ return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-fallbac
 '</svg>';
 }
 
+// The default icon set ships with the editor (assets/icons/material, Apache-2.0) so the
+// shape panel works offline and does not hit fonts.gstatic.com on every start.
+// Searched icons are still fetched on demand, with a drawn fallback when offline.
+var BUNDLED_ICON_DIR='assets/icons/material/';
+function bundledIconURL(iconName,style){
+if(style&&style!=='filled'&&style!=='baseline')return null;
+if(typeof initialIcons==='undefined'||initialIcons.indexOf(iconName)<0)return null;
+return BUNDLED_ICON_DIR+iconName+'.svg';
+}
+
+function fetchText(url){
+return fetch(url).then(response=>response.ok?response.text():null).catch(()=>null);
+}
+
 function fetchIconSvg(iconName,style) {
-const iconURL=getIconURL(iconName,style);
-return fetch(iconURL)
-.then(response=>response.ok?response.text():null)
-.catch(()=>null)
+const local=bundledIconURL(iconName,style);
+const first=local?fetchText(local):Promise.resolve(null);
+return first
+.then(svgContent=>svgContent||fetchText(getIconURL(iconName,style)))
 .then(svgContent=>svgContent||getFallbackIconSvg(iconName));
 }
 
