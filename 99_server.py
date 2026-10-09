@@ -15,6 +15,7 @@ import time
 import uuid
 import socket
 import base64
+from gpt_image_proxy import handle_gpt_image_post
 try:
     import winreg
 except ImportError:
@@ -623,6 +624,8 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             self._send_json(_director_fallback_models(f'{type(error).__name__}: {error}'))
 
     def do_POST(self):
+        if handle_gpt_image_post(self):
+            return
         if self.path == '/nai-proxy/generate-image':
             length = int(self.headers.get('Content-Length', '0') or '0')
             body = self.rfile.read(length) if length else b''
