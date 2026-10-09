@@ -27,7 +27,7 @@ assert mod.resolve_nai_token('Bearer abc', {'NOVELAI_API_KEY': 'env'}) == 'Beare
 assert mod.resolve_nai_token('', {'NOVELAI_API_KEY': 'env'}) == 'env'
 assert mod.cors_allow_origin('http://127.0.0.1:8000') == 'http://127.0.0.1:8000'
 assert mod.cors_allow_origin('https://evil.example') == ''
-assert mod.cors_allow_origin('null') == 'null'
+assert mod.cors_allow_origin('null') == ''
 print('proxy guard smoke test passed')
 
 # Extra regressions run from here so existing CI jobs cover them without workflow edits:

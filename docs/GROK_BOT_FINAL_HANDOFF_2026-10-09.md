@@ -1,5 +1,7 @@
 # Grok Bot 接手开发与综合验收任务书（2026-10-09）
 
+> **最新交接入口已更新**：请先读 [MANGA_GPT_DEVELOPMENT_HANDOFF.md](MANGA_GPT_DEVELOPMENT_HANDOFF.md)。此文件保留原本的 P0/P1 验收要求与 Grok 任务分工，但下方 PR #11 的 SHA 和 CI 结果是当时快照，不是最新版验收结论。最新工作基于 `feat/manga-auto-ink-mask-v1`，实际交接分支为 `fix/manga-gpt-handoff-ink-mask-20261009`。新增的蒙版候选只是辅助提取，不能代替人工审核/真实模型验收。
+
 **源仓库**：https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI  
 **接手分支**：`feat/manga-lama-inpainting-v1`；**Draft PR #11**：https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/pull/11  
 **上游 PR 链**：#6（Grok Linux 安全与 GPT 区域编辑）→ #7（智能字幕）→ #8（漫画结构和计划）→ #9（Character Bible）→ #10（Manga OCR）→ #11（LaMa）。这是叠加开发分支，**不要将每条 PR 单独 cherry-pick 到 main，不要直接合并 main，不要提前标记 Ready for review**。

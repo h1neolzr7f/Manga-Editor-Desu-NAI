@@ -22,6 +22,8 @@
     // Sample a thin ring OUTSIDE OCR letters. Black comic borders, art and
     // gradients make the hypothesis unsafe, so we decline rather than erase.
     const spread=Math.max(5,Math.min(14,Math.floor(Math.min(bw,bh)*.24)));
+    if(x<spread || y<spread || right+spread>w || bottom+spread>h)
+      return fail('文字框附近缺少完整的外缘背景采样；请手动编辑蒙版。');
     const sums=[0,0,0], samples=[];
     const add=(px,py)=>{
       if(px<0||py<0||px>=w||py>=h)return;

@@ -266,10 +266,8 @@ def is_blocked_static_path(request_path):
 
 def cors_allow_origin(origin):
     origin = (origin or '').strip()
-    if not origin:
-        return 'http://127.0.0.1:8000'
-    if origin == 'null':
-        return 'null'
+    if not origin or origin == 'null':
+        return ''
     try:
         parsed = urllib.parse.urlsplit(origin)
         host = (parsed.hostname or '').lower()
@@ -280,7 +278,6 @@ def cors_allow_origin(origin):
     return ''
 
 LOCAL_HOSTNAMES = ('127.0.0.1', 'localhost', '::1')
-NULL_ORIGIN_API_PREFIXES = ('/nai-proxy/', '/director-proxy/', '/tagger-proxy/')
 # No third-party default: the Director gateway is only used when the user configures
 # a URL (UI field or DIRECTOR_API_URL in .env).
 DEFAULT_DIRECTOR_API_URL = ''
@@ -569,12 +566,10 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         return super(CORSRequestHandler, self).log_message(format, *args)
     
     def end_headers(self):
+        # Never echo an opaque/null origin: it may be an attacker-owned sandbox.
+        # Echo a browser Origin only for an exact same-origin local editor request.
         origin = cors_allow_origin(self.headers.get('Origin'))
-        # 'null' origins (file:// pages, but also sandboxed iframes on ANY website) may only
-        # read the explicit-token proxy APIs, never static files such as user_data/ images,
-        # project files or directory listings.
-        path = urllib.parse.urlsplit(self.path or '').path
-        if origin == 'null' and not path.startswith(NULL_ORIGIN_API_PREFIXES):
+        if not self._trusted_local() or origin != 'http://' + (self.headers.get('Host') or '').strip().lower():
             origin = ''
         if origin:
             self.send_header('Access-Control-Allow-Origin', origin)
@@ -599,6 +594,8 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         return True
 
     def do_OPTIONS(self):
+        if self._reject_untrusted():
+            return
         self.send_response(204)
         self.send_header('Content-Length', '0')
         self.end_headers()
@@ -814,6 +811,11 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             self._send_json(_director_fallback_models(f'{type(error).__name__}: {error}'))
 
     def do_POST(self):
+        # Deny unsafe proxy callers *before* reading their body, borrowing a
+        # token or opening any upstream connection (including file:// null Origin).
+        if self.path.startswith(('/nai-proxy/', '/director-proxy/', '/tagger-proxy/')):
+            if self._reject_untrusted():
+                return
         # Load the optional GPT extension on demand: existing scripts that load
         # 99_server.py through importlib must not require a modified sys.path.
         from gpt_image_proxy import handle_gpt_image_post
@@ -896,6 +898,9 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         self.send_error(404, 'Not Found')
         
     def do_GET(self):
+        if self.path.startswith(('/nai-proxy/', '/director-proxy/', '/tagger-proxy/')):
+            if self._reject_untrusted():
+                return
         if self.path.startswith('/director-proxy/models'):
             self._proxy_director_models()
             return
