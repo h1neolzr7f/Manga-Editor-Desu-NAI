@@ -73,6 +73,14 @@
     }
     ctx.putImageData(paint,0,0);
   }
+  function scheduleDraw(){
+    if(drawScheduled)return;
+    drawScheduled=true;
+    requestAnimationFrame(()=>{
+      drawScheduled=false;
+      drawMask();
+    });
+  }
   function markPoint(event){
     if(!prepared || ongoing)return;
     const surface=$('mangaLamaMaskCanvas'),crop=prepared.crop;
@@ -95,7 +103,7 @@
     approved=null;
     $('mangaLamaConfirm').disabled=true;
     $('mangaLamaPreviewImg').hidden=true;
-    drawMask();
+    scheduleDraw();
     show('蒙版已调整。红色部分会被重建，请重新生成预览再确认。');
   }
   function resetMask(){
