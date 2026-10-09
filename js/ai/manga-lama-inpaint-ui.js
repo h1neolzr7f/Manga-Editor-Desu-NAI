@@ -59,7 +59,10 @@
     if(!prepared)return;
     const crop=prepared.crop, surface=$('mangaLamaMaskCanvas');
     if(!surface)return;
-    surface.width=crop.width;surface.height=crop.height;
+    // Resizing a canvas resets its bitmap and can disrupt pointer capture.
+    // Only resize when the crop dimensions actually change.
+    if(surface.width!==crop.width)surface.width=crop.width;
+    if(surface.height!==crop.height)surface.height=crop.height;
     const ctx=surface.getContext('2d');
     ctx.drawImage(crop.sourceCanvas,0,0,crop.width,crop.height);
     const paint=ctx.getImageData(0,0,crop.width,crop.height);
