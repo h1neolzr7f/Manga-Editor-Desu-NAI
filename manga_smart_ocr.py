@@ -8,6 +8,7 @@ import binascii
 import csv
 import io
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -96,11 +97,28 @@ def parse_tsv(tsv, width, height, language):
     return regions[:MAX_REGIONS]
 
 
+def find_tesseract():
+    """Find system Tesseract, an explicit portable path, or common Windows installs."""
+    chosen = (os.environ.get("TESSERACT_PATH") or "").strip()
+    if chosen and os.path.isfile(chosen):
+        return chosen
+    executable = shutil.which("tesseract")
+    if executable:
+        return executable
+    for key in ("ProgramFiles", "ProgramFiles(x86)"):
+        root = os.environ.get(key)
+        if root:
+            path = os.path.join(root, "Tesseract-OCR", "tesseract.exe")
+            if os.path.isfile(path):
+                return path
+    return None
+
+
 def ocr_image(data_url, language="jpn+eng"):
     if language not in LANGUAGES:
         raise SmartOcrError("OCR 语言不受支持。")
     image, width, height = read_image(data_url)
-    executable = shutil.which("tesseract")
+    executable = find_tesseract()
     if not executable:
         raise SmartOcrError(
             "未安装本地 Tesseract OCR。请安装 Tesseract 和日文语言包（jpn、jpn_vert），或使用手动框选字幕。",
