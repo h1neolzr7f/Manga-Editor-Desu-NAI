@@ -127,6 +127,20 @@
       });
       overlay.append(node);
     }
+    for(const bubble of state.graph.bubbleCandidates||[]){
+      const node=el('div',bubble.verified?'✓':'?','manga-bubble-outline');
+      node.dataset.bubbleId=bubble.id;
+      node.title=(bubble.source==='enclosed-light-region'?'浅色封闭区':'文字外扩区域')+
+        (bubble.verified?'（人工确认）':'（待核对）');
+      Object.assign(node.style,{
+        left:bubble.x/state.graph.width*rect.width+'px',
+        top:bubble.y/state.graph.height*rect.height+'px',
+        width:bubble.width/state.graph.width*rect.width+'px',
+        height:bubble.height/state.graph.height*rect.height+'px'
+      });
+      if(bubble.verified)node.classList.add('manga-bubble-verified');
+      overlay.append(node);
+    }
     document.body.appendChild(overlay);
     state.overlay=overlay;
   }
@@ -158,6 +172,36 @@
     });
     return input;
   }
+  // Candidate review is metadata only: never erase the source raster.
+  function renderBubbles() {
+    const list=$('mangaBubbleList');
+    if(!list)return;
+    list.replaceChildren();
+    const candidates=(state.graph && state.graph.bubbleCandidates)||[];
+    if(!candidates.length)return;
+    const header=el('strong','文字相关气泡候选（需核对）');
+    list.append(header);
+    for(const bubble of candidates) {
+      const row=el('div',undefined,'manga-bubble-entry');
+      const text=state.graph.texts.find(t=>t.id===bubble.textId);
+      const fromContour=bubble.source==='enclosed-light-region';
+      const label=el('span',
+        (fromContour?'封闭浅色区域':'OCR 外扩估计')+
+        ' · '+(bubble.panelId||'未归属')+
+        ' · '+(bubble.verified?'已确认':'未确认')+
+        (text?' · '+text.text.slice(0,40):''));
+      const confirm=el('button',bubble.verified?'取消确认':'确认候选');
+      confirm.type='button';
+      confirm.addEventListener('click',()=>{
+        bubble.verified=!bubble.verified;
+        renderBubbles();drawOverlay();
+        say('候选区域确认状态已更新，原图未被修改。');
+      });
+      row.append(label,confirm);
+      list.append(row);
+    }
+  }
+
   function renderPanels() {
     const list=$('mangaPageList');
     if(!list) return;
@@ -226,6 +270,7 @@
       row.append(header,coords,actions);
       list.append(row);
     }
+    renderBubbles();
     const unknown=(state.graph.texts||[]).filter(x=>!x.panelId).length;
     const bubbleCount=(state.graph.bubbleCandidates||[]).length;
     const enclosed=(state.graph.bubbleCandidates||[]).filter(
@@ -315,6 +360,7 @@
       '<label><input type="checkbox" id="mangaPageShowOverlay" checked>画布标注候选分镜</label>',
       '<label><input type="checkbox" id="mangaPageShowBubbles" checked>标注气泡候选（虚线表示未确认）</label>',
       '<div id="mangaPageList" class="manga-page-list"></div>',
+      '<div id="mangaBubbleList" class="manga-bubble-list"></div>',
       '<div class="manga-page-actions"><button id="mangaPageExport" type="button">导出结构 JSON</button></div>',
       '<p class="manga-page-hint">白色分隔线算法并非语义模型，复杂斜框/无框漫画可手动调整或拆分。',
       '浅色连通域与 OCR 外扩都会给出候选气泡，均不等于语义气泡轮廓或说话人识别。</p>',
