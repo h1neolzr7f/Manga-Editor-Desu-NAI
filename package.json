@@ -24,7 +24,7 @@
     "test:timeline": "node scripts/simulator-timeline-smoke-test.cjs",
     "test:image2": "node scripts/image2-interface-smoke-test.cjs",
     "test:scene-plan": "node scripts/scene-plan-smoke-test.cjs",
-    "test:proxy-guards": "node scripts/run-python.cjs scripts/proxy-guard-smoke-test.py && npm run test:smart-ocr",
+    "test:proxy-guards": "node scripts/run-python.cjs scripts/proxy-guard-smoke-test.py && npm run test:smart-ocr && npm run test:manga-ocr-refinement",
     "test:secret-guard": "node scripts/run-python.cjs scripts/local-secret-guard-test.py",
     "test:gpt-proxy": "node scripts/run-python.cjs scripts/gpt-image-proxy-smoke-test.py",
     "test:gpt-network-guard": "node scripts/run-python.cjs scripts/gpt-proxy-network-guard-test.py",
@@ -51,7 +51,8 @@
     "test:page-structure": "node scripts/manga-page-structure-test.cjs",
     "test:edit-planner": "node scripts/manga-edit-planner-test.cjs",
     "test:bubble": "node scripts/manga-bubble-detector-test.cjs",
-    "test:character-bible": "node scripts/manga-character-bible-test.cjs"
+    "test:character-bible": "node scripts/manga-character-bible-test.cjs",
+    "test:manga-ocr-refinement": "node scripts/run-python.cjs scripts/manga-ocr-refiner-test.py"
   },
   "devDependencies": {
     "eslint": "^8.57.0",
