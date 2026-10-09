@@ -158,6 +158,41 @@ def _browser_headers(extra=None):
         headers.update(extra)
     return headers
 
+# NovelAI moved /user/* to the image host; api.novelai.net now answers 400 "Please refresh
+# NovelAI.net. If using a third-party tool, update to the image URL." Keep the old host only
+# as a fallback for that specific migration answer.
+NAI_SUBSCRIPTION_URLS = (
+    'https://image.novelai.net/user/subscription',
+    'https://api.novelai.net/user/subscription',
+)
+
+
+def fetch_nai_subscription(token, opener=None):
+    """Return the subscription JSON; raise the last HTTPError/URLError on failure."""
+    opener = opener or _build_proxy_opener()
+    last_error = None
+    for url in NAI_SUBSCRIPTION_URLS:
+        req = urllib.request.Request(url, headers=_browser_headers({'Authorization': token, 'Accept': 'application/json'}))
+        try:
+            with opener.open(req, timeout=30) as response:
+                return json.loads(response.read().decode('utf-8') or '{}')
+        except urllib.error.HTTPError as error:
+            if error.code not in (400, 404, 410):
+                raise
+            last_error = error
+        except urllib.error.URLError as error:
+            last_error = error
+    raise last_error
+
+
+def nai_anlas(data):
+    steps = (data or {}).get('trainingStepsLeft') or {}
+    try:
+        return int(steps.get('fixedTrainingStepsLeft') or 0) + int(steps.get('purchasedTrainingSteps') or 0)
+    except (TypeError, ValueError):
+        return None
+
+
 def _strip_bearer(token):
     token = (token or '').strip()
     if token.lower().startswith('bearer '):
@@ -406,6 +441,13 @@ def _normalize_novelai_body(body):
         params['width'] = safe_size['width']
         params['height'] = safe_size['height']
         params['n_samples'] = 1
+        # Opus free generation allows at most 28 steps; more steps silently spend Anlas.
+        max_steps = max(1, _env_int('NAI_MAX_STEPS', 28))
+        try:
+            steps = int(params.get('steps') or max_steps)
+        except (TypeError, ValueError):
+            steps = max_steps
+        params['steps'] = max(1, min(max_steps, steps))
     return json.dumps(data, ensure_ascii=False).encode('utf-8')
 
 def _start_tool_job(kind, token, args):
@@ -820,21 +862,17 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             if not token:
                 self._send_json(nai_error_payload(401), 401)
                 return
-            req = urllib.request.Request(
-                'https://api.novelai.net/user/subscription',
-                headers=_browser_headers({'Authorization': token, 'Accept': 'application/json'})
-            )
             try:
-                with _build_proxy_opener().open(req, timeout=30) as response:
-                    data = json.loads(response.read().decode('utf-8') or '{}')
-                    self._send_json({
-                        'ok': True,
-                        'active': data.get('active'),
-                        'tier': data.get('tier'),
-                        'proxy': _get_proxy_url() or '',
-                        'imageGeneration': ((data.get('perks') or {}).get('imageGeneration')),
-                        'unlimitedImageGeneration': ((data.get('perks') or {}).get('unlimitedImageGeneration'))
-                    })
+                data = fetch_nai_subscription(token)
+                self._send_json({
+                    'ok': True,
+                    'active': data.get('active'),
+                    'tier': data.get('tier'),
+                    'proxy': _get_proxy_url() or '',
+                    'imageGeneration': ((data.get('perks') or {}).get('imageGeneration')),
+                    'anlas': nai_anlas(data),
+                    'unlimitedImageGeneration': ((data.get('perks') or {}).get('unlimitedImageGeneration'))
+                })
             except urllib.error.HTTPError as error:
                 self._send_json(nai_error_payload(error.code, error.read(65536), error.headers.get('Content-Type', '')), error.code)
             except Exception as error:
@@ -847,26 +885,23 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             if not token:
                 self._send_json(nai_error_payload(401), 401)
                 return
-            req = urllib.request.Request(
-                'https://api.novelai.net/user/subscription',
-                headers=_browser_headers({'Authorization': token, 'Accept': 'application/json'})
-            )
             try:
-                with _build_proxy_opener().open(req, timeout=30) as response:
-                    data = json.loads(response.read().decode('utf-8') or '{}')
-                    self._send_json({
-                        'ok': True,
-                        'active': data.get('active'),
-                        'tier': data.get('tier'),
-                        'unlimitedImageGeneration': ((data.get('perks') or {}).get('unlimitedImageGeneration')),
-                        'proxy': _get_proxy_url() or '',
-                        'safeRequest': {
-                            'n_samples': 1,
-                            'max_pixels': _env_int('NAI_MAX_PIXELS', 1024 * 1024),
-                            'max_edge': _env_int('NAI_MAX_EDGE', 1536),
-                            'queue_concurrency': 1
-                        }
-                    })
+                data = fetch_nai_subscription(token)
+                self._send_json({
+                    'ok': True,
+                    'active': data.get('active'),
+                    'tier': data.get('tier'),
+                    'unlimitedImageGeneration': ((data.get('perks') or {}).get('unlimitedImageGeneration')),
+                    'anlas': nai_anlas(data),
+                    'proxy': _get_proxy_url() or '',
+                    'safeRequest': {
+                        'n_samples': 1,
+                        'max_pixels': _env_int('NAI_MAX_PIXELS', 1024 * 1024),
+                        'max_edge': _env_int('NAI_MAX_EDGE', 1536),
+                        'max_steps': max(1, _env_int('NAI_MAX_STEPS', 28)),
+                        'queue_concurrency': 1
+                    }
+                })
             except urllib.error.HTTPError as error:
                 self._send_json(nai_error_payload(error.code, error.read(65536), error.headers.get('Content-Type', '')), error.code)
             except Exception as error:

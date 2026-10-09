@@ -96,5 +96,69 @@ class NaiErrorTest(unittest.TestCase):
         self.assertIn("429", json.loads(data)["error"])
 
 
+class NaiSubscriptionHostTest(unittest.TestCase):
+    """api.novelai.net/user/subscription now answers 400 "update to the image URL";
+    the balance/health check must use image.novelai.net and only fall back on that answer."""
+
+    def opener(self, answers):
+        calls = []
+
+        class Resp(io.BytesIO):
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                return False
+
+        class Opener:
+            def open(self, request, timeout=None):
+                calls.append(request.full_url)
+                code, body = answers[len(calls) - 1]
+                if code != 200:
+                    raise urllib.error.HTTPError(request.full_url, code, "err", {"Content-Type": "application/json"}, io.BytesIO(body))
+                return Resp(body)
+        return Opener(), calls
+
+    def test_image_host_first(self):
+        body = json.dumps({"tier": 3, "trainingStepsLeft": {"fixedTrainingStepsLeft": 10, "purchasedTrainingSteps": 5}}).encode()
+        opener, calls = self.opener([(200, body)])
+        data = srv.fetch_nai_subscription("Bearer t", opener)
+        self.assertEqual(calls, ["https://image.novelai.net/user/subscription"])
+        self.assertEqual(srv.nai_anlas(data), 15)
+
+    def test_fallback_only_on_migration_answer(self):
+        moved = b'{"statusCode":400,"message":"Please refresh NovelAI.net. If using a third-party tool, update to the image URL."}'
+        opener, calls = self.opener([(404, b"{}"), (200, b'{"tier":1}')])
+        self.assertEqual(srv.fetch_nai_subscription("Bearer t", opener)["tier"], 1)
+        self.assertEqual(len(calls), 2)
+        opener, calls = self.opener([(401, b'{"message":"bad token"}')])
+        with self.assertRaises(urllib.error.HTTPError) as ctx:
+            srv.fetch_nai_subscription("Bearer t", opener)
+        self.assertEqual(ctx.exception.code, 401)
+        self.assertEqual(len(calls), 1, "a bad token must not be retried on another host")
+        opener, calls = self.opener([(400, moved), (400, moved)])
+        with self.assertRaises(urllib.error.HTTPError):
+            srv.fetch_nai_subscription("Bearer t", opener)
+        self.assertEqual(len(calls), 2)
+
+    def test_no_old_host_as_primary(self):
+        self.assertTrue(srv.NAI_SUBSCRIPTION_URLS[0].startswith("https://image.novelai.net/"))
+
+
+class NaiFreeQuotaTest(unittest.TestCase):
+    """The proxy keeps every request inside Opus free generation: <=1024x1024 px, <=28 steps, 1 image."""
+
+    def normalize(self, params):
+        return json.loads(srv._normalize_novelai_body(json.dumps({"input": "x", "parameters": params}).encode()))["parameters"]
+
+    def test_steps_clamped_to_28(self):
+        p = self.normalize({"width": 1536, "height": 1536, "steps": 50, "n_samples": 4})
+        self.assertEqual(p["steps"], 28)
+        self.assertEqual(p["n_samples"], 1)
+        self.assertLessEqual(p["width"] * p["height"], 1024 * 1024)
+        self.assertEqual(self.normalize({"width": 832, "height": 1216, "steps": 23})["steps"], 23)
+        self.assertEqual(self.normalize({"width": 832, "height": 1216, "steps": "bad"})["steps"], 28)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

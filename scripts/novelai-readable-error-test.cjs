@@ -29,4 +29,11 @@ assert.match(m, /Not enough Anlas/);
 m = P.readableError(503, 'x'.repeat(1000));
 assert.match(m, /503/);
 assert(m.length < 420);
-console.log('PASS NovelAI readable errors (proxy JSON, upstream JSON, HTML)');
+// Opus free generation: more than 28 steps would spend Anlas, so the provider clamps.
+sandbox.$ = id => ({ novelaiSteps: { value: '50' }, novelaiModel: { value: 'nai-diffusion-4-5-full' } }[id] || null);
+const provider = Object.create(P.prototype);
+const params = provider._buildParameters({ width: 1536, height: 1536, steps: 50, cfg_scale: 5, seed: 1, prompt: 'a', negative_prompt: 'b' }, 'T2I', null);
+assert.equal(params.steps, 28);
+assert.equal(params.n_samples, 1);
+assert(params.width * params.height <= 1024 * 1024);
+console.log('PASS NovelAI readable errors (proxy JSON, upstream JSON, HTML) + free-quota steps clamp');

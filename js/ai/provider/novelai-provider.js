@@ -218,6 +218,9 @@ var safeSize=this._aspectSafeSize(params.width,params.height);
 params.width=safeSize.width;
 params.height=safeSize.height;
 params.n_samples=1;
+// Opus free generation: <=1024x1024 pixels, <=28 steps, one image. More steps cost Anlas.
+var steps=parseInt(params.steps,10);
+params.steps=Math.max(1,Math.min(NovelAIProvider.FREE_MAX_STEPS,isFinite(steps)?steps:NovelAIProvider.FREE_MAX_STEPS));
 return params;
 }
 _layerTargetSize(layer){
@@ -303,7 +306,7 @@ width:base.width,
 height:base.height,
 scale:this._getParamNumber('novelaiScale',base.cfg_scale,1,30),
 sampler:$('novelaiSampler')&&$('novelaiSampler').value?$('novelaiSampler').value:'k_euler_ancestral',
-steps:this._getParamInt('novelaiSteps',base.steps,1,50),
+steps:this._getParamInt('novelaiSteps',base.steps,1,NovelAIProvider.FREE_MAX_STEPS),
 n_samples:1,
 ucPreset:this._getParamInt('novelaiUcPreset',2,0,4),
 qualityToggle:qualityToggle?qualityToggle.checked:true,
@@ -575,3 +578,4 @@ async executeI2I(layer,spinnerId){
 return this._execute(layer,spinnerId,'I2I');
 }
 }
+NovelAIProvider.FREE_MAX_STEPS=28;

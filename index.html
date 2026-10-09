@@ -2360,7 +2360,7 @@ const b = `<svg viewBox="0 0 100 100" width="100%" height="100%" style="position
 </tr>
 <tr>
 <td class="us-field-label">步数</td>
-<td><input type="number" id="novelaiSteps" value="28" min="1" max="50"></td>
+<td><input type="number" id="novelaiSteps" value="28" min="1" max="28" title="会员免费生图最多 28 步，更多步数会消耗 Anlas"></td>
 <td></td>
 </tr>
 <tr>
@@ -2451,7 +2451,7 @@ const b = `<svg viewBox="0 0 100 100" width="100%" height="100%" style="position
 </tr>
 <tr>
 <td class="us-field-label">安全策略</td>
-<td><div class="nai-safety-list"><span>单次只取 1 张</span><span>出图单格总像素不超过 1024×1024</span><span>最长边不超过 1536</span><span>底图组装分辨率独立（默认 A4 约 1654×2339）</span><span>素材预览 512×512</span></div><div class="nai-setting-help">出图限制是为了贴合 NovelAI 会员免费生图规则；底图变大只影响拼页，前端和本地代理仍会再次校验出图尺寸。</div></td>
+<td><div class="nai-safety-list"><span>单次只取 1 张</span><span>出图单格总像素不超过 1024×1024</span><span>最长边不超过 1536</span><span>采样步数不超过 28</span><span>底图组装分辨率独立（默认 A4 约 1654×2339）</span><span>素材预览 512×512</span></div><div class="nai-setting-help">出图限制是为了贴合 NovelAI 会员免费生图规则；底图变大只影响拼页，前端和本地代理仍会再次校验出图尺寸。</div></td>
 <td><button id="naiHealthCheck" class="us-btn-s" type="button">检查 NAI</button></td>
 </tr>
 <tr>
@@ -2575,7 +2575,7 @@ const b = `<svg viewBox="0 0 100 100" width="100%" height="100%" style="position
     <script src="js/ai/queue/spinner.js?v=7.5" defer></script>
     <script src="js/ai/queue/task-queue.js?v=7.2" defer></script>
     <script src="js/ai/queue/generation-task-manager.js?v=8.7" defer></script>
-    <script src="js/ai/ai-settings.js?v=8.5" defer></script>
+    <script src="js/ai/ai-settings.js?v=8.6" defer></script>
     <script src="js/ai/ai-management.js?v=7.6" defer></script>
     <script src="js/ai/role/role-assignment-ui.js?v=7.6" defer></script>
     <script src="js/ai/ui/unified-settings-window.js?v=7.5" defer></script>
