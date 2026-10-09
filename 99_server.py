@@ -15,6 +15,13 @@ import time
 import uuid
 import socket
 import base64
+import importlib.util
+
+# Load the sibling adapter even when this numeric launcher is loaded with
+# importlib by smoke tests rather than executed as the entry-point script.
+_gpt_images_spec = importlib.util.spec_from_file_location('gpt_images', os.path.join(os.path.dirname(__file__), 'gpt_images.py'))
+gpt_images = importlib.util.module_from_spec(_gpt_images_spec)
+_gpt_images_spec.loader.exec_module(gpt_images)
 try:
     import winreg
 except ImportError:
@@ -27,6 +34,7 @@ mimetypes.add_type('application/javascript', '.js')
 QUIET_REQUESTS = (os.environ.get('NAI_QUIET') or '').strip().lower() in ('1', 'true', 'yes', 'on')
 
 TOOL_JOBS = {}
+GPT_IMAGES_SLOTS = threading.BoundedSemaphore(2)
 DIRECTOR_DEFAULT_MODEL = 'deepseek-v4-flash'
 DIRECTOR_DYNAMIC_MODELS = set()
 DIRECTOR_FALLBACK_MODEL_ORDER = [
@@ -394,6 +402,9 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
     
     def log_message(self, format, *args):
+        # Do not log image requests, including accidentally supplied query secrets.
+        if self.path.startswith('/api/gpt-images'):
+            return
         if QUIET_REQUESTS:
             return
         return super(CORSRequestHandler, self).log_message(format, *args)
@@ -622,7 +633,54 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         except Exception as error:
             self._send_json(_director_fallback_models(f'{type(error).__name__}: {error}'))
 
+    def _proxy_gpt_images(self):
+        if self.headers.get('Origin') and not cors_allow_origin(self.headers.get('Origin')):
+            self.close_connection = True
+            self._send_json({'error': 'Images requests require a local origin', 'code': 'invalid_origin'}, 403)
+            return
+        acquired = False
+        previous_timeout = self.connection.gettimeout()
+        try:
+            if self.headers.get('Transfer-Encoding') or len(self.headers.get_all('Content-Length', [])) != 1:
+                raise gpt_images.ImagesError('Images request requires one Content-Length header')
+            value = self.headers.get('Content-Length', '')
+            if not value.isdecimal():
+                raise gpt_images.ImagesError('Invalid Images request length')
+            length = int(value)
+            if not 0 < length <= gpt_images.MAX_REQUEST_BYTES:
+                raise gpt_images.ImagesError('Images request exceeds the 34 MiB limit', 413, 'request_limit')
+            if self.headers.get_content_type() != 'application/json':
+                raise gpt_images.ImagesError('Images request must use application/json', 415)
+            acquired = GPT_IMAGES_SLOTS.acquire(blocking=False)
+            if not acquired:
+                raise gpt_images.ImagesError('Images proxy is busy; submit again after the active request finishes', 429, 'proxy_busy')
+            self.connection.settimeout(15)
+            raw = self.rfile.read(length)
+            if len(raw) != length:
+                raise gpt_images.ImagesError('Incomplete Images request')
+            try:
+                payload = json.loads(raw.decode('utf-8'))
+            except (ValueError, UnicodeError):
+                raise gpt_images.ImagesError('Invalid Images request JSON') from None
+            self._send_json(gpt_images.perform_request(payload))
+        except gpt_images.ImagesError as error:
+            self.close_connection = True
+            self._send_json({'error': str(error), 'code': error.code}, error.status)
+        except (socket.timeout, TimeoutError):
+            self.close_connection = True
+            self._send_json({'error': 'Images request upload timed out', 'code': 'request_timeout'}, 408)
+        except Exception:
+            self.close_connection = True
+            self._send_json({'error': 'Images request failed', 'code': 'proxy_error'}, 500)
+        finally:
+            self.connection.settimeout(previous_timeout)
+            if acquired:
+                GPT_IMAGES_SLOTS.release()
+
     def do_POST(self):
+        if self.path == '/api/gpt-images':
+            self._proxy_gpt_images()
+            return
         if self.path == '/nai-proxy/generate-image':
             length = int(self.headers.get('Content-Length', '0') or '0')
             body = self.rfile.read(length) if length else b''

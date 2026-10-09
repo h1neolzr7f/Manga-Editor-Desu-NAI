@@ -1,10 +1,13 @@
 
 async function loadBookSize(width,height,addPanel,newPage=false) {
+if(window.NaiPageLoading||window.NaiHistoryLoading)return false;
 panelLogger.info("[loadBookSize] START w="+width+" h="+height+" addPanel="+addPanel+" newPage="+newPage);
 panelLogger.info("[loadBookSize] stateStack.length="+stateStack.length+" btmProjectsMap.size="+btmProjectsMap.size+" canvasGUID="+getCanvasGUID()+" objectCount="+getObjectCount());
 const loading=OP_showLoading({
 icon: 'process',step: '正在新建页面',substep: '准备',progress: 0
 });
+window.NaiPageLoading=true;
+const wasSaving=isSaveHistory;
 try{
 var shouldSave=(addPanel||newPage)&&stateStack.length>=2;
 panelLogger.info("[loadBookSize] shouldSave="+shouldSave+" (addPanel||newPage)="+(addPanel||newPage)+" stateStack.length>=2="+(stateStack.length>=2));
@@ -48,7 +51,10 @@ saveState();
 changeDoSaveHistory();
 panelLogger.info("[loadBookSize] ELSE branch done. stateStack.length="+stateStack.length);
 }
+return true;
 }finally{
+isSaveHistory=wasSaving;
+window.NaiPageLoading=false;
 OP_hideLoading(loading);
 if(window.NaiBeginnerGuide&&typeof window.NaiBeginnerGuide.updateHud==='function')window.NaiBeginnerGuide.updateHud();
 }

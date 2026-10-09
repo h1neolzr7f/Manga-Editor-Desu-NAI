@@ -14,31 +14,30 @@ on:
   push:
     branches:
       - "main"
+      - "develop"
+      - "codex/**"
+      - "development/**"
+      - "feature/**"
     tags:
       - "v*"
-    paths:
-      - ".github/workflows/build-windows-installer.yml"
-      - "installer/**"
-      - "scripts/prepare-installer.ps1"
-      - "start_manga_editor_nai.ps1"
-      - "start_manga_editor_nai.bat"
-      - "一键启动.bat"
-      - "package.json"
-      - "CHANGELOG.md"
-      - "使用说明.txt"
-      - "先看我.txt"
+  pull_request:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build-installer:
     runs-on: windows-latest
     timeout-minutes: 45
+    outputs:
+      version: ${{ steps.package.outputs.version }}
+      release_tag: ${{ steps.package.outputs.release_tag }}
 
     steps:
       - name: Check out source
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v7
@@ -50,37 +49,110 @@ jobs:
         id: package
         shell: pwsh
         env:
-          RELEASE_MESSAGE: ${{ github.event.head_commit.message }}
+          BUILD_EVENT: ${{ github.event_name }}
+          BUILD_REF: ${{ github.ref }}
+          BUILD_REF_NAME: ${{ github.ref_name }}
+          BUILD_RUN_NUMBER: ${{ github.run_number }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REQUESTED_VERSION: ${{ inputs.version }}
+          REQUESTED_RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
-          if ("${{ github.ref }}" -like "refs/tags/v*") {
-            $version = "${{ github.ref_name }}" -replace '^v', ''
-            $releaseTag = "${{ github.ref_name }}"
-          } elseif ("${{ github.event_name }}" -eq "workflow_dispatch") {
-            $version = "${{ inputs.version }}"
-            $releaseTag = "${{ inputs.release_tag }}"
+          $releaseTag = ""
+          $baseVersion = (Get-Content -Raw package.json | ConvertFrom-Json).version -replace '[-+].*$', ''
+          if ($env:BUILD_EVENT -eq "pull_request") {
+            $version = "$baseVersion-pr.$env:PR_NUMBER.$env:BUILD_RUN_NUMBER"
+          } elseif ($env:BUILD_REF -like "refs/tags/v*") {
+            $version = $env:BUILD_REF_NAME -replace '^v', ''
+            $releaseTag = $env:BUILD_REF_NAME
+          } elseif ($env:BUILD_EVENT -eq "workflow_dispatch") {
+            $version = $env:REQUESTED_VERSION
+            $releaseTag = $env:REQUESTED_RELEASE_TAG
           } else {
-            $firstLine = (($env:RELEASE_MESSAGE -split '\r?\n')[0]).Trim()
-            if ($firstLine -match '^Release v(\d+\.\d+\.\d+([.-][0-9A-Za-z.-]+)?)$') {
-              $version = $Matches[1]
-              $releaseTag = "v$version"
-            } else {
-              $version = "1.0.3-ci.${{ github.run_number }}"
-              $releaseTag = ""
-            }
+            $version = "$baseVersion-ci.$env:BUILD_RUN_NUMBER"
           }
           if ($version -notmatch '^\d+\.\d+\.\d+([.-][0-9A-Za-z.-]+)?$') {
             throw "Invalid version: $version"
+          }
+          if ($releaseTag -and $releaseTag -notmatch '^v\d+\.\d+\.\d+([.-][0-9A-Za-z.-]+)?$') {
+            throw "Invalid release tag: $releaseTag"
           }
           "version=$version" >> $env:GITHUB_OUTPUT
           "release_tag=$releaseTag" >> $env:GITHUB_OUTPUT
 
       - name: Run core smoke tests
-        run: npm test
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { throw "Installing test tools failed." }
+          npm test
+          if ($LASTEXITCODE -ne 0) { throw "Core smoke tests failed." }
+
+      - name: Verify real browser editor behavior without paid APIs
+        shell: pwsh
+        run: |
+          npx playwright install chromium
+          if ($LASTEXITCODE -ne 0) { throw "Installing test browser failed." }
+          $server = Start-Process python -ArgumentList "99_server.py" -WorkingDirectory $PWD -PassThru
+          try {
+            $ready = $false
+            for ($i = 0; $i -lt 30; $i++) {
+              Start-Sleep -Milliseconds 300
+              try {
+                $response = Invoke-WebRequest -Uri "http://127.0.0.1:8000/index.html" -TimeoutSec 2
+                if ($response.StatusCode -eq 200) { $ready = $true; break }
+              } catch {}
+            }
+            if (-not $ready) { throw "Test server did not become ready." }
+            npm run test:gpt-browser
+            if ($LASTEXITCODE -ne 0) { throw "GPT browser regressions failed." }
+            npm run test:subtitles-browser
+            if ($LASTEXITCODE -ne 0) { throw "Subtitle browser regressions failed." }
+          } finally {
+            if ($server -and -not $server.HasExited) { Stop-Process -Id $server.Id -Force }
+          }
 
       - name: Prepare self-contained application
         shell: pwsh
         run: |
           .\scripts\prepare-installer.ps1 -Version "${{ steps.package.outputs.version }}"
+
+      - name: Verify current application payload and include source
+        shell: pwsh
+        run: |
+          $staging = Join-Path $PWD "dist\installer-staging"
+          $sourceDir = Join-Path $staging "source"
+          New-Item -ItemType Directory -Force -Path $sourceDir | Out-Null
+          $sourceZip = Join-Path $sourceDir "application-source.zip"
+          git archive --format=zip --output=$sourceZip HEAD
+          if ($LASTEXITCODE -ne 0) { throw "Could not archive the build's source commit." }
+          $commit = (git rev-parse HEAD).Trim()
+          if ($LASTEXITCODE -ne 0) { throw "Could not identify the source commit." }
+          # Runtime Node scripts use builtins; npm dependencies are development tools.
+          # Check every tracked runtime asset, including vendored browser dependencies.
+          $paths = @(git -c core.quotepath=false ls-files -- ':(top,glob)*' js css html json_js cdn-local third font assets 02_images_svg 03_images local_tools scripts)
+          if ($LASTEXITCODE -ne 0 -or $paths.Count -eq 0) { throw "Could not enumerate application files." }
+          $paths = @($paths | Where-Object { [IO.Path]::GetFileName($_) -notin @('.env', '.DS_Store', '100_git_push_draft.bat', '99_git_fetch.bat') })
+          foreach ($relative in $paths) {
+            $original = Join-Path $PWD $relative
+            $packaged = Join-Path $staging $relative
+            if (-not (Test-Path -LiteralPath $packaged -PathType Leaf)) { throw "Missing packaged application file: $relative" }
+            if ((Get-FileHash -LiteralPath $original -Algorithm SHA256).Hash -ne (Get-FileHash -LiteralPath $packaged -Algorithm SHA256).Hash) {
+              throw "Packaged file differs from checked-out source: $relative"
+            }
+          }
+          $files = @(Get-ChildItem -LiteralPath $staging -Recurse -File | Sort-Object FullName | ForEach-Object {
+            @{
+              path = [IO.Path]::GetRelativePath($staging, $_.FullName).Replace('\', '/')
+              sha256 = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            }
+          })
+          @{
+            version = "${{ steps.package.outputs.version }}"
+            commit = $commit
+            event = "${{ github.event_name }}"
+            files = $files
+          } | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $staging "build-manifest.json") -Encoding UTF8
+          Copy-Item -LiteralPath $sourceZip -Destination "dist\Manga-Editor-Desu-NAI-Source-${{ steps.package.outputs.version }}.zip"
+          Copy-Item -LiteralPath (Join-Path $staging "build-manifest.json") -Destination "dist\build-manifest.json"
 
       - name: Install Inno Setup
         shell: pwsh
@@ -101,10 +173,21 @@ jobs:
           $install = Start-Process -FilePath $setup.FullName -ArgumentList @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/DIR=$installDir") -Wait -PassThru
           if ($install.ExitCode -ne 0) { throw "Silent install failed with code $($install.ExitCode)" }
 
+          $manifest = Get-Content -Raw (Join-Path $installDir "build-manifest.json") | ConvertFrom-Json
+          foreach ($file in $manifest.files) {
+            $installed = Join-Path $installDir $file.path
+            if (-not (Test-Path -LiteralPath $installed -PathType Leaf)) { throw "Missing installed file: $($file.path)" }
+            if ((Get-FileHash -LiteralPath $installed -Algorithm SHA256).Hash.ToLowerInvariant() -ne $file.sha256) {
+              throw "Installed file differs from verified payload: $($file.path)"
+            }
+          }
+
           $python = Join-Path $installDir "runtime\python\python.exe"
           $node = Join-Path $installDir "runtime\node\node.exe"
           & $python -c "import PIL; print('Pillow', PIL.__version__)"
+          if ($LASTEXITCODE -ne 0) { throw "Installed Python/Pillow check failed." }
           & $node --version
+          if ($LASTEXITCODE -ne 0) { throw "Installed Node check failed." }
 
           $server = Start-Process -FilePath $python -ArgumentList "99_server.py" -WorkingDirectory $installDir -WindowStyle Hidden -PassThru
           try {
@@ -137,11 +220,10 @@ jobs:
           }
 
       - name: Build portable zip
-        id: zip
-        continue-on-error: true
         shell: pwsh
         run: |
-          .\scripts\make-one-click-zip.ps1 -Version "${{ steps.package.outputs.version }}" -SkipDesktop
+          # Use the same verified source and bundled runtimes as the installer.
+          Compress-Archive -Path .\dist\installer-staging\* -DestinationPath "dist\Manga-Editor-Desu-NAI-${{ steps.package.outputs.version }}.zip" -CompressionLevel Optimal
 
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v6
@@ -150,16 +232,38 @@ jobs:
           path: |
             dist/Manga-Editor-Desu-NAI-Setup-*.exe
             dist/Manga-Editor-Desu-NAI-*.zip
+            dist/build-manifest.json
           if-no-files-found: error
           compression-level: 0
 
+  publish-release:
+    needs: build-installer
+    if: >-
+      needs.build-installer.outputs.release_tag != '' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')))
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out release notes
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Download verified installer artifacts
+        uses: actions/download-artifact@v6
+        with:
+          name: Manga-Editor-Desu-NAI-Setup-${{ needs.build-installer.outputs.version }}
+          path: dist
+
       - name: Attach installer to release
-        if: steps.package.outputs.release_tag != ''
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.build-installer.outputs.release_tag }}
         run: |
-          $tag = "${{ steps.package.outputs.release_tag }}"
+          $tag = $env:RELEASE_TAG
           gh api "repos/${{ github.repository }}/git/ref/tags/$tag" | Out-Null
           if ($LASTEXITCODE -ne 0) {
             gh api --method POST "repos/${{ github.repository }}/git/refs" -f "ref=refs/tags/$tag" -f "sha=${{ github.sha }}" | Out-Null
@@ -180,8 +284,9 @@ jobs:
           $setup = Get-ChildItem .\dist\Manga-Editor-Desu-NAI-Setup-*.exe | Select-Object -First 1
           gh release upload $tag $setup.FullName --clobber
           if ($LASTEXITCODE -ne 0) { throw "Could not upload installer to release $tag." }
-          $zip = Get-ChildItem .\dist\Manga-Editor-Desu-NAI-*.zip | Where-Object { $_.Name -notlike "*Setup*" } | Select-Object -First 1
-          if ($zip) {
+          foreach ($zip in Get-ChildItem .\dist\Manga-Editor-Desu-NAI-*.zip) {
             gh release upload $tag $zip.FullName --clobber
             if ($LASTEXITCODE -ne 0) { throw "Could not upload zip to release $tag." }
           }
+          gh release upload $tag .\dist\build-manifest.json --clobber
+          if ($LASTEXITCODE -ne 0) { throw "Could not upload build manifest to release $tag." }

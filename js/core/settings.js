@@ -95,6 +95,7 @@ const commonProperties=[
 ,"simulatorType","simulatorSchemaVersion","simulatorTemplateId","simulatorEditable","simulatorScene","simulatorStory","simulatorMessageId","simulatorMessageIndex","simulatorParentGuid"
 ,"simulatorPlaybackIndex","simulatorPageId","simulatorExplode","simulatorPartIndex","simulatorRole","simulatorExploded","assetId","assetHash","backgroundRemovalResult","backgroundRemovalModel","backgroundRemovalSourceGuid","backgroundRemovalAction"
 ,"scenePlanId","scenePlanPanelIndex","scenePlanApplyId"
+,"naiGptEdit","naiPipelineStatus","naiPipelineStatusDetail"
 ,"simulatorSourceGuid","pageStudioKind","pageStudioPreset","pageStudioEffect","pageStudioPrevFill","pageStudioGridSize","strokeDashArray"
 ];
 

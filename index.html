@@ -3,7 +3,8 @@
 <!-- Manga Editor Desu · nai学长魔改版 1.0.3 — unofficial modified build (GPL-3.0). Upstream: https://github.com/new-sankaku/manga-editor-desu -->
 <!-- ========== Head ========== -->
 <head>
-    <title>Manga Editor Desu · nai学长魔改版 1.0.3</title>
+    <title>Manga-NAI-GPT · 漫画编辑开发版</title>
+    <link rel="stylesheet" href="css/gpt-editor.css?v=1">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#121111">
@@ -2319,7 +2320,7 @@ function getElementClasses(element) {
 <div class="us-split">
 <div class="us-left">
 <div style="display:flex;align-items:center;gap:8px;">
-<div class="us-panel-title" data-i18n="usServiceTitle" style="padding-bottom:0;">NovelAI 生成能力</div>
+<div class="us-panel-title"  style="padding-bottom:0;">AI 生成能力</div>
 </div>
 <div style="height:8px;"></div>
 <table class="role-matrix">
@@ -2327,11 +2328,12 @@ function getElementClasses(element) {
 <tr>
 <th></th>
 <th>NovelAI</th>
+<th>GPT Image</th>
 </tr>
 </thead>
 <tbody id="roleMatrixBody"></tbody>
 </table>
-<div class="role-assign-note" data-i18n="roleAssignNote">当前只保留 NovelAI 文生图和图生图。</div>
+<div class="role-assign-note">NovelAI 继续原有生图流程；GPT Image 打开预览编辑器，确认后应用。GPT 接口在编辑浮窗内配置。</div>
 </div>
 <div class="us-right">
 <div class="us-panel-title" data-i18n="usConnectionTitle">连接与导演</div>
@@ -2564,7 +2566,8 @@ function getElementClasses(element) {
     <script src="js/ui/tutorial.js?v=8.0" defer></script>
     <script src="js/ui/beginner-guide.js?v=2.2" defer></script>
     <script src="js/ui/visual-studio.js?v=1.6" defer></script>
-    <script src="js/ui/visual-ps-tools.js?v=1.3" defer></script>
+    <script src="js/ai/gpt/edit-core.js?v=1" defer></script>
+    <script src="js/ui/visual-ps-tools.js?v=1.4" defer></script>
     <script src="js/ui/toast.js?v=7.3" defer></script>
     <script src="js/ui/util/ui-util.js?v=7.2" defer></script>
     <script src="js/ui/util/event-delegator.js?v=7.6" defer></script>
@@ -2614,6 +2617,7 @@ function getElementClasses(element) {
     <script src="js/ai/director/scene-plan-controller.js?v=1.4" defer></script>
     <script src="js/ai/prompt/novelai-composition-director.js?v=8.10" defer></script>
     <script src="js/ai/provider/novelai-provider.js?v=8.11" defer></script>
+    <script src="js/ai/provider/gpt-image-provider.js?v=1" defer></script>
     <script src="js/ai/queue/spinner.js?v=7.5" defer></script>
     <script src="js/ai/queue/task-queue.js?v=7.2" defer></script>
     <script src="js/ai/queue/generation-task-manager.js?v=8.7" defer></script>
@@ -2622,7 +2626,6 @@ function getElementClasses(element) {
     <script src="js/ai/role/role-assignment-ui.js?v=7.6" defer></script>
     <script src="js/ai/ui/unified-settings-window.js?v=7.5" defer></script>
     <script src="js/ai/ui/ai-ui-util.js?v=7.6" defer></script>
-    <script src="js/ai/novelai-only-mode.js?v=7.8" defer></script>
     <script src="js/ai/prompt/base-event-listener.js?v=7.5" defer></script>
     <script src="js/layer/floating-window-management.js?v=7.2" defer></script>
     <script src="js/layer/layer-button.js?v=7.6" defer></script>
@@ -3097,6 +3100,10 @@ setAutoSizeingControlMini();
   <div id="simStudioStatus" class="simulator-chat-status">点一种界面，进入对应模拟器。</div>
 </div>
 
+<script src="js/ai/inpainting/inpaint-mask.js?v=1" defer></script>
+<script src="js/ai/gpt/edit-controller.js?v=1" defer></script>
+<script src="js/ai/gpt/subtitle-editor.js?v=1" defer></script>
+<script src="js/ai/gpt/edit-ui.js?v=1" defer></script>
 </body>
 
 </html>

@@ -16,9 +16,8 @@ var menuIconMap={
 "selectClear":"deselect",
 "generate":"auto_awesome",
 "rembg":"auto_fix_high",
-"upscale":"zoom_in",
-"inpaint":"brush",
-"angleGenerate":"view_in_ar",
+"gptEdit":"auto_awesome",
+"captionEdit":"text_fields",
 "flipHorizontal":"flip",
 "flipVertical":"flip",
 "cropImage":"crop",
@@ -37,9 +36,8 @@ var menuIconMap={
 "copyAndPast":"content_copy"
 };
 
-var menuAiActions=["generate","upscale","inpaint","angleGenerate"];
+var menuAiActions=["generate","gptEdit"];
 var menuLocalActions=["rembg","cutoutRegion"];
-var naiOnlyMode=true;
 
 function createObjectMenu(){
 if(objectMenu){
@@ -135,7 +133,8 @@ var flipStyle=itemValue==="flipVertical"?' style="transform:rotate(90deg)"':"";
 if(flipStyle&&iconHtml){
 iconHtml=`<i class="material-icons menu-btn-icon"${flipStyle}>${iconName}</i>`;
 }
-return `<button id="fabricjs-${itemValue}-btn" class="menu-btn${extraClass}">${iconHtml}<span>${getText(itemValue)}</span></button>`;
+var label=itemValue==='gptEdit'?'GPT 改图':itemValue==='captionEdit'?'编辑字幕':getText(itemValue);
+return `<button id="fabricjs-${itemValue}-btn" class="menu-btn${extraClass}">${iconHtml}<span>${label}</span></button>`;
 }
 
 function renderSubmenu(item){
@@ -174,9 +173,6 @@ var panelInNotFit=createObjectMenuButton('panelInNotFit');
 var canvasFit=createObjectMenuButton('canvasFit');
 var selectClear=createObjectMenuButton('selectClear');
 var rembg=createObjectMenuButton('rembg');
-var upscale=createObjectMenuButton('upscale');
-var inpaint=createObjectMenuButton('inpaint');
-var angleGenerate=createObjectMenuButton('angleGenerate');
 var clearAllClipPaths=createObjectMenuButton('clearAllClipPaths');
 
 var clearTopClipPath=createObjectMenuButton('clearTopClipPath');
@@ -228,6 +224,7 @@ menuItems.push(selectClear);
 menuItems.push(createObjectMenuGroupHeader('menuGroupOperation'));
 menuItems.push(visible,movement,edit,knife,duplicate);
 var aiItems=[];
+aiItems.push(createObjectMenuButton('gptEdit'));
 if(hasRole(AI_ROLES.Text2Image))aiItems.push(generate);
 if(aiItems.length>0){
 menuItems.push(createObjectMenuGroupHeader('menuGroupAI'));
@@ -278,6 +275,7 @@ menuItems.push(fontSize,font);
 menuItems.push({type:'separator'});
 menuItems.push(deleteMenu);
 }else if(isText(activeObject)){
+menuItems.push(createObjectMenuButton('captionEdit'));
 menuItems.push(selectClear);
 menuItems.push(createObjectMenuGroupHeader('menuGroupOperation'));
 menuItems.push(visible,duplicate);
@@ -575,20 +573,19 @@ break;
 case 'confirmCrop':
 if(typeof completeCrop==="function")completeCrop();
 break;
-case 'upscale':
-if(naiOnlyMode)return;
-var spinner=createSpinner(getGUID(activeObject),'UP');
-aiUpscale(activeObject,spinner);
+case 'gptEdit':
+window.NaiGptEditor.openForTarget(activeObject);
 break;
-case 'inpaint':
-if(naiOnlyMode)return;
-openInpaintEditor(activeObject);
-break;
-case 'angleGenerate':
-if(naiOnlyMode)return;
-openAngleEditor(activeObject);
+case 'captionEdit':
+window.NaiSubtitleEditor.open({target:activeObject});
 break;
 case 'generate':
+var provider=providerRegistry.getProviderForRole(isPanel(activeObject)?AI_ROLES.Text2Image:AI_ROLES.Image2Image);
+if(provider&&provider.id==='gpt-image'){
+if(isPanel(activeObject))window.NaiGptEditor.openGeneration(activeObject);
+else window.NaiGptEditor.openForTarget(activeObject);
+break;
+}
 if(window.NaiBeginnerGuide&&typeof window.NaiBeginnerGuide.confirmSpend==='function'){
 if(!window.NaiBeginnerGuide.confirmSpend(isPanel(activeObject)?'生成这一格':'以这张图再生成'))return;
 }else if(!window.confirm('将用 NovelAI 生成。会花积分，确定吗？'))return;

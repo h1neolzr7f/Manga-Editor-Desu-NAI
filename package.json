@@ -2,10 +2,10 @@
   "name": "manga-editor-desu-nai",
   "version": "1.0.3",
   "license": "GPL-3.0-only",
-  "description": "Manga Editor Desu · nai学长魔改版 — unofficial NovelAI one-click fork",
+  "description": "Manga Editor Desu with NovelAI generation and GPT Image editing",
   "type": "module",
   "scripts": {
-    "test": "node scripts/layout-smoke-test.cjs",
+    "test": "node scripts/run-offline-tests.cjs",
     "lint": "eslint js/ --ext .js",
     "lint:fix": "eslint js/ --ext .js --fix",
     "format": "node scripts/remove-spaces.cjs",
@@ -26,16 +26,20 @@
     "test:scene-plan": "node scripts/scene-plan-smoke-test.cjs",
     "test:proxy-guards": "python scripts/proxy-guard-smoke-test.py",
     "test:layout": "node scripts/layout-smoke-test.cjs",
-    "test:page-size": "node scripts/manga-page-size-smoke-test.cjs"
-    ,"test:fabric-text-focus": "node scripts/fabric-text-focus-smoke-test.cjs"
-    ,"test:image-export": "node scripts/image-export-smoke-test.cjs"
-    ,"test:png-bit-depth": "node scripts/png-bit-depth-smoke-test.cjs"
-    ,"test:image-export-integration": "node scripts/image-export-integration-test.cjs"
-    ,"index": "node scripts/gen-project-index.cjs"
-    ,"check:index": "node scripts/gen-project-index.cjs --check"
+    "test:page-size": "node scripts/manga-page-size-smoke-test.cjs",
+    "test:fabric-text-focus": "node scripts/fabric-text-focus-smoke-test.cjs",
+    "test:image-export": "node scripts/image-export-smoke-test.cjs",
+    "test:png-bit-depth": "node scripts/png-bit-depth-smoke-test.cjs",
+    "test:image-export-integration": "node scripts/image-export-integration-test.cjs",
+    "index": "node scripts/gen-project-index.cjs",
+    "check:index": "node scripts/gen-project-index.cjs --check",
+    "test:gpt-proxy": "python scripts/gpt-images-proxy-test.py",
+    "test:gpt-browser": "node scripts/gpt-editor-browser-test.cjs",
+    "test:subtitles-browser": "node scripts/subtitle-editor-browser-test.cjs"
   },
   "devDependencies": {
+    "@eslint/js": "^8.57.0",
     "eslint": "^8.57.0",
-    "@eslint/js": "^8.57.0"
+    "playwright": "1.56.1"
   }
 }

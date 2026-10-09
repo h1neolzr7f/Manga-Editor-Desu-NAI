@@ -49,7 +49,7 @@ function testUiSurface() {
     "mangaImportPreflightButton",
     "mangaImportGenerateButton",
     "mangaImportCharacterReferences",
-    "js/ai/manga-importer.js?v=8.16"
+    "js/ai/manga-importer.js?"
   ].forEach((needle) => assert(html.includes(needle), `index.html missing ${needle}`));
 }
 

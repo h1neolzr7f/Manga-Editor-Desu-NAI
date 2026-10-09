@@ -29,13 +29,8 @@ return fileBufferList;
 }
 
 async function generateProjectFileBufferList() {
-if(currentStateIndex<stateStack.length-1){
-stateStack.splice(currentStateIndex+1);
-}
-var state=customToJSON();
-var json=JSON.stringify(state);
-stateStack.push(json);
-currentStateIndex++;
+if(window.NaiHistoryLoading||notSave())throw new Error('画布正在载入，请等待完成后再保存。');
+saveState();
 await convertImageMapBlobUrls();
 removeGrid();
 var previewLink=await getCropAndDownloadLinkByMultiplier(1,'jpeg',0.8);
@@ -44,16 +39,20 @@ if(isGridVisible){
 drawGrid();
 isGridVisible=true;
 }
-var canvasInfo={width:canvas.width,height:canvas.height};
+var canvasInfo={width:canvas.width,height:canvas.height,historyIndex:currentStateIndex};
 var fileBufferList=await generateProjectFileBufferListCore(stateStack,imageMap,canvasInfo,basePrompt,previewDataUrl);
 return {fileBufferList,previewDataUrl};
 }
 
 
 
-async function loadLz4BlobProjectFile(lz4Blob,guid=null){
-stateStack=[];
-imageMap.clear();
+async function loadLz4BlobProjectFile(lz4Blob,guid=null,pageLockHeld=false){
+if(window.NaiHistoryLoading||(window.NaiPageLoading&&!pageLockHeld))return false;
+window.NaiPageLoading=true;
+const wasSaving=isSaveHistory;
+changeDoNotSaveHistory();
+try{
+const loadedImages=new Map();
 
 let files=await lz4Compressor.unLz4Files(lz4Blob);
 
@@ -65,8 +64,6 @@ let canvasInfoStr=ArrayBufferUtils.fromArrayBufferToString(canvasInfoBuffer);
 
 if (t2iBasePromptStr) {
 var loadedBasePrompt=JSON.parse(t2iBasePromptStr);
-Object.assign(basePrompt,loadedBasePrompt);
-if(!Array.isArray(loadedBasePrompt.naiCharacterCards))basePrompt.naiCharacterCards=[];
 }
 
 var canvasInfo=canvasInfoStr ? JSON.parse(canvasInfoStr) : {width: 750,height: 850};
@@ -86,7 +83,7 @@ if (file.name.endsWith(".img")) {
 let imgDataUrlStr=ArrayBufferUtils.fromArrayBufferToString(file.data);
 
 let hash=file.name.split('.')[0];
-imageMap.set(hash,imgDataUrlStr);
+loadedImages.set(hash,imgDataUrlStr);
 }
 } catch (error) {
 compressionLogger.error("Failed to load file:",file.name,error);
@@ -107,17 +104,33 @@ compressionLogger.error("Failed to load file:",file.name,error);
 });
 
 const jsonResults=await Promise.all(jsonLoadPromises);
-stateStack=jsonResults.filter(data=>data!==undefined);
+const loadedStates=jsonResults.filter(data=>data!==undefined);
+if(!loadedStates.length)throw new Error('Project contains no canvas history');
+// Parse before replacing the current page so malformed history cannot clear it.
+loadedStates.forEach(state=>JSON.parse(state));
+stateStack=loadedStates;
+imageMap.clear();
+loadedImages.forEach((value,key)=>imageMap.set(key,value));
+if(loadedBasePrompt){
+Object.assign(basePrompt,loadedBasePrompt);
+if(!Array.isArray(loadedBasePrompt.naiCharacterCards))basePrompt.naiCharacterCards=[];
+}
+basePrompt.gptVisualProfiles=loadedBasePrompt&&Array.isArray(loadedBasePrompt.gptVisualProfiles)?loadedBasePrompt.gptVisualProfiles:[];
 
-currentStateIndex=stateStack.length-1;
+currentStateIndex=Number.isInteger(canvasInfo.historyIndex)&&canvasInfo.historyIndex>=0&&canvasInfo.historyIndex<stateStack.length?canvasInfo.historyIndex:stateStack.length-1;
 resizeCanvasByNum(canvasInfo.width,canvasInfo.height);
-lastRedo(guid);
+await restoreHistoryState(currentStateIndex,guid,true);
 
 if(guid){
 setCanvasGUID(guid);
 }
 if(window.NaiCharacterCards&&typeof window.NaiCharacterCards.load==='function'){
 window.NaiCharacterCards.load({preferProject:true});
+}
+return true;
+}finally{
+isSaveHistory=wasSaving;
+if(!pageLockHeld)window.NaiPageLoading=false;
 }
 }
 
@@ -300,16 +313,18 @@ btmAddImage({href: previewImageUrl},zipContent,guid);
 }
 
 //This is not recommended as it has been changed from Zip management to Lz4 management.
-async function loadZip(zip,guid=null){
-stateStack=[];
-imageMap.clear();
+async function loadZip(zip,guid=null,pageLockHeld=false){
+if(window.NaiHistoryLoading||(window.NaiPageLoading&&!pageLockHeld))return false;
+window.NaiPageLoading=true;
+const wasSaving=isSaveHistory;
+changeDoNotSaveHistory();
+try{
+const loadedImages=new Map();
 
 var text2imgBasePromptFile=zip.file("text2img_basePrompt.json");
 if (text2imgBasePromptFile) {
 const content=await text2imgBasePromptFile.async("string");
 var loadedBasePrompt=JSON.parse(content);
-Object.assign(basePrompt,loadedBasePrompt);
-if(!Array.isArray(loadedBasePrompt.naiCharacterCards))basePrompt.naiCharacterCards=[];
 }
 
 var canvasInfoFile=zip.file("canvas_info.json");
@@ -331,7 +346,7 @@ try {
 const content=await zip.file(fileName).async("string");
 if (fileName.endsWith(".img")) {
 let hash=fileName.split('.')[0];
-imageMap.set(hash,content);
+loadedImages.set(hash,content);
 }
 } catch (error) {
 compressionLogger.error("Failed to load file:",fileName,error);
@@ -352,16 +367,32 @@ compressionLogger.error("Failed to load file:",fileName,error);
 });
 
 const jsonResults=await Promise.all(jsonLoadPromises);
-stateStack=jsonResults.filter(data=>data!==undefined);
+const loadedStates=jsonResults.filter(data=>data!==undefined);
+if(!loadedStates.length)throw new Error('Project contains no canvas history');
+// Parse before replacing the current page so malformed history cannot clear it.
+loadedStates.forEach(state=>JSON.parse(state));
+stateStack=loadedStates;
+imageMap.clear();
+loadedImages.forEach((value,key)=>imageMap.set(key,value));
+if(loadedBasePrompt){
+Object.assign(basePrompt,loadedBasePrompt);
+if(!Array.isArray(loadedBasePrompt.naiCharacterCards))basePrompt.naiCharacterCards=[];
+}
+basePrompt.gptVisualProfiles=loadedBasePrompt&&Array.isArray(loadedBasePrompt.gptVisualProfiles)?loadedBasePrompt.gptVisualProfiles:[];
 
-currentStateIndex=stateStack.length-1;
+currentStateIndex=Number.isInteger(canvasInfo.historyIndex)&&canvasInfo.historyIndex>=0&&canvasInfo.historyIndex<stateStack.length?canvasInfo.historyIndex:stateStack.length-1;
 resizeCanvasByNum(canvasInfo.width,canvasInfo.height);
-lastRedo(guid);
+await restoreHistoryState(currentStateIndex,guid,true);
 
 if(guid){
 setCanvasGUID(guid);
 }
 if(window.NaiCharacterCards&&typeof window.NaiCharacterCards.load==='function'){
 window.NaiCharacterCards.load({preferProject:true});
+}
+return true;
+}finally{
+isSaveHistory=wasSaving;
+if(!pageLockHeld)window.NaiPageLoading=false;
 }
 }
