@@ -44,3 +44,18 @@ for name in ('local-secret-guard-test.py', 'server-port-conflict-test.py',
         print(result.stdout[-4000:], result.stderr[-4000:])
         raise SystemExit(name + ' regression failed')
     print(name + ' passed')
+
+# Node regressions for the same fixes (readable NovelAI errors + free-quota clamp, the NAI
+# pipeline never reusing the NovelAI token as Director key, GPT panel i18n keys).
+import shutil
+node = shutil.which('node')
+if node:
+    for name in ('novelai-readable-error-test.cjs', 'nai-pipeline-credentials-test.cjs', 'gpt-panel-i18n-test.cjs'):
+        result = subprocess.run([node, str(root / 'scripts' / name)], cwd=str(root), capture_output=True,
+                                text=True, encoding='utf-8', errors='replace')
+        if result.returncode != 0:
+            print(result.stdout[-4000:], result.stderr[-4000:])
+            raise SystemExit(name + ' regression failed')
+        print(name + ' passed')
+else:
+    print('node not found: skipped node regressions')
