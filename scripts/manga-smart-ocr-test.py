@@ -61,6 +61,12 @@ class SmartOcrTests(unittest.TestCase):
         self.assertEqual(command[command.index("--psm") + 1], "5")
 
     @mock.patch.object(ocr.shutil, "which", return_value=None)
+    @mock.patch.object(ocr.os.path, "isfile", return_value=True)
+    def test_windows_tesseract_env_path_is_supported(self, exists, which):
+        with mock.patch.dict(ocr.os.environ, {"TESSERACT_PATH": "/tools/Tesseract-OCR/tesseract.exe"}):
+            self.assertEqual(ocr.find_tesseract(), "/tools/Tesseract-OCR/tesseract.exe")
+
+    @mock.patch.object(ocr.shutil, "which", return_value=None)
     def test_missing_engine_has_actionable_error(self, _):
         with self.assertRaises(ocr.SmartOcrError) as ctx:
             ocr.ocr_image(URL, "jpn+eng")
