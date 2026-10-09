@@ -1,0 +1,180 @@
+#nai-gpt-toolbar {
+  position: fixed;
+  left: 76px;
+  bottom: 88px;
+  z-index: 1100;
+  display: flex;
+  gap: 5px;
+  padding: 5px;
+  background: #142337;
+  border: 1px solid #3c536f;
+  border-radius: 9px;
+  box-shadow: 0 4px 18px #0006;
+}
+#nai-gpt-toolbar button,
+#nai-gpt-editor button {
+  border: 1px solid #47607d;
+  border-radius: 6px;
+  background: #22364d;
+  color: #eff6ff;
+  padding: 6px 9px;
+  cursor: pointer;
+  font: inherit;
+}
+#nai-gpt-toolbar button:hover,
+#nai-gpt-editor button:hover {
+  background: #355576;
+}
+#nai-gpt-editor {
+  position: fixed;
+  right: 18px;
+  top: 82px;
+  width: 370px;
+  max-height: calc(100vh - 110px);
+  overflow: auto;
+  z-index: 2100;
+  background: #142033;
+  color: #eaf2fa;
+  border: 1px solid #48607c;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 12px 40px #0009;
+  font:
+    13px/1.4 system-ui,
+    sans-serif;
+  box-sizing: border-box;
+}
+#nai-gpt-editor[hidden],
+#nai-gpt-editor [hidden] {
+  display: none !important;
+}
+#nai-gpt-editor header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+#nai-gpt-editor label {
+  display: block;
+  margin: 7px 0;
+}
+#nai-gpt-editor input:not([type="checkbox"]),
+#nai-gpt-editor textarea,
+#nai-gpt-editor select {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid #4a617a;
+  border-radius: 6px;
+  background: #0d1624;
+  color: #edf4ff;
+  padding: 6px;
+  margin: 4px 0;
+  font: inherit;
+}
+#nai-gpt-editor textarea {
+  resize: vertical;
+}
+#nai-gpt-editor details {
+  margin: 8px 0;
+  padding: 5px 0;
+  border-bottom: 1px solid #354963;
+}
+#nai-gpt-editor summary {
+  cursor: pointer;
+  color: #bfdbfe;
+}
+#nai-gpt-editor small {
+  display: block;
+  color: #a8bad0;
+  margin: 4px 0;
+}
+#nai-gpt-editor .gpt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 8px;
+}
+#nai-gpt-editor .gpt-reference {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+#nai-gpt-editor .gpt-reference img {
+  width: 44px;
+  height: 54px;
+  object-fit: contain;
+  background: #fff1;
+}
+.gpt-mask-area {
+  position: relative;
+  width: 100%;
+  margin: 8px 0;
+}
+.gpt-mask-area canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.gpt-mask-area #gpt-mask-paint {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+#nai-gpt-editor .gpt-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+#nai-gpt-editor button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+#gpt-status {
+  color: #bfdbfe;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+#gpt-comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+#gpt-comparison figure {
+  margin: 0;
+}
+#gpt-comparison img {
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  background: repeating-conic-gradient(#303b4a 0% 25%, #172132 0% 50%) 50%/12px
+    12px;
+}
+.gpt-selection-outline {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1500;
+  overflow: visible;
+}
+.gpt-selection-outline polygon {
+  fill: #38bdf820;
+  stroke: #38bdf8;
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+  vector-effect: non-scaling-stroke;
+}
+@media (max-width: 600px) {
+  #nai-gpt-editor {
+    right: 8px;
+    top: 56px;
+    width: calc(100vw - 16px);
+    max-height: calc(100vh - 64px);
+  }
+  #nai-gpt-toolbar {
+    left: 58px;
+    bottom: 70px;
+    max-width: calc(100vw - 70px);
+    flex-wrap: wrap;
+    font-size: 11px;
+  }
+}

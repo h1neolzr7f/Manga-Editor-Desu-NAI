@@ -175,8 +175,8 @@ preview=null;
 function pointer(event){
 var currentCanvas=canvas();
 if(!currentCanvas)return{x:0,y:0};
-if(event&&event.pointer)return event.pointer;
 if(event&&event.e&&typeof currentCanvas.getPointer==='function')return currentCanvas.getPointer(event.e);
+if(event&&event.absolutePointer)return event.absolutePointer;
 return{x:0,y:0};
 }
 
@@ -279,18 +279,24 @@ return c;
 function replaceImageFromCanvas(image,tmp){
 var currentCanvas=canvas();
 if(!currentCanvas||!root.fabric)return;
+var pageGuid=typeof getCanvasGUID==='function'?getCanvasGUID():null;
+var layerIndex=currentCanvas.getObjects().indexOf(image);
 root.fabric.Image.fromURL(tmp.toDataURL('image/png'),function(next){
 if(!next)return;
+if(currentCanvas!==canvas()||currentCanvas.getObjects().indexOf(image)<0||root.NaiHistoryLoading||root.NaiPageLoading||(pageGuid&&getCanvasGUID()!==pageGuid))return;
 next.set({
 left:image.left,top:image.top,angle:image.angle||0,flipX:!!image.flipX,flipY:!!image.flipY,
 opacity:image.opacity===undefined?1:image.opacity,originX:image.originX,originY:image.originY,
 scaleX:(image.width*(image.scaleX||1))/(next.width||1),
 scaleY:(image.height*(image.scaleY||1))/(next.height||1)
 });
+next.set({skewX:image.skewX||0,skewY:image.skewY||0,cropX:image.cropX||0,cropY:image.cropY||0,width:image.width,height:image.height,scaleX:image.scaleX,scaleY:image.scaleY,clipPath:image.clipPath});
+if(typeof commonProperties!=='undefined')commonProperties.forEach(function(key){if(image[key]!==undefined)next[key]=image[key];});
+if(image.relatedPoly)next.relatedPoly=image.relatedPoly;
 if(image.guid)next.guid=image.guid;
 if(typeof changeDoNotSaveHistory==='function')changeDoNotSaveHistory();
 currentCanvas.remove(image);
-currentCanvas.add(next);
+currentCanvas.insertAt(next,layerIndex,false);
 currentCanvas.setActiveObject(next);
 if(typeof changeDoSaveHistory==='function')changeDoSaveHistory();
 if(typeof saveStateByManual==='function')saveStateByManual();
@@ -300,15 +306,7 @@ currentCanvas.renderAll();
 }
 
 function localToImage(image,pt){
-var dispW=Math.max(1,(image.width||1)*(image.scaleX||1));
-var dispH=Math.max(1,(image.height||1)*(image.scaleY||1));
-var el=(image.getElement&&image.getElement())||image._element;
-var natW=el?(el.naturalWidth||el.width||dispW):dispW;
-var natH=el?(el.naturalHeight||el.height||dispH):dispH;
-return{
-x:((pt.x-(image.left||0))/dispW)*natW,
-y:((pt.y-(image.top||0))/dispH)*natH
-};
+return root.NaiGptEditCore.pageToImage(image,pt);
 }
 
 function floodFill(image,pt,hex){
@@ -395,6 +393,7 @@ toast('套索','已复制选区为新图层。');
 }
 
 function onDown(event){
+if(event.e&&event.e.button!==0)return;
 var currentCanvas=canvas();
 if(!currentCanvas)return;
 var pt=pointer(event);

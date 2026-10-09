@@ -1,7 +1,8 @@
 // Role Assignment: Role×プロバイダーのマトリクスUI
 var roleAssignmentUI=(function(){
 var PROVIDER_COLUMNS=[
-{id:'novelai',label:'NovelAI'}
+{id:'novelai',label:'NovelAI'},
+{id:'gpt-image',label:'GPT Image'}
 ];
 var ROLE_ROWS=[
 {role:AI_ROLES.Text2Image,label:'文本生图'},
