@@ -152,5 +152,23 @@ assert(overlay.removed, 'selection overlay must not remain after crop');
   elements.mangaGptReplaceText.handlers.click();
   assert.equal(page.active.text, '新的字幕');
   assert.equal(saved, 2, 'one history snapshot for text replacement');
-  console.log('PASS mocked region selection -> HTTP -> Fabric layer -> undo snapshot');
+
+  page.active = { type: 'vertical-textbox', set(name, value) { this[name] = value; },
+    setCoords() {}, initDimensions() { this.reflowed = true; } };
+  elements.mangaGptSubtitle.value = '竖排修改';
+  elements.mangaGptReplaceText.handlers.click();
+  assert.equal(page.active.text, '竖排修改');
+  assert.equal(page.active.reflowed, true);
+  assert.equal(saved, 3);
+
+  const bubble = { customType: 'speechBubbleSVG', type: 'path' };
+  const bubbleText = { type: 'textbox', customType: 'speechBubbleText', targetObject: bubble,
+    set(name, value) { this[name] = value; }, setCoords() {} };
+  page.getObjects = () => [bubble, bubbleText];
+  page.active = bubble;
+  elements.mangaGptSubtitle.value = '气泡修改';
+  elements.mangaGptReplaceText.handlers.click();
+  assert.equal(bubbleText.text, '气泡修改');
+  assert.equal(saved, 4);
+  console.log('PASS mocked region selection -> HTTP -> Fabric layer -> undo snapshots + vertical/bubble text');
 })().catch(err => { console.error(err); process.exitCode = 1; });
