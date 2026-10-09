@@ -103,6 +103,25 @@ class ImageRelayTest(unittest.TestCase):
         self.assertEqual(json.loads(opener.request.data)["prompt"], "manga panel")
 
 
+
+    def test_cross_site_post_never_reaches_secret_or_upstream(self):
+        class FakeHandler:
+            path = "/gpt-image-proxy"
+            client_address = ("127.0.0.1", 4040)
+            headers = {"Host": "127.0.0.1:8000", "Origin": "https://evil.example",
+                       "Sec-Fetch-Site": "cross-site", "Content-Type": "application/json",
+                       "Content-Length": "100"}
+            def __init__(self):
+                self.results = []
+                self.rfile = None  # A rejected request must not read even one body byte.
+            def _send_json(self, payload, status=200):
+                self.results.append((status, payload))
+        handler = FakeHandler()
+        with mock.patch.object(proxy, "request_image_edit",
+                               side_effect=AssertionError("proxy must not send secrets or contact upstream")):
+            self.assertTrue(proxy.handle_gpt_image_post(handler))
+        self.assertEqual(handler.results[0][0], 403)
+
     def test_env_key_is_pinned_to_trusted_url(self):
         env = {"GPT_IMAGE_API_KEY": "only-for-trusted-endpoint",
                "GPT_IMAGE_TRUSTED_BASE_URL": "https://relay.example.com/v1"}
