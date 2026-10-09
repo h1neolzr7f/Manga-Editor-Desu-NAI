@@ -30,10 +30,10 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         raise ImageProxyError("上游重定向已被拒绝，请填写最终 HTTPS API 地址。", 502)
 
 
-def _valid_public_url(value):
+def _valid_public_url(value, allow_query=False):
     parsed = urllib.parse.urlsplit(str(value or "").strip())
     if (parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password
-            or parsed.query or parsed.fragment or parsed.port not in (None, 443)):
+            or (parsed.query and not allow_query) or parsed.fragment or parsed.port not in (None, 443)):
         raise ImageProxyError("API 地址必须是公开 HTTPS URL，不得包含凭据、查询参数或自定义端口。")
     hostname = parsed.hostname.lower().rstrip(".")
     if hostname == "localhost" or hostname.endswith((".localhost", ".local", ".internal")):
@@ -135,7 +135,7 @@ def _extract_image(raw, opener):
             raise ImageProxyError("上游返回无效的图片 Base64。", 502) from exc
     elif item.get("url"):
         image_url = str(item["url"])
-        _valid_public_url(image_url)
+        _valid_public_url(image_url, allow_query=True)
         with opener.open(urllib.request.Request(image_url, headers={"Accept": "image/*"}), timeout=30) as response:
             data = response.read(MAX_RESULT_BYTES + 1)
     else:
