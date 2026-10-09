@@ -62,7 +62,8 @@
       use.title = '套用这条识别文字';
       use.addEventListener('change', () => { draft.active = use.checked; });
       const label = make('span', '区域 ' + (i + 1) + ' · ' + Math.round(draft.x) +
-        ',' + Math.round(draft.y) + ' · ' + Math.round(draft.confidence || 0) + '%');
+        ',' + Math.round(draft.y) + ' · ' + Math.round(draft.confidence || 0) + '%' +
+        (draft.panelId ? ' · 第' + Number(draft.panelId.split('-')[1]) + '格' : ''));
       const remove = make('button', '删除', 'manga-smart-small');
       remove.type = 'button';
       remove.addEventListener('click', () => {
@@ -136,6 +137,8 @@
         .map(d => ({ ...d, active: true }));
       message('识别到 ' + state.drafts.length + ' 条候选文字。可逐条修改后一次应用。');
       renderDrafts();
+      const pageUI = window.MangaPageStructureUI;
+      if (pageUI && typeof pageUI.refreshFromOCR === 'function') pageUI.refreshFromOCR();
     } catch (error) {
       message(error.message || String(error), true);
     } finally {
@@ -210,6 +213,7 @@
       state.drafts.push({ ...box, text: '新字幕', erase: true,
         vertical: $('mangaSmartLanguage').value.startsWith('jpn_vert'), confidence: 100, active: true });
       renderDrafts();
+      if (window.MangaPageStructureUI) window.MangaPageStructureUI.refreshFromOCR();
       message('已添加手动字幕区。修改文字后点击「应用」。');
     });
     message('在画布上拖动框选字幕区域，按 Esc 取消。');
@@ -324,6 +328,8 @@
       state.drafts = [];
       state.sourceImage = '';
       renderDrafts();
+      if (window.MangaPageStructureUI) window.MangaPageStructureUI.invalidate(
+        '字幕图层已应用，页面结构可能变化，请重新分析。');
       message('已添加 ' + processed + ' 组可编辑字幕及安全遮盖，跳过复杂背景 ' +
         skipped + ' 组。保留原画布，支持撤销和保存。');
     } catch (error) {
@@ -370,5 +376,13 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render);
   else render();
-  window.MangaSmartTextEditor = { detect, apply, beginManual, stopSelection };
+  window.MangaSmartTextEditor = {
+    detect, apply, beginManual, stopSelection,
+    getDrafts: () => state.drafts.map(d => ({ ...d })),
+    setPanelAssignments: assignments => {
+      const map = new Map((assignments || []).map(x => [x.sourceIndex, x.panelId]));
+      state.drafts.forEach((d, index) => { d.panelId = map.get(index) || null; });
+      renderDrafts();
+    }
+  };
 })();

@@ -1,0 +1,75 @@
+/* Local page-structure inspector. Rectangles are read-only DOM overlays. */
+#mangaPageOpen {margin-left:6px;font-size:12px;}
+.manga-page-panel {
+  position:fixed;z-index:12005;top:68px;right:18px;width:min(450px,calc(100vw - 28px));
+  max-height:calc(100vh - 88px);overflow:auto;border-radius:12px;padding:14px;
+  border:1px solid #515b6a;background:#20232b;color:#f5f5f5;
+  box-shadow:0 14px 45px rgba(0,0,0,.45);font:13px/1.5 Arial,sans-serif;
+}
+.manga-page-panel[hidden]{display:none!important;}
+.manga-page-panel header,.manga-page-actions,.manga-page-entry-head,.manga-page-coordinates{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+.manga-page-panel header,.manga-page-entry-head{justify-content:space-between;}
+.manga-page-panel p{color:#bdc7d5;margin:10px 0;}
+.manga-page-panel button{
+  border:1px solid #687485;border-radius:6px;background:#3b4656;color:white;
+  padding:6px 8px;cursor:pointer;
+}
+.manga-page-panel button:hover{background:#52617a;}
+.manga-page-panel button:disabled{opacity:.5;cursor:default;}
+.manga-page-panel select,.manga-page-panel input[type=number]{
+  color:white;background:#151b25;border:1px solid #637083;border-radius:5px;padding:4px;
+}
+.manga-page-coordinates label {display:grid;gap:2px;font-size:11px;color:#c4d1e4;}
+.manga-page-coordinates input {width:65px;max-width:100%;}
+.manga-page-list{display:grid;gap:10px;margin:12px 0;}
+.manga-page-entry{border:1px solid #4c5663;border-radius:8px;background:#303742;padding:10px;
+  display:grid;gap:9px;}
+.manga-page-entry-head{font-size:12px;}
+.manga-page-entry-head span{color:#a8c2d9;font-size:11px;}
+.manga-page-hint{font-size:11px;}
+#mangaPageStatus{color:#aad8ff;margin-top:9px;}
+#mangaPageStatus[data-error=true]{color:#ffb0b0;}
+.manga-page-overlay{position:fixed;z-index:11970;pointer-events:none;}
+.manga-page-outline{
+  position:absolute;display:flex;align-items:flex-start;justify-content:flex-start;
+  border:2px solid rgba(18,193,244,.8);background:rgba(8,137,205,.06);
+  color:white;font:bold 12px Arial,sans-serif;padding:3px;text-shadow:1px 1px 3px #000;
+  box-sizing:border-box;
+}
+@media(max-width:550px) {
+  .manga-page-panel{top:38px;right:8px;max-height:calc(100vh - 46px);}
+}
+.manga-page-command-label{display:grid;gap:5px;margin:10px 0;font-size:12px;color:#c4d1e4;}
+.manga-page-command-label textarea{width:100%;min-height:64px;box-sizing:border-box;resize:vertical;
+  color:white;background:#151b25;border:1px solid #637083;border-radius:5px;padding:7px;}
+
+.manga-planner-box{display:grid;gap:7px;background:#29313c;border:1px solid #526273;
+  border-radius:8px;padding:10px;margin:12px 0;}
+.manga-planner-box textarea{width:100%;min-height:74px;resize:vertical;
+  background:#131d28;color:#fff;border:1px solid #677588;border-radius:5px;padding:7px;
+  font:13px/1.5 Arial,sans-serif;box-sizing:border-box;}
+.manga-planner-box p{margin:3px 0;color:#c6cfde;font-size:12px;}
+#mangaPlannerPreview{display:grid;gap:3px;color:#e2edf8;}
+#mangaPlannerStatus{color:#a4d8ff;margin-top:2px;}
+#mangaPlannerStatus[data-error=true]{color:#ffadad;}
+
+.manga-page-bubble-outline{
+  position:absolute;box-sizing:border-box;pointer-events:none;
+  border:2px dashed rgba(255,170,20,.88);background:rgba(255,170,20,.08);
+  color:#f0b741;text-shadow:1px 1px 2px #181818;
+  font:bold 12px Arial,sans-serif;padding:1px;
+}
+.manga-page-bubble-outline[data-source="ocr-text-expansion"]{
+  border-color:rgba(255,194,95,.57);background:rgba(255,194,95,.03);
+}
+
+.manga-bubble-outline{position:absolute;box-sizing:border-box;pointer-events:none;
+  border:2px dashed #f4a741;background:rgba(244,167,65,.06);color:#fff;
+  font:bold 12px Arial,sans-serif;text-shadow:0 0 3px #000;padding:2px;}
+.manga-bubble-outline.manga-bubble-verified{border-color:#4ed59d;background:rgba(78,213,157,.06);}
+.manga-bubble-list{display:grid;gap:6px;}
+.manga-bubble-entry{display:flex;gap:6px;align-items:center;justify-content:space-between;
+  background:#303945;padding:8px;border:1px solid #5b6a79;border-radius:6px;}
+.manga-bubble-entry span{font-size:11px;overflow-wrap:anywhere;}

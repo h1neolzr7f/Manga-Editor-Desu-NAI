@@ -460,6 +460,51 @@
     return true;
   }
 
+  // Page inspector bridge: stage a complete panel; never start an API request.
+  function selectRegionForPanel(box, instruction) {
+    const c=pageCanvas();
+    if(!c || !box || ![box.x,box.y,box.width,box.height].every(Number.isFinite))
+      return false;
+    const left=Math.max(0,Math.floor(box.x));
+    const top=Math.max(0,Math.floor(box.y));
+    const right=Math.min(c.getWidth(),Math.ceil(box.x+box.width));
+    const bottom=Math.min(c.getHeight(),Math.ceil(box.y+box.height));
+    if(right-left<2 || bottom-top<2)return false;
+    const panel=$g('mangaGptPanel');
+    if(!panel)return false;
+    panel.hidden=false;
+    $g('mangaGptMode').value='edit';
+    $g('mangaGptSelect').disabled=false;
+    // A natural-language instruction is optional. Nothing is sent to the provider
+    // until the human clicks Generate in the existing GPT editor.
+    if(typeof instruction==='string' && instruction.trim())
+      $g('mangaGptPrompt').value=instruction.trim().slice(0,3000);
+    setRegion(c,{left,top,width:right-left,height:bottom-top},
+      '已定位第 '+(Number(box.order)||1)+' 格。请检查框选和费用，并填写修改描述。');
+    return true;
+  }
+
+  // For instructions targeting an individual character, NEVER preselect a
+  // whole panel (which could silently repaint other characters / dialogue).
+  // The user must draw a fresh selection before Generate can proceed.
+  function prepareManualEdit(instruction) {
+    const c=pageCanvas();
+    const panel=$g('mangaGptPanel');
+    if(!c || !panel || state.pending) return false;
+    panel.hidden=false;
+    $g('mangaGptMode').value='edit';
+    if(typeof instruction==='string' && instruction.trim())
+      $g('mangaGptPrompt').value=instruction.trim().slice(0,1800);
+    state.region=null;
+    state.result='';
+    $g('mangaGptApply').disabled=true;
+    if($g('mangaGptExpand')) $g('mangaGptExpand').hidden=true;
+    $g('mangaGptPreview').removeAttribute('src');
+    feedback(tr('mgpt_manual_character_region', '人物区域尚未确认。请在画布中手动框选目标角色，确认后再生成。'));
+    startSelection();
+    return true;
+  }
+
   function expandSelection() {
     const c = pageCanvas();
     const region = state.region;
@@ -918,7 +963,7 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render);
   else render();
 
-  window.MangaGPTRegionEditor = { normalizeRegion, startSelection, cancelSelection, selectRegionForTextRemoval,
+  window.MangaGPTRegionEditor = { normalizeRegion, startSelection, cancelSelection, selectRegionForTextRemoval, selectRegionForPanel, prepareManualEdit,
     letterboxPlan, resultCropRect, letteringInsertIndex, isLettering, contextRect, featherPlan, featherAlpha, estimateDrift, aspectMismatch,
     findCutBoxes, expandRegion, effectiveSize, bakePatch, tr };
 })();
