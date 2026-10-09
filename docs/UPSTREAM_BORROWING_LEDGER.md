@@ -6,7 +6,7 @@
 |---|---|---|---|---|
 | [BallonsTranslator](https://github.com/dmMaze/BallonsTranslator)（尤其 text detector/OCR/inpainter 分层与可扩展注册机制） | 文本检测、OCR、去字、翻译四阶段分离；人工复核中间产物 | `manga_smart_ocr.py`（OCR 后端），`js/ai/manga-smart-text-core.js` 与 `js/ai/manga-smart-text-editor.js`（字幕复核），后续 `TextInpaintAdapter` | **借鉴分层思想；本轮没有搬运 BallonsTranslator 源码** | 无 |
 | [Comic Translator](https://github.com/UnfetteredScholar/comic-translator) | 页面图像→气泡候选→OCR→人工审核→重绘的分段式处理，候选区域可以修改 | `js/ai/manga-page-structure.js`、`js/ai/manga-bubble-detector.js`、`js/ai/manga-page-structure-ui.js`、`docs/MANGA_PAGE_STRUCTURE_V1.md` | **自行实现轻量留白分镜扫描**；保留 detector 替换点，未使用 RT-DETR/LaMa 权重 | 无 |
-| [Manga OCR](https://github.com/kha-white/manga-ocr) | 竖排、注音、复杂日文字体由专门识别器处理；应对气泡整体识别 | 计划中的 `MangaOcrAdapter`；当前 `manga_smart_ocr.py` 依旧采用本地 Tesseract | 已标出替换位置；**尚未接入 Manga OCR** | 无 |
+| [Manga OCR](https://github.com/kha-white/manga-ocr) | 对日漫竖排、注音和复杂字形进行区域文本重新识别，不承担检测框 | `manga_ocr_refiner.py`、`manga_smart_ocr.py`、`js/ai/manga-smart-text-editor.js` | **已经运行时可选接入其公开 `MangaOcr(PIL.Image)` API**；用户点精修时才初始化，先用 Tesseract/手动框选定位；未复制第三方源码或打包权重 | 可选 pip 安装上游 `manga-ocr` 包，首次可能下载模型 |
 | [NovelAI Harness](https://github.com/h1neolzr7f/Novelai-harness)（用户自有仓库） | 焦点超采样、参考图、多角色锚点、局部重绘的工作流 | 现有 `js/ai/gpt-region-editor.js` 的区域上下文与后续人物工作流 `CharacterBible` | 复用交互/架构思路；不直接迁入 Flutter/Dart UI | 无 |
 | [PhotoDemon](https://github.com/tannerhelland/PhotoDemon) | 非破坏性图层、选区、撤销/重做、修图预览 | 沿用 Fabric 原生图层和 `js/layer/image-history-management.js` | 借鉴专业编辑的可逆交互体验；**没有引入 PhotoDemon VB6 代码** | 无 |
 | [AI Manga Factory（用户自有漫画流水线）](https://github.com/h1neolzr7f/jm-remix-pipeline) | Director 在真正生成前先输出可检查的分镜/编辑计划，避免直接改坏源素材 | `js/ai/manga-edit-planner.js`、`js/ai/manga-edit-planner-ui.js`、`js/ai/gpt-region-editor.js` | **借鉴计划→确认→执行的工作流思想；V1 是自行编写的本地规则解析器**，不调用模型，不声称具备角色视觉识别 | 无 |
@@ -36,8 +36,15 @@
 
 1. **气泡候选 != 语义气泡检测**。V1 `bubbleCandidates` 可以来自封闭浅色连通域，也可来自 OCR 文字框扩大区域，`source='ocr-text-expansion'` 且 `verified=false`；真正的闭合气泡轮廓/尾巴必须由专门检测器提取。参考 Comic Translator 的分段检测思路，后续可用可选的 RT-DETR 等 `BubbleDetectorAdapter` 替代启发式方法。
 2. **分镜留白 != 完整漫画理解**。无边框、斜切、多重叠分镜可能识别错误，保留人工修订机制与整页回退，不默默生成错误的语义信息。
-3. **去字**：保留 Tesseract + 纯色遮盖的低成本路径；真正复杂场景再加离线 LaMa ONNX 或 GPT Image 局部去字，依赖必须做明确隔离。
+3. **去字**：保留 Tesseract + 可选 Manga OCR 精修 + 纯色遮盖的低成本路径；真正复杂场景再加离线 LaMa ONNX 或 GPT Image 局部去字，依赖必须做明确隔离。
 4. **人物一致性**：以后才开发 Character Bible / SAM 角色区域检测；不能把现阶段 OCR 分镜识别叫作人物理解。
 5. **分发前许可证与依赖审计**：如果未来加入第三方源码/模型，台账增加准确 commit、文件路径、权重、许可证及替代方案。不能因为处于开发期就在发布时遗漏来源或违反使用条件。
 
 本台账是工程事实记录，未移植的上游功能不视为已实现。
+
+## Manga OCR 接入记录（PR #10）
+
+- `manga_ocr_refiner.py` 原创轻量适配器，延迟加载并调用上游 `MangaOcr()`，输入 PIL.Image，返回文字，不移植其代码。
+- `manga_smart_ocr.py` 新增严格本机同源路由 `/manga-smart/manga-ocr`；GPU/CPU 模型仅由用户显式点击触发加载。
+- `js/ai/manga-smart-text-editor.js` 每条文字候选可按需精修；Tesseract OCR 负责检测框，Manga OCR 不输出伪造检测框。
+- `docs/MANGA_OCR_REFINEMENT_V1.md` 写明约 400MB 的首用模型下载与无模型 CI 的局限。

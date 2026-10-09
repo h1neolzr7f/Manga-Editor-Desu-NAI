@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "manga_smart_ocr.py"
+      - "manga_ocr_refiner.py"
+      - "scripts/manga-ocr-refiner-test.py"
       - "scripts/manga-smart-ocr-*.py"
       - "99_server.py"
       - ".github/workflows/manga-smart-ocr.yml"
@@ -30,4 +32,5 @@ jobs:
       - name: Run mocked parser/endpoint and native OCR recognition
         run: |
           python scripts/manga-smart-ocr-test.py
+          python scripts/manga-ocr-refiner-test.py
           python scripts/manga-smart-ocr-runtime-test.py

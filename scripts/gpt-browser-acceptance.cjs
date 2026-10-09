@@ -622,6 +622,23 @@ async function run() {
   await page.locator('#mangaSmartOpen').click();
   await page.locator('#mangaSmartDetect').click();
   await page.locator('.manga-smart-item textarea').waitFor({ timeout: 20000 });
+  let mangaRefineCalls=0;
+  await page.route('**/manga-smart/manga-ocr', route=>{
+    mangaRefineCalls++;
+    const payload=route.request().postDataJSON();
+    assert(/^data:image\/png;base64,/.test(payload.image));
+    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+      ok:true,engine:'manga-ocr-local',width:240,height:105,
+      text:'ありがとう',verified:false
+    })});
+  });
+  const aiCallsBeforeRefine=mock.calls.length;
+  await page.locator('.manga-smart-item button').filter({hasText:'Manga OCR 精修'}).click();
+  await page.waitForFunction(()=>document.querySelector('.manga-smart-item textarea')?.value==='ありがとう',
+    null,{timeout:18000});
+  record('optional Manga OCR refines an editable OCR draft without changing canvas or billing GPT',
+    mangaRefineCalls===1 && mock.calls.length===aiCallsBeforeRefine,
+    {mangaRefineCalls,aiCalls:mock.calls.length});
   await page.locator('.manga-smart-item textarea').fill('新的台词');
   await page.locator('#mangaSmartApply').click();
   await page.waitForFunction(() => canvas.getObjects().some(o => o.mangaSmartText === 'editable-subtitle'),
