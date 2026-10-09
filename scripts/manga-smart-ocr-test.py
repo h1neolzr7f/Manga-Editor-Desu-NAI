@@ -31,6 +31,23 @@ class SmartOcrTests(unittest.TestCase):
         self.assertEqual(items[1]["text"], "猫！")
         self.assertEqual(items[1]["y"], 55)
 
+    def test_art_and_screentone_fragments_are_dropped(self):
+        noise = ["\u00abNS", "\u00a2", "0", "|", "\\N", "Wi", ")", "4", "0)", "--", "~~"]
+        for text in noise:
+            self.assertTrue(ocr.is_ocr_noise(text, 70), text)
+        keep = [("\u3042\u308a\u304c\u3068\u3046", 30), ("\u306e", 25), ("\u30c9\u30f3", 40),
+                ("\u4f60\u597d", 50), ("NO", 75), ("ok", 75), ("Hello!", 40), ("BANG", 30),
+                ("!?", 90), ("2026", 50)]
+        for text, conf in keep:
+            self.assertFalse(ocr.is_ocr_noise(text, conf), text)
+        self.assertTrue(ocr.is_ocr_noise("!?", 50))
+        self.assertTrue(ocr.is_ocr_noise("Wi", 95))
+        rows = ["level\tpage_num\tblock_num\tpar_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext",
+                "5\t1\t1\t1\t1\t1\t10\t10\t40\t20\t60\t\u00abNS",
+                "5\t1\t2\t1\t1\t1\t10\t60\t80\t30\t55\t\u3042\u308a\u304c\u3068\u3046"]
+        regions = ocr.parse_tsv("\n".join(rows), 200, 200, "jpn")
+        self.assertEqual([r["text"] for r in regions], ["\u3042\u308a\u304c\u3068\u3046"])
+
     def test_rejects_invalid_png_oversize_and_language_injection(self):
         with self.assertRaises(ocr.SmartOcrError):
             ocr.read_image("data:text/plain;base64,AAAA")

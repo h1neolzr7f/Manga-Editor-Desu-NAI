@@ -332,7 +332,7 @@
 | manga_model_guard.py | 86 |  |
 | manga_ocr_preclean.py | 139 |  |
 | manga_ocr_refiner.py | 88 |  |
-| manga_smart_ocr.py | 226 |  |
+| manga_smart_ocr.py | 256 |  |
 | scripts/MangaMakerUI.py | 64 |  |
 | scripts/asset-library-smoke-test.cjs | 113 |  |
 | scripts/check-translations.cjs | 227 | Translation key validation script - compares keys across all languages in i18next resources |
@@ -374,7 +374,7 @@
 | scripts/manga-real-model-acceptance.py | 133 | !/usr/bin/env python3 |
 | scripts/manga-real-ui-acceptance.cjs | 160 | REAL (unmocked) Chromium acceptance for the local OCR -> Manga OCR -> LaMa flow. |
 | scripts/manga-smart-ocr-runtime-test.py | 21 |  |
-| scripts/manga-smart-ocr-test.py | 91 |  |
+| scripts/manga-smart-ocr-test.py | 108 |  |
 | scripts/manga-smart-text-test.cjs | 45 |  |
 | scripts/manga-text-ink-mask-test.cjs | 61 |  |
 | scripts/nai-error-readable-test.py | 164 |  |

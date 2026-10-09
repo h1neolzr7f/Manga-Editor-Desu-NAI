@@ -62,6 +62,33 @@ def _joined_words(words):
     return out
 
 
+CJK_OR_KANA = re.compile(r"[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af\uff66-\uff9f]")
+
+
+def is_ocr_noise(text, confidence):
+    """True for fragments Tesseract reads out of art, screentone or panel lines.
+
+    Anything with kana/CJK/Hangul is kept (the user decides). Dropped: pure symbols
+    (except a confident "!?"), single Latin letters/digits, and short Latin bits that
+    are mostly symbols or mixed case ("<<NS", "0)", "Wi"). Real words survive.
+    """
+    compact = re.sub(r"\s+", "", text or "")
+    if not compact:
+        return True
+    if CJK_OR_KANA.search(compact):
+        return False
+    core = re.sub(r"[^0-9A-Za-z]", "", compact)
+    if not core:
+        return not (re.fullmatch(r"[!?\uff01\uff1f\u2026.]+", compact) and confidence >= 80)
+    if (len(compact) - len(core)) / len(compact) > 0.25:
+        return True
+    if len(core) == 1:
+        return True
+    if len(core) == 2:
+        return not (core.isalpha() and (core.isupper() or core.islower()) and confidence >= 60)
+    return False
+
+
 def parse_tsv(tsv, width, height, language):
     """Read word-level OCR lines from TSV; discard low confidence and empty OCR noise."""
     groups = {}
@@ -90,10 +117,13 @@ def parse_tsv(tsv, width, height, language):
         text = _joined_words([word[4] for word in words])
         if not text or right <= left or bottom <= top:
             continue
+        confidence = round(sum(w[5] for w in words) / len(words), 1)
+        if is_ocr_noise(text, confidence):
+            continue
         regions.append({
             "text": text[:500], "x": left, "y": top,
             "width": right - left, "height": bottom - top,
-            "confidence": round(sum(w[5] for w in words) / len(words), 1),
+            "confidence": confidence,
             "vertical": language.startswith("jpn_vert"),
         })
     regions.sort(key=lambda r: (r["y"], r["x"]))
