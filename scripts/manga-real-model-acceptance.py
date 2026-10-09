@@ -117,6 +117,11 @@ if ok:
     record("REAL LaMa pixels outside the mask are bit-identical", outside_diff == 0 and out.size == src.size,
            {"outside_mask_changed_pixels": outside_diff})
     record("REAL LaMa removed the text inside the mask", dark < 200, {"dark_pixels_left_in_mask": dark})
+    # inside the pure-white bubble the repaired area must match the paper (no faint box)
+    box = [op[x, y] for y in range(200, 240, 4) for x in range(170, 345, 5)]
+    off = max(255 - min(c) for c in box)
+    record("REAL LaMa: repaired white bubble area matches the paper (no faint rectangle)", off <= 1,
+           {"max_offset_from_white": off})
     s, j2, dt = post("/manga-smart/lama-inpaint", {"image": data_url(src), "mask": data_url(mask)})
     record("REAL LaMa warm inference", s == 200, {"status": s, "secs": round(dt, 2)})
 else:

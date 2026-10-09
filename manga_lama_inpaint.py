@@ -79,8 +79,43 @@ def compose_masked(source, generated, mask):
     if (gw,gh)!=(sw,sh) and sw<=gw<sw+8 and sh<=gh<sh+8:
         generated=generated.crop((0,0,sw,sh))
     if generated.size!=source.size:raise SmartOcrError("LaMa 修复图尺寸不一致，已拒绝。",502)
+    generated=match_tone(source,generated.convert("RGB"),mask)
     # Even if the model alters every pixel, restore everything outside mask.
-    return im.composite(generated.convert("RGB"),source,mask)
+    return im.composite(generated,source,mask)
+
+
+MAX_TONE_SHIFT=24
+SNAP_TOLERANCE=6
+
+
+def match_tone(source,generated,mask):
+    """Remove the model's global tone drift (real LaMa: 253/254 on pure white bubbles,
+    a faint visible box). Measured on a ring just OUTSIDE the mask, where the model
+    should reproduce the source; ignored when the shift exceeds MAX_TONE_SHIFT."""
+    filt=importlib.import_module("PIL.ImageFilter")
+    chops=importlib.import_module("PIL.ImageChops")
+    stat=importlib.import_module("PIL.ImageStat")
+    hard=mask.point(lambda v:255 if v>=128 else 0)
+    ring=chops.subtract(hard.filter(filt.MaxFilter(9)),hard)
+    if not ring.getbbox():return generated
+    ring_stat=stat.Stat(source,ring)
+    src=ring_stat.mean
+    gen=stat.Stat(generated,ring).mean
+    shift=[round(a-b) for a,b in zip(src,gen)]
+    if max(abs(v) for v in shift)>MAX_TONE_SHIFT:return generated
+    # Flat paper (uniform ring, e.g. a white bubble): snap near-paper pixels to the exact
+    # paper colour so no faint box remains; lines/content further away are untouched.
+    flat=max(ring_stat.stddev)<=1.5
+    paper=[round(v) for v in src]
+    def lut(d,c):
+        table=[]
+        for v in range(256):
+            v=max(0,min(255,v+d))
+            table.append(c if flat and abs(v-c)<=SNAP_TOLERANCE else v)
+        return table
+    if not any(shift) and not flat:return generated
+    bands=[band.point(lut(d,c)) for band,d,c in zip(generated.split(),shift,paper)]
+    return importlib.import_module("PIL.Image").merge("RGB",bands)
 
 
 def inpaint(image_url,mask_url,allow_download=False):
