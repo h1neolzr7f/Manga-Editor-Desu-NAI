@@ -484,6 +484,27 @@
     return true;
   }
 
+  // For instructions targeting an individual character, NEVER preselect a
+  // whole panel (which could silently repaint other characters / dialogue).
+  // The user must draw a fresh selection before Generate can proceed.
+  function prepareManualEdit(instruction) {
+    const c=pageCanvas();
+    const panel=$g('mangaGptPanel');
+    if(!c || !panel || state.pending) return false;
+    panel.hidden=false;
+    $g('mangaGptMode').value='edit';
+    if(typeof instruction==='string' && instruction.trim())
+      $g('mangaGptPrompt').value=instruction.trim().slice(0,1800);
+    state.region=null;
+    state.result='';
+    $g('mangaGptApply').disabled=true;
+    if($g('mangaGptExpand')) $g('mangaGptExpand').hidden=true;
+    $g('mangaGptPreview').removeAttribute('src');
+    feedback('人物区域尚未确认。请在画布中手动框选目标角色，确认后再生成。');
+    startSelection();
+    return true;
+  }
+
   function expandSelection() {
     const c = pageCanvas();
     const region = state.region;
@@ -942,7 +963,7 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render);
   else render();
 
-  window.MangaGPTRegionEditor = { normalizeRegion, startSelection, cancelSelection, selectRegionForTextRemoval, selectRegionForPanel,
+  window.MangaGPTRegionEditor = { normalizeRegion, startSelection, cancelSelection, selectRegionForTextRemoval, selectRegionForPanel, prepareManualEdit,
     letterboxPlan, resultCropRect, letteringInsertIndex, isLettering, contextRect, featherPlan, featherAlpha, estimateDrift, aspectMismatch,
     findCutBoxes, expandRegion, effectiveSize, bakePatch, tr };
 })();
