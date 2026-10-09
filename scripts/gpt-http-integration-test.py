@@ -3,6 +3,8 @@
 Run from repository root: python scripts/gpt-http-integration-test.py
 """
 import http.client
+import base64
+from types import SimpleNamespace
 import importlib.util
 import json
 import os
@@ -16,6 +18,7 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 import gpt_image_proxy as relay
+import manga_smart_ocr as smart_ocr
 
 spec = importlib.util.spec_from_file_location("manga_http", ROOT / "99_server.py")
 server_mod = importlib.util.module_from_spec(spec)
@@ -126,6 +129,30 @@ class LiveHTTPTest(unittest.TestCase):
                                     {**self.body, "baseUrl": "https://relay.example.com/v1"}, headers)
         self.assertEqual(status, 200)
         self.assertEqual(seen, ["per-session-token"])
+
+    def test_real_smart_ocr_http_route_blocks_external_pages(self):
+        png = (b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\x0dIHDR" +
+               (512).to_bytes(4, "big") + (384).to_bytes(4, "big") + b"\x08\x06\x00\x00\x00")
+        data = {"image": "data:image/png;base64," + base64.b64encode(png).decode("ascii"),
+                "language": "jpn+eng"}
+        with mock.patch.object(smart_ocr.shutil, "which", return_value="/mock/tesseract"):
+            with mock.patch.object(smart_ocr.subprocess, "run",
+                                   return_value=SimpleNamespace(returncode=0, stdout=(
+                                       "level\tpage_num\tblock_num\tpar_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext\n"
+                                       "5\t1\t1\t1\t1\t1\t20\t30\t45\t26\t92\t猫\n"), stderr="")) as run:
+                ok, _, body = request("POST", "/manga-smart/ocr", data, self.origin)
+                self.assertEqual(ok, 200)
+                value = json.loads(body)
+                self.assertTrue(value["ok"])
+                self.assertEqual(value["regions"][0]["text"], "猫")
+                self.assertEqual(value["width"], 512)
+                self.assertEqual(run.call_count, 1)
+                for hostile in ({**self.origin, "Origin": "null"},
+                                {**self.origin, "Origin": "https://evil.example"},
+                                {**self.origin, "Sec-Fetch-Site": "cross-site"}):
+                    status, _, _ = request("POST", "/manga-smart/ocr", data, hostile)
+                    self.assertEqual(status, 403)
+                self.assertEqual(run.call_count, 1, "hostile caller must never reach OCR")
 
     def test_preflight_rejects_external_origin_for_gpt_route(self):
         headers = {**self.origin, "Origin": "https://evil.example",
