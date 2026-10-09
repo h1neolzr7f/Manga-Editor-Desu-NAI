@@ -155,7 +155,7 @@
       }
     }
     const apiKey = $g('mangaGptKey').value.trim().replace(/^Bearer\s+/i, '');
-    if (!apiKey) return feedback('请填写图像 API 密钥。', true);
+    // An empty input lets the localhost relay use optional GPT_IMAGE_API_KEY from .env.
     const prompt = $g('mangaGptPrompt').value.trim();
     if (!prompt) return feedback('请先描述想要的画面修改。', true);
     state.pending = true;
@@ -176,7 +176,8 @@
       if (operation === 'edit') payload.image = state.region.image;
       const response = await fetch(imageProxyBase() + '/gpt-image-proxy', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + apiKey },
+        headers: Object.assign({ 'Content-Type': 'application/json' },
+          apiKey ? { Authorization: 'Bearer ' + apiKey } : {}),
         body: JSON.stringify(payload)
       });
       const json = await response.json();
@@ -294,7 +295,7 @@
       '<label>兼容 API 地址<input id="mangaGptUrl" type="url" placeholder="https://api.openai.com/v1" value="https://api.openai.com/v1" autocomplete="off"></label>',
       '<div class="manga-gpt-row"><label>图像模型<input id="mangaGptModel" type="text" value="gpt-image-1" placeholder="模型 ID"></label>',
       '<label>尺寸<select id="mangaGptSize"><option value="auto">自动</option><option value="1024x1024">1024×1024</option><option value="1536x1024">1536×1024</option><option value="1024x1536">1024×1536</option></select></label></div>',
-      '<label>API Key（仅本次页面会话）<input id="mangaGptKey" type="password" placeholder="sk-…" autocomplete="off" spellcheck="false"></label>',
+      '<label>API Key（可留空读取本地 .env）<input id="mangaGptKey" type="password" placeholder="sk-…" autocomplete="off" spellcheck="false"></label>',
       '<label>修改描述<textarea id="mangaGptPrompt" rows="3" placeholder="将框选人物替换为参考图角色，保持动作、画风、构图与未选中部分。"></textarea></label>',
       '<label>人物 / 风格参考图（最多 3 张）<input id="mangaGptReferences" type="file" multiple accept="image/png,image/jpeg,image/webp"></label>',
       '<div id="mangaGptReferenceList" class="manga-gpt-hint">尚未选择参考图</div>',
