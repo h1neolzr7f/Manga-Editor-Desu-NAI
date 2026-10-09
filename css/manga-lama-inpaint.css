@@ -8,6 +8,12 @@
 .manga-lama-panel header,.manga-lama-actions{display:flex;gap:8px;align-items:center;justify-content:space-between}
 .manga-lama-panel p{font-size:12px;color:#cad3df;margin:4px 0}
 .manga-lama-panel img{width:100%;max-height:58vh;object-fit:contain;background:#e7eaf0}
+.manga-lama-mask{display:block;width:100%;height:auto;box-sizing:border-box;
+  border:1px solid #c26a7b;border-radius:5px;cursor:crosshair;background:#e7eaf0;
+  touch-action:none}
+.manga-lama-actions label{display:flex;align-items:center;gap:4px;font-size:12px}
+.manga-lama-actions input[type=range]{width:85px}
+#mangaLamaPreviewImg[hidden]{display:none!important}
 .manga-lama-panel button{border-radius:6px;border:1px solid #6b798a;
   background:#35495e;color:white;padding:7px;cursor:pointer}
 .manga-lama-panel button:disabled{opacity:.5;cursor:default}
