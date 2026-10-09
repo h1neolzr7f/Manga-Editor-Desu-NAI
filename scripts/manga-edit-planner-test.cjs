@@ -33,6 +33,9 @@ const textOnly=planner.plan(
 assert.equal(textOnly.scope,'text',
   'protected character mention must not redirect OCR to paid image edits');
 
+const protectedScene=planner.plan('把第一格的天空改成夜景，保留人物和对白',graph);
+assert.equal(protectedScene.route,'gpt-panel-review',
+  'preserving characters in plain language must NOT force a character-selection edit');
 const woman=planner.plan('第二格把蓝发少女换成参考图人物，保留动作和对白',graph);
 assert.equal(woman.ok,true);
 assert.equal(woman.panelId,'panel-2');
