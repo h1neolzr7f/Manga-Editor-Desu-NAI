@@ -7,15 +7,10 @@
 
 | ファイル | 行数 | 用途 |
 |---------|------|------|
-| 100_git_push_draft.bat | 4 |  |
 | 99_generate_nai_assets.bat | 6 |  |
-| 99_generate_nai_comic_demo.bat | 8 |  |
-| 99_generate_theresa_doctor_mature_comic.bat | 9 |  |
-| 99_git_fetch.bat | 2 |  |
 | 99_server.bat | 4 |  |
 | 99_server.py | 1161 |  |
 | 99_test_nai_pipeline.bat | 16 |  |
-| claude --dangerously-skip-permissions.bat | 1 |  |
 | css/comfyui-workflow-editor.css | 413 |  |
 | css/common.css | 222 |  |
 | css/components.css | 350 |  |
@@ -384,7 +379,7 @@
 | scripts/nai-real-acceptance.cjs | 178 | OPT-IN real NovelAI acceptance (never part of npm test / CI). Stays inside Opus free |
 | scripts/nai-status-format-test.cjs | 18 | Regression: "检查 NAI" must not show the misleading "无限生图：否" for Opus users. |
 | scripts/no-third-party-director-test.py | 231 |  |
-| scripts/novelai-batch-tools.mjs | 680 |  |
+| scripts/novelai-batch-tools.mjs | 607 |  |
 | scripts/novelai-readable-error-test.cjs | 39 | Regression: NovelAI errors shown to the user are readable (JSON from the local proxy, |
 | scripts/offline-icon-fonts-test.cjs | 23 | Regression: icon fonts came only from fonts.gstatic.com, so offline (or where Google |
 | scripts/page-studio-smoke-test.cjs | 106 |  |

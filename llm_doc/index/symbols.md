@@ -47,7 +47,7 @@
 | `CATALOG` | var | js/assets/site-ui-pack.js:7 |
 | `CJK_CHAR_RE` | var | js/core/font/font-manager-core.js:2 |
 | `CJK_SYSTEM_FONTS` | var | js/core/font/font-manager-core.js:6 |
-| `COMIC_STORY_PRESETS` | var | scripts/novelai-batch-tools.mjs:506 |
+| `COMIC_STORY_PRESETS` | var | scripts/novelai-batch-tools.mjs:508 |
 | `CRC_TABLE` | var | js/core/util/png-bit-depth.js:33 |
 | `CRC_TABLE` | var | scripts/png-bit-depth-smoke-test.cjs:11 |
 | `CREATIVE_TAG_POLICY` | var | js/ai/prompt/novelai-composition-director.js:82 |
@@ -4090,7 +4090,7 @@
 | `getComfyUIProviderTag` | function | js/ai/comfyui/comfyui-management.js:31 |
 | `getComfyUIServerAddress` | function | js/ai/comfyui/comfyui-management.js:12 |
 | `getComfyUISocketKey` | function | js/ai/comfyui/comfyui-management.js:106 |
-| `getComicPreset` | function | scripts/novelai-batch-tools.mjs:583 |
+| `getComicPreset` | function | scripts/novelai-batch-tools.mjs:510 |
 | `getCrayonBrush` | function | js/sidebar/pen/pen-tools.js:461 |
 | `getCropAndDownloadLink` | var | js/core/util/image-util.js:837 |
 | `getCropAndDownloadLinkByMultiplier` | var | js/core/util/image-util.js:836 |
