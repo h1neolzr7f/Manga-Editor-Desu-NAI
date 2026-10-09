@@ -55,7 +55,6 @@
     "01_build/**",
     "02_images_svg/**",
     "03_images/**",
-    "99_doc/**",
     "font/**",
     "node_modules/**"
   ]
