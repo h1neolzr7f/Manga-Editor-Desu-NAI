@@ -86,7 +86,9 @@ const fakeDocument = {
     const node = new MockNode(tag);
     if (tag === 'canvas') {
       node.drawn = [];
-      node.getContext = () => ({ fillRect() {}, drawImage: (...args) => node.drawn.push(args), set fillStyle(v) {} });
+      node.getContext = () => ({ fillRect() {}, drawImage: (...args) => node.drawn.push(args), set fillStyle(v) {},
+        getImageData: (x, y, w, h) => (node.pixels = { data: new Uint8ClampedArray(w * h * 4).fill(255) }),
+        putImageData: data => { node.put = data; } });
       node.toDataURL = () => 'data:image/png;base64,UEFEREVE';
       createdCanvases.push(node);
     }
@@ -108,13 +110,20 @@ const windowMock = {
   removeEventListener(name, cb) { if (windowListeners[name]) windowListeners[name].delete(cb); }
 };
 let proxyBody;
+const baked = { w: 0, h: 0 };
 const sandbox2 = {
   document: fakeDocument, window: windowMock, canvas: page, Image: MockImage, setTimeout, clearTimeout,
   location: { protocol: 'http:', origin: 'http://127.0.0.1:8000' },
   fabric: {
     Image: {
-      fromURL: (_url, callback) => callback({
-        width: 2200, height: 2200,
+      fromURL: (url, callback) => callback(url === 'data:image/png;base64,UEFEREVE' ? {
+        width: baked.w, height: baked.h, getElement: () => ({}),
+        set(attributes, value) {
+          if (typeof attributes === 'string') this[attributes] = value;
+          else Object.assign(this, attributes);
+        }
+      } : {
+        width: 2200, height: 2200, getElement: () => ({}),
         set(attributes, value) {
           if (typeof attributes === 'string') this[attributes] = value;
           else Object.assign(this, attributes);
@@ -169,18 +178,29 @@ elements.mangaGptStatus.textContent = savedRegionStatus;
   const padded = createdCanvases.at(-1);
   assert.equal(padded.width, 1024);
   assert.equal(padded.height, 1024);
-  const [, dx, dy, dw, dh] = padded.drawn[0];
+  // Padding is filled with the real page around the selection (context), then the
+  // selection itself is drawn on top at the exact inner rectangle.
+  assert.equal(padded.drawn.length, 2, 'context + selection');
+  const [, cx, cy, cw, ch] = padded.drawn[0];
+  assert(cx > -1 && cy > -1 && cw > 0 && ch > 0, 'context drawn inside the upload');
+  const [, dx, dy, dw, dh] = padded.drawn[1];
   assert(Math.abs(dw / dh - 1600 / 1800) < 1e-9, 'selection keeps its aspect inside the letterbox');
   assert(dx > 0 && Math.abs(dy) < 1e-9 && Math.abs(dh - 1024) < 1e-9);
   assert.equal(elements.mangaGptApply.disabled, false);
+  const createdBefore = createdCanvases.length;
+  baked.w = 1956; baked.h = 2200; // native-resolution crop of the 2200x2200 result (1600:1800)
   await elements.mangaGptApply.handlers.click();
+  const bake = createdCanvases[createdBefore];
+  assert(bake && bake.drawn.length === 1, 'patch is baked at the crop native resolution');
+  const [, sx, sy, sw, sh] = bake.drawn[0];
+  assert(sx > 0 && sy === 0 && Math.abs(sw / sh - 1600 / 1800) < 1e-9, 'crop keeps the selection aspect');
+  assert(bake.put, 'feathered alpha written (selection borders other artwork on all sides)');
   assert(page.added, 'a new Fabric image must be added');
   assert.equal(page.added.left, 300);
   assert.equal(page.added.top, 400);
-  assert(Math.abs(page.added.scaleX - 1800 / 2200) < 1e-9);
-  assert.equal(page.added.scaleX, page.added.scaleY);
-  assert.equal(page.added.cropX > 0, true, 'letterbox bars are removed horizontally');
-  assert.equal(page.added.cropY, 0);
+  assert(Math.abs(page.added.scaleX / page.added.scaleY - 1) < 0.002, 'no stretching');
+  assert(page.added.mangaGptCrop.x > 0 && page.added.mangaGptCrop.y === 0, 'letterbox bars are removed horizontally');
+  assert.equal(page.added.cropX, 0);
   assert.equal(Math.round(page.added.width * page.added.scaleX), 1600);
   assert.equal(page.added.name, 'GPT 局部改图');
   assert.equal(page.added.mangaGptSource, 'openai-compatible-image');
@@ -236,6 +256,17 @@ elements.mangaGptStatus.textContent = savedRegionStatus;
       }
     }
   }
+  // Feather only on sides bordering other artwork; page borders stay hard.
+  const fp = api.featherPlan({ left: 0, top: 10, width: 500, height: 1000 }, 500, 1010);
+  assert.deepEqual([fp.left, fp.top, fp.right, fp.bottom], [false, true, false, false]);
+  assert.equal(fp.width, 15);
+  const all = { left: true, right: true, top: true, bottom: true };
+  assert(api.featherAlpha(0, 50, 100, 100, 10, all) < 0.1 && api.featherAlpha(50, 50, 100, 100, 10, all) === 1);
+  assert.equal(api.featherAlpha(0, 50, 100, 100, 10, { left: false, right: true, top: true, bottom: true }), 1);
+  // Context around a corner selection is clipped to the page; the inner mapping is unchanged.
+  const cplan = api.letterboxPlan(400, 100, '1024x1024');
+  const cr = api.contextRect({ left: 0, top: 0, width: 400, height: 100 }, cplan, 1000, 1000);
+  assert(cr.full.top < 0 && cr.clip.top === 0 && cr.clip.left === 0 && cr.clip.height <= Math.ceil(cr.full.height + cr.full.top));
   const explicit = api.letterboxPlan(900, 300, '1024x1536');
   assert.equal(explicit.size, '1024x1536', 'explicit size choice is respected');
 

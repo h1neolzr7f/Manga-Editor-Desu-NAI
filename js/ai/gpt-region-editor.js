@@ -134,6 +134,99 @@
     });
   }
 
+  // Page rectangle covered by the whole letterboxed upload (selection + padding), and the
+  // part of it that exists on the page. Padding is filled with the real surroundings so the
+  // model sees context and the selection edge is not bordered by artificial white.
+  function contextRect(region, plan, pageWidth, pageHeight) {
+    const fullW = region.width / plan.inner.w;
+    const fullH = region.height / plan.inner.h;
+    const full = { left: region.left - plan.inner.x * fullW, top: region.top - plan.inner.y * fullH, width: fullW, height: fullH };
+    const left = Math.max(0, Math.floor(full.left));
+    const top = Math.max(0, Math.floor(full.top));
+    const right = Math.min(pageWidth, Math.ceil(full.left + fullW));
+    const bottom = Math.min(pageHeight, Math.ceil(full.top + fullH));
+    return { full, clip: right > left && bottom > top ? { left, top, width: right - left, height: bottom - top } : null };
+  }
+
+  function contextPaddedImage(c, region, plan) {
+    const rect = contextRect(region, plan, c.getWidth(), c.getHeight());
+    let contextUrl = null;
+    try {
+      if (rect.clip) contextUrl = cropCanvas(c, rect.clip, region.excludeLettering);
+    } catch (error) {
+      contextUrl = null;
+    }
+    const load = src => new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error('无法准备选区图片。'));
+      img.src = src;
+    });
+    return Promise.all([contextUrl ? load(contextUrl) : null, load(region.image)]).then(([context, selection]) => {
+      const out = document.createElement('canvas');
+      out.width = plan.width;
+      out.height = plan.height;
+      const ctx = out.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, out.width, out.height);
+      const k = plan.width / rect.full.width;
+      if (context) {
+        ctx.drawImage(context, (rect.clip.left - rect.full.left) * k, (rect.clip.top - rect.full.top) * k,
+          rect.clip.width * k, rect.clip.height * k);
+      }
+      ctx.drawImage(selection, plan.inner.x * out.width, plan.inner.y * out.height,
+        plan.inner.w * out.width, plan.inner.h * out.height);
+      return out.toDataURL('image/png');
+    });
+  }
+
+  // Soft edge (inside the selection only) on sides that border other artwork, hiding small
+  // colour/position drift of the model. Sides on the page border stay hard.
+  function featherPlan(region, pageWidth, pageHeight) {
+    const width = Math.max(4, Math.min(32, Math.round(Math.min(region.width, region.height) * 0.03)));
+    return {
+      width,
+      left: region.left > 0,
+      top: region.top > 0,
+      right: region.left + region.width < pageWidth,
+      bottom: region.top + region.height < pageHeight
+    };
+  }
+
+  function featherAlpha(x, y, w, h, fw, sides) {
+    let a = 1;
+    if (sides.left) a = Math.min(a, (x + 0.5) / fw);
+    if (sides.right) a = Math.min(a, (w - x - 0.5) / fw);
+    if (sides.top) a = Math.min(a, (y + 0.5) / fw);
+    if (sides.bottom) a = Math.min(a, (h - y - 0.5) / fw);
+    return Math.max(0, Math.min(1, a));
+  }
+
+  // Bake crop (+ optional feather) into a bitmap at the crop's native resolution.
+  function bakePatch(imageElement, crop, scale, feather) {
+    const w = Math.max(1, Math.round(crop.w));
+    const h = Math.max(1, Math.round(crop.h));
+    const out = document.createElement('canvas');
+    out.width = w;
+    out.height = h;
+    const ctx = out.getContext('2d');
+    ctx.drawImage(imageElement, crop.x, crop.y, crop.w, crop.h, 0, 0, w, h);
+    if (feather && feather.width > 0 && (feather.left || feather.right || feather.top || feather.bottom)) {
+      const fw = feather.width / scale; // page pixels -> source pixels
+      const data = ctx.getImageData(0, 0, w, h);
+      for (let y = 0; y < h; y++) {
+        const nearY = y < fw || h - y <= fw;
+        for (let x = 0; x < w; x++) {
+          if (!nearY && x >= fw && w - x > fw) continue;
+          const i = (y * w + x) * 4 + 3;
+          data.data[i] = Math.round(data.data[i] * featherAlpha(x, y, w, h, fw, feather));
+        }
+      }
+      ctx.putImageData(data, 0, 0);
+    }
+    return out.toDataURL('image/png');
+  }
+
   // Source rectangle inside the model result that corresponds to the selection.
   function resultCropRect(imageWidth, imageHeight, region) {
     const inner = region.plan ? region.plan.inner : { x: 0, y: 0, w: 1, h: 1 };
@@ -304,7 +397,9 @@
         const plan = letterboxPlan(state.region.width, state.region.height, payload.size);
         state.region.plan = plan;
         payload.size = plan.size;
-        payload.image = await letterboxImage(state.region.image, plan);
+        const useContext = !$g('mangaGptContext') || $g('mangaGptContext').checked;
+        payload.image = useContext ? await contextPaddedImage(c, state.region, plan) :
+          await letterboxImage(state.region.image, plan);
       }
       const response = await fetch(imageProxyBase() + '/gpt-image-proxy', {
         method: 'POST',
@@ -355,7 +450,7 @@
     }
     $g('mangaGptApply').disabled = true;
     try {
-      const image = await new Promise((resolve, reject) => {
+      let image = await new Promise((resolve, reject) => {
         fabric.Image.fromURL(state.result, img => {
           if (!img || !img.width || !img.height) reject(new Error('生成图片解码失败。'));
           else resolve(img);
@@ -365,7 +460,7 @@
       const targetHeight = isEdit ? region.height : image.height;
       // Edit: take the selection's own rectangle back out of the letterboxed result and
       // scale X/Y uniformly (no stretching, no lost heads). Generate: fit inside the page.
-      const crop = isEdit ? resultCropRect(image.width, image.height, region) :
+      let crop = isEdit ? resultCropRect(image.width, image.height, region) :
         { x: 0, y: 0, w: image.width, h: image.height };
       if (isEdit && (crop.w + 0.5 < region.width || crop.h + 0.5 < region.height) &&
           !$g('mangaGptAllowUpscale').checked) {
@@ -373,8 +468,21 @@
           Math.floor(crop.h) + ') 小于选区 (' + region.width + ' × ' + region.height +
           ')。已阻止低清晰度放大，可重新生成、缩小选区或勾选允许放大。');
       }
-      const scale = isEdit ? targetWidth / crop.w :
+      let scale = isEdit ? targetWidth / crop.w :
         Math.min(1, c.getWidth() / targetWidth, c.getHeight() / targetHeight);
+      if (isEdit) {
+        const featherOn = !$g('mangaGptFeather') || $g('mangaGptFeather').checked;
+        const feather = featherOn ? featherPlan(region, c.getWidth(), c.getHeight()) : null;
+        const baked = bakePatch(image.getElement(), crop, scale, feather);
+        const sourceCrop = { x: +crop.x.toFixed(2), y: +crop.y.toFixed(2), w: +crop.w.toFixed(2), h: +crop.h.toFixed(2),
+          resultWidth: image.width, resultHeight: image.height, feather: feather ? feather.width : 0 };
+        image = await new Promise((resolve, reject) => {
+          fabric.Image.fromURL(baked, img => (img && img.width ? resolve(img) : reject(new Error('生成图片解码失败。'))));
+        });
+        scale = region.width / image.width;
+        crop = { x: 0, y: 0, w: image.width, h: image.height };
+        image.set('mangaGptCrop', sourceCrop);
+      }
       image.set({
         left: isEdit ? region.left : (c.getWidth() - targetWidth * scale) / 2,
         top: isEdit ? region.top : (c.getHeight() - targetHeight * scale) / 2,
@@ -382,8 +490,8 @@
         cropY: crop.y,
         width: crop.w,
         height: crop.h,
-        scaleX: scale,
-        scaleY: scale,
+        scaleX: isEdit ? region.width / crop.w : scale,
+        scaleY: isEdit ? region.height / crop.h : scale,
         objectCaching: false
       });
       image.set('mangaGptSource', 'openai-compatible-image');
@@ -486,6 +594,8 @@
       '<label>人物 / 风格参考图（最多 3 张）<input id="mangaGptReferences" type="file" multiple accept="image/png,image/jpeg,image/webp"></label>',
       '<div id="mangaGptReferenceList" class="manga-gpt-hint">尚未选择参考图</div>',
       '<label class="manga-gpt-hint"><input id="mangaGptAllowUpscale" type="checkbox"> 允许将低于选区分辨率的生成图放大覆盖（会影响选区清晰度）</label>',
+      '<label class="manga-gpt-hint"><input id="mangaGptContext" type="checkbox" checked> 附带选区周围画面作为上下文（接缝更自然；会多上传选区外的少量画面）</label>',
+      '<label class="manga-gpt-hint"><input id="mangaGptFeather" type="checkbox" checked> 选区边缘柔化（只在选区内侧过渡，选区外像素不变）</label>',
       '<label class="manga-gpt-hint"><input id="mangaGptIncludeText" type="checkbox"> 框选时包含文字/气泡（默认不包含：文字保持可编辑并留在新图层上方）</label>',
       '<div class="manga-gpt-row"><button type="button" id="mangaGptGenerate">生成预览</button><button type="button" id="mangaGptCancel" disabled>取消请求</button><button type="button" id="mangaGptApply" disabled>作为新图层应用</button></div>',
       '<img id="mangaGptPreview" class="manga-gpt-preview" alt="当前框选或 GPT 生成预览">',
@@ -532,5 +642,5 @@
   else render();
 
   window.MangaGPTRegionEditor = { normalizeRegion, startSelection, cancelSelection,
-    letterboxPlan, resultCropRect, letteringInsertIndex, isLettering };
+    letterboxPlan, resultCropRect, letteringInsertIndex, isLettering, contextRect, featherPlan, featherAlpha };
 })();

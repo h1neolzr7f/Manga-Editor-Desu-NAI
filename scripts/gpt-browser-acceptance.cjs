@@ -76,13 +76,13 @@ async function installMockModel(page, state) {
   await page.route('**/gpt-image-proxy', async route => {
     const payload = route.request().postDataJSON();
     state.calls.push({ operation: payload.operation, size: payload.size, refs: (payload.references || []).length,
-      auth: Boolean(route.request().headers().authorization) });
+      auth: Boolean(route.request().headers().authorization), image: payload.image });
     if (state.fail) {
       return route.fulfill({ status: state.fail.status, contentType: 'application/json',
         body: JSON.stringify({ ok: false, error: state.fail.error }) });
     }
     if (state.delayMs) await new Promise(r => setTimeout(r, state.delayMs));
-    const image = await page.evaluate(async ({ src, size, force }) => {
+    const image = await page.evaluate(async ({ src, size, force, tint }) => {
       let [w, h] = (size && size !== 'auto' ? size : '1024x1024').split('x').map(Number);
       if (force) [w, h] = force;
       const c = document.createElement('canvas');
@@ -93,8 +93,14 @@ async function installMockModel(page, state) {
         x.imageSmoothingQuality = 'high';
         x.drawImage(img, 0, 0, w, h);
       } else { x.fillStyle = '#33aa77'; x.fillRect(0, 0, w, h); }
+      if (tint) {
+        const d = x.getImageData(0, 0, w, h);
+        for (let i = 0; i < d.data.length; i += 4) { d.data[i] = Math.min(255, d.data[i] + tint);
+          d.data[i + 1] = Math.min(255, d.data[i + 1] + tint); d.data[i + 2] = Math.min(255, d.data[i + 2] + tint); }
+        x.putImageData(d, 0, 0);
+      }
       return c.toDataURL('image/png');
-    }, { src: payload.image, size: payload.size, force: state.force });
+    }, { src: payload.image, size: payload.size, force: state.force, tint: state.tint || 0 });
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, image }) });
   });
 }
@@ -196,6 +202,13 @@ async function generateAndApply(page, { allowUpscale = false } = {}) {
   return { applied: added, status: applyStatus };
 }
 
+// No stretching: the source rectangle taken from the model result has the selection's aspect
+// and the baked bitmap is mapped back with (sub-pixel rounding aside) equal X/Y scale.
+function uniform(info) {
+  return !!info && !!info.crop && Math.abs(info.scaleX / info.scaleY - 1) < 0.002 &&
+    Math.abs((info.crop.w / info.crop.h) / (info.w / info.h) - 1) < 0.002;
+}
+
 async function patchInfo(page) {
   return page.evaluate(() => {
     const objs = canvas.getObjects();
@@ -203,7 +216,7 @@ async function patchInfo(page) {
     const p = objs[i];
     return p ? { index: i, total: objs.length, left: p.left, top: p.top, scaleX: p.scaleX, scaleY: p.scaleY,
       w: p.getScaledWidth(), h: p.getScaledHeight(), cropX: p.cropX, cropY: p.cropY, name: p.name,
-      source: p.mangaGptSource } : null;
+      source: p.mangaGptSource, crop: p.mangaGptCrop } : null;
   });
 }
 
@@ -260,7 +273,7 @@ async function run() {
       { left: info.left, top: info.top, width: Math.round(info.w), height: Math.round(info.h) });
     await page.screenshot({ path: path.join(OUT, 'precision-' + c.name.split(' ')[0] + '.png') });
     record('identity edit ' + c.name + ': uniform scale, outside pixels untouched, inside matches',
-      r.applied && Math.abs(info.scaleX - info.scaleY) < 1e-9 && diff.outsideChanged === 0 &&
+      r.applied && uniform(info) && diff.outsideChanged === 0 &&
       diff.insideMeanAbsDiff < 6 && Math.abs(info.w - region.width) <= 2 && Math.abs(info.h - region.height) <= 2,
       { applied: r.applied, size: mock.calls.at(-1).size, info, diff });
   }
@@ -271,8 +284,63 @@ async function run() {
   let r = await generateAndApply(page);
   let info = await patchInfo(page);
   record('model returns wrong aspect: uniform scale, exact region size', r.applied &&
-    Math.abs(info.scaleX - info.scaleY) < 1e-9 && Math.abs(info.w - 500) <= 2 && Math.abs(info.h - 400) <= 2, info);
+    uniform(info) && Math.abs(info.w - 500) <= 2 && Math.abs(info.h - 400) <= 2, info);
   mock.force = null;
+
+  // 3b. Letterbox padding carries the real surroundings (context), unless the user opts out.
+  const padStats = async (src, plan) => page.evaluate(async ({ src }) => {
+    const i = new Image(); i.src = src; await i.decode();
+    const c = document.createElement('canvas'); c.width = i.width; c.height = i.height;
+    const x = c.getContext('2d'); x.drawImage(i, 0, 0);
+    // left padding strip of a wide->1:1 letterbox is the top band; sample the top 20 rows.
+    const d = x.getImageData(0, 0, i.width, 20).data; let nonWhite = 0;
+    for (let k = 0; k < d.length; k += 4) if (d[k] < 240 || d[k + 1] < 240 || d[k + 2] < 240) nonWhite++;
+    return { size: [i.width, i.height], nonWhiteRatio: +(nonWhite / (d.length / 4)).toFixed(3) };
+  }, { src });
+  await page.locator('#mangaGptSize').selectOption('1024x1024');
+  await dragSelect(page, [300, 900], [900, 1200]);
+  await page.locator('#mangaGptGenerate').click();
+  await page.waitForFunction(() => !document.querySelector('#mangaGptGenerate').disabled, null, { timeout: 30000 });
+  const ctxPad = await padStats(mock.calls.at(-1).image);
+  await page.locator('#mangaGptContext').setChecked(false);
+  await page.locator('#mangaGptGenerate').click();
+  await page.waitForFunction(() => !document.querySelector('#mangaGptGenerate').disabled, null, { timeout: 30000 });
+  const whitePad = await padStats(mock.calls.at(-1).image);
+  await page.locator('#mangaGptContext').setChecked(true);
+  await page.locator('#mangaGptSize').selectOption('auto');
+  record('letterbox padding uses page context (opt-out gives plain white)',
+    ctxPad.nonWhiteRatio > 0.3 && whitePad.nonWhiteRatio === 0, { ctxPad, whitePad });
+
+  // 3c. Feathered edge hides model colour drift at the seam; outside pixels still untouched.
+  const seamOf = async (before, after, rect) => page.evaluate(async ({ before, after, rect }) => {
+    const load = async src => { const i = new Image(); i.src = src; await i.decode();
+      const c = document.createElement('canvas'); c.width = i.width; c.height = i.height;
+      const x = c.getContext('2d'); x.drawImage(i, 0, 0); return x.getImageData(0, 0, c.width, c.height); };
+    const B = await load(after);
+    const p = (x, y) => { const i = (y * B.width + x) * 4; return (B.data[i] + B.data[i + 1] + B.data[i + 2]) / 3; };
+    let s = 0, n = 0;
+    for (let y = rect.top + 4; y < rect.top + rect.height - 4; y++) { s += Math.abs(p(rect.left, y) - p(rect.left - 1, y)); n++; }
+    return +(s / n).toFixed(2);
+  }, { before, after, rect });
+  mock.tint = 40;
+  const seams = {};
+  for (const on of [false, true]) {
+    await page.locator('#mangaGptFeather').setChecked(on);
+    await dragSelect(page, [300, 900], [900, 1200]);
+    const before = await snapshot(page);
+    const res = await generateAndApply(page);
+    const pi = await patchInfo(page);
+    const after = await snapshot(page);
+    const rect = { left: Math.round(pi.left), top: Math.round(pi.top), width: Math.round(pi.w), height: Math.round(pi.h) };
+    seams[on ? 'feather' : 'hard'] = { applied: res.applied, seam: await seamOf(before, after, rect),
+      outside: (await compare(page, before, after, rect)).outsideChanged, featherPx: pi.crop && pi.crop.feather };
+    await page.evaluate(() => undo());
+    await page.waitForTimeout(800);
+  }
+  mock.tint = 0;
+  record('feathered edge reduces seam from colour drift, outside untouched',
+    seams.hard.applied && seams.feather.applied && seams.feather.seam < seams.hard.seam / 4 &&
+    seams.hard.outside === 0 && seams.feather.outside === 0 && seams.feather.featherPx > 0, seams);
 
   // 4. Low-resolution guard: full-page selection needs upscale.
   await dragSelect(page, [0, 0], [1654, 2339]);
@@ -335,7 +403,7 @@ async function run() {
   const beforeSave = await snapshot(page);
   const saved = await page.evaluate(async () => {
     const meta = () => canvas.getObjects().filter(o => o.mangaGptSource).map(o =>
-      [o.name, o.mangaGptSource, Math.round(o.cropX), Math.round(o.width), Math.round(o.getScaledWidth()), Math.round(o.left)]);
+      [o.name, o.mangaGptSource, o.mangaGptCrop && Math.round(o.mangaGptCrop.x), Math.round(o.width), Math.round(o.getScaledWidth()), Math.round(o.left)]);
     const before = meta();
     const r = await generateBlobProjectFile();
     allRemove();
@@ -392,7 +460,7 @@ async function run() {
     const diff = await compare(page, before, await snapshot(page),
       { left: info.left, top: info.top, width: Math.round(info.w), height: Math.round(info.h) });
     record(`page ${w}x${h}: edit applies with uniform scale, outside untouched`, r.applied &&
-      Math.abs(info.scaleX - info.scaleY) < 1e-9 && diff.outsideChanged === 0, { info, diff });
+      uniform(info) && diff.outsideChanged === 0, { info, diff });
   }
   await page.evaluate(() => { zoomIn(); zoomIn(); });
   await page.waitForTimeout(500);
