@@ -56,4 +56,24 @@ assert(joined.bubbleCandidates.every(x=>x.source==='ocr-text-expansion' && x.ver
 assert.equal(page.pageSchemaVersion,1);
 const malformed=page.attachText(found.panels,[{x:0,y:0,width:-1,height:12,text:'bad'}],{width:300,height:220});
 assert.equal(malformed.texts.length,0,'malformed external model boxes ignored');
+
+const repaired=page.splitPanel([{
+  id:'panel-1',order:1,x:0,y:0,width:300,height:220,source:'whole-page-fallback',verified:false
+}], 'panel-1','x','rtl');
+assert.equal(repaired.length,2,'manual split turns fallback into two frames');
+assert.equal(repaired[0].order,1);
+assert(repaired[0].x > repaired[1].x,'RTL manual split keeps reading order');
+assert(repaired.every(p=>p.verified===true && p.source==='manual-split'));
+assert.equal(repaired[0].width+repaired[1].width,300);
+assert.equal(page.splitPanel(repaired,'does-not-exist','y','rtl'),null);
+assert.equal(page.splitPanel(repaired,'panel-1','diagonal','rtl'),null);
+assert.equal(page.splitPanel([{
+  id:'panel-1',order:1,x:0,y:0,width:7,height:10
+}], 'panel-1','x','ltr'),null,'very narrow panels cannot be split');
+
+const deleted=page.removePanel(repaired,repaired[1].id,'rtl');
+assert.equal(deleted.length,1);
+assert.equal(deleted[0].id,'panel-1');
+assert.equal(page.removePanel(deleted,'panel-1','rtl'),null,'must keep at least one panel');
+
 console.log('PASS manga page structure: gutters, reading order, 4-panel recursion, uncertain OCR links');
