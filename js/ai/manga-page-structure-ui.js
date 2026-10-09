@@ -252,6 +252,23 @@
     renderPanels();
     drawOverlay();
   }
+  function stageInstruction(){
+    const c=getCanvas();
+    if(!state.graph||!c||c!==state.canvas||
+        c.getWidth()!==state.graph.width||c.getHeight()!==state.graph.height||
+        snapshotCanvas(c)!==state.snapshot){
+      invalidate('画布或分镜结构已改变，请重新分析后输入修改指令。');
+      return;
+    }
+    const intent=core.planPanelEdit($('mangaPageInstruction').value,state.graph.panels);
+    if(!intent.ok)return say(intent.reason,true);
+    const gpt=window.MangaGPTRegionEditor;
+    if(!gpt || !gpt.selectRegionForPanel ||
+       !gpt.selectRegionForPanel(intent.panel,intent.prompt))
+      return say('无法创建 GPT 区域编辑，请检查 GPT 模块是否加载。',true);
+    $('mangaPagePanel').hidden=true;
+    say('已定位第 '+intent.panel.order+' 格并填写修改描述。尚未识别具体人物或生成图片；请确认区域后手动生成。');
+  }
   function downloadJSON(){
     const graph=exportGraph();
     if(!graph)return say('请先分析分镜。',true);
@@ -279,6 +296,9 @@
       '<option value="rtl">日漫：从右到左</option>',
       '<option value="ltr">普通：从左到右</option></select></label>',
       '<button type="button" id="mangaPageAnalyze">分析本页</button></div>',
+      '<label class="manga-page-command-label">按分镜编号编辑（不自动收费）',
+      '<textarea id="mangaPageInstruction" rows="2" maxlength="3000" placeholder="例如：把第二格的天空改成夜景，保留人物和对白"></textarea></label>',
+      '<button type="button" id="mangaPageStage">定位分镜并送入 GPT</button>',
       '<label><input type="checkbox" id="mangaPageShowOverlay" checked>画布标注候选分镜</label>',
       '<div id="mangaPageList" class="manga-page-list"></div>',
       '<div class="manga-page-actions"><button id="mangaPageExport" type="button">导出结构 JSON</button></div>',
@@ -290,6 +310,7 @@
     open.addEventListener('click',()=>{panel.hidden=!panel.hidden;});
     $('mangaPageClose').addEventListener('click',()=>{panel.hidden=true;});
     $('mangaPageAnalyze').addEventListener('click',analyze);
+    $('mangaPageStage').addEventListener('click',stageInstruction);
     $('mangaPageDirection').addEventListener('change',()=>{
       if(state.graph) invalidate('阅读顺序已改变，请重新分析。');
     });
