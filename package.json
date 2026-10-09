@@ -5,7 +5,7 @@
   "description": "Manga Editor Desu · nai学长魔改版 — unofficial NovelAI one-click fork",
   "type": "module",
   "scripts": {
-    "test": "node scripts/layout-smoke-test.cjs",
+    "test": "node scripts/layout-smoke-test.cjs && npm run test:smart-text",
     "lint": "eslint js/ --ext .js",
     "lint:fix": "eslint js/ --ext .js --fix",
     "format": "node scripts/remove-spaces.cjs",
@@ -24,7 +24,7 @@
     "test:timeline": "node scripts/simulator-timeline-smoke-test.cjs",
     "test:image2": "node scripts/image2-interface-smoke-test.cjs",
     "test:scene-plan": "node scripts/scene-plan-smoke-test.cjs",
-    "test:proxy-guards": "node scripts/run-python.cjs scripts/proxy-guard-smoke-test.py",
+    "test:proxy-guards": "node scripts/run-python.cjs scripts/proxy-guard-smoke-test.py && npm run test:smart-ocr",
     "test:secret-guard": "node scripts/run-python.cjs scripts/local-secret-guard-test.py",
     "test:gpt-proxy": "node scripts/run-python.cjs scripts/gpt-image-proxy-smoke-test.py",
     "test:gpt-network-guard": "node scripts/run-python.cjs scripts/gpt-proxy-network-guard-test.py",
@@ -39,13 +39,15 @@
     "test:gpt-i18n": "node scripts/gpt-panel-i18n-test.cjs",
     "test:nai-credentials": "node scripts/nai-pipeline-credentials-test.cjs",
     "test:layout": "node scripts/layout-smoke-test.cjs",
-    "test:page-size": "node scripts/manga-page-size-smoke-test.cjs"
-    ,"test:fabric-text-focus": "node scripts/fabric-text-focus-smoke-test.cjs"
-    ,"test:image-export": "node scripts/image-export-smoke-test.cjs"
-    ,"test:png-bit-depth": "node scripts/png-bit-depth-smoke-test.cjs"
-    ,"test:image-export-integration": "node scripts/image-export-integration-test.cjs"
-    ,"index": "node scripts/gen-project-index.cjs"
-    ,"check:index": "node scripts/gen-project-index.cjs --check"
+    "test:page-size": "node scripts/manga-page-size-smoke-test.cjs",
+    "test:fabric-text-focus": "node scripts/fabric-text-focus-smoke-test.cjs",
+    "test:image-export": "node scripts/image-export-smoke-test.cjs",
+    "test:png-bit-depth": "node scripts/png-bit-depth-smoke-test.cjs",
+    "test:image-export-integration": "node scripts/image-export-integration-test.cjs",
+    "index": "node scripts/gen-project-index.cjs",
+    "check:index": "node scripts/gen-project-index.cjs --check",
+    "test:smart-text": "node scripts/manga-smart-text-test.cjs",
+    "test:smart-ocr": "node scripts/run-python.cjs scripts/manga-smart-ocr-test.py"
   },
   "devDependencies": {
     "eslint": "^8.57.0",
