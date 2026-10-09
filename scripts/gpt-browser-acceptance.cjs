@@ -901,14 +901,20 @@ async function run() {
     locallySaved.length===1 && locallySaved[0].name==='测试角色A' &&
     locallySaved[0].referenceCount===1 && mock.calls.length===characterCallsBefore,
     {locallySaved,modelCalls:mock.calls.length});
+  await page.evaluate(() => {
+    const mode=document.getElementById('mangaGptMode');
+    mode.value='generate';
+    mode.dispatchEvent(new Event('change',{bubbles:true}));
+  });
   await page.locator('.manga-character-card button').filter({hasText:'用于 GPT 改图'}).click();
   const gptCharacter=await page.evaluate(()=>({
     summary:window.MangaGPTRegionEditor.referenceSummary(),
+    mode:document.getElementById('mangaGptMode').value,
     prompt:document.getElementById('mangaGptPrompt').value,
     list:document.getElementById('mangaGptReferenceList').textContent
   }));
   record('Character Bible attaches reference image and traits to GPT editor without generating',
-    gptCharacter.summary.count===1 &&
+    gptCharacter.summary.count===1 && gptCharacter.mode==='edit' &&
     gptCharacter.summary.character==='测试角色A' &&
     /金色太阳眼镜/.test(gptCharacter.prompt) &&
     /1 张参考图/.test(gptCharacter.list) &&
@@ -935,6 +941,21 @@ async function run() {
     mock.calls.length===characterCallsBefore+1 &&
     refRequest.refs===1 && refRequest.operation==='edit' && refRequest.auth,
     {modelCalls:mock.calls.length,refs:refRequest.refs,operation:refRequest.operation});
+  // Manual file selection must replace card references *and* remove its
+  // prompt constraints, so users cannot accidentally send the previous character.
+  await page.locator('#mangaGptReferences').setInputFiles({
+    name:'new-person.png',mimeType:'image/png',buffer:tinyPhoto
+  });
+  await page.waitForFunction(()=>window.MangaGPTRegionEditor.referenceSummary().character==='',
+    null,{timeout:15000});
+  const replaced=await page.evaluate(()=>({
+    summary:window.MangaGPTRegionEditor.referenceSummary(),
+    prompt:document.getElementById('mangaGptPrompt').value
+  }));
+  record('manual reference upload clears previous Character Bible identity and trait prompt',
+    replaced.summary.count===1 && replaced.summary.character==='' &&
+    !replaced.prompt.includes('【角色参考档案：测试角色A】') &&
+    mock.calls.length===characterCallsBefore+1,replaced);
   await page.screenshot({path:path.join(OUT,'character-bible.png')});
 
   // 10. Two editor tabs side by side.
