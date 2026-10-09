@@ -153,7 +153,7 @@ async function run() {
     for (let i = 0; i < 40; i++) {
       await new Promise(r => setTimeout(r, 500));
       const t = c ? c.textContent : '';
-      if (t !== t0 && /NovelAI 状态/.test(t)) return t.replace(/\s+/g, ' ').slice(-300);
+      if (t !== t0 && /NovelAI 状态/.test(t) && /安全请求/.test(t)) return t.replace(/\s+/g, ' ').slice(-300);
     }
     return 'timeout';
   });
