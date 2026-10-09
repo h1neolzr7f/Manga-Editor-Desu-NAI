@@ -523,6 +523,8 @@
       state.characterPromptSuffix=composed;
       state.characterReferenceName=card.name;
       state.references=card.references.slice(0,3);
+      $g('mangaGptMode').value='edit';
+      $g('mangaGptSelect').disabled=false;
       $g('mangaGptReferences').value='';
       $g('mangaGptReferenceList').textContent=
         '角色档案：'+card.name+' · '+card.references.length+' 张参考图（本机读取）';
@@ -980,6 +982,10 @@
       try {
         const files = Array.from(event.target.files || []);
         if (files.length > 3) throw new Error(tr('mgpt_refs_max', '最多 3 张参考图。'));
+        const input=$g('mangaGptPrompt');
+        const current=input.value.trim();
+        if(state.characterPromptSuffix && current.endsWith(state.characterPromptSuffix))
+          input.value=current.slice(0,-state.characterPromptSuffix.length).trim();
         state.references = await Promise.all(files.map(toDataUrl));
         state.characterPromptSuffix='';
         state.characterReferenceName='';
