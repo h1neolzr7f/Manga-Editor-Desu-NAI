@@ -42,5 +42,7 @@ jobs:
         run: python scripts/gpt-image-proxy-smoke-test.py
       - name: GPT canvas editor smoke
         run: node scripts/gpt-region-editor-smoke-test.cjs
+      - name: Existing proxy security guards
+        run: npm run test:proxy-guards
       - name: Existing layout smoke
         run: npm test
