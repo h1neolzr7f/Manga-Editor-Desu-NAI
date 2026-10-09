@@ -51,7 +51,7 @@
     m.height=Math.min(height-m.y,Math.ceil(box.height+6));
     g.fillStyle='#fff';g.fillRect(m.x,m.y,m.width,m.height);
     return {x,y,width,height,modelInput:input.toDataURL('image/png'),
-      modelMask:mask.toDataURL('image/png'),maskRect:m};
+      sourceCanvas:input,maskCanvas:mask,maskRect:m};
   }
   // Mask painter works only on a local crop, never directly on the Fabric page.
   // A white mask pixel means "ask LaMa to rebuild", black means "keep source".
@@ -61,7 +61,7 @@
     if(!surface)return;
     surface.width=crop.width;surface.height=crop.height;
     const ctx=surface.getContext('2d');
-    ctx.drawImage(prepared.source,0,0,crop.width,crop.height);
+    ctx.drawImage(crop.sourceCanvas,0,0,crop.width,crop.height);
     const paint=ctx.getImageData(0,0,crop.width,crop.height);
     const mask=crop.maskCanvas.getContext('2d',{willReadFrequently:true})
       .getImageData(0,0,crop.width,crop.height).data;
