@@ -52,6 +52,14 @@ class SmartOcrTests(unittest.TestCase):
         self.assertLessEqual(run.call_args.kwargs["timeout"], 90)
         self.assertEqual(run.call_args.kwargs["input"], PNG)
 
+    @mock.patch.object(ocr.shutil, "which", return_value="/usr/bin/tesseract")
+    @mock.patch.object(ocr.subprocess, "run")
+    def test_vertical_japanese_uses_vertical_layout_engine(self, run, which):
+        run.return_value = SimpleNamespace(returncode=0, stdout=TSV, stderr="")
+        ocr.ocr_image(URL, "jpn_vert+eng")
+        command = run.call_args.args[0]
+        self.assertEqual(command[command.index("--psm") + 1], "5")
+
     @mock.patch.object(ocr.shutil, "which", return_value=None)
     def test_missing_engine_has_actionable_error(self, _):
         with self.assertRaises(ocr.SmartOcrError) as ctx:
