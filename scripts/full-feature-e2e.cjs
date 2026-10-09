@@ -38,8 +38,12 @@ async function snap(name) {
 async function step(name, kind, fn) {
   const t = Date.now();
   let pass = false, detail = {};
-  try { const r = await fn(); pass = !!r.pass; detail = r.detail || {}; }
+  const limit = kind === 'REAL' && /GPT/.test(name) ? 480000 : 180000;
+  let timer;
+  const guard = new Promise((_, rej) => { timer = setTimeout(() => rej(new Error('step timed out after ' + limit / 1000 + 's')), limit); });
+  try { const r = await Promise.race([fn(), guard]); pass = !!r.pass; detail = r.detail || {}; }
   catch (e) { detail = { error: String(e.message || e).split('\n')[0].slice(0, 300) }; }
+  finally { clearTimeout(timer); }
   const shotFile = await snap(name.replace(/[^\w\u4e00-\u9fff-]+/g, '_').slice(0, 40));
   results.push({ name, kind, pass, ms: Date.now() - t, screenshot: shotFile, detail });
   console.log((pass ? 'PASS ' : 'FAIL ') + '[' + kind + '] ' + name + ' ' + JSON.stringify(detail).slice(0, 400));
@@ -94,6 +98,7 @@ async function main() {
   if (!REAL_GPT) {
     await page.route('**/gpt-image-proxy', async route => {
       const p = route.request().postDataJSON();
+      if (/127\.0\.0\.1:9\//.test(p.baseUrl || '')) return route.continue(); // the readable-error step talks to the real local server
       const image = await page.evaluate(async ({ src, size, op }) => {
         const [w, h] = (size === 'auto' ? '1024x1024' : size).split('x').map(Number); const c = document.createElement('canvas'); c.width = w; c.height = h;
         const g = c.getContext('2d');
@@ -104,6 +109,7 @@ async function main() {
     });
   }
   const gptKind = REAL_GPT ? 'REAL' : 'MOCK';
+  const GPT_WAIT = REAL_GPT ? 400000 : 60000;
 
   // ---------------- 1. first run ----------------
   await step('first run: tutorial shown, no failed requests or console errors', 'UI', async () => {
@@ -120,7 +126,7 @@ async function main() {
   // ---------------- 2. original editor ----------------
   await step('template: first template on a fresh page applies without a scary confirm', 'UI', async () => {
     const d0 = dialogs.length;
-    await page.locator('#svg-container-template img, #svg-container-template .svg-preview').nth(3).click();
+    await page.locator('#svg-container-template img, #svg-container-template .svg-preview').nth(2).click(); // ab_2_1: two stacked panels
     await page.waitForFunction(() => canvas.getObjects().filter(o => o.isPanel).length >= 2, null, { timeout: 15000 });
     const panels = await page.evaluate(() => canvas.getObjects().filter(o => o.isPanel).map(o => { const r = o.getBoundingRect(true); return [r.left, r.top, r.width, r.height].map(Math.round); }));
     return { pass: dialogs.length === d0 && panels.length >= 2, detail: { panels, dialogs: dialogs.slice(d0) } };
@@ -179,13 +185,13 @@ async function main() {
     return { pass: after === before + 1 && last.w > 10 && last.h > 10, detail: { before, after, last } };
   });
 
-  await step('layers panel: hide and show the top layer', 'UI', async () => {
-    const idx = await page.evaluate(() => canvas.getObjects().length - 1);
-    const vis = () => page.evaluate(i => canvas.item(i).visible, idx);
-    const btn = () => page.locator('#viewButton-' + idx);
-    await btn().click(); await page.waitForTimeout(300); const hidden = await vis();
-    await btn().click(); await page.waitForTimeout(300); const shown = await vis();
-    return { pass: hidden === false && shown === true, detail: { idx, hidden, shown, layers: await page.locator('[id^=viewButton-]').count() } };
+  await step('layers panel: eye button hides and shows one layer', 'UI', async () => {
+    const vis = () => page.evaluate(() => canvas.getObjects().map(o => o.visible !== false));
+    const v0 = await vis();
+    await page.locator('#viewButton-0').click(); await page.waitForTimeout(400); const v1 = await vis();
+    await page.locator('#viewButton-0').click(); await page.waitForTimeout(400); const v2 = await vis();
+    const hiddenIdx = v1.map((v, i) => v0[i] && !v ? i : -1).filter(i => i >= 0);
+    return { pass: hiddenIdx.length === 1 && JSON.stringify(v2) === JSON.stringify(v0), detail: { hiddenIdx, restored: JSON.stringify(v2) === JSON.stringify(v0), layers: await page.locator('[id^=viewButton-]').count() } };
   });
 
   await step('undo / redo toolbar buttons', 'UI', async () => {
@@ -247,7 +253,8 @@ async function main() {
   // ---------------- 3. manga tools ----------------
   // Put a manga-like bubble with Japanese text and a figure into the panels.
   await page.evaluate(async ([pose, p]) => {
-    canvas.getObjects().filter(o => !o.isPanel).forEach(o => canvas.remove(o));
+    const keep = o => o.isPanel && p.some(r => { const b = o.getBoundingRect(true); return Math.abs(b.left - r.left) < 2 && Math.abs(b.top - r.top) < 2 && Math.abs(b.width - r.width) < 2; });
+    canvas.getObjects().filter(o => !keep(o)).forEach(o => canvas.remove(o));
     const top = p[0], bot = p[p.length - 1];
     const cv = document.createElement('canvas'); cv.width = Math.round(bot.width); cv.height = Math.round(bot.height);
     const g = cv.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, cv.width, cv.height);
@@ -279,18 +286,20 @@ async function main() {
     return { pass: texts.some(t => (t.match(/[ありがとう]/g) || []).length >= 4), detail: { texts } };
   });
 
+  const bubbleItemIndex = () => page.evaluate(() => Math.max(0, [...document.querySelectorAll('.manga-smart-item')].findIndex(el => /[ありがとう]{3,}/.test(el.querySelector('textarea')?.value || ''))));
   await step('Manga OCR refine (REAL model)', 'REAL', async () => {
-    const item = page.locator('.manga-smart-item').filter({ hasText: '' }).first();
+    const idx = await bubbleItemIndex();
+    const item = page.locator('.manga-smart-item').nth(idx);
     await item.locator('button').filter({ hasText: 'Manga OCR 精修' }).click();
-    await page.waitForFunction(() => /ありがとう/.test(document.querySelector('.manga-smart-item textarea')?.value || '') || /失败|错误|未安装/.test(document.getElementById('mangaSmartStatus').textContent), null, { timeout: 600000 });
-    const v = await page.evaluate(() => document.querySelector('.manga-smart-item textarea').value);
+    await page.waitForFunction(i => /ありがとう/.test(document.querySelectorAll('.manga-smart-item textarea')[i]?.value || '') || /失败|错误|未安装/.test(document.getElementById('mangaSmartStatus').textContent), idx, { timeout: 170000 });
+    const v = await page.evaluate(i => document.querySelectorAll('.manga-smart-item textarea')[i].value, idx);
     return { pass: /ありがとう/.test(v), detail: { value: v } };
   });
 
   let lamaBefore;
   await step('ink mask candidate + REAL LaMa preview + apply as layer', 'REAL', async () => {
     lamaBefore = await pageImage();
-    await page.locator('.manga-smart-item button').filter({ hasText: '本地 LaMa 去字' }).first().click();
+    await page.locator('.manga-smart-item').nth(await bubbleItemIndex()).locator('button').filter({ hasText: '本地 LaMa 去字' }).first().click();
     await page.waitForFunction(() => document.getElementById('mangaLamaMaskCanvas')?.width > 10 && !document.getElementById('mangaLamaGenerate').disabled, null, { timeout: 30000 });
     await page.locator('#mangaLamaAutoInk').click(); await page.waitForTimeout(800);
     const ink = await page.locator('#mangaLamaStatus').textContent();
@@ -306,13 +315,14 @@ async function main() {
   });
 
   await step('smart subtitle: replace text as an editable Fabric textbox', 'UI', async () => {
-    await page.locator('.manga-smart-item textarea').first().fill('どうもありがとう');
+    await page.locator('.manga-smart-item textarea').nth(await bubbleItemIndex()).fill('どうもありがとう');
     const erase = page.locator('.manga-smart-item label').filter({ hasText: '自动去字' }).locator('input').first();
     if (await erase.isChecked().catch(() => false)) await erase.uncheck();
     await page.locator('#mangaSmartApply').click();
     await page.waitForFunction(() => canvas.getObjects().some(o => o.mangaSmartText === 'editable-subtitle'), null, { timeout: 20000 });
-    const t = await page.evaluate(() => canvas.getObjects().find(o => o.mangaSmartText === 'editable-subtitle').text);
-    return { pass: t === 'どうもありがとう', detail: { text: t } };
+    const texts = await page.evaluate(() => canvas.getObjects().filter(o => o.mangaSmartText === 'editable-subtitle').map(o => o.text));
+    const t = texts.find(x => x === 'どうもありがとう');
+    return { pass: !!t, detail: { text: t, subtitles: texts } };
   });
   await page.locator('#mangaSmartClose').click().catch(() => {});
 
@@ -339,12 +349,14 @@ async function main() {
     await page.locator('#mangaGptKey').fill('');
     const before = await pageImage();
     await page.locator('#mangaGptSelect').click();
-    const a = await toCanvasPoint([top.left + top.width * 0.2, top.top - 20]);
+    const a = await toCanvasPoint([top.left + top.width * 0.2, Math.max(2, top.top - 8)]);
     const z = await toCanvasPoint([top.left + top.width * 0.8, top.top + top.height + 30]);
     await page.mouse.move(a.x, a.y); await page.mouse.down(); await page.mouse.move(z.x, z.y, { steps: 10 }); await page.mouse.up();
-    gptRect = await page.evaluate(() => { const r = window.MangaGPTRegionEditor && document.getElementById('mangaGptPreview'); return null; });
+    const selected = await page.locator('#mangaGptStatus').textContent();
+    if (!/已选中/.test(selected)) return { pass: false, detail: { selection: selected } };
     await page.locator('#mangaGptGenerate').click();
-    await page.waitForFunction(() => !document.getElementById('mangaGptApply').disabled || /失败|错误|HTTP/.test(document.getElementById('mangaGptStatus').textContent), null, { timeout: 400000 });
+    await page.waitForFunction(() => !document.getElementById('mangaGptApply').disabled || document.getElementById('mangaGptStatus').dataset.error === 'true', null, { timeout: GPT_WAIT });
+    if (await page.locator('#mangaGptApply').isDisabled()) return { pass: false, detail: { status: await page.locator('#mangaGptStatus').textContent() } };
     const status1 = await page.locator('#mangaGptStatus').textContent();
     await page.locator('#mangaGptApply').click();
     await page.waitForFunction(() => canvas.getObjects().some(o => o.mangaGptSource), null, { timeout: 20000 });
@@ -366,7 +378,8 @@ async function main() {
     await page.locator('#mangaGptPrompt').fill('A small rainy-city background illustration, clean manga screentone style, no text.');
     const before = await count();
     await page.locator('#mangaGptGenerate').click();
-    await page.waitForFunction(() => !document.getElementById('mangaGptApply').disabled || /失败|错误|HTTP/.test(document.getElementById('mangaGptStatus').textContent), null, { timeout: 400000 });
+    await page.waitForFunction(() => !document.getElementById('mangaGptApply').disabled || document.getElementById('mangaGptStatus').dataset.error === 'true', null, { timeout: GPT_WAIT });
+    if (await page.locator('#mangaGptApply').isDisabled()) return { pass: false, detail: { status: await page.locator('#mangaGptStatus').textContent() } };
     const status = await page.locator('#mangaGptStatus').textContent();
     await page.locator('#mangaGptApply').click();
     await page.waitForFunction(n => canvas.getObjects().length > n, before, { timeout: 20000 });
@@ -382,8 +395,9 @@ async function main() {
     await page.locator('#mangaGptGenerate').click();
     await page.waitForFunction(() => !document.getElementById('mangaGptGenerate').disabled, null, { timeout: 60000 });
     const status = await page.locator('#mangaGptStatus').textContent();
+    const isError = await page.locator('#mangaGptStatus').getAttribute('data-error');
     await page.locator('#mangaGptKey').fill(''); await page.locator('#mangaGptUrl').fill(BASE_URL);
-    return { pass: status.length > 6 && !/undefined|\[object|TypeError/.test(status), detail: { status: status.slice(0, 160) } };
+    return { pass: isError === 'true' && /[\u4e00-\u9fff]/.test(status) && !/undefined|\[object|TypeError|Traceback/.test(status), detail: { isError, status: status.slice(0, 200) } };
   });
 
   await step('final page export (evidence)', 'UI', async () => {
