@@ -354,14 +354,7 @@ var json=await response.json();
 if(!response.ok||!json.ok){
 throw new Error(json.error||('NAI 检查失败：'+response.status));
 }
-createToast('NovelAI 状态',[
-'订阅：'+(json.active?'已激活':'未激活'),
-'会员层级：'+(json.tier===undefined?'未知':json.tier),
-'无限生图：'+(json.unlimitedImageGeneration?'是':'否'),
-'Anlas 余额：'+(json.anlas===undefined||json.anlas===null?'未知':json.anlas),
-'代理：'+(json.proxy||'未使用'),
-'安全请求：samples=1，总像素≤1024×1024，步数≤28，队列并发=1'
-],6500);
+createToast('NovelAI 状态',window.NaiStatusFormat.statusLines(json),6500);
 return json;
 }
 

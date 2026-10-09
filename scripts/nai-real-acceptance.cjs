@@ -158,7 +158,7 @@ async function run() {
     return 'timeout';
   });
   record('"检查 NAI" button works against the moved subscription endpoint (tier + Anlas shown)',
-    /会员层级：3/.test(health) && /Anlas 余额：\d+/.test(health) && /步数≤28/.test(health), { health });
+    /会员层级：3/.test(health) && /免费生图：可用/.test(health) && !/无限生图/.test(health) && /Anlas 余额：\d+/.test(health) && /步数≤28/.test(health), { health });
 
   const after = await balance();
   const spent = (before.anlas == null || after.anlas == null) ? null : before.anlas - after.anlas;

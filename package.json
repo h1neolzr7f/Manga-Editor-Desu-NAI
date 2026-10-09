@@ -5,7 +5,7 @@
   "description": "Manga Editor Desu · nai学长魔改版 — unofficial NovelAI one-click fork",
   "type": "module",
   "scripts": {
-    "test": "node scripts/layout-smoke-test.cjs && npm run test:smart-text && npm run test:page-structure && npm run test:edit-planner && npm run test:bubble && npm run test:character-bible && npm run test:ink-mask",
+    "test": "node scripts/layout-smoke-test.cjs && npm run test:gpt-region && npm run test:nai-status && npm run test:smart-text && npm run test:page-structure && npm run test:edit-planner && npm run test:bubble && npm run test:character-bible && npm run test:ink-mask",
     "lint": "eslint js/ --ext .js",
     "lint:fix": "eslint js/ --ext .js --fix",
     "format": "node scripts/remove-spaces.cjs",
@@ -29,6 +29,7 @@
     "test:gpt-proxy": "node scripts/run-python.cjs scripts/gpt-image-proxy-smoke-test.py",
     "test:gpt-network-guard": "node scripts/run-python.cjs scripts/gpt-proxy-network-guard-test.py",
     "test:gpt-http": "node scripts/run-python.cjs scripts/gpt-http-integration-test.py",
+    "test:nai-status": "node scripts/nai-status-format-test.cjs",
     "test:gpt-region": "node scripts/gpt-region-editor-smoke-test.cjs && node scripts/gpt-panel-line-protect-test.cjs",
     "test:gpt-browser": "node scripts/gpt-browser-acceptance.cjs",
     "test:portability": "node scripts/portability-smoke-test.cjs",
