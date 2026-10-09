@@ -76,4 +76,19 @@ assert.equal(deleted.length,1);
 assert.equal(deleted[0].id,'panel-1');
 assert.equal(page.removePanel(deleted,'panel-1','rtl'),null,'must keep at least one panel');
 
+
+const intent=page.planPanelEdit('把第二格里的蓝发人物换成参考图，保持动作',found.panels);
+assert.equal(intent.ok,true);
+assert.equal(intent.panel.order,2);
+assert.equal(intent.prompt,'把第二格里的蓝发人物换成参考图，保持动作');
+assert.equal(page.planPanelEdit('修改 panel 1 background',found.panels).panel.order,1);
+assert.equal(page.planPanelEdit('将第十二格修改成晚上',found.panels).ok,false);
+assert.equal(page.planPanelEdit('请把人物改成蓝色',found.panels).ok,false,
+  'without explicit panel do not pretend to locate a character');
+assert.equal(page.planPanelEdit('修改第0格',found.panels).ok,false);
+assert.equal(page.planPanelEdit('修改第二格和第三格',four.panels).ok,false,
+  'multiple targets require clarification, do not silently edit wrong panel');
+assert.equal(page.planPanelEdit('第二格',found.panels).ok,false,
+  'an edit intent must contain an actionable change, not only panel number');
+
 console.log('PASS manga page structure: gutters, reading order, 4-panel recursion, uncertain OCR links');
