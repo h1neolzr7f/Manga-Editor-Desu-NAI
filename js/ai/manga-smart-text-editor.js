@@ -6,7 +6,7 @@
   'use strict';
   const core = window.MangaSmartTextCore;
   if (!core) return;
-  const state = { drafts: [], busy: false, canvas: null, selection: null };
+  const state = { drafts: [], busy: false, canvas: null, sourceImage: '', selection: null };
   const $ = id => document.getElementById(id);
   const getCanvas = () => typeof canvas !== 'undefined' && canvas && typeof canvas.toDataURL === 'function' ? canvas : null;
   const make = (tag, text, className) => {
@@ -70,6 +70,19 @@
         renderDrafts();
       });
       first.append(use, label, remove);
+      const ai = make('button', 'GPT 去字', 'manga-smart-small');
+      ai.type = 'button';
+      ai.title = '仅定位选区并填写擦字提示，不自动调用付费模型。';
+      ai.addEventListener('click', () => {
+        const bridge = window.MangaGPTRegionEditor;
+        if (!bridge || !bridge.selectRegionForTextRemoval || !bridge.selectRegionForTextRemoval(draft)) {
+          message('GPT 改图模块尚未初始化。', true);
+          return;
+        }
+        panel.hidden = true;
+        message('已把区域送到 GPT 改图。请在 GPT 面板确认提示词后手动生成，完成后重新检测字幕。');
+      });
+      first.append(ai);
       const input = document.createElement('textarea');
       input.rows = 2;
       input.value = draft.text;
@@ -116,7 +129,9 @@
       if (result.width !== c.getWidth() || result.height !== c.getHeight()) {
         throw new Error('画布尺寸在识别期间已变化，请重新检测。');
       }
+      if (snapshot(c) !== image) throw new Error('识别期间画布被修改，请重新检测。');
       state.canvas = c;
+      state.sourceImage = image;
       state.drafts = core.mapDetections(result.regions, c.getWidth(), c.getHeight())
         .map(d => ({ ...d, active: true }));
       message('识别到 ' + state.drafts.length + ' 条候选文字。可逐条修改后一次应用。');
@@ -188,7 +203,10 @@
       const box = core.normalizeManualDrag(start, toPage(e), c.getWidth(), c.getHeight());
       dismiss();
       if (!box) return message('选区太小，请重新框选。', true);
+      const image = snapshot(c);
+      if (state.canvas !== c || state.sourceImage !== image) state.drafts = [];
       state.canvas = c;
+      state.sourceImage = image;
       state.drafts.push({ ...box, text: '新字幕', erase: true,
         vertical: $('mangaSmartLanguage').value.startsWith('jpn_vert'), confidence: 100, active: true });
       renderDrafts();
@@ -244,6 +262,9 @@
   async function apply() {
     const c = getCanvas();
     if (!c || c !== state.canvas) return message('画布已切换，请重新识别或框选。', true);
+    if (!state.sourceImage || snapshot(c) !== state.sourceImage) {
+      return message('画布在识别后被修改。为了防止错位覆盖，请重新检测本页。', true);
+    }
     if (state.busy) return;
     const selected = state.drafts.filter(d => d.active !== false && d.text.trim());
     if (!selected.length) return message('没有选中要添加的文字。', true);
@@ -301,6 +322,7 @@
       if (typeof saveStateByManual === 'function') saveStateByManual();
       if (typeof updateLayerPanel === 'function') updateLayerPanel();
       state.drafts = [];
+      state.sourceImage = '';
       renderDrafts();
       message('已添加 ' + processed + ' 组可编辑字幕及安全遮盖，跳过复杂背景 ' +
         skipped + ' 组。保留原画布，支持撤销和保存。');
