@@ -786,29 +786,67 @@ async function run() {
   }));
   record('delete false-positive frame and keep remaining panel IDs consistent',
     afterDelete.count===2 && afterDelete.markers===2,afterDelete);
-  await page.locator('#mangaPageInstruction').fill('修改第一格和第二格的背景');
-  await page.locator('#mangaPageStage').click();
-  const ambiguous = {
-    status:await page.locator('#mangaPageStatus').textContent(),
-    panelOpen:await page.locator('#mangaPagePanel').isVisible()
+  // Preview-first natural-language planner: never modify before explicit confirmation.
+  await page.locator('#mangaPlannerInput').fill('修改第一格和第二格的背景');
+  await page.locator('#mangaPlannerPreviewBtn').click();
+  const ambiguous={
+    status:await page.locator('#mangaPlannerStatus').textContent(),
+    confirmDisabled:await page.locator('#mangaPlannerConfirm').isDisabled()
   };
-  record('natural-language planner rejects ambiguous multi-panel edit',
-    ambiguous.panelOpen && /一次只能指定一个分镜/.test(ambiguous.status),ambiguous);
+  record('natural-language editor rejects multi-panel command without creating an action',
+    ambiguous.confirmDisabled && /一次只修改一格/.test(ambiguous.status),ambiguous);
   const callsBeforeNL=mock.calls.length;
-  await page.locator('#mangaPageInstruction').fill('把第一格的天空改成夜景，保留人物和对白');
-  await page.locator('#mangaPageStage').click();
+  await page.locator('#mangaPlannerInput').fill('把第一格的天空改成夜景，保留人物和对白');
+  await page.locator('#mangaPlannerPreviewBtn').click();
+  const draft=await page.evaluate(()=>({
+    description:document.getElementById('mangaPlannerPreview').textContent,
+    gptOpen:!document.getElementById('mangaGptPanel').hidden
+  }));
+  record('NL edit plan preview does not open model editor or bill user',
+    /整格 GPT 编辑预览/.test(draft.description) &&
+    !draft.gptOpen && mock.calls.length===callsBeforeNL,draft);
+  await page.locator('#mangaPlannerConfirm').click();
   const naturalPlan=await page.evaluate(()=>({
     prompt:document.getElementById('mangaGptPrompt').value,
     gptOpen:!document.getElementById('mangaGptPanel').hidden,
     inspectorHidden:document.getElementById('mangaPagePanel').hidden,
     status:document.getElementById('mangaGptStatus').textContent
   }));
-  record('explicit Chinese panel command stages edit prompt without paid generation',
+  record('explicit Chinese panel command stages edit prompt only after user confirmation',
     naturalPlan.prompt==='把第一格的天空改成夜景，保留人物和对白' &&
     naturalPlan.gptOpen && naturalPlan.inspectorHidden &&
     /已定位第 1 格/.test(naturalPlan.status) &&
     mock.calls.length===callsBeforeNL,naturalPlan);
-
+  await page.locator('#mangaPageOpen').click();
+  await page.locator('#mangaPlannerInput').fill('第二格把蓝发少女换成参考图人物，保留动作和对白');
+  await page.locator('#mangaPlannerPreviewBtn').click();
+  const characterPreview=await page.locator('#mangaPlannerPreview').textContent();
+  record('character edit warns model cannot automatically locate character',
+    /必须手动框选/.test(characterPreview), {characterPreview});
+  await page.locator('#mangaPlannerConfirm').click();
+  const manualMode=await page.evaluate(()=>({
+    overlay:!!document.querySelector('.manga-gpt-selection'),
+    previewSrc:document.getElementById('mangaGptPreview').getAttribute('src'),
+    prompt:document.getElementById('mangaGptPrompt').value
+  }));
+  record('character edit requires a fresh manual selection and invalidates previous GPT crop',
+    manualMode.overlay && !manualMode.previewSrc && /蓝发少女/.test(manualMode.prompt) &&
+    mock.calls.length===callsBeforeNL,manualMode);
+  await page.keyboard.press('Escape');
+  await page.locator('#mangaPageOpen').click();
+  await page.locator('#mangaPlannerInput').fill('第二格的对白改成“早上好”');
+  await page.locator('#mangaPlannerPreviewBtn').click();
+  const subtitlePreview=await page.locator('#mangaPlannerPreview').textContent();
+  await page.locator('#mangaPlannerConfirm').click();
+  const subtitleRoute=await page.evaluate(()=>({
+    smartOpen:!document.getElementById('mangaSmartTextPanel').hidden,
+    plannerClosed:document.getElementById('mangaPagePanel').hidden
+  }));
+  record('dialogue edit routes to editable smart text without a GPT generation',
+    /进入原生智能字幕/.test(subtitlePreview) &&
+    subtitleRoute.smartOpen && subtitleRoute.plannerClosed &&
+    mock.calls.length===callsBeforeNL,subtitleRoute);
+  await page.locator('#mangaSmartClose').click();
 
   // 10. Two editor tabs side by side.
   const page2 = await openEditor(context);
