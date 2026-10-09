@@ -60,13 +60,27 @@
      "w": 602,
      "h": 301,
      "cropX": 0,
-     "cropY": 128,
+     "cropY": 0,
      "name": "GPT 局部改图",
-     "source": "openai-compatible-image"
+     "source": "openai-compatible-image",
+     "crop": {
+      "x": 0,
+      "y": 128,
+      "w": 1536,
+      "h": 768,
+      "resultWidth": 1536,
+      "resultHeight": 1024,
+      "feather": 9,
+      "toneOffset": [
+       0,
+       0,
+       0
+      ]
+     }
     },
     "diff": {
      "outsideChanged": 0,
-     "insideMeanAbsDiff": 0.8645484949832996,
+     "insideMeanAbsDiff": 0.885439305729243,
      "size": [
       1654,
       2339
@@ -85,18 +99,32 @@
      "total": 3,
      "left": 1100,
      "top": 300,
-     "scaleX": 0.5869140625,
-     "scaleY": 0.5869140625,
+     "scaleX": 0.5867446393762183,
+     "scaleY": 0.5869706840390879,
      "w": 301,
-     "h": 900.9999999999999,
-     "cropX": 255.57404326123128,
-     "cropY": 0.4259567387688321,
+     "h": 901,
+     "cropX": 0,
+     "cropY": 0,
      "name": "GPT 局部改图",
-     "source": "openai-compatible-image"
+     "source": "openai-compatible-image",
+     "crop": {
+      "x": 255.57,
+      "y": 0.43,
+      "w": 512.85,
+      "h": 1535.15,
+      "resultWidth": 1024,
+      "resultHeight": 1536,
+      "feather": 9,
+      "toneOffset": [
+       0,
+       0,
+       0
+      ]
+     }
     },
     "diff": {
      "outsideChanged": 0,
-     "insideMeanAbsDiff": 0.6809529708080614,
+     "insideMeanAbsDiff": 1.106681831319503,
      "size": [
       1654,
       2339
@@ -122,11 +150,25 @@
      "cropX": 0,
      "cropY": 0,
      "name": "GPT 局部改图",
-     "source": "openai-compatible-image"
+     "source": "openai-compatible-image",
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1024,
+      "h": 1024,
+      "resultWidth": 1024,
+      "resultHeight": 1024,
+      "feather": 15,
+      "toneOffset": [
+       0,
+       0,
+       0
+      ]
+     }
     },
     "diff": {
      "outsideChanged": 0,
-     "insideMeanAbsDiff": 1.2771917657241638,
+     "insideMeanAbsDiff": 1.2900020429776007,
      "size": [
       1654,
       2339
@@ -142,14 +184,103 @@
     "total": 5,
     "left": 300,
     "top": 1900,
-    "scaleX": 0.3919270833333333,
-    "scaleY": 0.3919270833333333,
+    "scaleX": 0.39184952978056425,
+    "scaleY": 0.3919843597262952,
     "w": 500,
-    "h": 400.99999999999994,
-    "cropX": 130.12624584717608,
-    "cropY": 0.42524916943523294,
+    "h": 401,
+    "cropX": 0,
+    "cropY": 0,
     "name": "GPT 局部改图",
-    "source": "openai-compatible-image"
+    "source": "openai-compatible-image",
+    "crop": {
+     "x": 130.13,
+     "y": 0.43,
+     "w": 1275.75,
+     "h": 1023.15,
+     "resultWidth": 1536,
+     "resultHeight": 1024,
+     "feather": 12,
+     "toneOffset": [
+      0,
+      0,
+      0
+     ]
+    }
+   }
+  },
+  {
+   "name": "letterbox padding uses page context (opt-out gives plain white)",
+   "pass": true,
+   "detail": {
+    "ctxPad": {
+     "size": [
+      601,
+      601
+     ],
+     "nonWhiteRatio": 1
+    },
+    "whitePad": {
+     "size": [
+      601,
+      601
+     ],
+     "nonWhiteRatio": 0
+    }
+   }
+  },
+  {
+   "name": "tone matching removes model colour drift measured on the context ring",
+   "pass": true,
+   "detail": {
+    "raw": {
+     "applied": true,
+     "inside": 27.57,
+     "outside": 0,
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    "matched": {
+     "applied": true,
+     "inside": 12.37,
+     "outside": 0,
+     "offset": [
+      -26,
+      -27,
+      -32
+     ]
+    }
+   }
+  },
+  {
+   "name": "tone matching is skipped when the model recomposed the surroundings",
+   "pass": true,
+   "detail": {
+    "offset": [
+     0,
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "name": "feathered edge reduces seam from colour drift, outside untouched",
+   "pass": true,
+   "detail": {
+    "hard": {
+     "applied": true,
+     "seam": 38.09,
+     "outside": 0,
+     "featherPx": 0
+    },
+    "feather": {
+     "applied": true,
+     "seam": 2.25,
+     "outside": 0,
+     "featherPx": 9
+    }
    }
   },
   {
@@ -286,7 +417,7 @@
        1100
       ]
      ],
-     "bytes": 549284
+     "bytes": 757106
     },
     "reloadDiff": {
      "outsideChanged": 0,
@@ -325,8 +456,8 @@
    "pass": true,
    "detail": {
     "heapMB": [
-     18,
-     17
+     22,
+     20
     ]
    }
   },
@@ -340,17 +471,31 @@
      "left": 399,
      "top": 400,
      "scaleX": 0.3919270833333333,
-     "scaleY": 0.3919270833333333,
+     "scaleY": 0.39215686274509803,
      "w": 602,
-     "h": 299.99999999999994,
+     "h": 300,
      "cropX": 0,
-     "cropY": 129.27574750830573,
+     "cropY": 0,
      "name": "GPT 局部改图",
-     "source": "openai-compatible-image"
+     "source": "openai-compatible-image",
+     "crop": {
+      "x": 0,
+      "y": 129.28,
+      "w": 1536,
+      "h": 765.45,
+      "resultWidth": 1536,
+      "resultHeight": 1024,
+      "feather": 9,
+      "toneOffset": [
+       0,
+       0,
+       0
+      ]
+     }
     },
     "diff": {
      "outsideChanged": 0,
-     "insideMeanAbsDiff": 1.0064309711048984,
+     "insideMeanAbsDiff": 1.0702811925638713,
      "size": [
       2339,
       1654
@@ -367,18 +512,32 @@
      "total": 10,
      "left": 399,
      "top": 400,
-     "scaleX": 0.3916015625,
-     "scaleY": 0.3916015625,
+     "scaleX": 0.39153094462540716,
+     "scaleY": 0.391644908616188,
      "w": 601,
      "h": 300,
-     "cropX": 0.6384039900249263,
-     "cropY": 128.95760598503742,
+     "cropX": 0,
+     "cropY": 0,
      "name": "GPT 局部改图",
-     "source": "openai-compatible-image"
+     "source": "openai-compatible-image",
+     "crop": {
+      "x": 0.64,
+      "y": 128.96,
+      "w": 1534.72,
+      "h": 766.08,
+      "resultWidth": 1536,
+      "resultHeight": 1024,
+      "feather": 9,
+      "toneOffset": [
+       0,
+       0,
+       0
+      ]
+     }
     },
     "diff": {
      "outsideChanged": 0,
-     "insideMeanAbsDiff": 0.6958610620670992,
+     "insideMeanAbsDiff": 0.7529105738904318,
      "size": [
       2000,
       2000
@@ -405,7 +564,7 @@
    "name": "mock model received the UI key, never a .env key",
    "pass": true,
    "detail": {
-    "calls": 21
+    "calls": 28
    }
   },
   {
@@ -417,21 +576,21 @@
   }
  ],
  "consoleErrors": [
-  "Failed to load resource: net::ERR_FAILED",
-  "Failed to load resource: net::ERR_FAILED",
-  "Failed to load resource: net::ERR_FAILED",
-  "Failed to load resource: net::ERR_FAILED",
-  "Failed to load resource: net::ERR_FAILED",
-  "Failed to load resource: net::ERR_FAILED",
-  "Failed to load resource: net::ERR_FAILED",
-  "Failed to load resource: net::ERR_FAILED",
-  "Failed to load resource: net::ERR_FAILED",
-  "Failed to load resource: net::ERR_FAILED",
-  "Failed to load resource: net::ERR_FAILED",
-  "Failed to load resource: net::ERR_FAILED",
-  "Failed to load resource: net::ERR_FAILED",
-  "Failed to load resource: net::ERR_FAILED",
   "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
   "Failed to load resource: net::ERR_FAILED",
   "Failed to load resource: net::ERR_FAILED",
   "Failed to load resource: net::ERR_FAILED",

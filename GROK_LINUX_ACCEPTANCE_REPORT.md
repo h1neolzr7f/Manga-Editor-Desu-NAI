@@ -10,15 +10,13 @@
 
 ## 0. 结论
 
-**BLOCKED**
+**READY（Linux 验收范围）**：已知的 P0/P1 均已修复，并有回归测试。
 
-本轮修好了已知的 P0/P1 代码缺陷：密钥外借、SSRF/DNS rebinding、比例拉伸、字幕、可移植性。
-
-阻断原因是仍有一项 **P1 验证缺口**：新的 letterbox 局部改图代码没有拿到真实模型的结果。真实调用 #2 已经发出，但结果因测试脚本超时而丢失，详见 §5。此外，所有 Windows 项目都是 NOT TESTED。
-
-要转为 READY，需要满足以下条件：
-1. 用户再授权 1 次真实局部改图，验证 letterbox 路径和人物 A/B，结果通过。
-2. 在 Windows / Clash TUN 上做一次实机验证。
+- **真实 API 验证**：用户放宽额度后，真实 `gpt-image-2` 局部改图在浏览器 UI 中跑了 15 次，全部成功，详见 §5。
+  - 已覆盖：角色参考图 A/B、横/竖/方选区与输出比例交叉、页角选区、可编辑文字。
+  - 真实结果暴露出的接缝和偏色问题已修复，修复后又用真实调用复测。
+- **Windows 全部为 NOT TESTED**（文档 §6 规定只能这样标记）。发布 Windows 包前仍需实机验证 PowerShell 启动器、双击 BAT、Clash TUN 和 EXE。
+- 剩余问题都是 P2，见 §6。
 
 ## 1. 环境
 
@@ -46,7 +44,12 @@
 | `01a73d2` | **P1** 用 `Origin: null` 无法再跨域读取静态文件、`user_data` 或目录列表。null 只保留给 `/nai-proxy/`、`/director-proxy/`、`/tagger-proxy/`，且不附带 env key。 | `test_null_origin_cannot_read_static_or_private_files` |
 | `bf5ac9d` | **P2** 8000 端口被占用时，输出中英文提示并以 98 退出，不再打印 traceback。Windows 改用 `SO_EXCLUSIVEADDRUSE`，不再用 `SO_REUSEADDR`（后者会让两个进程悄悄共用同一端口）。不再全局修改 `socketserver.TCPServer`。 | `scripts/server-port-conflict-test.py`（如果 8000 被第三方占用则跳过，不动第三方服务），`npm run test:port-conflict` |
 | `8e20694` | 补充 `bf5ac9d`：在非 UTF-8 控制台（如 Windows cp1252）上，端口占用提示不会因编码而崩溃；测试改为按 UTF-8 解码。这个问题由 PR 的 Windows CI 发现。 | 同上（用 `PYTHONIOENCODING=cp1252` 模拟） |
-| 本报告提交 | 报告与脱敏截图：`docs/acceptance/grok-linux/` | — |
+| `2a8c3ee` | **P1 超时**：上游超时从 120 s 改为 300 s，可用 `GPT_IMAGE_TIMEOUT` 调整（限制在 30–900 s）。超时返回可读的 504，不再是笼统的 500。前端等待 330 s，确保先收到服务端的超时提示。 | `test_upstream_timeout_is_generous_and_readable`（gpt-proxy-network-guard-test） |
+| `bc58c0f` | **P1 接缝（真实 API 发现）**：白色补白会渗进补丁边缘，形成 1 px 白线；模型偏色会留下硬边矩形。<br>改为用选区周围的真实画面填充补白，并提供勾选项，可改回纯白、只上传选区。<br>补丁按原生分辨率烘焙，只在选区内侧做羽化，宽度为短边的 3%，限制在 4–32 px；贴着页面边界的边保持硬边，选区外像素逐字节不变。<br>源裁剪信息记录在 `mangaGptCrop` 并随项目保存。 | 浏览器测试 `letterbox padding uses page context`、`feathered edge reduces seam`（+40 偏色模型下接缝从 38 降到 2）；smoke 测试的单元断言 |
+| `85f3407` | **P1 偏色（真实 API 发现）**：用上下文边带测量模型的整体偏色并从补丁中扣除，限制在 ±48，可关闭。记录在 `toneOffset`。 | `tone matching removes model colour drift` |
+| `b73ccde` | **P1 误着色（真实 API 发现）**：case F 中模型重新构图，边带偏移为 [+15,+30,+50]，补丁被染成蓝色。<br>现在只在“去掉平均偏移后的残差 ≤ 20/255”时才校正：真实偏色样本的残差为 2–16，重新构图的为 33–51。<br>另外新增 opt-in 的真实 API 验收脚本。 | `tone matching is skipped when the model recomposed`（镜像模型）；用 `GPT_REAL_REPLAY` 把已保存的真实结果在新代码上免费重放验证 |
+| `91b7ee8` | **P2**：强制尺寸与选区比例差别较大时，提示改用“自动”。真实 case F 在这种情况下发生了重新构图和裁头。 | smoke 测试 `aspectMismatch` 断言 |
+| 报告提交 | 报告与脱敏证据：`docs/acceptance/grok-linux/` | — |
 
 克隆时 feat 分支已经包含以下修复。本轮逐项复测并补充了测试：
 - 同源 GPT 代理
@@ -65,9 +68,9 @@
 | 2a | GPT 生图（假模型） | **PASS** | `gpt-browser-acceptance.cjs` |
 | 2b | GPT 生图（真实中转 API） | **PASS** | 真实调用 #1：1024×1536，约 30 s，走 fake-ip DNS 路径并带 UA。缩略图：`docs/acceptance/grok-linux/real-call1-generate-thumb.png` |
 | 2c | 局部框选改图精度（假模型，identity 模型逐像素比较） | **PASS** | 横/竖/方选区 × 横/竖/方结果：选区外改变像素 = 0，选区内平均差 0.7–1.3/255，等比缩放。也覆盖模型返回比例不符、低清放大拦截、边缘框选、反向拖拽、右键拖拽、缩放后框选（误差 ±2 px） |
-| 2d | 局部改图（真实 API，新代码） | **NOT TESTED / 验证缺口** | 真实调用 #2 已发出，结果丢失（§5） |
-| 2e | 人物参考图替换 A/B（原创立绘） | **NOT TESTED** | 依赖 2d。立绘由调用 #1 生成（红短发、绿眼、黄雨衣、星形发卡）。上一轮旧代码的真实改图成功过一次，但不计入本轮 |
-| 3 | 第三方 OpenAI 兼容 API | **PASS（生图）** | `https://litangking.12gg.workers.dev/v1` + `gpt-image-2`。错误路径（401/403/429/500、无效 JSON、错误地址、取消、超时、重定向拒绝）由 mock 与 HTTP 集成测试覆盖。OpenAI 官方 API：**NOT TESTED**（无官方 key） |
+| 2d | 局部改图（真实 API，浏览器 UI） | **PASS** | 15/15 次 HTTP 200，单次 23–35 s。选区外改变像素全部为 0；补丁等比（scaleX/scaleY 偏差 < 0.2%）；保存后重新加载像素一致；pageErrors = 0；浏览器请求不带 Authorization（key 只在服务端 env）。<br>最终代码的边缘接缝（白底合成后边界一像素差的均值）：A 0.24→1.34，C 1.49→2.14，F 1.49→1.84，G 0→1.32。旧 letterbox 代码分别为 47.7、17.5、18.7、13.4。见 `real-seams-old-vs-final.png`、`real-api-runs.json` |
+| 2e | 人物参考图替换 A/B（原创立绘） | **PASS（不保证 100% 一致）** | 参考立绘由调用 #1 生成：红短发、绿眼、黄连帽雨衣、星形发卡。<br>**带参考图（A/C/D/E/F 共 9 次）**：发色、瞳色、发卡、雨衣每次都保持；回头姿势、朝向、画风基本保持。<br>**只用文字描述（B）**：发色和雨衣正确，但下装沿用了原图的百褶裙，细节和参考图一致性更弱。<br>**已知局限**：选区边缘如果切过人物，新旧身体在边缘处会衔接不上（如 D 只框了脸）；所以替换人物时应框住整个人物。见 `real-ab-character.png` |
+| 3 | 第三方 OpenAI 兼容 API | **PASS（生图 + 局部改图 + 参考图）** | `https://litangking.12gg.workers.dev/v1` + `gpt-image-2`。错误路径（401/403/429/500、无效 JSON、错误地址、取消、超时、重定向拒绝）由 mock 与 HTTP 集成测试覆盖。OpenAI 官方 API：**NOT TESTED**（无官方 key） |
 | 4 | 字幕修改（横排、vertical-textbox、气泡）、图层插入、撤销/重做 | **PASS** | 浏览器测试：横排与竖排替换后撤销/重做正确，7 步多级历史，GPT 图层位于可编辑文字下方。烘焙字幕 / OCR 未实现，不计为通过 |
 | 5 | 分辨率、精度、项目保存与重新加载 | **PASS** | 保存后重新加载，图层名、来源、crop 一致，像素差 0。支持 1654×2339、2339×1654、2000×2000 |
 | 6 | JS/Python 报错与回归 | **PASS（有已知 FAIL）** | 浏览器 pageErrors = 0。`check-translations` **FAIL**，与 main 完全相同（是既有问题，见 §4） |
@@ -88,34 +91,42 @@
 | check-translations | **FAIL** | **FAIL** | **FAIL**（输出 407 行，与 main 逐行相同） |
 | 其余 18 项 npm/python 测试 | PASS | PASS | PASS |
 | 新增 10 项（secret-guard、gpt-network-guard、portability、port-conflict、gpt-region、gpt-http、gpt-proxy 等） | — | — | PASS |
-| gpt-browser-acceptance（真实 Chromium） | — | FAIL（旧版测试假设错误，且旧代码会拉伸/裁切） | **PASS 27/27** |
+| gpt-browser-acceptance（真实 Chromium） | — | FAIL（旧版测试假设错误，且旧代码会拉伸/裁切） | **PASS 31/31** |
 
 汇总：main 18/23，feat 24/26，本分支 32/33。唯一的 FAIL 是 check-translations，属于既有问题，未新增。
 
 ## 5. 真实 API 调用记录
 
-| # | 时间 (UTC+8) | 类型 | 结果 |
-|---|---|---|---|
-| — | — | 未经授权的调用 | **0** |
-| 1 | 2026-10-09 14:17:11 | 生图，`gpt-image-2`，经本地代理 | 成功，1024×1536 |
-| 2 | 2026-10-09 14:17:54 | 局部改图（参考图 1 张，选区 800×1024） | **请求已发出，结果丢失**：一次性测试脚本误用了 `page.waitForFunction(fn, {timeout})`，第二个参数被当作函数参数，实际超时变成 30 s，浏览器在响应返回前被关闭。按已计费处理。截图见 `docs/acceptance/grok-linux/real-call2-request-ui.png` |
+未经授权的真实调用：**0**。
 
-- 另外，上一轮（zip 版本）经授权做了 2 次调用：1 次生图、1 次改图。
-- 文档规定的第一轮预算是“1 次生图 + 1 次改图”，本轮已用完，没有再发起调用。
-- 中转 key 已脱敏为 `sk-oXT6…6Ui`，只保存在仓库外的 chmod 600 文件中。仓库、日志、截图和 HAR 中都没有 key（推送前已扫描 diff）。
+已授权的调用逐个列出如下。全部调用经本地代理发往 `https://litangking.12gg.workers.dev/v1`，模型为 `gpt-image-2`，key 来自服务端 env。
+
+| # | 时间 (UTC+8) | 内容 | 结果 |
+|---|---|---|---|
+| 1 | 14:17:11 | 生图（参考立绘） | 成功，1024×1536 |
+| 2 | 14:17:54 | 局部改图 | 请求已发出，**结果丢失**（一次性脚本的超时写错；按已计费处理） |
+| 3–9 | 14:33–14:37 | 第 1 轮 A–G，旧 letterbox 代码 | 7/7 成功，暴露出白边接缝和偏色问题 |
+| 10–14 | 14:40–14:43 | 第 2 轮 A、C、D、F、G，上下文填充 + 羽化 | 5/5 成功，接缝明显下降 |
+| 15–17 | 14:45–14:47 | 第 3 轮 F、G、A，加上偏色校正 | 3/3 成功。F 暴露了误着色，`b73ccde` 已修复，并用重放验证 |
+
+- **合计**：本轮 17 次（2 次生图/改图 + 15 次改图），上一轮 zip 版本 2 次。用户先授权“1 次生图 + 1 次改图”，后来改为宽松额度（约 15 次）；用量没有超出。
+- **调用方式**：所有改图都由 `scripts/gpt-real-api-acceptance.cjs` 通过真实 UI 发起。结果会先写入磁盘，等待上限 400 s。
+- **免费复核**：`GPT_REAL_REPLAY=<目录>` 可以把已保存的真实结果在当前代码上重放，不产生费用。
+- **key 安全**：key 已脱敏为 `sk-oXT6…6Ui`，只保存在仓库外权限为 600 的文件中，并且只传给本地服务进程的环境变量。仓库、日志、截图和 HAR 中都没有 key（已扫描 diff 和证据文件）。
 
 ## 6. 问题清单
 
 - **P0**：无未修复项。
-- **P1**
-  1. 新 letterbox 局部改图缺少真实模型结果，人物参考替换 A/B 也未完成。复现方法：提供 ref 图，框选 800×1024，生成预览，应用。预期：不拉伸、不裁头，人物特征保持，边缘缝合自然。需要用户再授权 1 次真实改图。
-  2. Windows 和 Clash TUN 实机均未测试。
+- **P1**：无未修复项。Windows 实机属于 NOT TESTED，不是已知缺陷，但在发布 Windows 包前必须验证。
 - **P2**
   1. `check-translations`：多语言缺失 key，main 同样如此。GPT 面板文字是硬编码中文，没有走 i18n。
   2. NovelAI 返回 401 时向前端传 HTML，而不是可读的 JSON 错误。这是既有问题。
   3. 不支持 Ctrl+Shift+Z 重做（只有 Ctrl+Y）。这是既有问题。
   4. `local_tools/server.py`（8765 端口）接受 `Origin: null` 并且不校验 Host。它不涉及密钥，但跨站可以触发本地抠图或模型下载，消耗 CPU 和带宽。建议与 99_server 共用同一套 trusted-local 判定。
   5. 没有 workflow 权限（gh token 缺 `workflow` scope），所以没有修改 `.github/workflows`。新测试通过现有 CI 已调用的脚本串联执行，CI 仍会覆盖。
+  6. 强制尺寸与选区比例差别很大时（例如宽选区强制 1024×1536），真实模型会重新构图：人物移位或裁头，且无法用色调校正修复。现在会提示改用“自动”（`91b7ee8`）。
+  7. 选区内原本透明的区域在应用后会变成不透明，因为模型输出不透明。合成到白纸后看起来一样，但导出透明 PNG 时会有差异。
+  8. 人物一致性依赖模型，不能保证 100%。选区边缘切过人物时会产生衔接断层，应框住整个人物。
 
 ## 7. GitHub Actions（PR #6）
 
@@ -131,3 +142,10 @@
   - 本次运行结果的副本：`docs/acceptance/grok-linux/gpt-browser-summary.json`，截图 `mock-acceptance-final.png`、`mock-precision-tall.png`
 - 安全测试：`npm run test:secret-guard`、`npm run test:gpt-network-guard`、`npm run test:proxy-guards`
 - 可移植性测试：`npm run test:portability`、`npm run test:port-conflict`
+- 真实 API（计费，需显式开启）：
+  ```bash
+  GPT_REAL_API=1 GPT_TEST_ENV_FILE=<仓库外env文件> GPT_REAL_BASE_URL=<中转>/v1 GPT_REAL_MODEL=gpt-image-2 GPT_REAL_REFERENCE=<立绘> GPT_REAL_CASES=A,B,C,D,E,F,G node scripts/gpt-real-api-acceptance.cjs
+  ```
+  - 免费演练：`GPT_REAL_MOCK=1`
+  - 免费重放已保存的真实结果：`GPT_REAL_REPLAY=<目录>`
+- 真实 API 证据：`docs/acceptance/grok-linux/real-ab-character.png`、`real-seams-old-vs-final.png`、`real-run3-A-ui.png`（UI 中 key 输入框为空，使用服务端 env），以及 `real-api-runs.json`（每次调用的尺寸、耗时、接缝、toneOffset、保存与重载结果）
