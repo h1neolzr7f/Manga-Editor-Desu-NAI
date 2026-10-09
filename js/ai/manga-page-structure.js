@@ -194,7 +194,52 @@
       !panels.some(p=>p.id===id))return null;
     return renumber(panels.filter(p=>p.id!==id),direction==='ltr'?'ltr':'rtl');
   }
+
+  function chineseNumber(text) {
+    if(/^\d+$/.test(text))return Number(text);
+    const digits={一:1,二:2,三:3,四:4,五:5,六:6,七:7,八:8,九:9};
+    if(text==='十')return 10;
+    if(text.includes('十')){
+      const parts=text.split('十');
+      if(parts.length!==2)return null;
+      const ten=parts[0]?digits[parts[0]]:1;
+      const one=parts[1]?digits[parts[1]]:0;
+      if(!ten||one===undefined)return null;
+      return 10*ten+one;
+    }
+    return digits[text]||null;
+  }
+  // V1 only resolves an EXPLICIT panel number; it cannot infer a character,
+  // speaker, mask, or scene. Never silently start model generation here.
+  function planPanelEdit(instruction,panels) {
+    if(typeof instruction!=='string'||!Array.isArray(panels))return {
+      ok:false,reason:'请填写包含明确分镜编号的修改指令。'
+    };
+    const prompt=instruction.trim().slice(0,3000);
+    const matches=[];
+    const pattern=/第([一二三四五六七八九十\d]{1,5})\s*(?:格|个?分镜|幅)|\bpanel\s*#?\s*(\d{1,2})\b/gi;
+    for(const hit of prompt.matchAll(pattern)) {
+      const value=hit[2]?Number(hit[2]):chineseNumber(hit[1]);
+      if(!Number.isInteger(value)||value<1)return {
+        ok:false,reason:'分镜编号无效，请检查数字。'
+      };
+      matches.push({value,text:hit[0]});
+    }
+    if(matches.length!==1)return {
+      ok:false,reason:matches.length?'一次只能指定一个分镜，请分开执行。':'请明确指定第几格，例如“把第二格改成夜景”。'
+    };
+    const content=prompt.replace(matches[0].text,'')
+      .replace(/^[\s，。、,.:：!！?？]+|[\s，。、,.:：!！?？]+$/g,'').trim();
+    if(content.length<3)return {ok:false,reason:'请补充要修改的具体内容。'};
+    const panel=panels.find(p=>p.order===matches[0].value);
+    if(!panel)return {
+      ok:false,reason:'没有第 '+matches[0].value+' 格，请先检查分镜检测结果。'
+    };
+    return {ok:true,panel,prompt,mode:'region-edit',stageOnly:true,
+      capabilities:['explicit-panel-index','manual-confirmation']};
+  }
+
   root.MangaPageStructure = Object.freeze({
-    pageSchemaVersion, analyze, attachText, splitPanel, removePanel
+    pageSchemaVersion, analyze, attachText, splitPanel, removePanel, planPanelEdit
   });
 })(typeof window !== 'undefined' ? window : this);
