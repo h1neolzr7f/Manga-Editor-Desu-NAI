@@ -819,6 +819,9 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         from gpt_image_proxy import handle_gpt_image_post
         if handle_gpt_image_post(self):
             return
+        from manga_smart_ocr import handle_smart_ocr_post
+        if handle_smart_ocr_post(self):
+            return
         if self.path == '/nai-proxy/generate-image':
             length = int(self.headers.get('Content-Length', '0') or '0')
             body = self.rfile.read(length) if length else b''
