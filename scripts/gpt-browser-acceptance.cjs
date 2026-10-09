@@ -648,6 +648,40 @@ async function run() {
   record('smart subtitle applies as one undo/redo history step', true, { restoredObjects: beforeUndoSmart });
   await page.screenshot({ path: path.join(OUT, 'smart-subtitle.png') });
 
+  // Complex artwork must never be silently painted over by the white-bubble eraser.
+  await page.evaluate(async () => {
+    canvas.clear();
+    const cv = document.createElement('canvas');
+    cv.width = 2000; cv.height = 2000;
+    const g = cv.getContext('2d');
+    g.fillStyle = '#080c22'; g.fillRect(0, 0, 2000, 2000);
+    g.fillStyle = '#ffd733'; g.fillRect(0, 0, 2000, 250);
+    g.fillStyle = '#c82390'; g.fillRect(0, 260, 2000, 280);
+    const img = await new Promise(resolve => fabric.Image.fromURL(cv.toDataURL('image/png'), resolve));
+    canvas.add(img);
+    canvas.backgroundColor = '#fff';
+    canvas.renderAll();
+  });
+  await page.locator('#mangaSmartDetect').click();
+  await page.locator('.manga-smart-item textarea').waitFor({ timeout: 10000 });
+  const objectsBeforeUnsafe = await page.evaluate(() => canvas.getObjects().length);
+  await page.locator('#mangaSmartApply').click();
+  const unsafeResult = {
+    message: await page.locator('#mangaSmartStatus').textContent(),
+    count: await page.evaluate(() => canvas.getObjects().length)
+  };
+  record('smart erase refuses complex artwork rather than painting it white',
+    unsafeResult.count === objectsBeforeUnsafe && /没有安全的自动去字区域/.test(unsafeResult.message),
+    unsafeResult);
+  await page.locator('.manga-smart-item label').filter({ hasText: '自动去字' }).locator('input').uncheck();
+  await page.locator('#mangaSmartApply').click();
+  const manualText = await page.evaluate(() => ({
+    text: canvas.getObjects().find(o => o.mangaSmartText === 'editable-subtitle')?.text,
+    erased: canvas.getObjects().some(o => o.mangaSmartText === 'erase-patch')
+  }));
+  record('smart subtitle can add editable text without erasing complex art',
+    manualText.text === '旧对白' && !manualText.erased, manualText);
+
   // 10. Two editor tabs side by side.
   const page2 = await openEditor(context);
   const two = await page2.evaluate(() => ({ w: canvas.getWidth(), panel: !!document.getElementById('mangaGptOpen') }));
