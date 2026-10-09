@@ -732,8 +732,12 @@ async function run() {
     beforeLamaMask.count===beforeLama,beforeLamaMask);
   await page.locator('#mangaLamaErase').click();
   const maskBounds=await page.locator('#mangaLamaMaskCanvas').boundingBox();
-  await page.mouse.move(maskBounds.x+maskBounds.width/2,maskBounds.y+maskBounds.height/2);
+  // Simulate a FAST pen stroke spanning > 4 brush diameters with just two
+  // pointermove samples. The mask must interpolate so the center is protected.
+  await page.mouse.move(maskBounds.x+maskBounds.width*.35,maskBounds.y+maskBounds.height*.5);
   await page.mouse.down();
+  await page.mouse.move(maskBounds.x+maskBounds.width*.65,maskBounds.y+maskBounds.height*.5,
+    {steps:2});
   await page.mouse.up();
   record('manual LaMa mask correction does not call the model before explicit preview',
     lamaCalls===0 && mock.calls.length===paidCallsBeforeLama,{lamaCalls});
@@ -751,11 +755,13 @@ async function run() {
     cv.width=img.width;cv.height=img.height;
     const ctx=cv.getContext('2d');
     ctx.drawImage(img,0,0);
-    const center=ctx.getImageData(Math.floor(cv.width/2),Math.floor(cv.height/2),1,1).data[0];
-    return {center,width:cv.width,height:cv.height};
+    const sample=x=>ctx.getImageData(Math.floor(cv.width*x),Math.floor(cv.height*.5),1,1).data[0];
+    return {center:sample(.5),left:sample(.39),right:sample(.61),
+      width:cv.width,height:cv.height};
   },lamaMaskUrl);
   record('LaMa backend receives user-edited mask with preserved center pixels',
-    lamaCalls===1 && maskContents.center===0,maskContents);
+    lamaCalls===1 && maskContents.center===0 &&
+    maskContents.left===0 && maskContents.right===0,maskContents);
   const previewLama=await page.evaluate(()=>({
     count:canvas.getObjects().length,
     visible:!document.getElementById('mangaLamaPreviewPanel').hidden,
