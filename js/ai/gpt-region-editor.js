@@ -154,13 +154,14 @@
         return feedback('画布或选中区域已经变化，请重新框选。', true);
       }
     }
-    const apiKey = $g('mangaGptKey').value.trim();
+    const apiKey = $g('mangaGptKey').value.trim().replace(/^Bearer\s+/i, '');
     if (!apiKey) return feedback('请填写图像 API 密钥。', true);
     const prompt = $g('mangaGptPrompt').value.trim();
     if (!prompt) return feedback('请先描述想要的画面修改。', true);
     state.pending = true;
     state.result = '';
     $g('mangaGptGenerate').disabled = true;
+    $g('mangaGptMode').disabled = true;
     $g('mangaGptApply').disabled = true;
     feedback('正在请求图像模型。生成可能产生 API 费用。');
     try {
@@ -194,6 +195,7 @@
     } finally {
       state.pending = false;
       $g('mangaGptGenerate').disabled = false;
+      $g('mangaGptMode').disabled = false;
     }
   }
 
@@ -214,6 +216,11 @@
           else resolve(img);
         });
       });
+      if (isEdit && (image.width < region.width || image.height < region.height) &&
+          !$g('mangaGptAllowUpscale').checked) {
+        throw new Error('生成图像 (' + image.width + ' × ' + image.height + ') 小于选区 (' +
+          region.width + ' × ' + region.height + ')。为保留局部清晰度，已阻止放大覆盖；可缩小选区或勾选允许放大。');
+      }
       const targetWidth = isEdit ? region.width : image.width;
       const targetHeight = isEdit ? region.height : image.height;
       const scale = !isEdit ? Math.min(1, c.getWidth() / targetWidth, c.getHeight() / targetHeight) : 1;
@@ -291,6 +298,7 @@
       '<label>修改描述<textarea id="mangaGptPrompt" rows="3" placeholder="将框选人物替换为参考图角色，保持动作、画风、构图与未选中部分。"></textarea></label>',
       '<label>人物 / 风格参考图（最多 3 张）<input id="mangaGptReferences" type="file" multiple accept="image/png,image/jpeg,image/webp"></label>',
       '<div id="mangaGptReferenceList" class="manga-gpt-hint">尚未选择参考图</div>',
+      '<label class="manga-gpt-hint"><input id="mangaGptAllowUpscale" type="checkbox"> 允许将低于选区分辨率的生成图放大覆盖（会影响选区清晰度）</label>',
       '<div class="manga-gpt-row"><button type="button" id="mangaGptGenerate">生成预览</button><button type="button" id="mangaGptApply" disabled>作为新图层应用</button></div>',
       '<img id="mangaGptPreview" class="manga-gpt-preview" alt="当前框选或 GPT 生成预览">',
       '<details><summary>原生字幕修改（无需 API）</summary><label>替换选中文字图层<input id="mangaGptSubtitle" type="text" placeholder="输入新的字幕内容"></label>',
