@@ -44,3 +44,13 @@
 .manga-page-command-label{display:grid;gap:5px;margin:10px 0;font-size:12px;color:#c4d1e4;}
 .manga-page-command-label textarea{width:100%;min-height:64px;box-sizing:border-box;resize:vertical;
   color:white;background:#151b25;border:1px solid #637083;border-radius:5px;padding:7px;}
+
+.manga-planner-box{display:grid;gap:7px;background:#29313c;border:1px solid #526273;
+  border-radius:8px;padding:10px;margin:12px 0;}
+.manga-planner-box textarea{width:100%;min-height:74px;resize:vertical;
+  background:#131d28;color:#fff;border:1px solid #677588;border-radius:5px;padding:7px;
+  font:13px/1.5 Arial,sans-serif;box-sizing:border-box;}
+.manga-planner-box p{margin:3px 0;color:#c6cfde;font-size:12px;}
+#mangaPlannerPreview{display:grid;gap:3px;color:#e2edf8;}
+#mangaPlannerStatus{color:#a4d8ff;margin-top:2px;}
+#mangaPlannerStatus[data-error=true]{color:#ffadad;}
