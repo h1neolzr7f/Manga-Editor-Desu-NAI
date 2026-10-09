@@ -79,7 +79,7 @@
           message('GPT 改图模块尚未初始化。', true);
           return;
         }
-        panel.hidden = true;
+        $('mangaSmartTextPanel').hidden = true;
         message('已把区域送到 GPT 改图。请在 GPT 面板确认提示词后手动生成，完成后重新检测字幕。');
       });
       first.append(ai);
