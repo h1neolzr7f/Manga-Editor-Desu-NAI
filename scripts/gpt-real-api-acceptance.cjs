@@ -45,6 +45,10 @@ const CASES = {
   D: { title: '方选区 450×450（脸部）→ 1:1 + 参考图', from: [600, 350], to: [1050, 800], size: 'auto', ref: true, prompt: REPLACE },
   E: { title: '竖选区 + 强制 1024×1024（交叉比例）+ 参考图', from: [430, 320], to: [1230, 1560], size: '1024x1024', ref: true, prompt: REPLACE },
   F: { title: '横选区 + 强制 1024×1536（极端交叉）+ 参考图', from: [330, 330], to: [1330, 900], size: '1024x1536', ref: true, prompt: REPLACE },
+  H: { title: '选区切到人物上半身 → 警告 + 一键扩展到完整人物，再改色', from: [430, 320], to: [1230, 900], size: 'auto', ref: false,
+       expand: true, prompt: TEXT_ONLY },
+  I: { title: '透明页面：选区一半是透明页边（保留透明）', from: [1300, 1650], to: [1654, 2339], size: 'auto', ref: false,
+       transparentPage: true, prompt: 'Add light rain streaks over this picture. Keep everything else the same. No text.' },
   G: { title: '页角选区含可编辑竖排字（默认排除文字）', from: [1150, 1300], to: [1654, 2339], size: 'auto', ref: false,
        prompt: 'Add light rain streaks and small puddles on the ground in this picture. Keep everything else the same. No text.' }
 };
@@ -200,6 +204,7 @@ async function runCase(context, id) {
     } catch {}
   });
   await buildScene(page);
+  if (spec.transparentPage) await page.evaluate(() => { canvas.backgroundColor = ''; canvas.renderAll(); });
   await page.locator('#mangaGptOpen').click();
   await page.locator('#mangaGptMode').selectOption('edit');
   await page.locator('#mangaGptUrl').fill(BASE_URL);
@@ -208,7 +213,15 @@ async function runCase(context, id) {
   await page.locator('#mangaGptSize').selectOption(spec.size);
   await page.locator('#mangaGptPrompt').fill(spec.prompt);
   if (spec.ref) await page.locator('#mangaGptReferences').setInputFiles(REFERENCE);
-  const selStatus = await dragSelect(page, spec.from, spec.to);
+  let selStatus = await dragSelect(page, spec.from, spec.to);
+  let cutWarning = null;
+  if (spec.expand) {
+    cutWarning = { status: selStatus, button: await page.locator('#mangaGptExpand').isVisible() };
+    if (cutWarning.button) {
+      await page.locator('#mangaGptExpand').click();
+      selStatus = await page.evaluate(() => document.querySelector('#mangaGptStatus').textContent);
+    }
+  }
   const region = await page.evaluate(() => {
     const m = /(\d+) × (\d+)/.exec(document.querySelector('#mangaGptStatus').textContent); return m && [+m[1], +m[2]]; });
   const before = await page.evaluate(() => canvas.toDataURL({ format: 'png', multiplier: 1 }));
@@ -217,7 +230,7 @@ async function runCase(context, id) {
   const responseP = page.waitForResponse(r => r.url().includes('/gpt-image-proxy'), { timeout: WAIT_MS });
   await page.locator('#mangaGptGenerate').click();
   log(`${MOCK ? 'MOCK' : 'REAL'} CALL case ${id} sent ${stamp()} (${spec.title})`);
-  const result = { id, title: spec.title, region, selStatus, size: spec.size, ref: spec.ref };
+  const result = { id, title: spec.title, region, selStatus, size: spec.size, ref: spec.ref, cutWarning };
   let json = null;
   try {
     const response = await responseP;
@@ -256,6 +269,15 @@ async function runCase(context, id) {
     const rect = result.patch && { left: Math.round(result.patch.left), top: Math.round(result.patch.top),
       width: Math.round(result.patch.w), height: Math.round(result.patch.h) };
     if (rect) result.metrics = await metrics(page, before, after, rect);
+    if (spec.transparentPage) {
+      result.alphaProbe = await page.evaluate(async src => {
+        const i = new Image(); i.src = src; await i.decode();
+        const c = document.createElement('canvas'); c.width = i.width; c.height = i.height;
+        const g = c.getContext('2d'); g.drawImage(i, 0, 0);
+        const a = (x, y) => g.getImageData(x, y, 1, 1).data[3];
+        return { marginRight: a(1600, 2000), marginBottom: a(1400, 2320), panel: a(1400, 2000) };
+      }, after);
+    }
     // project save -> reload round trip
     const rt = await page.evaluate(async () => {
       const json = JSON.stringify(canvas.toJSON(commonProperties));
@@ -295,5 +317,5 @@ async function runCase(context, id) {
   }
   for (const r of all) console.log(JSON.stringify({ id: r.id, http: r.httpStatus, s: r.elapsedS, err: r.error || r.crashed,
     result: r.resultSize, region: r.region, patch: r.patch && [Math.abs(r.patch.scaleX / r.patch.scaleY - 1) < 0.002, r.patch.w, r.patch.h], m: r.metrics,
-    sr: r.saveReload && r.saveReload.pixelsEqual, tone: r.patch && r.patch.crop && r.patch.crop.toneOffset, req: r.request && [r.request.size, r.request.references, r.request.authorizationHeader] }));
+    sr: r.saveReload && r.saveReload.pixelsEqual, cut: r.cutWarning && r.cutWarning.button, alpha: r.alphaProbe, tone: r.patch && r.patch.crop && r.patch.crop.toneOffset, req: r.request && [r.request.size, r.request.references, r.request.authorizationHeader] }));
 })().catch(e => { console.error(e.message); if (server) server.kill(); process.exit(1); });

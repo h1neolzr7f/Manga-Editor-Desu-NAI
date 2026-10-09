@@ -1,0 +1,141 @@
+[
+ {
+  "id": "F",
+  "title": "横选区 + 强制 1024×1536（极端交叉）+ 参考图",
+  "region": [
+   1002,
+   571
+  ],
+  "size": "1024x1536",
+  "request": {
+   "operation": "edit",
+   "model": "gpt-image-2",
+   "size": "1536x1024",
+   "baseUrl": "https://litangking.12gg.workers.dev/v1",
+   "references": 1,
+   "authorizationHeader": false
+  },
+  "elapsedS": 29.4,
+  "resultSize": [
+   1536,
+   1024
+  ],
+  "metrics": {
+   "outsideChanged": 0,
+   "seamBefore": 1.49,
+   "seamAfter": 2.42,
+   "insideMeanDiff": 31.22
+  },
+  "cutWarning": null,
+  "selStatus": "已选中原始画布区域：1002 × 571 像素。注意：选区只框到了 1 个对象的一部分（如“pose”），模型只看到半个人物时容易接不上身体。可点“扩展到完整对象”。",
+  "uiStatus": "图像已生成，请检查预览后点击“作为新图层应用”。选区比例（1002 × 571）与所选尺寸 1024x1536 相差过大，已自动改用 1536x1024，避免模型重新构图。",
+  "applyStatus": "已添加独立图层：取回选区对应部分并等比例缩放（不拉伸、不裁头）。原图和画布尺寸未改变，可撤销。",
+  "alphaProbe": null,
+  "saveReload": {
+   "objects": [
+    6,
+    6
+   ],
+   "name": "GPT 局部改图",
+   "source": "openai-compatible-image",
+   "bytes": 2867757,
+   "pixelsEqual": true
+  },
+  "pageErrors": []
+ },
+ {
+  "id": "H",
+  "title": "选区切到人物上半身 → 警告 + 一键扩展到完整人物，再改色",
+  "region": [
+   1280,
+   1280
+  ],
+  "size": "auto",
+  "request": {
+   "operation": "edit",
+   "model": "gpt-image-2",
+   "size": "1024x1024",
+   "baseUrl": "https://litangking.12gg.workers.dev/v1",
+   "references": 0,
+   "authorizationHeader": false
+  },
+  "elapsedS": 27.9,
+  "resultSize": [
+   1254,
+   1254
+  ],
+  "metrics": {
+   "outsideChanged": 0,
+   "seamBefore": 74.94,
+   "seamAfter": 75.92,
+   "insideMeanDiff": 16.93
+  },
+  "cutWarning": {
+   "status": "已选中原始画布区域：802 × 580 像素。注意：选区只框到了 1 个对象的一部分（如“pose”），模型只看到半个人物时容易接不上身体。可点“扩展到完整对象”。",
+   "button": true
+  },
+  "selStatus": "选区已扩展到完整对象：1280 × 1280 像素。",
+  "uiStatus": "图像已生成，请检查预览后点击“作为新图层应用”。",
+  "applyStatus": "已添加独立图层：取回选区对应部分并等比例缩放（不拉伸、不裁头）。原图和画布尺寸未改变，可撤销。",
+  "alphaProbe": null,
+  "saveReload": {
+   "objects": [
+    6,
+    6
+   ],
+   "name": "GPT 局部改图",
+   "source": "openai-compatible-image",
+   "bytes": 3281500,
+   "pixelsEqual": true
+  },
+  "pageErrors": []
+ },
+ {
+  "id": "I",
+  "title": "透明页面：选区一半是透明页边（保留透明）",
+  "region": [
+   354,
+   689
+  ],
+  "size": "auto",
+  "request": {
+   "operation": "edit",
+   "model": "gpt-image-2",
+   "size": "1024x1536",
+   "baseUrl": "https://litangking.12gg.workers.dev/v1",
+   "references": 0,
+   "authorizationHeader": false
+  },
+  "elapsedS": 30.8,
+  "resultSize": [
+   1024,
+   1536
+  ],
+  "metrics": {
+   "outsideChanged": 0,
+   "seamBefore": 53.4,
+   "seamAfter": 53.52,
+   "insideMeanDiff": 2.16
+  },
+  "cutWarning": null,
+  "selStatus": "已选中原始画布区域：354 × 689 像素。",
+  "uiStatus": "图像已生成，请检查预览后点击“作为新图层应用”。",
+  "applyStatus": "已添加独立图层：取回选区对应部分并等比例缩放（不拉伸、不裁头）。原图和画布尺寸未改变，可撤销。已按原选区的透明区域恢复透明。",
+  "alphaProbe": {
+   "marginRight": 0,
+   "marginBottom": 0,
+   "panel": 255
+  },
+  "saveReload": {
+   "objects": [
+    6,
+    6
+   ],
+   "name": "GPT 局部改图",
+   "source": "openai-compatible-image",
+   "bytes": 1376812,
+   "pixelsEqual": true
+  },
+  "pageErrors": []
+ }
+]

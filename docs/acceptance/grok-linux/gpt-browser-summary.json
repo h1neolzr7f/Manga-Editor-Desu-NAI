@@ -75,7 +75,8 @@
        0,
        0,
        0
-      ]
+      ],
+      "keepAlpha": false
      }
     },
     "diff": {
@@ -119,7 +120,8 @@
        0,
        0,
        0
-      ]
+      ],
+      "keepAlpha": false
      }
     },
     "diff": {
@@ -163,7 +165,8 @@
        0,
        0,
        0
-      ]
+      ],
+      "keepAlpha": false
      }
     },
     "diff": {
@@ -204,7 +207,8 @@
       0,
       0,
       0
-     ]
+     ],
+     "keepAlpha": false
     }
    }
   },
@@ -215,14 +219,14 @@
     "ctxPad": {
      "size": [
       601,
-      601
+      401
      ],
      "nonWhiteRatio": 1
     },
     "whitePad": {
      "size": [
       601,
-      601
+      401
      ],
      "nonWhiteRatio": 0
     }
@@ -316,6 +320,16 @@
     "vType": "vertical-textbox",
     "vUndo": "竖排台词",
     "vRedo": "新竖排"
+   }
+  },
+  {
+   "name": "Ctrl+Shift+Z redoes (like Ctrl+Y), ignored while typing in a text field",
+   "pass": true,
+   "detail": {
+    "kUndo": "竖排台词",
+    "kRedo": "新竖排",
+    "kInField": "竖排台词",
+    "kCtrlY": "新竖排"
    }
   },
   {
@@ -417,7 +431,7 @@
        1100
       ]
      ],
-     "bytes": 757106
+     "bytes": 757044
     },
     "reloadDiff": {
      "outsideChanged": 0,
@@ -456,8 +470,8 @@
    "pass": true,
    "detail": {
     "heapMB": [
-     22,
-     20
+     23,
+     21
     ]
    }
   },
@@ -490,7 +504,8 @@
        0,
        0,
        0
-      ]
+      ],
+      "keepAlpha": false
      }
     },
     "diff": {
@@ -532,7 +547,8 @@
        0,
        0,
        0
-      ]
+      ],
+      "keepAlpha": false
      }
     },
     "diff": {
@@ -553,6 +569,60 @@
    }
   },
   {
+   "name": "extreme forced aspect (800x200 into 2:3) auto-switches to 3:2; opt-out keeps size and warns",
+   "pass": true,
+   "detail": {
+    "guardOn": {
+     "size": "1536x1024",
+     "status": "图像已生成，请检查预览后点击“作为新图层应用”。选区比例（802 × 200）与所选尺寸 1024x1536 相差过大，已自动改用 1536x1024，避免模型重新构图。"
+    },
+    "guardOff": {
+     "size": "1024x1536",
+     "status": "图像已生成，请检查预览后点击“作为新图层应用”。注意：所选尺寸与选区比例相差较大，模型容易重新构图（人物移位/裁头），建议尺寸选“自动”。"
+    }
+   }
+  },
+  {
+   "name": "selection cutting an object warns and expands to the whole object (450x300), then applies",
+   "pass": true,
+   "detail": {
+    "cutWarn": {
+     "status": "已选中原始画布区域：302 × 200 像素。注意：选区只框到了 1 个对象的一部分（如“hero”），模型只看到半个人物时容易接不上身体。可点“扩展到完整对象”。",
+     "expandVisible": true
+    },
+    "expanded": {
+     "status": "选区已扩展到完整对象：451 × 300 像素。",
+     "expandVisible": false
+    },
+    "info": {
+     "left": 249,
+     "top": 1000,
+     "w": 451,
+     "h": 300
+    }
+   }
+  },
+  {
+   "name": "region apply keeps the original transparency mask (opt-out fills it)",
+   "pass": true,
+   "detail": {
+    "keep": {
+     "applied": true,
+     "hole": 0,
+     "solid": 255,
+     "flag": true,
+     "status": "已添加独立图层：取回选区对应部分并等比例缩放（不拉伸、不裁头）。原图和画布尺寸未改变，可撤销。已按原选区的透明区域恢复透明。"
+    },
+    "off": {
+     "applied": true,
+     "hole": 255,
+     "solid": 255,
+     "flag": false,
+     "status": "已添加独立图层：取回选区对应部分并等比例缩放（不拉伸、不裁头）。原图和画布尺寸未改变，可撤销。"
+    }
+   }
+  },
+  {
    "name": "second editor tab loads independently",
    "pass": true,
    "detail": {
@@ -564,7 +634,7 @@
    "name": "mock model received the UI key, never a .env key",
    "pass": true,
    "detail": {
-    "calls": 28
+    "calls": 33
    }
   },
   {
@@ -576,8 +646,8 @@
   }
  ],
  "consoleErrors": [
-  "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
   "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
   "Failed to load resource: net::ERR_FAILED",
   "Failed to load resource: net::ERR_FAILED",
   "Failed to load resource: net::ERR_FAILED",
