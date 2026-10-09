@@ -99,34 +99,30 @@ saveStateByManual();
 return img;
 }
 
-function replaceImageObject(oldImageObject,newImageObject,Type){
-oldImageObject.visible;
-
-if (Type=='Upscaler') {
+function replaceImageObject(oldImageObject,newImageObject,Type,layerIndex=null){
 const oldDisplayWidth=oldImageObject.width*oldImageObject.scaleX;
 const oldDisplayHeight=oldImageObject.height*oldImageObject.scaleY;
-
-newImageObject.set({
-left: oldImageObject.left,
-top: oldImageObject.top,
-scaleX: oldDisplayWidth/newImageObject.width,
-scaleY: oldDisplayHeight/newImageObject.height,
+const placement={
+left:oldImageObject.left,
+top:oldImageObject.top,
+scaleX:oldDisplayWidth/newImageObject.width,
+scaleY:oldDisplayHeight/newImageObject.height,
+};
+['angle','originX','originY','skewX','skewY','flipX','flipY'].forEach(property=>{
+if(oldImageObject[property]!==undefined)placement[property]=oldImageObject[property];
 });
-
-panelLogger.debug("newImageObject,",newImageObject);
-}else{
-newImageObject.set({
-left: oldImageObject.left,
-top: oldImageObject.top,
-scaleX: oldImageObject.scaleX,
-scaleY: oldImageObject.scaleY,
-});
-}
-
+newImageObject.set(placement);
 saveInitialState(newImageObject);
+setNotSave(newImageObject);
 canvas.add(newImageObject);
+if(Number.isInteger(layerIndex)&&layerIndex>=0)canvas.moveTo(newImageObject,layerIndex);
+setSave(newImageObject);
+newImageObject.setCoords();
 avtive(newImageObject);
 updateLayerPanel();
+// Record after restoring the stack position; object:added fires before moveTo.
+saveStateByManual();
+return newImageObject;
 }
 
 
@@ -136,7 +132,7 @@ let obj;
 if (typeof imgOrSvg==='string'&&imgOrSvg.startsWith('<svg')) {
 fabric.loadSVGFromString(imgOrSvg,function(objects,options) {
 obj=fabric.util.groupSVGElements(objects,options);
-placeObject(obj,x,y,isNotActive,true,isFit,targetLayer);
+placeObject(obj,x,y,isNotActive,notReplace,isFit,targetLayer);
 });
 } else {
 obj=imgOrSvg;

@@ -499,7 +499,7 @@ if(isPageChanged(canvasGuid)){
 return applyGeneratedImageToOriginalPage(canvasGuid,result).then(applied=>{
 if(!applied){
 removeGenerationTask(canvasGuid);
-this._placeOnCanvas(result,layer,type);
+throw new Error('原页面不可用，生图结果未回贴；不会写入当前页。');
 }
 });
 }
@@ -518,9 +518,10 @@ layer.saveHistory=false;
 canvas.remove(layer);
 putImageInFrame(result,cc.centerX,cc.centerY,false,false,true,targetParent);
 }else{
+var layerIndex=canvas.getObjects().indexOf(layer);
 layer.saveHistory=false;
 canvas.remove(layer);
-replaceImageObject(layer,result,type);
+replaceImageObject(layer,result,type,layerIndex);
 }
 }
 _handleError(error,type,canvasGuid){
@@ -554,10 +555,10 @@ img.naiDirectorPlan=payload._directorPlan;
 return {img:img,payload:payload};
 });
 updateAiTaskCancelInfo(spinnerId,{queueName:'novelai',queueItemId:p._queueItemId});
-return p.then(result=>{
+return p.then(async result=>{
 if(result&&result.img){
 DashboardUI.recordGeneration(type,Date.now()-startTime,result.payload.input,result.payload.model);
-this._placeResult(result.img,layer,canvasGuid,type);
+await this._placeResult(result.img,layer,canvasGuid,type);
 if(isPanel(layer)&&window.NaiPanelPipelineReview&&typeof window.NaiPanelPipelineReview.onPanelGenerationSuccess==='function'){
 window.NaiPanelPipelineReview.onPanelGenerationSuccess(layer,type);
 }

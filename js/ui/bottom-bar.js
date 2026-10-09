@@ -58,10 +58,7 @@ var currentIndex=btmGetGuidIndex(currentGuid);
 var targetIndex=currentIndex+direction;
 if(targetIndex<0||targetIndex>=btmGetGuidsSize())return;
 var targetGuid=btmGetGuidByIndex(targetIndex);
-if(stateStack.length>=btmSaveStateThreshold){
-await btmSaveProjectFile();
-}
-await chengeCanvasByGuid(targetGuid);
+await chengeCanvasByGuid(targetGuid,true);
 btmUpdateHandleText();
 }
 
@@ -112,10 +109,7 @@ if(imageLink&&imageLink.href)image.src=imageLink.href;
 image.className="btm-image";
 image.dataset.index=guid;
 image.addEventListener("click",async ()=>{
-if(stateStack.length>=btmSaveStateThreshold){
-await btmSaveProjectFile();
-}
-await chengeCanvasByGuid(guid);
+await chengeCanvasByGuid(guid,true);
 btmUpdateHandleText();
 });
 
@@ -137,6 +131,7 @@ deleteBtn.textContent="🗑";
 deleteBtn.className="btm-delete-btn";
 deleteBtn.addEventListener("click",async (e)=>{
 e.stopPropagation();
+if(window.NaiPageLoading||window.NaiHistoryLoading)return;
 if(btmGetGuidsSize()>1){
 var isCurrentPage=(getCanvasGUID()===guid);
 var deletedIndex=btmGetGuidIndex(guid);
@@ -376,13 +371,19 @@ btmImageContainer.addEventListener("mousedown",btmStartDrag);
 window.addEventListener("resize",btmUpdateScrollButtons);
 });
 
-async function chengeCanvasByGuid(guid) {
+async function chengeCanvasByGuid(guid,saveCurrent=false){
+if(window.NaiPageLoading||window.NaiHistoryLoading)return false;
 const projectData=btmProjectsMap.get(guid);
-try {
-await loadLz4BlobProjectFile(projectData.blob,guid);
-} catch (error) {
+if(!projectData||!projectData.blob)return false;
+window.NaiPageLoading=true;
+try{
+if(saveCurrent&&stateStack.length>=btmSaveStateThreshold)await btmSaveProjectFile();
+return await loadLz4BlobProjectFile(projectData.blob,guid,true);
+}catch(error){
 uiLogger.error("Error loading ZIP:",error);
 throw error;
+}finally{
+window.NaiPageLoading=false;
 }
 }
 
@@ -433,6 +434,9 @@ cancelButton.addEventListener("click",function(){
 document.body.removeChild(dialog);
 });
 submitButton.addEventListener("click",async function(){
+if(window.NaiPageLoading||window.NaiHistoryLoading)return;
+window.NaiPageLoading=true;
+try{
 var selectedSize=document.querySelector('input[name="page-size"]:checked').value;
 document.body.removeChild(dialog);
 var currentIndex=btmGetGuidIndex(guid);
@@ -458,5 +462,8 @@ setCanvasGUID(newGuid);
 await btmSaveProjectFile(newGuid,false);
 updateAllPageNumbers();
 btmUpdateHandleText();
+}finally{
+window.NaiPageLoading=false;
+}
 });
 }
