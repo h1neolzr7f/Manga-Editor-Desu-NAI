@@ -786,6 +786,28 @@ async function run() {
   }));
   record('delete false-positive frame and keep remaining panel IDs consistent',
     afterDelete.count===2 && afterDelete.markers===2,afterDelete);
+  await page.locator('#mangaPageInstruction').fill('修改第一格和第二格的背景');
+  await page.locator('#mangaPageStage').click();
+  const ambiguous = {
+    status:await page.locator('#mangaPageStatus').textContent(),
+    panelOpen:await page.locator('#mangaPagePanel').isVisible()
+  };
+  record('natural-language planner rejects ambiguous multi-panel edit',
+    ambiguous.panelOpen && /一次只能指定一个分镜/.test(ambiguous.status),ambiguous);
+  const callsBeforeNL=mock.calls.length;
+  await page.locator('#mangaPageInstruction').fill('把第一格的天空改成夜景，保留人物和对白');
+  await page.locator('#mangaPageStage').click();
+  const naturalPlan=await page.evaluate(()=>({
+    prompt:document.getElementById('mangaGptPrompt').value,
+    gptOpen:!document.getElementById('mangaGptPanel').hidden,
+    inspectorHidden:document.getElementById('mangaPagePanel').hidden,
+    status:document.getElementById('mangaGptStatus').textContent
+  }));
+  record('explicit Chinese panel command stages edit prompt without paid generation',
+    naturalPlan.prompt==='把第一格的天空改成夜景，保留人物和对白' &&
+    naturalPlan.gptOpen && naturalPlan.inspectorHidden &&
+    /已定位第 1 格/.test(naturalPlan.status) &&
+    mock.calls.length===callsBeforeNL,naturalPlan);
 
 
   // 10. Two editor tabs side by side.
