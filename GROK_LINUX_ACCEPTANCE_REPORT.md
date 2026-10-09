@@ -122,7 +122,7 @@
 - `Legacy regression suite`：**FAIL**，唯一失败的是 `check-translations`。base 分支 run 37890942759 的失败原因相同。
 - `Real Chromium interaction (mock API)`：**PASS**。base 分支在这一项是 FAIL，本分支改写测试并修复代码后转为通过。
 - `Live localhost HTTP / security`、`offline-contract`：PASS。
-- `Windows startup / portable ZIP check`：第一次因端口测试的编码问题失败，已由 `8e20694` 修复。最新结果以 PR 页面为准。
+- `Windows startup / portable ZIP check`：第一次因端口测试的编码问题失败，`8e20694` 修复后在 run 37893517685 中 **PASS**。
 
 ## 8. 复现与证据
 
