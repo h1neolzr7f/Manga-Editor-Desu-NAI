@@ -14,6 +14,9 @@ DARK = 140          # luminance below this is "ink"
 MAX_GLYPH = 0.075   # components larger than this share of the page's short side are not glyphs
 MIN_BIG_PX = 150    # ...but never treat anything below 150px as "large"
 MAX_FILL = 0.22     # outline / line: ink pixels / bbox area
+LINE_ASPECT = 8     # bbox this elongated = a line
+SPARSE_FILL = 0.04  # this little ink in a big bbox = thin diagonal / curved line
+MIN_GLYPH = 6       # smallest component treated as a glyph (screentone dots are smaller)
 
 
 def _find(parent, i):
@@ -82,11 +85,48 @@ def strip_frames(png_bytes, width, height):
             if x1 > s[2]: s[2] = x1
             if y > s[3]: s[3] = y
             s[4] += x1 - x0 + 1
-    remove = set()
+    candidates = {}
+    glyphs = []
     for root, (x0, y0, x1, y1, ink) in stats.items():
         w, h = x1 - x0 + 1, y1 - y0 + 1
-        if max(w, h) >= big and ink / float(w * h) <= MAX_FILL:
+        size = max(w, h)
+        if size >= big and ink / float(w * h) <= MAX_FILL:
+            candidates[root] = (x0, y0, x1, y1, w, h, ink / float(w * h))
+        elif MIN_GLYPH <= size < big and ink >= 12:
+            glyphs.append(((x0 + x1) // 2, (y0 + y1) // 2))
+    if not candidates:
+        return None
+    rows = {root: {} for root in candidates}
+    for idx, (y, x0, x1) in enumerate(runs):
+        r = _find(parent, idx)
+        if r in rows:
+            rows[r].setdefault(y, []).append((x0, x1))
+
+    def surrounds(root, cx, cy):
+        by_row = rows[root]
+        row = by_row.get(cy, ())
+        if not any(b < cx for _, b in row) or not any(a > cx for a, _ in row):
+            return False
+        up = down = False
+        for y, spans in by_row.items():
+            if any(a <= cx <= b for a, b in spans):
+                if y < cy: up = True
+                elif y > cy: down = True
+                if up and down:
+                    return True
+        return False
+
+    remove = set()
+    for root, (x0, y0, x1, y1, w, h, fill) in candidates.items():
+        # Line-like (speed lines, long straight strokes) or a frame around text
+        # (bubble outline, panel border). Big SFX glyphs are neither and are kept.
+        if max(w, h) >= LINE_ASPECT * min(w, h) or fill <= SPARSE_FILL:
             remove.add(root)
+            continue
+        for cx, cy in glyphs:
+            if x0 < cx < x1 and y0 < cy < y1 and surrounds(root, cx, cy):
+                remove.add(root)
+                break
     if not remove:
         return None
     out = bytearray(data)

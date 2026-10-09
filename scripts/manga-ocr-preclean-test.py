@@ -57,6 +57,27 @@ class PrecleanUnit(unittest.TestCase):
         self.assertTrue(all(px[x, y] < 140 for x, y in glyph), "glyph ink must be untouched")
         self.assertEqual(out.size, im.size)
 
+    def test_big_sfx_glyphs_are_not_whitened(self):
+        if not FONT:
+            self.skipTest("needs a CJK font")
+        for path in [FONT] + [p for p in ("/usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc",) if os.path.exists(p)]:
+            for text in ("ドン", "シーン", "ザワ"):
+                im = Image.new("L", (1000, 400), 255)
+                ImageDraw.Draw(im).text((20, 40), text, font=ImageFont.truetype(path, 260), fill=0)
+                out = strip_frames(png(im), 1000, 400)
+                if out is None:
+                    continue
+                o = Image.open(io.BytesIO(out)).convert("L").tobytes()
+                lost = sum(1 for a, c in zip(im.tobytes(), o) if a < 140 and c >= 140)
+                self.assertEqual(lost, 0, (path, text))
+
+    def test_speed_lines_removed_even_without_text(self):
+        im = Image.new("RGB", (600, 600), "white"); d = ImageDraw.Draw(im)
+        d.line([0, 0, 599, 599], fill="black", width=4)        # diagonal speed line
+        d.line([10, 300, 590, 310], fill="black", width=3)     # long horizontal line
+        out = Image.open(io.BytesIO(strip_frames(png(im), 600, 600))).convert("L")
+        self.assertEqual(out.getextrema(), (255, 255))
+
     def test_nothing_to_remove_returns_none(self):
         im = Image.new("RGB", (300, 200), "white")
         ImageDraw.Draw(im).rectangle([20, 20, 40, 40], fill="black")
