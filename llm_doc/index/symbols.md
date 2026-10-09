@@ -4,7 +4,7 @@
 
 - 抽出対象: `root.X=` / `window.X=` / `globalThis.X=`、行頭の `function X` / `var X` / `let X` / `const X`
 - 抽出範囲: js / cjs / mjs と、html のインライン `<script>`（行番号は元ファイル基準）
-- 合計 11284 件 / ユニーク名 5983 件
+- 合計 11315 件 / ユニーク名 5991 件
 
 ## シンボル → 定義
 
@@ -25,6 +25,7 @@
 | `BADGES` | var | js/dashboard/dashboard-ui.js:31 |
 | `BASE` | var | js/assets/original-starter-pack.js:4 |
 | `BASE` | var | js/assets/site-ui-pack.js:4 |
+| `BASE` | var | scripts/ux-screenshots.cjs:7 |
 | `BASE64_ALPHABET` | var | js/core/util/png-bit-depth.js:31 |
 | `BASE64_LOOKUP` | var | js/core/util/png-bit-depth.js:32 |
 | `BASEPROMPT_SCHEMA` | var | js/project-management.js:305 |
@@ -333,6 +334,7 @@
 | `OUT` | var | scripts/gpt-real-api-acceptance.cjs:24 |
 | `OUT` | var | scripts/manga-real-ui-acceptance.cjs:15 |
 | `OUT` | var | scripts/nai-real-acceptance.cjs:16 |
+| `OUT` | var | scripts/ux-screenshots.cjs:8 |
 | `OpeningScenario` | var | js/ai/prompt/auto/story-prompt-map.js:1 |
 | `P` | var | scripts/novelai-readable-error-test.cjs:13 |
 | `PAGE_MM` | var | js/core/manga-page-size.js:10 |
@@ -349,6 +351,7 @@
 | `PNG_SIGNATURE` | var | js/core/util/png-bit-depth.js:9 |
 | `POSE` | var | scripts/full-feature-e2e.cjs:23 |
 | `POSE` | var | scripts/gpt-real-api-acceptance.cjs:30 |
+| `POSE` | var | scripts/ux-screenshots.cjs:9 |
 | `POSITIONS` | var | js/simulator/story-engine.js:6 |
 | `PREVIEW_MODEL_IDENTITY` | var | scripts/novelai-batch-tools.mjs:43 |
 | `PREVIEW_STYLE_LOCK` | var | scripts/novelai-batch-tools.mjs:56 |
@@ -504,7 +507,7 @@
 | `active` | var | js/canvas-manager.js:820 |
 | `active` | var | js/local-tools/background-removal-client.js:43 |
 | `active` | var | js/sidebar/pen/pen-tools.js:738 |
-| `active` | var | js/sidebar/tone/tone-manager.js:48 |
+| `active` | var | js/sidebar/tone/tone-manager.js:69 |
 | `active` | var | js/simulator/renderers/visual-novel-renderer.js:101 |
 | `active` | var | js/simulator/site-ui-parts.js:172 |
 | `active` | var | js/ui/beginner-guide.js:94 |
@@ -653,7 +656,7 @@
 | `addTextArea` | function | js/sidebar/sidebar-ui.js:233 |
 | `addToCanvas` | function | js/core/svg/google-icon-helper.js:178 |
 | `addToCanvas` | function | js/simulator/extra-renderers/renderer-kit.js:204 |
-| `addToneEventListener` | function | js/sidebar/tone/tone-manager.js:310 |
+| `addToneEventListener` | function | js/sidebar/tone/tone-manager.js:333 |
 | `addToneEventListener` | function | js/sidebar/tone/tone.js:211 |
 | `addToneNoiseEventListener` | function | js/sidebar/tone/tone-noise.js:91 |
 | `addTooltip` | function | js/ui/third/tippy.js:30 |
@@ -1935,6 +1938,7 @@
 | `checked` | var | js/local-tools/cutout-presets.js:64 |
 | `checked` | var | js/local-tools/cutout-presets.js:88 |
 | `checked` | var | js/sidebar/pen/brush-presets.js:96 |
+| `checked` | var | scripts/beginner-ux-guards-test.cjs:26 |
 | `checkedAttribute` | var | js/sidebar/sidebar-ui.js:106 |
 | `checkedLayers` | var | js/layer/blend/blend.js:244 |
 | `checkedLayers` | var | js/layer/blend/blend.js:335 |
@@ -2005,7 +2009,7 @@
 | `clear` | var | js/ai/manga-importer.js:729 |
 | `clearActiveEffectButton` | function | js/sidebar/effect/effect-manager.js:221 |
 | `clearActiveT2Button` | function | js/sidebar/text/text-2-manager.js:402 |
-| `clearActiveToneButton` | function | js/sidebar/tone/tone-manager.js:352 |
+| `clearActiveToneButton` | function | js/sidebar/tone/tone-manager.js:375 |
 | `clearAllAiTasks` | function | js/ai/queue/generation-task-manager.js:95 |
 | `clearAllClipPaths` | var | js/ui/canvas-object-menu.js:180 |
 | `clearAllQueues` | function | js/ai/ai-management.js:25 |
@@ -2031,11 +2035,12 @@
 | `clearSBLine` | function | js/sidebar/speechBubble/speech-bubble-freehand.js:51 |
 | `clearT2Settings` | function | js/sidebar/text/text-2-manager.js:207 |
 | `clearTagsBtn` | var | js/dashboard/dashboard-ui.js:193 |
-| `clearToneSettings` | function | js/sidebar/tone/tone-manager.js:245 |
+| `clearToneSettings` | function | js/sidebar/tone/tone-manager.js:268 |
 | `clearTopClipPath` | var | js/ui/canvas-object-menu.js:182 |
 | `clearedCount` | var | js/ai/queue/task-queue.js:79 |
 | `click` | var | js/core/util/anime-util.js:3 |
 | `clickTog` | var | js/core/util/anime-util.js:8 |
+| `clicked` | var | js/sidebar/tone/tone-manager.js:72 |
 | `clickedElement` | var | js/ui/canvas-object-menu.js:491 |
 | `clickedObject` | var | js/ui/canvas-object-menu.js:697 |
 | `client` | var | js/local-tools/background-removal-client.js:4 |
@@ -2210,6 +2215,7 @@
 | `config` | var | js/simulator/chat-renderer.js:43 |
 | `config` | var | js/simulator/extra-renderer-factory.js:20 |
 | `config` | var | js/simulator/extra-renderers/renderer-kit.js:151 |
+| `confirmAllRemove` | function | js/layer/image-history-management.js:329 |
 | `confirmCrop` | var | js/ui/canvas-object-menu.js:191 |
 | `confirmSpend` | function | js/ui/beginner-guide.js:373 |
 | `confirmSpend` | function | js/ui/visual-ps-tools.js:524 |
@@ -2323,7 +2329,7 @@
 | `controlsDiv` | var | js/ui/glfx-ui.js:198 |
 | `convert` | function | js/core/util/image-util.js:786 |
 | `convertPixels` | function | js/core/util/png-bit-depth.js:412 |
-| `convertToSVG` | function | js/sidebar/tone/tone-manager.js:361 |
+| `convertToSVG` | function | js/sidebar/tone/tone-manager.js:384 |
 | `converted` | var | js/core/util/png-bit-depth.js:536 |
 | `convexHull` | var | js/core/util/fabric-util.js:392 |
 | `coordCheckbox` | var | js/ui/control/information-control.js:2 |
@@ -2534,6 +2540,7 @@
 | `ctx` | var | js/ui/visual-ps-tools.js:365 |
 | `ctx` | var | scripts/manga-character-bible-test.cjs:3 |
 | `ctx` | var | scripts/manga-page-structure-test.cjs:8 |
+| `ctx` | var | scripts/tone-target-click-test.cjs:15 |
 | `current` | var | js/ai/ai-settings.js:61 |
 | `current` | var | js/ai/ai-settings.js:78 |
 | `current` | var | js/ai/ai-settings.js:114 |
@@ -3260,7 +3267,7 @@
 | `el` | var | js/sidebar/text/text-effect.js:53 |
 | `el` | var | js/sidebar/text/text-effect.js:67 |
 | `el` | var | js/sidebar/text/text-effect.js:78 |
-| `el` | var | js/sidebar/tone/tone-manager.js:354 |
+| `el` | var | js/sidebar/tone/tone-manager.js:377 |
 | `el` | function | js/simulator/chat-controller.js:13 |
 | `el` | function | js/simulator/simulator-studio.js:84 |
 | `el` | function | js/simulator/story-composer-controller.js:13 |
@@ -3319,8 +3326,8 @@
 | `elements` | var | js/sidebar/pen/pen-tools.js:223 |
 | `elements` | var | js/sidebar/pen/pen-tools.js:245 |
 | `elements` | var | js/sidebar/speechBubble/speech-bubble-text.js:25 |
-| `elements` | var | js/sidebar/tone/tone-manager.js:247 |
-| `elements` | var | js/sidebar/tone/tone-manager.js:312 |
+| `elements` | var | js/sidebar/tone/tone-manager.js:270 |
+| `elements` | var | js/sidebar/tone/tone-manager.js:335 |
 | `elements` | var | js/ui/util/focus-trap.js:46 |
 | `elements` | var | scripts/gpt-region-editor-smoke-test.cjs:59 |
 | `elementsT2` | var | js/sidebar/text/text-2-manager.js:32 |
@@ -3867,6 +3874,7 @@
 | `fmFontData` | var | js/core/font/font-manager-core.js:67 |
 | `fmFontRepository` | var | js/db/user-font-repository.js:2 |
 | `fmUserFontManager` | var | js/ui/font/user-font-manager.js:2 |
+| `fn` | var | scripts/beginner-ux-guards-test.cjs:11 |
 | `fn` | var | scripts/check-translations.cjs:43 |
 | `fn` | var | scripts/check-translations.cjs:71 |
 | `focusLine` | var | js/sidebar/tone/focusline.js:53 |
@@ -3995,6 +4003,7 @@
 | `frontSize` | var | js/sidebar/tone/snow-tone.js:123 |
 | `fs` | var | js/dashboard/performance-storage.js:366 |
 | `fs` | var | scripts/asset-library-smoke-test.cjs:1 |
+| `fs` | var | scripts/beginner-ux-guards-test.cjs:4 |
 | `fs` | var | scripts/check-translations.cjs:2 |
 | `fs` | var | scripts/custom-brush-smoke-test.cjs:2 |
 | `fs` | var | scripts/cutout-presets-smoke-test.cjs:2 |
@@ -4036,6 +4045,8 @@
 | `fs` | var | scripts/simulator-extra-smoke-test.cjs:1 |
 | `fs` | var | scripts/simulator-timeline-smoke-test.cjs:1 |
 | `fs` | var | scripts/story-engine-smoke-test.cjs:2 |
+| `fs` | var | scripts/tone-target-click-test.cjs:5 |
+| `fs` | var | scripts/ux-screenshots.cjs:6 |
 | `fs` | var | scripts/vendor-free-public-assets.cjs:6 |
 | `full` | var | scripts/gen-project-index.cjs:40 |
 | `full` | var | scripts/gen-project-index.cjs:56 |
@@ -4488,6 +4499,7 @@
 | `hasAny` | var | js/ai/provider/falai-provider.js:79 |
 | `hasCjk` | function | js/ai/prompt/novelai-composition-director.js:145 |
 | `hasCjkChars` | function | js/core/font/font-manager-core.js:63 |
+| `hasContent` | var | js/layer/image-history-management.js:330 |
 | `hasContent` | var | js/sidebar/panel/panel-template.js:141 |
 | `hasCurrent` | var | js/ai/ai-settings.js:115 |
 | `hasEditMode` | var | js/ui/util/mode-manager.js:333 |
@@ -4590,7 +4602,7 @@
 | `height` | var | js/sidebar/pen/original-brush.js:440 |
 | `height` | var | js/sidebar/tone/rain-tone.js:59 |
 | `height` | var | js/sidebar/tone/speedline.js:79 |
-| `height` | var | js/sidebar/tone/tone-manager.js:363 |
+| `height` | var | js/sidebar/tone/tone-manager.js:386 |
 | `height` | var | js/sidebar/tone/tone.js:113 |
 | `height` | var | js/simulator/chat-renderer.js:27 |
 | `height` | var | js/simulator/chat-renderer.js:360 |
@@ -4708,6 +4720,7 @@
 | `html` | var | js/dashboard/dashboard-ui.js:944 |
 | `html` | var | js/ui/canvas-object-menu.js:144 |
 | `html` | var | js/ui/visual-studio.js:297 |
+| `html` | var | scripts/beginner-ux-guards-test.cjs:7 |
 | `html` | var | scripts/fabric-text-focus-smoke-test.cjs:137 |
 | `html` | var | scripts/image-export-smoke-test.cjs:147 |
 | `html` | var | scripts/layout-smoke-test.cjs:5 |
@@ -4814,6 +4827,7 @@
 | `iend` | var | js/core/util/png-bit-depth.js:540 |
 | `iframe` | var | js/core/util/load-util.js:77 |
 | `ih` | var | js/assets/asset-store.js:371 |
+| `ih` | var | scripts/beginner-ux-guards-test.cjs:10 |
 | `ihdr` | var | js/core/util/png-bit-depth.js:538 |
 | `ihdr` | var | scripts/image-export-integration-test.cjs:46 |
 | `ihdr` | var | scripts/png-bit-depth-smoke-test.cjs:75 |
@@ -4958,7 +4972,7 @@
 | `init` | function | js/ai/inpainting/inpaint-mask.js:15 |
 | `init` | function | js/ai/prompt/auto/character-card-manager.js:521 |
 | `initCameraWidget` | function | js/ai/angle/angle-editor.js:34 |
-| `initImageHistory` | function | js/layer/image-history-management.js:327 |
+| `initImageHistory` | function | js/layer/image-history-management.js:340 |
 | `initLocalTab` | function | js/ai/ui/model-settings-window.js:45 |
 | `initMessage` | function | js/core/util/fabric-util.js:896 |
 | `initMessageText` | var | js/core/util/fabric-util.js:895 |
@@ -5522,7 +5536,7 @@
 | `lassoPts` | var | js/ui/visual-ps-tools.js:33 |
 | `last` | var | js/ai/director/scene-plan-controller.js:27 |
 | `last` | var | js/sidebar/pen/custom-brush.js:199 |
-| `last` | var | js/sidebar/tone/tone-manager.js:51 |
+| `last` | var | js/sidebar/tone/tone-manager.js:74 |
 | `last` | var | js/simulator/story-engine.js:167 |
 | `last` | var | js/ui/util/focus-trap.js:72 |
 | `lastActiveObjectState` | var | js/fabric/fabric-management.js:11 |
@@ -5982,14 +5996,16 @@
 | `mangaToneGradStartX` | var | js/sidebar/tone/tone-manager.js:35 |
 | `mangaToneGradStartY` | var | js/sidebar/tone/tone-manager.js:36 |
 | `mangaToneGradStyle` | var | js/sidebar/tone/tone-manager.js:37 |
+| `mangaToneLastPagePoint` | var | js/sidebar/tone/tone-manager.js:51 |
 | `mangaToneLineSize` | var | js/sidebar/tone/tone-manager.js:38 |
 | `mangaToneLineWidthExpand` | var | js/sidebar/tone/tone-manager.js:39 |
 | `mangaToneMaxNoise` | var | js/sidebar/tone/tone-manager.js:40 |
 | `mangaToneMaxRadius` | var | js/sidebar/tone/tone-manager.js:41 |
 | `mangaToneMinNoise` | var | js/sidebar/tone/tone-manager.js:42 |
 | `mangaToneMinRadius` | var | js/sidebar/tone/tone-manager.js:43 |
-| `mangaToneRequireTarget` | function | js/sidebar/tone/tone-manager.js:57 |
-| `mangaToneTarget` | function | js/sidebar/tone/tone-manager.js:47 |
+| `mangaTonePanelAt` | function | js/sidebar/tone/tone-manager.js:57 |
+| `mangaToneRequireTarget` | function | js/sidebar/tone/tone-manager.js:80 |
+| `mangaToneTarget` | function | js/sidebar/tone/tone-manager.js:68 |
 | `manifest` | var | js/assets/asset-store.js:4 |
 | `manifest` | var | scripts/asset-library-smoke-test.cjs:32 |
 | `map` | var | js/ai/provider/falai-provider.js:26 |
@@ -6164,6 +6180,7 @@
 | `message` | var | js/ai/provider/novelai-provider.js:533 |
 | `message` | var | js/core/logger.js:108 |
 | `message` | var | js/core/util/fabric-util.js:898 |
+| `message` | var | js/layer/image-history-management.js:333 |
 | `message` | var | js/local-tools/local-tools-client.js:33 |
 | `message` | var | js/project-management.js:116 |
 | `message` | var | js/simulator/chat-controller.js:56 |
@@ -6756,6 +6773,7 @@
 | `obj` | var | js/fabric/fabric-management.js:313 |
 | `obj` | var | js/sidebar/speechBubble/speech-bubble-freehand.js:525 |
 | `obj` | var | js/sidebar/tone/focusline.js:213 |
+| `obj` | var | js/sidebar/tone/tone-manager.js:61 |
 | `obj` | var | js/ui/visual-ps-tools.js:259 |
 | `obj` | var | js/ui/visual-ps-tools.js:564 |
 | `obj` | var | js/ui/visual-studio.js:173 |
@@ -6799,7 +6817,7 @@
 | `objectLeft` | var | js/core/util/image-util.js:163 |
 | `objectList` | var | js/ui/util/mode-manager.js:164 |
 | `objectList` | var | js/ui/util/mode-manager.js:180 |
-| `objectMap` | var | js/layer/image-history-management.js:341 |
+| `objectMap` | var | js/layer/image-history-management.js:354 |
 | `objectMenu` | var | js/ui/canvas-object-menu.js:4 |
 | `objectOnCanvas` | function | js/simulator/extra-renderer-factory.js:350 |
 | `objectToJsonString` | function | js/core/util/log-util.js:3 |
@@ -6808,6 +6826,7 @@
 | `objectWidth` | var | js/core/util/image-util.js:161 |
 | `objects` | var | js/canvas-manager.js:836 |
 | `objects` | var | js/sidebar/panel/panel-manager.js:220 |
+| `objects` | var | js/sidebar/tone/tone-manager.js:59 |
 | `objects` | var | js/simulator/extra-renderer-factory.js:169 |
 | `objects` | var | js/simulator/extra-renderer-factory.js:184 |
 | `objects` | var | js/simulator/extra-renderer-factory.js:227 |
@@ -8005,6 +8024,7 @@
 | `rePy` | var | scripts/gen-project-index.cjs:469 |
 | `reQuery` | var | scripts/gen-project-index.cjs:180 |
 | `reSetSpeechBubbleText` | function | js/layer/image-history-management.js:301 |
+| `read` | var | scripts/beginner-ux-guards-test.cjs:6 |
 | `read` | function | scripts/manga-import-smoke-test.cjs:11 |
 | `readArrayBuffer` | function | js/assets/asset-scanner.js:13 |
 | `readChatStory` | function | js/simulator/simulator-studio.js:122 |
@@ -8118,6 +8138,7 @@
 | `rect` | var | scripts/manga-bubble-detector-test.cjs:20 |
 | `rect` | var | scripts/manga-smart-text-test.cjs:11 |
 | `rect` | function | scripts/manga-text-ink-mask-test.cjs:21 |
+| `rect` | var | scripts/tone-target-click-test.cjs:9 |
 | `rectElement` | var | js/sidebar/text/custom/optimized-aurora-text.js:70 |
 | `rectHeight` | var | js/sidebar/speechBubble/speech-bubble-freehand.js:613 |
 | `rectHeight` | var | js/sidebar/speechBubble/speech-bubble-freehand.js:743 |
@@ -8339,7 +8360,7 @@
 | `resetBtn` | var | js/sidebar/panel/panel-template.js:230 |
 | `resetClient` | function | js/local-tools/background-removal-client.js:36 |
 | `resetCode` | var | js/core/logger.js:81 |
-| `resetEventHandlers` | function | js/layer/image-history-management.js:340 |
+| `resetEventHandlers` | function | js/layer/image-history-management.js:353 |
 | `resetFlexGenSizeForPanels` | function | js/sidebar/panel/panel-template.js:206 |
 | `resetFlexGenSizeForPanels` | global | js/sidebar/panel/panel-template.js:241 |
 | `resetSystemPrompt` | function | js/ai/prompt/novelai-composition-director.js:402 |
@@ -8565,6 +8586,7 @@
 | `root` | var | js/simulator/extra-renderer-factory.js:187 |
 | `root` | var | js/simulator/extra-renderer-factory.js:259 |
 | `root` | var | js/simulator/extra-renderer-factory.js:330 |
+| `root` | var | scripts/beginner-ux-guards-test.cjs:5 |
 | `root` | var | scripts/custom-brush-smoke-test.cjs:6 |
 | `root` | var | scripts/cutout-presets-smoke-test.cjs:6 |
 | `root` | var | scripts/fabric-text-focus-smoke-test.cjs:10 |
@@ -8652,6 +8674,7 @@
 | `rpOnline` | var | js/ai/ui/model-settings-window.js:90 |
 | `run` | var | js/assets/image2-controller.js:8 |
 | `run` | var | js/local-tools/background-removal-client.js:480 |
+| `run` | function | scripts/beginner-ux-guards-test.cjs:12 |
 | `run` | function | scripts/check-translations.cjs:99 |
 | `run` | function | scripts/project-load-open-page-test.cjs:8 |
 | `runAllTests` | global | js/core/debug.js:403 |
@@ -9171,7 +9194,7 @@
 | `settingsHTML` | var | js/sidebar/effect/effect-manager.js:108 |
 | `settingsHTML` | var | js/sidebar/pen/pen-tools.js:103 |
 | `settingsHTML` | var | js/sidebar/text/text-2-manager.js:56 |
-| `settingsHTML` | var | js/sidebar/tone/tone-manager.js:128 |
+| `settingsHTML` | var | js/sidebar/tone/tone-manager.js:151 |
 | `settingsSave` | var | js/project-management.js:19 |
 | `settingsSrc` | var | scripts/layout-smoke-test.cjs:121 |
 | `setupContextTopBrush` | function | js/sidebar/pen/pen-tools.js:382 |
@@ -9299,7 +9322,7 @@
 | `sliders2` | var | js/sidebar/effect/effect-manager.js:138 |
 | `sliders2` | var | js/sidebar/pen/pen-tools.js:215 |
 | `sliders2` | var | js/sidebar/text/text-2-manager.js:201 |
-| `sliders2` | var | js/sidebar/tone/tone-manager.js:239 |
+| `sliders2` | var | js/sidebar/tone/tone-manager.js:262 |
 | `sliders2` | var | js/ui/canvas-object-menu.js:366 |
 | `sliders2` | var | js/ui/custom-html-component.js:6 |
 | `sliders2` | var | js/ui/glfx-ui.js:204 |
@@ -9473,6 +9496,7 @@
 | `src` | var | js/ui/visual-ps-tools.js:367 |
 | `src` | var | scripts/novelai-readable-error-test.cjs:8 |
 | `src` | var | scripts/project-load-open-page-test.cjs:6 |
+| `src` | var | scripts/tone-target-click-test.cjs:6 |
 | `srcMatch` | var | scripts/gen-project-index.cjs:274 |
 | `ss` | var | js/core/util/image-util.js:654 |
 | `stableSeed` | function | scripts/novelai-batch-tools.mjs:76 |
@@ -9507,6 +9531,7 @@
 | `start` | function | js/core/auto-save.js:35 |
 | `start` | var | js/sidebar/pen/custom-brush.js:215 |
 | `start` | var | js/simulator/longshot-exporter.js:16 |
+| `start` | var | scripts/tone-target-click-test.cjs:7 |
 | `startColor` | var | js/layer/blend/blend.js:669 |
 | `startCropMode` | function | js/ui/util/mode-change.js:122 |
 | `startCutoutRegionMode` | function | js/ui/util/mode-change.js:171 |
@@ -9800,7 +9825,7 @@
 | `svgString` | var | js/sidebar/text/custom/optimized-wild-text.js:102 |
 | `svgString` | var | js/sidebar/text/custom/optimized-zebra-text.js:120 |
 | `svgString` | var | js/sidebar/tone/focusline.js:208 |
-| `svgString` | var | js/sidebar/tone/tone-manager.js:364 |
+| `svgString` | var | js/sidebar/tone/tone-manager.js:387 |
 | `svgText` | var | js/sidebar/panel/panel-manager.js:27 |
 | `sw` | var | js/local-tools/background-removal-client.js:242 |
 | `swapImages` | function | js/ui/bottom-bar.js:206 |
@@ -9810,8 +9835,8 @@
 | `swirlRadius` | var | js/ui/control/glfx-control.js:350 |
 | `switchMangaEffect` | function | js/sidebar/effect/effect-manager.js:21 |
 | `switchMangaEffectUi` | function | js/sidebar/effect/effect-manager.js:106 |
-| `switchMangaTone` | function | js/sidebar/tone/tone-manager.js:64 |
-| `switchMangaToneUi` | function | js/sidebar/tone/tone-manager.js:123 |
+| `switchMangaTone` | function | js/sidebar/tone/tone-manager.js:87 |
+| `switchMangaToneUi` | function | js/sidebar/tone/tone-manager.js:146 |
 | `switchPencilType` | function | js/sidebar/pen/pen-tools.js:4 |
 | `switchPencilTypeUi` | function | js/sidebar/pen/pen-tools.js:101 |
 | `switchSBLine` | function | js/sidebar/speechBubble/speech-bubble-freehand.js:46 |
@@ -10053,7 +10078,7 @@
 | `target` | var | js/sidebar/pen/pen-tools.js:590 |
 | `target` | var | js/sidebar/speechBubble/speech-bubble-effect.js:80 |
 | `target` | var | js/sidebar/text/vertical-textbox.js:567 |
-| `target` | var | js/sidebar/tone/tone-manager.js:58 |
+| `target` | var | js/sidebar/tone/tone-manager.js:81 |
 | `target` | var | js/simulator/page-edit-controller.js:18 |
 | `target` | var | js/simulator/page-edit-controller.js:32 |
 | `target` | var | js/simulator/page-edit-controller.js:43 |
@@ -10227,6 +10252,7 @@
 | `text` | var | js/ui/toast.js:127 |
 | `text` | var | scripts/gen-project-index.cjs:119 |
 | `text` | function | scripts/generate-site-ui-svgs.cjs:25 |
+| `text` | var | scripts/tone-target-click-test.cjs:12 |
 | `text2imgBasePromptFile` | var | js/core/compression/project-compression.js:333 |
 | `textAlign` | var | js/sidebar/text/custom/optimized-broken-text.js:50 |
 | `textAlign` | var | js/sidebar/text/custom/optimized-cloud-text.js:48 |
@@ -10500,6 +10526,7 @@
 | `top` | var | js/simulator/renderers/visual-novel-renderer.js:136 |
 | `top` | var | js/ui/canvas-object-menu.js:78 |
 | `top` | var | js/ui/control/glfx-control.js:107 |
+| `top` | var | scripts/tone-target-click-test.cjs:11 |
 | `topEdgePoints` | var | js/core/util/fabric-util.js:399 |
 | `topIndices` | var | js/core/util/fabric-util.js:524 |
 | `topLevelLayers` | var | js/layer/layer-management.js:187 |
@@ -10586,6 +10613,7 @@
 | `tubeGeo` | var | js/ai/angle/camera-widget.js:213 |
 | `tubeMat` | var | js/ai/angle/camera-widget.js:214 |
 | `tubePlayer` | var | scripts/asset-library-smoke-test.cjs:77 |
+| `tut` | var | scripts/beginner-ux-guards-test.cjs:37 |
 | `tutorialIntroLegacy` | function | js/ui/third/intro.js:19 |
 | `tutorialLogger` | var | js/core/logger.js:187 |
 | `tweetText` | var | js/core/util/share-util.js:12 |
@@ -10752,6 +10780,7 @@
 | `uploadUrl` | var | js/ai/comfyui/comfyui-management.js:404 |
 | `uploadUrl` | var | js/ai/comfyui/v2/comfyui-util-v2.js:95 |
 | `uploader` | var | js/simulator/story-adapters.js:242 |
+| `upper` | var | scripts/tone-target-click-test.cjs:14 |
 | `upperLeft` | var | js/core/util/png-bit-depth.js:200 |
 | `upperLeft` | var | js/core/util/png-bit-depth.js:468 |
 | `upperLeft` | var | scripts/image-export-integration-test.cjs:121 |
@@ -11099,7 +11128,7 @@
 | `width` | var | js/sidebar/text/vertical-textbox.js:536 |
 | `width` | var | js/sidebar/tone/rain-tone.js:58 |
 | `width` | var | js/sidebar/tone/speedline.js:78 |
-| `width` | var | js/sidebar/tone/tone-manager.js:362 |
+| `width` | var | js/sidebar/tone/tone-manager.js:385 |
 | `width` | var | js/sidebar/tone/tone.js:112 |
 | `width` | var | js/simulator/chat-renderer.js:26 |
 | `width` | var | js/simulator/chat-renderer.js:185 |
@@ -11275,6 +11304,8 @@
 | `yy` | var | js/ai/manga-importer.js:123 |
 | `yyyy` | var | js/core/util/image-util.js:649 |
 | `zero` | var | scripts/gpt-panel-line-protect-test.cjs:42 |
+| `zh` | var | scripts/beginner-ux-guards-test.cjs:25 |
+| `zhSrc` | var | scripts/beginner-ux-guards-test.cjs:24 |
 | `zip` | var | js/ai/provider/novelai-provider.js:447 |
 | `zip` | var | js/project-management.js:85 |
 | `zipContent` | var | js/core/compression/project-compression.js:222 |

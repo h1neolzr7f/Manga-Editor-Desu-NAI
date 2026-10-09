@@ -324,6 +324,19 @@ imageMap.clear();
 stateStack=[];
 currentStateIndex=-1;
 }
+// Menu entry "清空画布": allRemove() also wipes the undo history, so a misclick
+// would lose the page for good. Ask first when the page holds user content.
+function confirmAllRemove(){
+var hasContent=(typeof pageHasUserContent==='function')?pageHasUserContent():
+(typeof canvas!=='undefined'&&canvas&&canvas.getObjects().length>0);
+if(hasContent){
+var message=(typeof getText==='function'&&getText('allRemoveConfirm')&&getText('allRemoveConfirm')!=='allRemoveConfirm')?
+getText('allRemoveConfirm'):'清空当前页上的全部内容？此操作无法撤销。需要保留的话请先「保存项目」(Ctrl+S)。';
+if(!window.confirm(message))return false;
+}
+allRemove();
+return true;
+}
 function initImageHistory(){
 allRemove();
 imageMap.clear();

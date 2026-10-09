@@ -57,7 +57,7 @@
 | css/ui/role-assign-modal.css | 16 |  |
 | css/ui/share.css | 153 | Decorative web fonts are no longer fetched from Google at startup (blocked in some regions, adds a failed request); the system sans-serif fallback is used. |
 | css/ui/shortcut-modal.css | 16 |  |
-| css/ui/tutorial.css | 357 |  |
+| css/ui/tutorial.css | 372 |  |
 | css/ui/unified-settings.css | 82 |  |
 | css/visual-studio.css | 399 |  |
 | gpt_image_proxy.py | 369 |  |
@@ -191,7 +191,7 @@
 | js/fabric/fabric-management.js | 694 |  |
 | js/layer/blend/blend.js | 719 | ブレンドモードUI - カテゴリ分類・プレビュー・適用処理 |
 | js/layer/floating-window-management.js | 80 |  |
-| js/layer/image-history-management.js | 359 |  |
+| js/layer/image-history-management.js | 372 |  |
 | js/layer/layer-button.js | 303 |  |
 | js/layer/layer-management.js | 578 |  |
 | js/local-tools/background-removal-client.js | 545 |  |
@@ -255,7 +255,7 @@
 | js/sidebar/tone/rain-tone.js | 106 |  |
 | js/sidebar/tone/snow-tone.js | 181 |  |
 | js/sidebar/tone/speedline.js | 184 |  |
-| js/sidebar/tone/tone-manager.js | 374 |  |
+| js/sidebar/tone/tone-manager.js | 397 |  |
 | js/sidebar/tone/tone-noise.js | 145 |  |
 | js/sidebar/tone/tone.js | 220 |  |
 | js/simulator/chat-controller.js | 367 |  |
@@ -303,14 +303,14 @@
 | js/ui/imagePromptHelper/prompt-helper.js | 208 |  |
 | js/ui/overlay-progress.js | 94 |  |
 | js/ui/prompt-manager.js | 63 |  |
-| js/ui/third/base-translation/base-de.js | 562 |  |
-| js/ui/third/base-translation/base-en.js | 577 |  |
-| js/ui/third/base-translation/base-es.js | 554 |  |
-| js/ui/third/base-translation/base-fr.js | 571 |  |
-| js/ui/third/base-translation/base-ja.js | 567 |  |
-| js/ui/third/base-translation/base-ko.js | 569 |  |
-| js/ui/third/base-translation/base-ru.js | 555 |  |
-| js/ui/third/base-translation/base-zh.js | 603 |  |
+| js/ui/third/base-translation/base-de.js | 563 |  |
+| js/ui/third/base-translation/base-en.js | 578 |  |
+| js/ui/third/base-translation/base-es.js | 555 |  |
+| js/ui/third/base-translation/base-fr.js | 572 |  |
+| js/ui/third/base-translation/base-ja.js | 568 |  |
+| js/ui/third/base-translation/base-ko.js | 570 |  |
+| js/ui/third/base-translation/base-ru.js | 556 |  |
+| js/ui/third/base-translation/base-zh.js | 604 |  |
 | js/ui/third/i18next.js | 5754 | "yyyyMMddHHmmss_SSS": { |
 | js/ui/third/intro.js | 23 |  |
 | js/ui/third/tippy.js | 94 | Tooltip initialization using Tippy.js |
@@ -335,12 +335,13 @@
 | manga_smart_ocr.py | 256 |  |
 | scripts/MangaMakerUI.py | 64 |  |
 | scripts/asset-library-smoke-test.cjs | 113 |  |
+| scripts/beginner-ux-guards-test.cjs | 40 | Beginner UX guards: destructive "clear canvas" asks first, zh menu labels match the |
 | scripts/check-translations.cjs | 227 | Translation key validation script - compares keys across all languages in i18next resources |
 | scripts/custom-brush-smoke-test.cjs | 44 |  |
 | scripts/cutout-color-key-smoke-test.py | 36 |  |
 | scripts/cutout-presets-smoke-test.cjs | 34 |  |
 | scripts/fabric-text-focus-smoke-test.cjs | 145 | fabric の編集用 textarea がスクロールを起こさないことを検証する。 |
-| scripts/full-feature-e2e.cjs | 420 | Full-feature end-to-end walk-through in real Chromium against the real 99_server.py. |
+| scripts/full-feature-e2e.cjs | 425 | Full-feature end-to-end walk-through in real Chromium against the real 99_server.py. |
 | scripts/gen-project-index.cjs | 722 | プロジェクト索引の自動生成。 |
 | scripts/generate-original-starter-svgs.cjs | 326 |  |
 | scripts/generate-site-ui-svgs.cjs | 391 |  |
@@ -401,6 +402,8 @@
 | scripts/simulator-extra-smoke-test.cjs | 173 |  |
 | scripts/simulator-timeline-smoke-test.cjs | 11 |  |
 | scripts/story-engine-smoke-test.cjs | 126 |  |
+| scripts/tone-target-click-test.cjs | 34 | Regression: panels are not selectable, so "click a panel, then a tone" put the tone on |
+| scripts/ux-screenshots.cjs | 44 | Beginner-flow screenshots for UX before/after comparison. |
 | scripts/validate-manga-split-samples.py | 546 |  |
 | scripts/vendor-free-public-assets.cjs | 274 | Download clearly licensed free assets into assets/public/. |
 | service-worker.js | 93 | Service Worker: Cache management for HTTP/HTTPS deployment |

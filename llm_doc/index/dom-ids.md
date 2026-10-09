@@ -191,7 +191,7 @@
 | `dashboardWeeklyProgressText` | index.html:2958 | js/dashboard/dashboard-ui.js:919 |
 | `dashboardWordcloud` | index.html:2845 | js/dashboard/dashboard-ui.js:208, js/ui/third/i18next.js:4011 |
 | `desu-nav` | index.html:212 | index.html:132 |
-| `edit` | index.html:790 | js/ai/gpt-region-editor.js:457, js/core/svg/google-icon-helper.js:78, js/core/svg/google-icon-names.js:11, js/sidebar/panel/panel-manager.js:449, js/ui/canvas-object-menu.js:11, js/ui/util/mode-manager.js:346, scripts/full-feature-e2e.cjs:346, scripts/gpt-browser-acceptance.cjs:880, scripts/gpt-real-api-acceptance.cjs:209, scripts/gpt-region-editor-smoke-test.cjs:66 |
+| `edit` | index.html:790 | js/ai/gpt-region-editor.js:457, js/core/svg/google-icon-helper.js:78, js/core/svg/google-icon-names.js:11, js/sidebar/panel/panel-manager.js:449, js/ui/canvas-object-menu.js:11, js/ui/util/mode-manager.js:346, scripts/full-feature-e2e.cjs:351, scripts/gpt-browser-acceptance.cjs:880, scripts/gpt-real-api-acceptance.cjs:209, scripts/gpt-region-editor-smoke-test.cjs:66 |
 | `esApi-controls-mini` | index.html:2169 |  |
 | `esApiControlsPanel` | index.html:2166 |  |
 | `exportPxCappedNote` | index.html:424 | js/canvas-manager.js:346 |
@@ -222,8 +222,8 @@
 | `image2Tags` | index.html:1276 | js/assets/image2-controller.js:15 |
 | `image2Transparent` | index.html:1277 | js/assets/image2-controller.js:15 |
 | `image2Width` | index.html:1277 | js/assets/image2-controller.js:15 |
-| `imageCopy` | index.html:262 | js/ui/third/base-translation/base-de.js:440, js/ui/third/base-translation/base-en.js:400, js/ui/third/base-translation/base-es.js:393, js/ui/third/base-translation/base-fr.js:395, js/ui/third/base-translation/base-ja.js:445, js/ui/third/base-translation/base-ko.js:395, js/ui/third/base-translation/base-ru.js:394, js/ui/third/base-translation/base-zh.js:406 |
-| `imageDownload` | index.html:256 | js/ui/third/base-translation/base-de.js:441, js/ui/third/base-translation/base-en.js:399, js/ui/third/base-translation/base-es.js:392, js/ui/third/base-translation/base-fr.js:394, js/ui/third/base-translation/base-ja.js:446, js/ui/third/base-translation/base-ko.js:394, js/ui/third/base-translation/base-ru.js:393, js/ui/third/base-translation/base-zh.js:405 |
+| `imageCopy` | index.html:262 | js/ui/third/base-translation/base-de.js:441, js/ui/third/base-translation/base-en.js:400, js/ui/third/base-translation/base-es.js:393, js/ui/third/base-translation/base-fr.js:395, js/ui/third/base-translation/base-ja.js:446, js/ui/third/base-translation/base-ko.js:395, js/ui/third/base-translation/base-ru.js:394, js/ui/third/base-translation/base-zh.js:406 |
+| `imageDownload` | index.html:256 | js/ui/third/base-translation/base-de.js:442, js/ui/third/base-translation/base-en.js:399, js/ui/third/base-translation/base-es.js:392, js/ui/third/base-translation/base-fr.js:394, js/ui/third/base-translation/base-ja.js:447, js/ui/third/base-translation/base-ko.js:394, js/ui/third/base-translation/base-ru.js:393, js/ui/third/base-translation/base-zh.js:405, scripts/beginner-ux-guards-test.cjs:29 |
 | `imageInput` | index.html:2062 | js/canvas-manager.js:974, scripts/import-image-keeps-page-test.cjs:19 |
 | `intro_asset-library-area` | index.html:619 |  |
 | `intro_auto-generate-area` | index.html:624 | js/ui/third/tippy.js:49 |
@@ -264,9 +264,9 @@
 | `manga-effect-area` | index.html:1747 | js/sidebar/sidebar.js:91, js/ui/visual-studio.js:326 |
 | `manga-effect-buttons` | index.html:1750 |  |
 | `manga-effect-settings` | index.html:1795 | js/sidebar/effect/effect-manager.js:116, js/ui/glfx-ui.js:197 |
-| `manga-tone-area` | index.html:1876 | js/sidebar/sidebar.js:90, js/ui/visual-studio.js:324, scripts/full-feature-e2e.cjs:245 |
+| `manga-tone-area` | index.html:1876 | js/sidebar/sidebar.js:90, js/ui/visual-studio.js:324, scripts/full-feature-e2e.cjs:249 |
 | `manga-tone-buttons` | index.html:1879 |  |
-| `manga-tone-settings` | index.html:1906 | js/sidebar/tone/tone-manager.js:139 |
+| `manga-tone-settings` | index.html:1906 | js/sidebar/tone/tone-manager.js:162 |
 | `mangaImageCanvas` | index.html:2125 | js/assets/asset-library-controller.js:195, js/core/settings.js:10 |
 | `mangaImportAutoTag` | index.html:1043 | js/ai/manga-importer.js:2397, js/project-management.js:236 |
 | `mangaImportCharacterPlaceholders` | index.html:1044 | js/ai/manga-importer.js:2376, js/project-management.js:237 |
@@ -286,7 +286,7 @@
 | `mangaImportTaggerThreshold` | index.html:2430 | js/ai/manga-importer.js:1920, js/project-management.js:231 |
 | `mangaImportTaggerUrl` | index.html:2429 | js/ai/manga-importer.js:1951, js/project-management.js:230 |
 | `mangaImportUseTaggerProxy` | index.html:2436 | js/ai/manga-importer.js:1959, js/project-management.js:234 |
-| `marginFromPanel` | index.html:476 | js/core/settings.js:26, js/project-management.js:203, js/ui/third/base-translation/base-de.js:455, js/ui/third/base-translation/base-en.js:491, js/ui/third/base-translation/base-es.js:484, js/ui/third/base-translation/base-fr.js:486, js/ui/third/base-translation/base-ja.js:460, js/ui/third/base-translation/base-ko.js:486, js/ui/third/base-translation/base-ru.js:485, js/ui/third/base-translation/base-zh.js:497 |
+| `marginFromPanel` | index.html:476 | js/core/settings.js:26, js/project-management.js:203, js/ui/third/base-translation/base-de.js:456, js/ui/third/base-translation/base-en.js:492, js/ui/third/base-translation/base-es.js:485, js/ui/third/base-translation/base-fr.js:487, js/ui/third/base-translation/base-ja.js:461, js/ui/third/base-translation/base-ko.js:487, js/ui/third/base-translation/base-ru.js:486, js/ui/third/base-translation/base-zh.js:498 |
 | `meshButton` | index.html:1719 |  |
 | `mode-toggle` | index.html:590 | js/ui/util/mode-change.js:59 |
 | `multiPageGenerate` | index.html:930 | js/panel/random-cut.js:136, js/ui/third/base-translation/base-de.js:111, js/ui/third/base-translation/base-en.js:116, js/ui/third/base-translation/base-es.js:111, js/ui/third/base-translation/base-fr.js:111, js/ui/third/base-translation/base-ja.js:115, js/ui/third/base-translation/base-ko.js:111, js/ui/third/base-translation/base-ru.js:111, js/ui/third/base-translation/base-zh.js:116 |
@@ -398,13 +398,13 @@
 | `opacity-control` | index.html:1953 | js/ui/control/common-control-management.js:2 |
 | `other-controls-mini` | index.html:2234 | js/ui/ai/auto-prompt-ui.js:83 |
 | `otherControlsPanel` | index.html:2231 |  |
-| `outputBitDepth` | index.html:439 | js/canvas-manager.js:245, js/core/util/image-util.js:618, js/project-management.js:200, js/ui/third/base-translation/base-de.js:404, js/ui/third/base-translation/base-en.js:484, js/ui/third/base-translation/base-es.js:477, js/ui/third/base-translation/base-fr.js:479, js/ui/third/base-translation/base-ja.js:409, js/ui/third/base-translation/base-ko.js:479, js/ui/third/base-translation/base-ru.js:478, js/ui/third/base-translation/base-zh.js:490, scripts/image-export-smoke-test.cjs:368 |
-| `outputBitDepthHint` | index.html:445 | js/canvas-manager.js:253, js/ui/third/base-translation/base-de.js:408, js/ui/third/base-translation/base-en.js:488, js/ui/third/base-translation/base-es.js:481, js/ui/third/base-translation/base-fr.js:483, js/ui/third/base-translation/base-ja.js:413, js/ui/third/base-translation/base-ko.js:483, js/ui/third/base-translation/base-ru.js:482, js/ui/third/base-translation/base-zh.js:494, scripts/image-export-smoke-test.cjs:368 |
+| `outputBitDepth` | index.html:439 | js/canvas-manager.js:245, js/core/util/image-util.js:618, js/project-management.js:200, js/ui/third/base-translation/base-de.js:405, js/ui/third/base-translation/base-en.js:485, js/ui/third/base-translation/base-es.js:478, js/ui/third/base-translation/base-fr.js:480, js/ui/third/base-translation/base-ja.js:410, js/ui/third/base-translation/base-ko.js:480, js/ui/third/base-translation/base-ru.js:479, js/ui/third/base-translation/base-zh.js:491, scripts/image-export-smoke-test.cjs:368 |
+| `outputBitDepthHint` | index.html:445 | js/canvas-manager.js:253, js/ui/third/base-translation/base-de.js:409, js/ui/third/base-translation/base-en.js:489, js/ui/third/base-translation/base-es.js:482, js/ui/third/base-translation/base-fr.js:484, js/ui/third/base-translation/base-ja.js:414, js/ui/third/base-translation/base-ko.js:484, js/ui/third/base-translation/base-ru.js:483, js/ui/third/base-translation/base-zh.js:495, scripts/image-export-smoke-test.cjs:368 |
 | `outputDpi` | index.html:403 | js/canvas-manager.js:273, js/core/util/image-util.js:667, js/project-management.js:198, scripts/image-export-smoke-test.cjs:150 |
-| `outputImageEstimate` | index.html:461 | js/canvas-manager.js:549, js/ui/third/base-translation/base-de.js:398, js/ui/third/base-translation/base-en.js:478, js/ui/third/base-translation/base-es.js:471, js/ui/third/base-translation/base-fr.js:473, js/ui/third/base-translation/base-ja.js:403, js/ui/third/base-translation/base-ko.js:473, js/ui/third/base-translation/base-ru.js:472, js/ui/third/base-translation/base-zh.js:484 |
+| `outputImageEstimate` | index.html:461 | js/canvas-manager.js:549, js/ui/third/base-translation/base-de.js:399, js/ui/third/base-translation/base-en.js:479, js/ui/third/base-translation/base-es.js:472, js/ui/third/base-translation/base-fr.js:474, js/ui/third/base-translation/base-ja.js:404, js/ui/third/base-translation/base-ko.js:474, js/ui/third/base-translation/base-ru.js:473, js/ui/third/base-translation/base-zh.js:485 |
 | `outputImageEstimateRow` | index.html:458 |  |
-| `outputImageFormat` | index.html:430 | js/canvas-manager.js:244, js/core/util/image-util.js:673, js/project-management.js:199, js/ui/third/base-translation/base-de.js:396, js/ui/third/base-translation/base-en.js:476, js/ui/third/base-translation/base-es.js:469, js/ui/third/base-translation/base-fr.js:471, js/ui/third/base-translation/base-ja.js:401, js/ui/third/base-translation/base-ko.js:471, js/ui/third/base-translation/base-ru.js:470, js/ui/third/base-translation/base-zh.js:482 |
-| `outputImageQuality` | index.html:449 | js/canvas-manager.js:526, js/core/util/image-util.js:674, js/project-management.js:201, js/ui/third/base-translation/base-de.js:397, js/ui/third/base-translation/base-en.js:477, js/ui/third/base-translation/base-es.js:470, js/ui/third/base-translation/base-fr.js:472, js/ui/third/base-translation/base-ja.js:402, js/ui/third/base-translation/base-ko.js:472, js/ui/third/base-translation/base-ru.js:471, js/ui/third/base-translation/base-zh.js:483 |
+| `outputImageFormat` | index.html:430 | js/canvas-manager.js:244, js/core/util/image-util.js:673, js/project-management.js:199, js/ui/third/base-translation/base-de.js:397, js/ui/third/base-translation/base-en.js:477, js/ui/third/base-translation/base-es.js:470, js/ui/third/base-translation/base-fr.js:472, js/ui/third/base-translation/base-ja.js:402, js/ui/third/base-translation/base-ko.js:472, js/ui/third/base-translation/base-ru.js:471, js/ui/third/base-translation/base-zh.js:483 |
+| `outputImageQuality` | index.html:449 | js/canvas-manager.js:526, js/core/util/image-util.js:674, js/project-management.js:201, js/ui/third/base-translation/base-de.js:398, js/ui/third/base-translation/base-en.js:478, js/ui/third/base-translation/base-es.js:471, js/ui/third/base-translation/base-fr.js:473, js/ui/third/base-translation/base-ja.js:403, js/ui/third/base-translation/base-ko.js:473, js/ui/third/base-translation/base-ru.js:472, js/ui/third/base-translation/base-zh.js:484 |
 | `page-landscape` | index.html:739 | js/sidebar/panel/panel-template.js:163 |
 | `page-portrait` | index.html:735 | js/sidebar/panel/panel-template.js:162 |
 | `page-title` | html/functionList.html:37 | html/functionList.html:294 |
@@ -441,8 +441,8 @@
 | `panelVariedMangaPerPage` | index.html:959 | js/panel/random-cut.js:81 |
 | `pen-tool-buttons` | index.html:1830 |  |
 | `pinokio` | html/API_Help/comfyui_settings.html:54 |  |
-| `projectLoad` | index.html:234 | js/project-management.js:23, js/shortcut.js:190, js/ui/third/base-translation/base-de.js:468, js/ui/third/base-translation/base-en.js:396, js/ui/third/base-translation/base-es.js:389, js/ui/third/base-translation/base-fr.js:391, js/ui/third/base-translation/base-ja.js:473, js/ui/third/base-translation/base-ko.js:391, js/ui/third/base-translation/base-ru.js:390, js/ui/third/base-translation/base-zh.js:402, scripts/full-feature-e2e.cjs:218 |
-| `projectSave` | index.html:228 | js/project-management.js:22, js/shortcut.js:182, js/ui/third/base-translation/base-de.js:469, js/ui/third/base-translation/base-en.js:395, js/ui/third/base-translation/base-es.js:388, js/ui/third/base-translation/base-fr.js:390, js/ui/third/base-translation/base-ja.js:474, js/ui/third/base-translation/base-ko.js:390, js/ui/third/base-translation/base-ru.js:389, js/ui/third/base-translation/base-zh.js:401, scripts/full-feature-e2e.cjs:208 |
+| `projectLoad` | index.html:234 | js/project-management.js:23, js/shortcut.js:190, js/ui/third/base-translation/base-de.js:469, js/ui/third/base-translation/base-en.js:396, js/ui/third/base-translation/base-es.js:389, js/ui/third/base-translation/base-fr.js:391, js/ui/third/base-translation/base-ja.js:474, js/ui/third/base-translation/base-ko.js:391, js/ui/third/base-translation/base-ru.js:390, js/ui/third/base-translation/base-zh.js:402, scripts/beginner-ux-guards-test.cjs:29, scripts/full-feature-e2e.cjs:218 |
+| `projectSave` | index.html:228 | js/project-management.js:22, js/shortcut.js:182, js/ui/third/base-translation/base-de.js:470, js/ui/third/base-translation/base-en.js:395, js/ui/third/base-translation/base-es.js:388, js/ui/third/base-translation/base-fr.js:390, js/ui/third/base-translation/base-ja.js:475, js/ui/third/base-translation/base-ko.js:390, js/ui/third/base-translation/base-ru.js:389, js/ui/third/base-translation/base-zh.js:401, scripts/beginner-ux-guards-test.cjs:29, scripts/full-feature-e2e.cjs:208 |
 | `prompt-A` | index.html:2197 | js/ai/ui/ai-ui-util.js:42 |
 | `prompt-E` | index.html:2211 | js/ai/ui/ai-ui-util.js:43 |
 | `prompt-F` | index.html:2222 | js/ai/ui/ai-ui-util.js:44 |
@@ -482,22 +482,22 @@
 | `scale-control` | index.html:1938 | js/ui/control/common-control-management.js:2 |
 | `scratchButton` | index.html:1695 |  |
 | `settingsAutoSaveCheckbox` | index.html:301 | js/project-management.js:246, js/sidebar/sidebar-ui.js:24 |
-| `settingsReset` | index.html:244 | js/ui/third/base-translation/base-zh.js:589, js/ui/third/i18next.js:4900 |
-| `settingsSave` | index.html:239 | js/project-management.js:19, js/shortcut.js:212, js/ui/third/base-translation/base-de.js:481, js/ui/third/base-translation/base-en.js:397, js/ui/third/base-translation/base-es.js:390, js/ui/third/base-translation/base-fr.js:392, js/ui/third/base-translation/base-ja.js:486, js/ui/third/base-translation/base-ko.js:392, js/ui/third/base-translation/base-ru.js:391, js/ui/third/base-translation/base-zh.js:403 |
+| `settingsReset` | index.html:244 | js/ui/third/base-translation/base-zh.js:590, js/ui/third/i18next.js:4900, scripts/beginner-ux-guards-test.cjs:29 |
+| `settingsSave` | index.html:239 | js/project-management.js:19, js/shortcut.js:212, js/ui/third/base-translation/base-de.js:482, js/ui/third/base-translation/base-en.js:397, js/ui/third/base-translation/base-es.js:390, js/ui/third/base-translation/base-fr.js:392, js/ui/third/base-translation/base-ja.js:487, js/ui/third/base-translation/base-ko.js:392, js/ui/third/base-translation/base-ru.js:391, js/ui/third/base-translation/base-zh.js:403, scripts/beginner-ux-guards-test.cjs:29 |
 | `sfxPaletteAdd` | index.html:1678 | js/sidebar/text/sfx-palette.js:125 |
 | `sfxPaletteInput` | index.html:1668 | js/sidebar/text/sfx-palette.js:126 |
 | `sfxPaletteList` | index.html:1666 | js/sidebar/text/sfx-palette.js:107, js/ui/visual-studio.js:93 |
 | `sfxPaletteStyle` | index.html:1669 | js/sidebar/text/sfx-palette.js:127 |
 | `shadowButton` | index.html:1683 |  |
-| `shape-area` | index.html:1979 | js/sidebar/sidebar.js:92, js/ui/visual-ps-tools.js:162, js/ui/visual-studio.js:330, scripts/full-feature-e2e.cjs:174 |
+| `shape-area` | index.html:1979 | js/sidebar/sidebar.js:92, js/ui/visual-ps-tools.js:162, js/ui/visual-studio.js:330, scripts/full-feature-e2e.cjs:174, scripts/ux-screenshots.cjs:35 |
 | `shape-preview-area` | index.html:1981 |  |
 | `shortcutGrid` | index.html:2267 | js/shortcut.js:319 |
 | `shortcutModal` | index.html:2259 | js/shortcut.js:360 |
-| `shortcutPage` | index.html:494 | js/ui/third/base-translation/base-de.js:486, js/ui/third/base-translation/base-en.js:496, js/ui/third/base-translation/base-es.js:489, js/ui/third/base-translation/base-fr.js:491, js/ui/third/base-translation/base-ja.js:491, js/ui/third/base-translation/base-ko.js:491, js/ui/third/base-translation/base-ru.js:490, js/ui/third/base-translation/base-zh.js:502 |
+| `shortcutPage` | index.html:494 | js/ui/third/base-translation/base-de.js:487, js/ui/third/base-translation/base-en.js:497, js/ui/third/base-translation/base-es.js:490, js/ui/third/base-translation/base-fr.js:492, js/ui/third/base-translation/base-ja.js:492, js/ui/third/base-translation/base-ko.js:492, js/ui/third/base-translation/base-ru.js:491, js/ui/third/base-translation/base-zh.js:503 |
 | `sidebar` | index.html:604 |  |
 | `sidebarMore` | index.html:681 | js/sidebar/sidebar.js:9, js/ui/tutorial.js:150 |
 | `sidebarMoreToggle` | index.html:699 | js/sidebar/sidebar.js:8 |
-| `simStudioBack` | index.html:2983 | js/simulator/simulator-studio.js:830, js/ui/third/base-translation/base-de.js:522, js/ui/third/base-translation/base-en.js:537, js/ui/third/base-translation/base-es.js:514, js/ui/third/base-translation/base-fr.js:531, js/ui/third/base-translation/base-ja.js:527, js/ui/third/base-translation/base-ko.js:529, js/ui/third/base-translation/base-ru.js:515, js/ui/third/base-translation/base-zh.js:542 |
+| `simStudioBack` | index.html:2983 | js/simulator/simulator-studio.js:830, js/ui/third/base-translation/base-de.js:523, js/ui/third/base-translation/base-en.js:538, js/ui/third/base-translation/base-es.js:515, js/ui/third/base-translation/base-fr.js:532, js/ui/third/base-translation/base-ja.js:528, js/ui/third/base-translation/base-ko.js:530, js/ui/third/base-translation/base-ru.js:516, js/ui/third/base-translation/base-zh.js:543 |
 | `simStudioChatActions` | index.html:3032 | js/simulator/simulator-studio.js:864 |
 | `simStudioChatDock` | index.html:2997 | js/simulator/simulator-studio.js:861 |
 | `simStudioChatInsert` | index.html:3033 | js/simulator/simulator-studio.js:1051 |
@@ -506,7 +506,7 @@
 | `simStudioChatStore` | index.html:3003 | js/simulator/simulator-studio.js:441 |
 | `simStudioChatTemplate` | index.html:3006 | js/simulator/simulator-studio.js:414 |
 | `simStudioChatTitle` | index.html:3000 | js/simulator/simulator-studio.js:125 |
-| `simStudioClose` | index.html:2985 | js/simulator/simulator-studio.js:1038, js/ui/third/base-translation/base-de.js:523, js/ui/third/base-translation/base-en.js:538, js/ui/third/base-translation/base-es.js:515, js/ui/third/base-translation/base-fr.js:532, js/ui/third/base-translation/base-ja.js:528, js/ui/third/base-translation/base-ko.js:530, js/ui/third/base-translation/base-ru.js:516, js/ui/third/base-translation/base-zh.js:543 |
+| `simStudioClose` | index.html:2985 | js/simulator/simulator-studio.js:1038, js/ui/third/base-translation/base-de.js:524, js/ui/third/base-translation/base-en.js:539, js/ui/third/base-translation/base-es.js:516, js/ui/third/base-translation/base-fr.js:533, js/ui/third/base-translation/base-ja.js:529, js/ui/third/base-translation/base-ko.js:531, js/ui/third/base-translation/base-ru.js:517, js/ui/third/base-translation/base-zh.js:544 |
 | `simStudioFit` | index.html:3056 | js/simulator/simulator-studio.js:1088 |
 | `simStudioHome` | index.html:2987 | js/simulator/simulator-studio.js:828 |
 | `simStudioHomeGrid` | index.html:2989 | js/simulator/simulator-studio.js:462 |
@@ -517,10 +517,10 @@
 | `simStudioPartLoad` | index.html:3043 | js/simulator/simulator-studio.js:1074 |
 | `simStudioPartSelect` | index.html:3026 |  |
 | `simStudioPartStore` | index.html:3023 | js/simulator/simulator-studio.js:488 |
-| `simStudioPlay` | index.html:3048 | js/simulator/simulator-studio.js:1080, js/ui/third/base-translation/base-de.js:529, js/ui/third/base-translation/base-en.js:544, js/ui/third/base-translation/base-es.js:521, js/ui/third/base-translation/base-fr.js:538, js/ui/third/base-translation/base-ja.js:534, js/ui/third/base-translation/base-ko.js:536, js/ui/third/base-translation/base-ru.js:522, js/ui/third/base-translation/base-zh.js:549 |
+| `simStudioPlay` | index.html:3048 | js/simulator/simulator-studio.js:1080, js/ui/third/base-translation/base-de.js:530, js/ui/third/base-translation/base-en.js:545, js/ui/third/base-translation/base-es.js:522, js/ui/third/base-translation/base-fr.js:539, js/ui/third/base-translation/base-ja.js:535, js/ui/third/base-translation/base-ko.js:537, js/ui/third/base-translation/base-ru.js:523, js/ui/third/base-translation/base-zh.js:550 |
 | `simStudioPlayIndex` | index.html:3050 | js/simulator/simulator-studio.js:515 |
-| `simStudioPlayNext` | index.html:3047 | js/simulator/simulator-studio.js:1078, js/ui/third/base-translation/base-de.js:528, js/ui/third/base-translation/base-en.js:543, js/ui/third/base-translation/base-es.js:520, js/ui/third/base-translation/base-fr.js:537, js/ui/third/base-translation/base-ja.js:533, js/ui/third/base-translation/base-ko.js:535, js/ui/third/base-translation/base-ru.js:521, js/ui/third/base-translation/base-zh.js:548 |
-| `simStudioPlayPrev` | index.html:3046 | js/simulator/simulator-studio.js:1076, js/ui/third/base-translation/base-de.js:527, js/ui/third/base-translation/base-en.js:542, js/ui/third/base-translation/base-es.js:519, js/ui/third/base-translation/base-fr.js:536, js/ui/third/base-translation/base-ja.js:532, js/ui/third/base-translation/base-ko.js:534, js/ui/third/base-translation/base-ru.js:520, js/ui/third/base-translation/base-zh.js:547 |
+| `simStudioPlayNext` | index.html:3047 | js/simulator/simulator-studio.js:1078, js/ui/third/base-translation/base-de.js:529, js/ui/third/base-translation/base-en.js:544, js/ui/third/base-translation/base-es.js:521, js/ui/third/base-translation/base-fr.js:538, js/ui/third/base-translation/base-ja.js:534, js/ui/third/base-translation/base-ko.js:536, js/ui/third/base-translation/base-ru.js:522, js/ui/third/base-translation/base-zh.js:549 |
+| `simStudioPlayPrev` | index.html:3046 | js/simulator/simulator-studio.js:1076, js/ui/third/base-translation/base-de.js:528, js/ui/third/base-translation/base-en.js:543, js/ui/third/base-translation/base-es.js:520, js/ui/third/base-translation/base-fr.js:537, js/ui/third/base-translation/base-ja.js:533, js/ui/third/base-translation/base-ko.js:535, js/ui/third/base-translation/base-ru.js:521, js/ui/third/base-translation/base-zh.js:548 |
 | `simStudioPlayStop` | index.html:3049 | js/simulator/simulator-studio.js:1082 |
 | `simStudioPlayTotal` | index.html:3050 | js/simulator/simulator-studio.js:516 |
 | `simStudioPreview` | index.html:2993 | js/simulator/simulator-studio.js:570 |
@@ -528,7 +528,7 @@
 | `simStudioScaleDown` | index.html:3054 | js/simulator/simulator-studio.js:1084 |
 | `simStudioScaleUp` | index.html:3055 | js/simulator/simulator-studio.js:1086 |
 | `simStudioStatus` | index.html:3061 | js/simulator/simulator-studio.js:105 |
-| `simStudioTitle` | index.html:2984 | js/simulator/simulator-studio.js:834, js/ui/third/base-translation/base-de.js:520, js/ui/third/base-translation/base-en.js:535, js/ui/third/base-translation/base-es.js:512, js/ui/third/base-translation/base-fr.js:529, js/ui/third/base-translation/base-ja.js:525, js/ui/third/base-translation/base-ko.js:527, js/ui/third/base-translation/base-ru.js:513, js/ui/third/base-translation/base-zh.js:540 |
+| `simStudioTitle` | index.html:2984 | js/simulator/simulator-studio.js:834, js/ui/third/base-translation/base-de.js:521, js/ui/third/base-translation/base-en.js:536, js/ui/third/base-translation/base-es.js:513, js/ui/third/base-translation/base-fr.js:530, js/ui/third/base-translation/base-ja.js:526, js/ui/third/base-translation/base-ko.js:528, js/ui/third/base-translation/base-ru.js:514, js/ui/third/base-translation/base-zh.js:541 |
 | `simStudioWebActions` | index.html:3036 | js/simulator/simulator-studio.js:865 |
 | `simStudioWebDock` | index.html:3014 | js/simulator/simulator-studio.js:862 |
 | `simStudioWebExample` | index.html:3037 | js/simulator/simulator-studio.js:1059 |
@@ -545,12 +545,12 @@
 | `simulatorChatExportButton` | index.html:1238 | js/simulator/chat-controller.js:345 |
 | `simulatorChatInsertButton` | index.html:1235 | js/simulator/chat-controller.js:339 |
 | `simulatorChatLoadButton` | index.html:1236 | js/simulator/chat-controller.js:341 |
-| `simulatorChatMessages` | index.html:1231 | js/simulator/chat-controller.js:121, js/ui/third/base-translation/base-de.js:513, js/ui/third/base-translation/base-en.js:528, js/ui/third/base-translation/base-es.js:505, js/ui/third/base-translation/base-fr.js:522, js/ui/third/base-translation/base-ja.js:518, js/ui/third/base-translation/base-ko.js:520, js/ui/third/base-translation/base-ru.js:506, js/ui/third/base-translation/base-zh.js:533 |
-| `simulatorChatParticipants` | index.html:1226 | js/simulator/chat-controller.js:86, js/ui/third/base-translation/base-de.js:511, js/ui/third/base-translation/base-en.js:526, js/ui/third/base-translation/base-es.js:503, js/ui/third/base-translation/base-fr.js:520, js/ui/third/base-translation/base-ja.js:516, js/ui/third/base-translation/base-ko.js:518, js/ui/third/base-translation/base-ru.js:504, js/ui/third/base-translation/base-zh.js:531 |
+| `simulatorChatMessages` | index.html:1231 | js/simulator/chat-controller.js:121, js/ui/third/base-translation/base-de.js:514, js/ui/third/base-translation/base-en.js:529, js/ui/third/base-translation/base-es.js:506, js/ui/third/base-translation/base-fr.js:523, js/ui/third/base-translation/base-ja.js:519, js/ui/third/base-translation/base-ko.js:521, js/ui/third/base-translation/base-ru.js:507, js/ui/third/base-translation/base-zh.js:534 |
+| `simulatorChatParticipants` | index.html:1226 | js/simulator/chat-controller.js:86, js/ui/third/base-translation/base-de.js:512, js/ui/third/base-translation/base-en.js:527, js/ui/third/base-translation/base-es.js:504, js/ui/third/base-translation/base-fr.js:521, js/ui/third/base-translation/base-ja.js:517, js/ui/third/base-translation/base-ko.js:519, js/ui/third/base-translation/base-ru.js:505, js/ui/third/base-translation/base-zh.js:532 |
 | `simulatorChatRemoveButton` | index.html:1237 | js/simulator/chat-controller.js:343 |
 | `simulatorChatStatus` | index.html:1247 | js/simulator/chat-controller.js:48 |
 | `simulatorChatTemplate` | index.html:1215 | js/simulator/chat-controller.js:185 |
-| `simulatorChatTheme` | index.html:1219 | js/simulator/chat-controller.js:183, js/ui/third/base-translation/base-de.js:510, js/ui/third/base-translation/base-en.js:525, js/ui/third/base-translation/base-es.js:502, js/ui/third/base-translation/base-fr.js:519, js/ui/third/base-translation/base-ja.js:515, js/ui/third/base-translation/base-ko.js:517, js/ui/third/base-translation/base-ru.js:503, js/ui/third/base-translation/base-zh.js:530 |
+| `simulatorChatTheme` | index.html:1219 | js/simulator/chat-controller.js:183, js/ui/third/base-translation/base-de.js:511, js/ui/third/base-translation/base-en.js:526, js/ui/third/base-translation/base-es.js:503, js/ui/third/base-translation/base-fr.js:520, js/ui/third/base-translation/base-ja.js:516, js/ui/third/base-translation/base-ko.js:518, js/ui/third/base-translation/base-ru.js:504, js/ui/third/base-translation/base-zh.js:531 |
 | `simulatorChatTitleInput` | index.html:1211 | js/simulator/chat-controller.js:181 |
 | `simulatorExtraExportButton` | index.html:1264 | js/simulator/simulator-controller.js:115 |
 | `simulatorExtraInsertButton` | index.html:1262 | js/simulator/simulator-controller.js:113 |
@@ -826,23 +826,23 @@
 | `mangaCharacterSave` | js/ai/manga-character-bible-ui.js:121 |
 | `mangaCharacterStatus` | js/ai/manga-character-bible-ui.js:50 |
 | `mangaCharacterTraits` | js/ai/manga-character-bible-ui.js:129 |
-| `mangaGptApply` | scripts/full-feature-e2e.cjs:358, scripts/gpt-browser-acceptance.cjs:1110 |
-| `mangaGptGenerate` | scripts/full-feature-e2e.cjs:396, scripts/gpt-browser-acceptance.cjs:197, scripts/gpt-real-api-acceptance.cjs:246 |
+| `mangaGptApply` | scripts/full-feature-e2e.cjs:363, scripts/gpt-browser-acceptance.cjs:1110 |
+| `mangaGptGenerate` | scripts/full-feature-e2e.cjs:401, scripts/gpt-browser-acceptance.cjs:197, scripts/gpt-real-api-acceptance.cjs:246 |
 | `mangaGptMode` | scripts/gpt-browser-acceptance.cjs:876 |
 | `mangaGptOpen` | scripts/gpt-browser-acceptance.cjs:1136 |
-| `mangaGptPanel` | scripts/full-feature-e2e.cjs:345, scripts/gpt-browser-acceptance.cjs:608 |
+| `mangaGptPanel` | scripts/full-feature-e2e.cjs:350, scripts/gpt-browser-acceptance.cjs:608 |
 | `mangaGptPreview` | scripts/gpt-browser-acceptance.cjs:877 |
-| `mangaGptPrompt` | scripts/full-feature-e2e.cjs:338, scripts/gpt-browser-acceptance.cjs:875 |
-| `mangaGptReferenceList` | scripts/full-feature-e2e.cjs:338, scripts/gpt-browser-acceptance.cjs:1087 |
+| `mangaGptPrompt` | scripts/full-feature-e2e.cjs:343, scripts/gpt-browser-acceptance.cjs:875 |
+| `mangaGptReferenceList` | scripts/full-feature-e2e.cjs:343, scripts/gpt-browser-acceptance.cjs:1087 |
 | `mangaGptReplaceText` | scripts/gpt-browser-acceptance.cjs:410 |
-| `mangaGptStatus` | scripts/full-feature-e2e.cjs:358, scripts/gpt-browser-acceptance.cjs:204, scripts/gpt-real-api-acceptance.cjs:138 |
+| `mangaGptStatus` | scripts/full-feature-e2e.cjs:363, scripts/gpt-browser-acceptance.cjs:204, scripts/gpt-real-api-acceptance.cjs:138 |
 | `mangaGptSubtitle` | scripts/gpt-browser-acceptance.cjs:409 |
-| `mangaLamaConfirm` | js/ai/manga-lama-inpaint-ui.js:108, scripts/full-feature-e2e.cjs:307, scripts/gpt-browser-acceptance.cjs:741, scripts/manga-real-ui-acceptance.cjs:96 |
-| `mangaLamaGenerate` | js/ai/manga-lama-inpaint-ui.js:263, scripts/full-feature-e2e.cjs:303, scripts/gpt-browser-acceptance.cjs:819, scripts/manga-real-ui-acceptance.cjs:92 |
-| `mangaLamaMaskCanvas` | js/ai/manga-lama-inpaint-ui.js:61, scripts/full-feature-e2e.cjs:303, scripts/gpt-browser-acceptance.cjs:736, scripts/manga-real-ui-acceptance.cjs:91 |
+| `mangaLamaConfirm` | js/ai/manga-lama-inpaint-ui.js:108, scripts/full-feature-e2e.cjs:312, scripts/gpt-browser-acceptance.cjs:741, scripts/manga-real-ui-acceptance.cjs:96 |
+| `mangaLamaGenerate` | js/ai/manga-lama-inpaint-ui.js:263, scripts/full-feature-e2e.cjs:308, scripts/gpt-browser-acceptance.cjs:819, scripts/manga-real-ui-acceptance.cjs:92 |
+| `mangaLamaMaskCanvas` | js/ai/manga-lama-inpaint-ui.js:61, scripts/full-feature-e2e.cjs:308, scripts/gpt-browser-acceptance.cjs:736, scripts/manga-real-ui-acceptance.cjs:91 |
 | `mangaLamaPreviewImg` | js/ai/manga-lama-inpaint-ui.js:109, scripts/gpt-browser-acceptance.cjs:792 |
 | `mangaLamaPreviewPanel` | js/ai/manga-lama-inpaint-ui.js:163, scripts/gpt-browser-acceptance.cjs:740 |
-| `mangaLamaStatus` | js/ai/manga-lama-inpaint-ui.js:16, scripts/full-feature-e2e.cjs:308, scripts/gpt-browser-acceptance.cjs:750, scripts/manga-real-ui-acceptance.cjs:97 |
+| `mangaLamaStatus` | js/ai/manga-lama-inpaint-ui.js:16, scripts/full-feature-e2e.cjs:313, scripts/gpt-browser-acceptance.cjs:750, scripts/manga-real-ui-acceptance.cjs:97 |
 | `mangaPageAnalyze` | js/ai/manga-page-structure-ui.js:286 |
 | `mangaPageClose` | js/ai/manga-page-structure-ui.js:371 |
 | `mangaPageDirection` | js/ai/manga-page-structure-ui.js:294 |
@@ -866,7 +866,7 @@
 | `mangaSmartLanguage` | js/ai/manga-smart-text-editor.js:218 |
 | `mangaSmartManual` | js/ai/manga-smart-text-editor.js:466 |
 | `mangaSmartRegions` | js/ai/manga-smart-text-editor.js:120 |
-| `mangaSmartStatus` | js/ai/manga-smart-text-editor.js:34, scripts/full-feature-e2e.cjs:284, scripts/manga-real-ui-acceptance.cjs:72 |
+| `mangaSmartStatus` | js/ai/manga-smart-text-editor.js:34, scripts/full-feature-e2e.cjs:289, scripts/manga-real-ui-acceptance.cjs:72 |
 | `mangaSmartTextPanel` | js/ai/manga-edit-planner-ui.js:66, js/ai/manga-smart-text-editor.js:149, scripts/gpt-browser-acceptance.cjs:1043 |
 | `modelSettingsOverlay` | js/ai/ui/model-settings-window.js:15 |
 | `msLocalContainer` | js/ai/comfyui/v2/comfyui-util-v2.js:2, js/ai/ui/model-settings-window.js:47 |
@@ -1054,6 +1054,7 @@
 - js/ui/util/tagify-util.js : `i`
 - js/ui/visual-ps-tools.js : `naiHistoryClose`, `naiHistoryList`, `naiHistoryPanel`, `naiPropFill`, `naiPropStroke`, `shape-area`, `sidebar .icon-wrapper[data-ps-tool]`
 - js/ui/visual-studio.js : `addHeart`, `addHexagon`, `addPentagon`, `addSquare`, `addStar`, `addTallRect`, `addTriangle`, `addWideRect`, `asset-library-area`, `brushPresetGrid`, `cutout-area`, `head-id .left_area`, `manga-effect-area`, `manga-tone-area`, `manga-tone-buttons button, #manga-effect-buttons button, #pen-tool-buttons button, #image-text-tool-buttons button, .visual-shape-grid button, .visual-text-grid button`, `naiBrushCursor`, `naiOptBrushSize`, `naiPropFill`, `naiPropOpacity`, `naiPropShadow`, `naiPropStrip`, `naiPropStroke`, `naiPropStrokeW`, `naiToolOptionsBar`, `naiToolOptionsControls`, `naiToolOptionsMain`, `panel-manager-area`, `ps-tools-area`, `sfxPaletteList`, `shape-area`, `sidebar .icon-wrapper[data-target]`, `speech-bubble-area`, `speech-bubble-preview`, `svg-container-template`, `svg-preview-area-landscape`, `svg-preview-area-vertical`, `text-area`, `text-area2`, `tool-area`, `tool-settings input[type="range"]`, `verticalText`
+- scripts/beginner-ux-guards-test.cjs : `imageDownload`, `projectLoad`, `projectSave`, `settingsReset`, `settingsSave`
 - scripts/full-feature-e2e.cjs : `edit`, `manga-tone-area`, `mangaGptApply`, `mangaGptGenerate`, `mangaGptPanel`, `mangaGptPrompt`, `mangaGptReferenceList`, `mangaGptStatus`, `mangaLamaConfirm`, `mangaLamaGenerate`, `mangaLamaMaskCanvas`, `mangaLamaStatus`, `mangaSmartStatus`, `projectLoad`, `projectSave`, `shape-area`, `speech-bubble-area`, `svgDownload`, `text-area`
 - scripts/gen-project-index.cjs : `id`
 - scripts/gpt-browser-acceptance.cjs : `edit`, `mangaGptApply`, `mangaGptGenerate`, `mangaGptMode`, `mangaGptOpen`, `mangaGptPanel`, `mangaGptPreview`, `mangaGptPrompt`, `mangaGptReferenceList`, `mangaGptReplaceText`, `mangaGptStatus`, `mangaGptSubtitle`, `mangaLamaConfirm`, `mangaLamaGenerate`, `mangaLamaMaskCanvas`, `mangaLamaPreviewImg`, `mangaLamaPreviewPanel`, `mangaLamaStatus`, `mangaPageOverlay .manga-page-bubble-outline`, `mangaPageOverlay .manga-page-outline`, `mangaPagePanel`, `mangaPlannerPreview`, `mangaSmartTextPanel`
@@ -1068,3 +1069,4 @@
 - scripts/nai-real-acceptance.cjs : `naiHealthCheck`, `novelaiApiKey`, `novelaiSteps`, `novelaiUseLocalProxy`, `sp-manga-toastContainer`
 - scripts/novelai-readable-error-test.cjs : `a`
 - scripts/simulator-timeline-smoke-test.cjs : `a`
+- scripts/ux-screenshots.cjs : `shape-area`
