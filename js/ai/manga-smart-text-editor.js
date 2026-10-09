@@ -6,7 +6,22 @@
   'use strict';
   const core = window.MangaSmartTextCore;
   if (!core) return;
-  const state = { drafts: [], busy: false, canvas: null, sourceImage: '', selection: null };
+  const state = { drafts: [], busy: false, canvas: null, sourceImage: '', selection: null, controller: null };
+  // Cancellable local model calls (see js/ai/manga-model-request.js).
+  function startRequest() {
+    state.controller = typeof AbortController === 'function' ? new AbortController() : null;
+    const cancel = $('mangaSmartCancel');
+    if (cancel) cancel.hidden = false;
+    return state.controller && state.controller.signal;
+  }
+  function endRequest() {
+    state.controller = null;
+    const cancel = $('mangaSmartCancel');
+    if (cancel) cancel.hidden = true;
+  }
+  function cancelRequest() {
+    if (state.controller) state.controller.abort();
+  }
   const $ = id => document.getElementById(id);
   const getCanvas = () => typeof canvas !== 'undefined' && canvas && typeof canvas.toDataURL === 'function' ? canvas : null;
   const make = (tag, text, className) => {
@@ -79,14 +94,9 @@
       const crop=document.createElement('canvas');
       crop.width=w;crop.height=h;
       crop.getContext('2d').drawImage(source,x,y,w,h,0,0,w,h);
-      const response=await fetch('/manga-smart/manga-ocr',{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({image:crop.toDataURL('image/png')})
-      });
-      let result;
-      try {result=await response.json();}
-      catch(_){throw new Error('Manga OCR 服务没有返回 JSON。');}
-      if(!response.ok || !result.ok || !result.text)
+      const result=await window.MangaModelRequest.post('/manga-smart/manga-ocr',
+        {image:crop.toDataURL('image/png')},{signal:startRequest()});
+      if(!result.ok || !result.text)
         throw new Error(result.error||'Manga OCR 没有返回有效文本。');
       if(state.canvas!==c || state.sourceImage!==snapshot(c) ||
          state.drafts[index]!==draft || draft.text!==before)
@@ -99,6 +109,7 @@
       message('日漫 OCR 已更新第 '+(index+1)+' 条候选文字。请人工核对后再应用；模型可能产生误识别。');
     }catch(error){message(error.message||String(error),true);}
     finally{
+      endRequest();
       state.busy=false;
       $('mangaSmartDetect').disabled=false;
       renderDrafts();
@@ -203,15 +214,9 @@
     message('正在使用本机 Tesseract 识别当前画布……');
     try {
       const image = snapshot(c);
-      const response = await fetch('/manga-smart/ocr', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image, language: $('mangaSmartLanguage').value })
-      });
-      let result;
-      try { result = await response.json(); }
-      catch (_) { throw new Error('OCR 返回的不是 JSON，请检查本地服务日志。'); }
-      if (!response.ok || !result.ok) throw new Error(result.error || 'OCR 无法完成。');
+      const result = await window.MangaModelRequest.post('/manga-smart/ocr',
+        { image, language: $('mangaSmartLanguage').value }, { signal: startRequest() });
+      if (!result.ok) throw new Error(result.error || 'OCR 无法完成。');
       if (result.width !== c.getWidth() || result.height !== c.getHeight()) {
         throw new Error('画布尺寸在识别期间已变化，请重新检测。');
       }
@@ -227,6 +232,7 @@
     } catch (error) {
       message(error.message || String(error), true);
     } finally {
+      endRequest();
       state.busy = false;
       $('mangaSmartDetect').disabled = false;
       renderDrafts();
@@ -444,7 +450,8 @@
       '<option value="chi_sim+eng">简体中文＋英语</option><option value="chi_tra+eng">繁体中文＋英语</option>',
       '<option value="kor+eng">韩语＋英语</option></select></label>',
       '<div class="manga-smart-line"><button id="mangaSmartDetect" type="button">检测本页文字</button>',
-      '<button id="mangaSmartManual" type="button">手动框选字幕</button></div>',
+      '<button id="mangaSmartManual" type="button">手动框选字幕</button>',
+      '<button id="mangaSmartCancel" type="button" hidden>取消识别</button></div>',
       '<div id="mangaSmartRegions" class="manga-smart-regions"></div>',
       '<button id="mangaSmartApply" type="button" disabled>应用为可编辑图层</button>',
       '<p class="manga-smart-hint">自动去字仅适合纯色气泡。复杂背景请先用 GPT 改图擦字，或取消勾选仅插入文字。',
@@ -455,6 +462,7 @@
     open.addEventListener('click', () => { panel.hidden = !panel.hidden; });
     $('mangaSmartClose').addEventListener('click', () => { panel.hidden = true; stopSelection(); });
     $('mangaSmartDetect').addEventListener('click', detect);
+    $('mangaSmartCancel').addEventListener('click', cancelRequest);
     $('mangaSmartManual').addEventListener('click', beginManual);
     $('mangaSmartApply').addEventListener('click', apply);
     message('先检测本页文字，或手动框选区域。');

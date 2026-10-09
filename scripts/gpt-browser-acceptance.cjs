@@ -701,10 +701,23 @@ async function run() {
 
   // Local LaMa: use a fake identity inpainting model, but REAL canvas crop,
   // rectangle mask, human preview and non-destructive Fabric overlay.
-  let lamaCalls=0,lamaMaskUrl='';
+  let lamaCalls=0,lamaMaskUrl='',lamaMode='ok',lamaExtra=[];
   await page.route('**/manga-smart/lama-inpaint',route=>{
-    lamaCalls++;
     const payload=route.request().postDataJSON();
+    if(lamaMode==='consent' && payload.allow_download!==true){
+      lamaExtra.push('428');
+      return route.fulfill({status:428,contentType:'application/json',body:JSON.stringify({
+        ok:false,needs_download:true,model:'lama',size:'约 200MB',error:'LaMa 模型尚未下载（约 200MB）。'})});
+    }
+    if(lamaMode==='hang'){lamaExtra.push('hang');return new Promise(()=>{});}
+    if(lamaMode!=='ok'){
+      lamaExtra.push('allowed:'+(payload.allow_download===true));
+      const b=Buffer.from(payload.image.split(',')[1],'base64');
+      return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+        ok:true,engine:'simple-lama-local',applied:false,verified:false,
+        width:b.readUInt32BE(16),height:b.readUInt32BE(20),image:payload.image})});
+    }
+    lamaCalls++;
     assert(/^data:image\/png;base64,/.test(payload.image));
     assert(/^data:image\/png;base64,/.test(payload.mask));
     lamaMaskUrl=payload.mask;
@@ -798,6 +811,36 @@ async function run() {
   await page.evaluate(()=>redo());
   await page.waitForFunction(n=>canvas.getObjects().length===n,beforeLama+1,{timeout:20000});
   record('local LaMa patch undo and redo works as a single history action',true);
+
+  // P0: model weights are never downloaded silently, and inference can be cancelled.
+  const lamaObjects=await page.evaluate(()=>canvas.getObjects().length);
+  await page.locator('.manga-smart-item button').filter({hasText:'本地 LaMa 去字'}).first().click();
+  await page.waitForFunction(()=>document.getElementById('mangaLamaMaskCanvas').width>10&&
+    !document.getElementById('mangaLamaGenerate').disabled,null,{timeout:16000});
+  lamaMode='consent';
+  page.once('dialog',d=>d.dismiss());
+  await page.locator('#mangaLamaGenerate').click();
+  await page.waitForFunction(()=>/未下载模型/.test(document.getElementById('mangaLamaStatus').textContent),
+    null,{timeout:15000});
+  const declined={calls:[...lamaExtra],objects:await page.evaluate(()=>canvas.getObjects().length)};
+  page.once('dialog',d=>d.accept());
+  await page.locator('#mangaLamaGenerate').click();
+  await page.waitForFunction(()=>!document.getElementById('mangaLamaConfirm').disabled,null,{timeout:15000});
+  const accepted=[...lamaExtra];
+  record('LaMa asks before downloading weights; decline sends nothing more, accept retries with allow_download',
+    JSON.stringify(declined.calls)==='["428"]' && declined.objects===lamaObjects &&
+    JSON.stringify(accepted)==='["428","428","allowed:true"]',{declined,accepted});
+  lamaMode='hang';lamaExtra=[];
+  await page.locator('#mangaLamaGenerate').click();
+  await page.waitForFunction(()=>/取消/.test(document.getElementById('mangaLamaStatus').textContent),null,{timeout:15000});
+  await page.locator('#mangaLamaCancel').click();
+  await page.waitForTimeout(400);
+  const cancelled=await page.evaluate(()=>({hidden:document.getElementById('mangaLamaPreviewPanel').hidden,
+    objects:canvas.getObjects().length,confirm:document.getElementById('mangaLamaConfirm').disabled}));
+  record('cancelling an in-flight LaMa inference aborts it and changes nothing',
+    JSON.stringify(lamaExtra)==='["hang"]' && cancelled.hidden && cancelled.confirm &&
+    cancelled.objects===lamaObjects,cancelled);
+  lamaMode='ok';
   // Cancelling a mask adjustment must never create another layer or run inference.
   await page.locator('.manga-smart-item button').filter({hasText:'本地 LaMa 去字'}).click();
   await page.waitForFunction(()=>document.getElementById('mangaLamaMaskCanvas').width>10,

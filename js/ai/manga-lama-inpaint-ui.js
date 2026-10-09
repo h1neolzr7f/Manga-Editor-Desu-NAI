@@ -5,6 +5,7 @@
   'use strict';
   const $=id=>document.getElementById(id);
   const MAX_PIXELS=3_000_000;
+  let controller=null;
   let ongoing=false, ticket=0, approved=null, prepared=null, brushMode='add', brushRadius=12, painting=false, lastPointer=null, drawScheduled=false;
   const node=(tag,text)=>{
     const n=document.createElement(tag);
@@ -217,6 +218,8 @@
   }
   function cancel(){
     ticket++;
+    // Abort an in-flight local inference request; any late answer is ignored by ticket.
+    if(controller){controller.abort();controller=null;}
     ongoing=false;
     approved=null;
     prepared=null;
@@ -260,20 +263,16 @@
     $('mangaLamaGenerate').disabled=true;
     $('mangaLamaConfirm').disabled=true;
     $('mangaLamaPreviewImg').hidden=true;
-    show('开始本地 LaMa 推理。首次使用可能下载模型，请在预览后人工检查结果。');
+    show('开始本地 LaMa 推理（可点「取消」中止）。模型未下载时会先询问是否下载。');
+    controller=typeof AbortController==='function'?new AbortController():null;
     try{
-      const response=await fetch('/manga-smart/lama-inpaint',{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          image:now.crop.modelInput,
-          mask:now.crop.maskCanvas.toDataURL('image/png')
-        })
-      });
-      let data;try{data=await response.json();}
-      catch(_){throw Error('LaMa 服务未返回 JSON。');}
-      if(!response.ok||!data.ok||!/^data:image\/png;base64,/.test(data.image||''))
-        throw Error(data.error||'LaMa 没有返回有效的修复预览。');
+      const data=await window.MangaModelRequest.post('/manga-smart/lama-inpaint',{
+        image:now.crop.modelInput,
+        mask:now.crop.maskCanvas.toDataURL('image/png')
+      },{signal:controller&&controller.signal});
       if(id!==ticket)return;
+      if(!data.ok||!/^data:image\/png;base64,/.test(data.image||''))
+        throw Error(data.error||'LaMa 没有返回有效的修复预览。');
       if(!now.input.validate()||prepared!==now)
         throw Error('模型处理期间画布或蒙版已变化，结果已丢弃。');
       if(data.width!==now.crop.width||data.height!==now.crop.height)
@@ -284,7 +283,7 @@
       $('mangaLamaConfirm').disabled=false;
       show('修复预览已生成。只有点击「确认」才应用图层；原始漫画尚未变化。');
     }catch(e){if(id===ticket)show(e.message||String(e),true);}
-    finally{if(id===ticket){ongoing=false;$('mangaLamaGenerate').disabled=false;}}
+    finally{if(id===ticket){ongoing=false;controller=null;$('mangaLamaGenerate').disabled=false;}}
   }
   function alphaMaskedCanvas(source,crop){
     const output=document.createElement('canvas');
