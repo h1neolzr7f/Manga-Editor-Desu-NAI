@@ -454,9 +454,9 @@
     panel.hidden = false;
     $g('mangaGptMode').value = 'edit';
     $g('mangaGptSelect').disabled = false;
-    $g('mangaGptPrompt').value = '擦除框选范围内现有的印刷文字，重建自然背景与气泡边缘，保留原始画风、构图、人物和未选中区域，不要生成新文字。';
+    $g('mangaGptPrompt').value = tr('mgpt_ocr_erase_prompt', '擦除框选范围内现有的印刷文字，重建自然背景与气泡边缘，保留原始画风、构图、人物和未选中区域，不要生成新文字。');
     setRegion(c, { left, top, width: right - left, height: bottom - top },
-      '已从智能字幕定位擦字区域。请确认选区和费用，再点击“生成预览”。');
+      tr('mgpt_ocr_staged', '已从智能字幕定位擦字区域。请确认选区和费用，再点击“生成预览”。'));
     return true;
   }
 
