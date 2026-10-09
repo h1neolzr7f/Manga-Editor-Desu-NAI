@@ -37,4 +37,7 @@ assert.ok(zh('allRemoveConfirm') && /无法撤销/.test(zh('allRemoveConfirm')),
 const tut = read('js/ui/tutorial.js');
 for (const word of ['模板', '导入图片', '保存项目', 'GPT 改图', '免费额度']) assert.ok(tut.includes(word), 'tutorial mentions ' + word);
 assert.ok(/\.tutorial-beginner-steps\{[^}]*text-align:left/.test(read('css/ui/tutorial.css')), 'steps are left-aligned');
-console.log('beginner-ux-guards-test: ' + (8 + checked) + ' checks PASS');
+// icon-only layer header buttons carry an accessible name; layer names are labelled
+for (const label of ['上移图层', '下移图层', '撤销', '重做']) assert.ok(html.includes('aria-label="' + label + '"'), 'aria-label ' + label);
+assert.ok(read('js/layer/layer-management.js').includes('setAttribute("aria-label","图层名称")'), 'layer name input labelled');
+console.log('beginner-ux-guards-test: ' + (13 + checked) + ' checks PASS');

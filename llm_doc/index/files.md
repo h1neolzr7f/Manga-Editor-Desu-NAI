@@ -28,7 +28,7 @@
 | css/gpt-region-editor.css | 48 | Optional GPT tools: isolated styles so legacy canvas layout stays intact. |
 | css/icon.css | 55 | Bundled locally so icons work offline and where Google Fonts is unreachable; remote copy is only a fallback. |
 | css/image-control-manager.css | 100 |  |
-| css/layout-layer.css | 356 |  |
+| css/layout-layer.css | 372 |  |
 | css/layout.css | 528 |  |
 | css/manga-character-bible.css | 32 | Private character reference library. |
 | css/manga-lama-inpaint.css | 22 | Non-destructive local LaMa preview and explicit confirmation. |
@@ -193,7 +193,7 @@
 | js/layer/floating-window-management.js | 80 |  |
 | js/layer/image-history-management.js | 372 |  |
 | js/layer/layer-button.js | 303 |  |
-| js/layer/layer-management.js | 578 |  |
+| js/layer/layer-management.js | 579 |  |
 | js/local-tools/background-removal-client.js | 545 |  |
 | js/local-tools/cutout-presets.js | 107 |  |
 | js/local-tools/local-tools-client.js | 98 |  |
@@ -335,7 +335,7 @@
 | manga_smart_ocr.py | 256 |  |
 | scripts/MangaMakerUI.py | 64 |  |
 | scripts/asset-library-smoke-test.cjs | 113 |  |
-| scripts/beginner-ux-guards-test.cjs | 40 | Beginner UX guards: destructive "clear canvas" asks first, zh menu labels match the |
+| scripts/beginner-ux-guards-test.cjs | 43 | Beginner UX guards: destructive "clear canvas" asks first, zh menu labels match the |
 | scripts/check-translations.cjs | 227 | Translation key validation script - compares keys across all languages in i18next resources |
 | scripts/custom-brush-smoke-test.cjs | 44 |  |
 | scripts/cutout-color-key-smoke-test.py | 36 |  |

@@ -639,7 +639,7 @@
 | `unifiedSettingsOverlay` | index.html:2273 | js/ai/ui/unified-settings-window.js:4 |
 | `usTabAI` | index.html:2280 | js/ui/third/i18next.js:1537 |
 | `verticalRandomPanelCount` | index.html:978 | js/panel/random-cut.js:10, js/project-management.js:282, js/ui/third/base-translation/base-de.js:114, js/ui/third/base-translation/base-en.js:119, js/ui/third/base-translation/base-es.js:114, js/ui/third/base-translation/base-fr.js:114, js/ui/third/base-translation/base-ja.js:118, js/ui/third/base-translation/base-ko.js:114, js/ui/third/base-translation/base-ru.js:114, js/ui/third/base-translation/base-zh.js:119 |
-| `verticalText` | index.html:1599 | js/layer/layer-management.js:243, js/sidebar/text/vertical-text.js:3, js/ui/visual-studio.js:395 |
+| `verticalText` | index.html:1599 | js/layer/layer-management.js:244, js/sidebar/text/vertical-text.js:3, js/ui/visual-studio.js:395 |
 | `view_controls_checkbox` | index.html:342 | js/project-management.js:195, js/shortcut.js:75, js/sidebar/panel/panel-manager.js:666, js/ui/beginner-guide.js:349 |
 | `view_layers_checkbox` | index.html:333 | js/project-management.js:194, js/shortcut.js:68, js/sidebar/panel/panel-manager.js:663 |
 | `view_prompt_checkbox` | index.html:351 | js/project-management.js:247, js/shortcut.js:220, js/sidebar/panel/panel-manager.js:669 |

@@ -163,7 +163,7 @@ const b = `<svg viewBox="0 0 100 100" width="100%" height="100%" style="position
 <link rel="stylesheet" href="css/layout.css?v=8.0">
   <link rel="stylesheet" href="css/visual-studio.css?v=1.6">
 <link rel="stylesheet" href="css/image-control-manager.css?v=7.2">
-<link rel="stylesheet" href="css/layout-layer.css?v=7.6">
+<link rel="stylesheet" href="css/layout-layer.css?v=7.7">
 <link rel="stylesheet" href="css/toast.css?v=7.2">
 <link rel="stylesheet" href="css/ui/mode-change.css?v=7.2">
 <link rel="stylesheet" href="css/ui/object-menu.css?v=7.3">
@@ -2150,10 +2150,10 @@ const b = `<svg viewBox="0 0 100 100" width="100%" height="100%" style="position
                 <div class="area-header" >
                         <label data-i18n="layers">图层</label>
                         <button type="button" id="layerSelectPageButton" class="layer-header-page-btn" title="选中当前整页">选中整页</button>
-                        <button onclick="LayersUp()"><i class="material-icons">arrow_upward</i></button>
-                        <button onclick="LayersDown()"><i class="material-icons">arrow_downward</i></button>
-                        <button id="undo" onclick="undo()" title="撤销"><i class="material-icons">undo</i></button>
-                        <button id="redo" onclick="redo()" title="重做"><i class="material-icons">redo</i></button>
+                        <button type="button" onclick="LayersUp()" title="上移图层 (Ctrl+↑)" aria-label="上移图层"><i class="material-icons" aria-hidden="true">arrow_upward</i></button>
+                        <button type="button" onclick="LayersDown()" title="下移图层 (Ctrl+↓)" aria-label="下移图层"><i class="material-icons" aria-hidden="true">arrow_downward</i></button>
+                        <button type="button" id="undo" onclick="undo()" title="撤销 (Ctrl+Z)" aria-label="撤销"><i class="material-icons" aria-hidden="true">undo</i></button>
+                        <button type="button" id="redo" onclick="redo()" title="重做 (Ctrl+Y)" aria-label="重做"><i class="material-icons" aria-hidden="true">redo</i></button>
                 </div>
                 <div id="layer-content"></div>
 
@@ -2590,7 +2590,7 @@ const b = `<svg viewBox="0 0 100 100" width="100%" height="100%" style="position
     <script src="js/ai/prompt/base-event-listener.js?v=7.5" defer></script>
     <script src="js/layer/floating-window-management.js?v=7.2" defer></script>
     <script src="js/layer/layer-button.js?v=7.6" defer></script>
-    <script src="js/layer/layer-management.js?v=9.2" defer></script>
+    <script src="js/layer/layer-management.js?v=9.3" defer></script>
      <script src="js/layer/image-history-management.js?v=7.6" defer></script>
      <script src="js/assets/asset-manifest.js?v=1.0" defer></script>
      <script src="js/assets/asset-scanner.js?v=1.0" defer></script>

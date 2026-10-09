@@ -226,6 +226,7 @@ className: "layer-details",
 var nameTextArea=Object.assign(document.createElement("input"),{
 className: "layer-name",
 });
+nameTextArea.setAttribute("aria-label","图层名称");
 var buttonsDiv=Object.assign(document.createElement("div"),{
 className: "layer-buttons",
 });
