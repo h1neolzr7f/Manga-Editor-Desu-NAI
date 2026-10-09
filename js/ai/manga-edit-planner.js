@@ -46,7 +46,7 @@
     // The object following "preserve / keep" is NOT a change target.
     // Prioritize the first explicit edit clause, not the context to protect.
     const clauses=text.split(/[，,；;。]/);
-    const edits=clauses.filter((part,index)=> index===0 ||
+    const edits=clauses.filter(part=>
       !/(?:保留|保持|不变|不修改|不要改|不要动|不动|维持|原样|unchanged|keep|preserve)/i.test(part));
     const actionable=(edits.join('，') || text)
       .split(/\s*(?:保留|保持|不要|不改变|不修改|不动|维持|不碰)/)[0] || text;
