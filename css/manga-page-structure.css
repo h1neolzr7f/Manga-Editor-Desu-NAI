@@ -1,0 +1,43 @@
+/* Local page-structure inspector. Rectangles are read-only DOM overlays. */
+#mangaPageOpen {margin-left:6px;font-size:12px;}
+.manga-page-panel {
+  position:fixed;z-index:12005;top:68px;right:18px;width:min(450px,calc(100vw - 28px));
+  max-height:calc(100vh - 88px);overflow:auto;border-radius:12px;padding:14px;
+  border:1px solid #515b6a;background:#20232b;color:#f5f5f5;
+  box-shadow:0 14px 45px rgba(0,0,0,.45);font:13px/1.5 Arial,sans-serif;
+}
+.manga-page-panel[hidden]{display:none!important;}
+.manga-page-panel header,.manga-page-actions,.manga-page-entry-head,.manga-page-coordinates{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+.manga-page-panel header,.manga-page-entry-head{justify-content:space-between;}
+.manga-page-panel p{color:#bdc7d5;margin:10px 0;}
+.manga-page-panel button{
+  border:1px solid #687485;border-radius:6px;background:#3b4656;color:white;
+  padding:6px 8px;cursor:pointer;
+}
+.manga-page-panel button:hover{background:#52617a;}
+.manga-page-panel button:disabled{opacity:.5;cursor:default;}
+.manga-page-panel select,.manga-page-panel input[type=number]{
+  color:white;background:#151b25;border:1px solid #637083;border-radius:5px;padding:4px;
+}
+.manga-page-coordinates label {display:grid;gap:2px;font-size:11px;color:#c4d1e4;}
+.manga-page-coordinates input {width:65px;max-width:100%;}
+.manga-page-list{display:grid;gap:10px;margin:12px 0;}
+.manga-page-entry{border:1px solid #4c5663;border-radius:8px;background:#303742;padding:10px;
+  display:grid;gap:9px;}
+.manga-page-entry-head{font-size:12px;}
+.manga-page-entry-head span{color:#a8c2d9;font-size:11px;}
+.manga-page-hint{font-size:11px;}
+#mangaPageStatus{color:#aad8ff;margin-top:9px;}
+#mangaPageStatus[data-error=true]{color:#ffb0b0;}
+.manga-page-overlay{position:fixed;z-index:11970;pointer-events:none;}
+.manga-page-outline{
+  position:absolute;display:flex;align-items:flex-start;justify-content:flex-start;
+  border:2px solid rgba(18,193,244,.8);background:rgba(8,137,205,.06);
+  color:white;font:bold 12px Arial,sans-serif;padding:3px;text-shadow:1px 1px 3px #000;
+  box-sizing:border-box;
+}
+@media(max-width:550px) {
+  .manga-page-panel{top:38px;right:8px;max-height:calc(100vh - 46px);}
+}
