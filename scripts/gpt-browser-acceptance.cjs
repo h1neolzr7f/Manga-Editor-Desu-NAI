@@ -760,6 +760,20 @@ async function run() {
     bubbleMarkers.length===1 && bubbleMarkers[0].source==='ocr-text-expansion',bubbleMarkers);
   await page.locator('#mangaSmartClose').click();
   await page.locator('#mangaPageOpen').click();
+  const bubbleBefore=await page.evaluate(()=>({
+    rows:document.querySelectorAll('.manga-bubble-entry').length,
+    contours:document.querySelectorAll('.manga-bubble-outline').length,
+    verified:window.MangaPageStructureUI.getAnalysis().bubbleCandidates[0]?.verified
+  }));
+  await page.locator('.manga-bubble-entry').first().getByRole('button',{name:'确认候选'}).click();
+  const bubbleAfter=await page.evaluate(()=>({
+    verified:window.MangaPageStructureUI.getAnalysis().bubbleCandidates[0]?.verified,
+    green:document.querySelectorAll('.manga-bubble-verified').length
+  }));
+  record('bubble candidates are visibly distinct, remain provisional until manually confirmed',
+    bubbleBefore.rows===1 && bubbleBefore.contours===1 && bubbleBefore.verified===false &&
+    bubbleAfter.verified===true && bubbleAfter.green===1,
+    {bubbleBefore,bubbleAfter});
   await page.locator('.manga-page-entry').first().getByRole('button',{name:'GPT 编辑本格'}).click();
   const handoff=await page.evaluate(() => ({
     gptOpen:!document.getElementById('mangaGptPanel').hidden,
