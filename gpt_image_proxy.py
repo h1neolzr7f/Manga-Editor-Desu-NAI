@@ -253,6 +253,7 @@ def handle_gpt_image_post(handler):
     if urllib.parse.urlsplit(handler.path).path != "/gpt-image-proxy":
         return False
     if not _authorized_local_request(handler):
+        handler.close_connection = True  # body left unread
         handler._send_json({"ok": False, "error": "只允许本机编辑器同源访问 GPT 图像代理；file:// 页面请改用本地启动器。"}, 403)
         return True
     try:

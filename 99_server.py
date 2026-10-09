@@ -15,6 +15,7 @@ import time
 import uuid
 import socket
 import base64
+import ipaddress
 try:
     import winreg
 except ImportError:
@@ -241,12 +242,62 @@ def cors_allow_origin(origin):
         return ''
     return ''
 
-def resolve_nai_token(authorization_header, environ=None):
+LOCAL_HOSTNAMES = ('127.0.0.1', 'localhost', '::1')
+DEFAULT_DIRECTOR_API_URL = 'https://tokendance.space/gateway/v1/chat/completions'
+
+def is_trusted_local_request(client_address, headers):
+    """Whether a request may use secrets loaded from .env / the environment.
+
+    Allowed: the editor page itself (exact same-origin Origin) and non-browser
+    local scripts (no Origin, no Sec-Fetch-Site). Rejected: cross-site pages,
+    'null' origins (sandboxed iframes, file://), Sec-Fetch-Site cross-site/same-site,
+    non-loopback peers and DNS-rebinding Host headers.
+    """
+    try:
+        if not ipaddress.ip_address(str(client_address[0]).split('%', 1)[0]).is_loopback:
+            return False
+    except (ValueError, IndexError, TypeError):
+        return False
+    host = (headers.get('Host') or '').strip().lower()
+    try:
+        hostname = urllib.parse.urlsplit('//' + host).hostname or ''
+    except ValueError:
+        return False
+    if not host or hostname not in LOCAL_HOSTNAMES:
+        return False
+    origin = (headers.get('Origin') or '').strip().lower()
+    if origin and origin != 'http://' + host:
+        return False
+    site = (headers.get('Sec-Fetch-Site') or '').strip().lower()
+    if site not in ('', 'same-origin', 'none'):
+        return False
+    return True
+
+def resolve_nai_token(authorization_header, environ=None, allow_env=True):
     header = (authorization_header or '').strip()
     if header:
         return header
+    if not allow_env:
+        return ''
     env = environ if environ is not None else os.environ
     return (env.get('NOVELAI_API_KEY') or '').strip()
+
+def resolve_director_credentials(headers, trusted, environ=None):
+    """Return (token, upstream_url, error). An env token is only ever sent to the
+    env-configured DIRECTOR_API_URL and only for trusted same-origin callers."""
+    env = environ if environ is not None else os.environ
+    default_url = (env.get('DIRECTOR_API_URL') or DEFAULT_DIRECTOR_API_URL).strip()
+    requested = (headers.get('X-Director-Api-Url') or '').strip()
+    url = requested or default_url
+    header_token = (headers.get('Authorization') or '').strip()
+    if header_token:
+        return header_token, url, None
+    env_token = (env.get('TOKENDANCE_API_KEY') or env.get('DIRECTOR_API_KEY') or '').strip()
+    if not env_token or not trusted:
+        return '', url, None
+    if url.rstrip('/') != default_url.rstrip('/'):
+        return '', url, 'destination'
+    return env_token, url, None
 
 def _env_int(name, fallback):
     try:
@@ -410,6 +461,18 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         self.send_header('Service-Worker-Allowed', '/')
         return super(CORSRequestHandler, self).end_headers()
 
+    def _trusted_local(self):
+        return is_trusted_local_request(self.client_address, self.headers)
+
+    def _reject_untrusted(self):
+        """State-changing local tools must not be reachable from other websites."""
+        if self._trusted_local():
+            return False
+        # The request body was not read; never reuse this keep-alive connection.
+        self.close_connection = True
+        self._send_json({'error': 'Only the local editor page (same origin) may call this endpoint.'}, 403)
+        return True
+
     def do_OPTIONS(self):
         self.send_response(204)
         self.send_header('Content-Length', '0')
@@ -456,7 +519,7 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         return json.dumps(data, ensure_ascii=False).encode('utf-8')
 
     def _proxy_novelai(self, method, upstream_path, body=None):
-        token = resolve_nai_token(self.headers.get('Authorization', ''))
+        token = resolve_nai_token(self.headers.get('Authorization', ''), allow_env=self._trusted_local())
         if token and not token.lower().startswith('bearer '):
             token = 'Bearer ' + token
         if not token:
@@ -493,8 +556,10 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             self._send_text(f'{type(error).__name__}: {error}', 502)
 
     def _proxy_director(self, body=None):
-        token = self.headers.get('Authorization', '') or os.environ.get('TOKENDANCE_API_KEY', '') or os.environ.get('DIRECTOR_API_KEY', '')
-        upstream_url = self.headers.get('X-Director-Api-Url', '') or os.environ.get('DIRECTOR_API_URL', 'https://tokendance.space/gateway/v1/chat/completions')
+        token, upstream_url, credential_error = resolve_director_credentials(self.headers, self._trusted_local())
+        if credential_error:
+            self._send_json({'error': 'The .env director key is only sent to DIRECTOR_API_URL. Enter a key in the UI for other gateways.'}, 403)
+            return
         if token and not token.lower().startswith('bearer '):
             token = 'Bearer ' + token
         if not token:
@@ -575,8 +640,10 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             self._send_json({'error': f'{type(error).__name__}: {error}'}, 502)
 
     def _proxy_director_models(self):
-        token = self.headers.get('Authorization', '') or os.environ.get('TOKENDANCE_API_KEY', '') or os.environ.get('DIRECTOR_API_KEY', '')
-        upstream_url = self.headers.get('X-Director-Api-Url', '') or os.environ.get('DIRECTOR_API_URL', 'https://tokendance.space/gateway/v1/chat/completions')
+        token, upstream_url, credential_error = resolve_director_credentials(self.headers, self._trusted_local())
+        if credential_error:
+            self._send_json({'error': 'The .env director key is only sent to DIRECTOR_API_URL. Enter a key in the UI for other gateways.'}, 403)
+            return
         if token and not token.lower().startswith('bearer '):
             token = 'Bearer ' + token
         if not token:
@@ -643,7 +710,9 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             self._proxy_tagger()
             return
         if self.path == '/nai-tools/start-material-previews':
-            token = resolve_nai_token(self.headers.get('Authorization', ''))
+            if self._reject_untrusted():
+                return
+            token = resolve_nai_token(self.headers.get('Authorization', ''), allow_env=self._trusted_local())
             if not token:
                 self._send_json({'error': 'Missing Authorization header'}, 401)
                 return
@@ -674,7 +743,9 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             self._send_json({'job_id': job['id'], 'status': job['status']})
             return
         if self.path == '/nai-tools/start-comic-demo':
-            token = resolve_nai_token(self.headers.get('Authorization', ''))
+            if self._reject_untrusted():
+                return
+            token = resolve_nai_token(self.headers.get('Authorization', ''), allow_env=self._trusted_local())
             if not token:
                 self._send_json({'error': 'Missing Authorization header'}, 401)
                 return
@@ -682,6 +753,8 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             self._send_json({'job_id': job['id'], 'status': job['status']})
             return
         if self.path == '/user-assets':
+            if self._reject_untrusted():
+                return
             length = int(self.headers.get('Content-Length', '0') or '0')
             if length > int(USER_ASSET_MAX_BYTES * 1.4) + 8192:
                 self._send_json({'error': 'Payload too large'}, 413)
@@ -700,7 +773,7 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             self._proxy_director_models()
             return
         if self.path.startswith('/nai-proxy/health'):
-            token = resolve_nai_token(self.headers.get('Authorization', ''))
+            token = resolve_nai_token(self.headers.get('Authorization', ''), allow_env=self._trusted_local())
             if token and not token.lower().startswith('bearer '):
                 token = 'Bearer ' + token
             if not token:
@@ -728,7 +801,7 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
                 self._send_json({'ok': False, 'error': f'{type(error).__name__}: {error}'}, 502)
             return
         if self.path.startswith('/nai-proxy/safe-status'):
-            token = resolve_nai_token(self.headers.get('Authorization', ''))
+            token = resolve_nai_token(self.headers.get('Authorization', ''), allow_env=self._trusted_local())
             if token and not token.lower().startswith('bearer '):
                 token = 'Bearer ' + token
             if not token:
