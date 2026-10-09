@@ -35,7 +35,7 @@ var CRC_TABLE=null;
 var ERROR_PREFIX='PNG ビット深度変換に失敗しました: ';
 
 function normalizeMode(mode){
-var value=mode===undefined||mode===null?'':String(mode).trim().toLowerCase();
+var value=mode===undefined||mode===null?'':String(mode).trim().toLowerCase().replace(/[\\s_-]+/g,'');
 if(value==='gray'||value==='grey'||value==='grayscale'||value==='greyscale'||value==='8')return MODES.GRAY;
 if(value==='argb'||value==='rgba'||value==='32'||value==='32bit'||value==='argb32')return MODES.ARGB;
 if(value==='rgb'||value==='24'||value==='24bit'||value==='rgb24')return MODES.RGB;
