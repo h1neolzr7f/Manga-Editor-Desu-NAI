@@ -38,7 +38,7 @@
 1. **气泡候选 != 语义气泡检测**。V1 `bubbleCandidates` 可以来自封闭浅色连通域，也可来自 OCR 文字框扩大区域，`source='ocr-text-expansion'` 且 `verified=false`；真正的闭合气泡轮廓/尾巴必须由专门检测器提取。参考 Comic Translator 的分段检测思路，后续可用可选的 RT-DETR 等 `BubbleDetectorAdapter` 替代启发式方法。
 2. **分镜留白 != 完整漫画理解**。无边框、斜切、多重叠分镜可能识别错误，保留人工修订机制与整页回退，不默默生成错误的语义信息。
 3. **去字**：保留 Tesseract + 可选 Manga OCR 精修 + 纯色遮盖的低成本路径；真正复杂场景再加离线 LaMa ONNX 或 GPT Image 局部去字，依赖必须做明确隔离。
-4. **人物一致性**：以后才开发 Character Bible / SAM 角色区域检测；不能把现阶段 OCR 分镜识别叫作人物理解。
+4. **人物一致性**：Character Bible 已完成本地参考图锚点工作流，但真正的 SAM 角色区域检测与跨页跟踪仍未完成；不能把 OCR 分镜识别叫作人物理解。
 5. **分发前许可证与依赖审计**：如果未来加入第三方源码/模型，台账增加准确 commit、文件路径、权重、许可证及替代方案。不能因为处于开发期就在发布时遗漏来源或违反使用条件。
 
 本台账是工程事实记录，未移植的上游功能不视为已实现。
@@ -55,4 +55,5 @@
 - `manga_lama_inpaint.py` 用公开 API 调用可选上游包，在服务端合成回原图蒙版外像素，避免模型更改整块背景。
 - `js/ai/manga-lama-inpaint-ui.js` 以 OCR 框生成初始 PNG 蒙版，并提供双向涂抹（标记去字/保留原图）、尺寸调节与重置；只有明确请求 LaMa 预览后才运行可选本地模型，再单独确认生成可撤销 Fabric 修复图层。
 - `scripts/manga-lama-inpaint-test.py` 与 Chromium 模拟模型检查未安装依赖/不调用付费 API/确认前不改原图。
-- **目前以 OCR 矩形框初始化蒙版，已经支持人工画笔涂抹擦除区/保护区、调节画笔宽度和重置**（`js/ai/manga-lama-inpaint-ui.js`）。但仍未实现自动逐笔画文字分割、边缘语义吸附，也未通过真实 LaMa 画质和 Windows GUI 实机验收。
+- **原始默认矩形蒙版**，现已有手绘画笔修正与浅色纯净底色深色墨迹候选（`js/ai/manga-text-ink-mask.js`，自行编写）；仍不能替代精确字符语义分割或真实 LaMa 质量验收。
+- `scripts/manga-text-ink-mask-test.cjs`：不依赖模型权重的透明/边缘/暗底/全黑/空白边界单测。候选按钮在 `js/ai/manga-lama-inpaint-ui.js`，网页入口由 `index.html` 加载；没有搬运第三方算法源码。

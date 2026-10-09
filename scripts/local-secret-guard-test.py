@@ -220,6 +220,32 @@ class SecretGuardTest(unittest.TestCase):
         finally:
             conn.close()
 
+    def test_opaque_and_foreign_origin_never_reach_any_proxy(self):
+        destinations = (
+            ("POST", "/nai-proxy/generate-image"),
+            ("POST", "/director-proxy/chat-completions"),
+            ("POST", "/tagger-proxy/interrogate"),
+            ("GET", "/director-proxy/models"),
+            ("GET", "/nai-proxy/health"),
+            ("OPTIONS", "/tagger-proxy/interrogate"),
+        )
+        # Supplying an explicit token must never exempt an unsafe caller.
+        attacks = (
+            {"Origin": "null"},
+            {"Origin": "https://attacker.invalid", "Sec-Fetch-Site": "cross-site"},
+            {"Origin": "http://127.0.0.1:9999", "Sec-Fetch-Site": "same-site"},
+            {"Host": "rebinding.attacker.invalid"},
+        )
+        for method, path in destinations:
+            for headers in attacks:
+                with self.subTest(method=method, path=path, headers=headers):
+                    status, _ = self.call(method, path, dict(headers, **{
+                        "Authorization": "Bearer explicit-own-token",
+                        "X-Director-Api-Url": "http://127.0.0.1:9001/private",
+                    }))
+                    self.assertEqual(status, 403)
+        self.assertEqual(self.capture.requests, [], "unsafe callers must make zero upstream requests")
+
     def test_trust_helper_matrix(self):
         ok = srv.is_trusted_local_request
         self.assertTrue(ok(("127.0.0.1", 1), {"Host": "127.0.0.1:8000"}))

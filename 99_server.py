@@ -285,8 +285,20 @@ def cors_allow_origin(origin, host=None):
     http://127.0.0.1:8000 by js/assets/boot-guard.js instead.
     """
     origin = (origin or '').strip()
-    host = (host or '').strip().lower()
-    if not origin or origin == 'null' or not host:
+    if not origin or origin == 'null':
+        return ''
+    if host is None:
+        # Origin-only form (Host unknown): loopback http(s) origins only. end_headers
+        # always passes the Host, which narrows this to the exact same origin.
+        try:
+            parsed = urllib.parse.urlsplit(origin)
+            if parsed.scheme in ('http', 'https') and (parsed.hostname or '').lower() in LOCAL_HOSTNAMES:
+                return origin
+        except ValueError:
+            pass
+        return ''
+    host = host.strip().lower()
+    if not host:
         return ''
     try:
         hostname = urllib.parse.urlsplit('//' + host).hostname or ''
@@ -643,7 +655,10 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         return super(CORSRequestHandler, self).log_message(format, *args)
     
     def end_headers(self):
+        # Never echo an opaque/null origin: only the exact same-origin, trusted editor.
         origin = cors_allow_origin(self.headers.get('Origin'), self.headers.get('Host'))
+        if origin and not self._trusted_local():
+            origin = ''
         if origin:
             self.send_header('Access-Control-Allow-Origin', origin)
             self.send_header('Vary', 'Origin')

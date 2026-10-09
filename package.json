@@ -5,7 +5,7 @@
   "description": "Manga Editor Desu · nai学长魔改版 — unofficial NovelAI one-click fork",
   "type": "module",
   "scripts": {
-    "test": "node scripts/layout-smoke-test.cjs && npm run test:smart-text && npm run test:page-structure && npm run test:edit-planner && npm run test:bubble && npm run test:character-bible",
+    "test": "node scripts/layout-smoke-test.cjs && npm run test:smart-text && npm run test:page-structure && npm run test:edit-planner && npm run test:bubble && npm run test:character-bible && npm run test:ink-mask",
     "lint": "eslint js/ --ext .js",
     "lint:fix": "eslint js/ --ext .js --fix",
     "format": "node scripts/remove-spaces.cjs",
@@ -54,7 +54,8 @@
     "test:bubble": "node scripts/manga-bubble-detector-test.cjs",
     "test:character-bible": "node scripts/manga-character-bible-test.cjs",
     "test:manga-ocr-refinement": "node scripts/run-python.cjs scripts/manga-ocr-refiner-test.py",
-    "test:lama-inpaint": "node scripts/run-python.cjs scripts/manga-lama-inpaint-test.py"
+    "test:lama-inpaint": "node scripts/run-python.cjs scripts/manga-lama-inpaint-test.py",
+    "test:ink-mask": "node scripts/manga-text-ink-mask-test.cjs"
   },
   "devDependencies": {
     "eslint": "^8.57.0",
