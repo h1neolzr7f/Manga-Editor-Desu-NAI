@@ -58,7 +58,7 @@ class Tests(unittest.TestCase):
             def __call__(self,image,mask):return FakeImage()
         with mock.patch.object(lama.importlib,"import_module",
                                return_value=type("Shim",(),{"SimpleLama":FakeLama})):
-            self.assertIs(lama.get_model(),lama.get_model())
+            self.assertIs(lama.get_model(allow_download=True),lama.get_model())
         self.assertEqual(FakeLama.initialized,1)
 
 if __name__=="__main__":unittest.main(verbosity=2)

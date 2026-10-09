@@ -12,6 +12,7 @@ import os
 import re
 import shutil
 import subprocess
+import threading
 
 from gpt_image_proxy import _authorized_local_request
 
@@ -20,6 +21,8 @@ MAX_HTTP_BYTES = 17 * 1024 * 1024
 MAX_PIXELS = 25 * 1024 * 1024
 LANGUAGES = frozenset(("jpn+eng", "jpn_vert+eng", "eng", "chi_sim+eng", "chi_tra+eng", "kor+eng"))
 MAX_REGIONS = 120
+# At most two Tesseract processes at once (each may use several cores / ~1GB on big pages).
+_TESSERACT_SLOTS = threading.BoundedSemaphore(2)
 
 
 class SmartOcrError(ValueError):
@@ -123,6 +126,8 @@ def ocr_image(data_url, language="jpn+eng"):
         raise SmartOcrError(
             "未安装本地 Tesseract OCR。请安装 Tesseract 和日文语言包（jpn、jpn_vert），或使用手动框选字幕。",
             503)
+    if not _TESSERACT_SLOTS.acquire(blocking=False):
+        raise SmartOcrError("已有 OCR 任务在运行，请等待完成后再试。", 429)
     try:
         psm = "5" if language.startswith("jpn_vert") else "11"
         process = subprocess.run(
@@ -132,6 +137,8 @@ def ocr_image(data_url, language="jpn+eng"):
         raise SmartOcrError("OCR 超过 75 秒，已停止，请缩小画布后重试。", 504) from exc
     except OSError as exc:
         raise SmartOcrError("无法启动 Tesseract OCR，请检查安装路径。", 503) from exc
+    finally:
+        _TESSERACT_SLOTS.release()
     stdout = process.stdout.decode("utf-8", "replace") if isinstance(process.stdout, bytes) else process.stdout
     stderr = process.stderr.decode("utf-8", "replace") if isinstance(process.stderr, bytes) else process.stderr
     if process.returncode:
@@ -162,18 +169,21 @@ def handle_smart_ocr_post(handler):
         data = json.loads(handler.rfile.read(length))
         if not isinstance(data, dict):
             raise SmartOcrError("OCR 请求必须是对象。")
+        allow_download = data.get("allow_download") is True
         if route == "/manga-smart/lama-inpaint":
             from manga_lama_inpaint import inpaint
-            result = inpaint(data.get("image"), data.get("mask"))
+            result = inpaint(data.get("image"), data.get("mask"), allow_download)
         elif route == "/manga-smart/manga-ocr":
             # Heavy optional model only imported after same-origin, length and JSON guards.
             from manga_ocr_refiner import refine_region
-            result = refine_region(data.get("image"))
+            result = refine_region(data.get("image"), allow_download)
         else:
             result = ocr_image(data.get("image"), data.get("language") or "jpn+eng")
         handler._send_json(result)
     except SmartOcrError as exc:
-        handler._send_json({"ok": False, "error": str(exc)}, exc.status)
+        payload = {"ok": False, "error": str(exc)}
+        payload.update(getattr(exc, "extra", None) or {})
+        handler._send_json(payload, exc.status)
     except (ValueError, UnicodeDecodeError, json.JSONDecodeError):
         handler._send_json({"ok": False, "error": "OCR 请求 JSON 无效。"}, 400)
     except Exception:
