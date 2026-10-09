@@ -730,6 +730,17 @@ async function run() {
   record('LaMa mask editor does not auto-initialize a model or change canvas',
     lamaCalls===0 && beforeLamaMask.visible && beforeLamaMask.disabled &&
     beforeLamaMask.count===beforeLama,beforeLamaMask);
+  await page.locator('#mangaLamaAutoInk').click();
+  const inkAttempt=await page.evaluate(()=>({
+    count:canvas.getObjects().length,
+    confirmDisabled:document.getElementById('mangaLamaConfirm').disabled,
+    status:document.getElementById('mangaLamaStatus').textContent
+  }));
+  record('local text ink mask proposal is explicit, non-billable and never commits a layer',
+    lamaCalls===0 && inkAttempt.count===beforeLama && inkAttempt.confirmDisabled &&
+    /候选蒙版|无法安全提取/.test(inkAttempt.status) &&
+    mock.calls.length===paidCallsBeforeLama,inkAttempt);
+  await page.locator('#mangaLamaReset').click();
   await page.locator('#mangaLamaErase').click();
   const maskBounds=await page.locator('#mangaLamaMaskCanvas').boundingBox();
   // Simulate a FAST pen stroke spanning > 4 brush diameters with just two
