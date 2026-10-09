@@ -49,7 +49,7 @@ icon: 'process',step: '正在生成',substep: '第 '+(index+1)+' / '+guidList.le
 });
 await new Promise(requestAnimationFrame);
 
-await chengeCanvasByGuid(guid);
+if(await chengeCanvasByGuid(guid)===false)throw new Error('页面正在切换或不可用，请等待后重试。');
 
 for (let i=0;i<onePanelNumber;i++) {
 
