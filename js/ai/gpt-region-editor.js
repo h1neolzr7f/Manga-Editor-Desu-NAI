@@ -10,6 +10,8 @@
     result: '',
     pending: false,
     references: [],
+    characterPromptSuffix: '',
+    characterReferenceName: '',
     selectionOverlay: null,
     selectionCleanup: null,
     controller: null
@@ -505,6 +507,41 @@
     return true;
   }
 
+  // Reuse local Character Bible references; never upload them until the user
+  // explicitly clicks Generate Preview. This action changes no canvas pixels.
+  function useCharacterCard(raw) {
+    const lib=window.MangaCharacterBibleCore;
+    if(!lib || state.pending || !$g('mangaGptPanel')) return false;
+    try {
+      const card=lib.normalize(raw);
+      const input=$g('mangaGptPrompt');
+      let current=input.value.trim();
+      if(state.characterPromptSuffix && current.endsWith(state.characterPromptSuffix))
+        current=current.slice(0,-state.characterPromptSuffix.length).trim();
+      const composed=lib.withCharacterPrompt('',card);
+      input.value=(current?current+'\n\n':'')+composed;
+      state.characterPromptSuffix=composed;
+      state.characterReferenceName=card.name;
+      state.references=card.references.slice(0,3);
+      $g('mangaGptMode').value='edit';
+      $g('mangaGptSelect').disabled=false;
+      $g('mangaGptReferences').value='';
+      $g('mangaGptReferenceList').textContent=
+        '角色档案：'+card.name+' · '+card.references.length+' 张参考图（本机读取）';
+      $g('mangaGptPanel').hidden=false;
+      state.result='';
+      $g('mangaGptApply').disabled=true;
+      feedback(tr('mgpt_refs_loaded','已载入角色参考图，请确认编辑区域及费用后手动生成。'));
+      return true;
+    }catch(error){
+      feedback(error.message||String(error),true);
+      return false;
+    }
+  }
+  function referenceSummary(){
+    return {count:state.references.length,character:state.characterReferenceName};
+  }
+
   function expandSelection() {
     const c = pageCanvas();
     const region = state.region;
@@ -945,7 +982,13 @@
       try {
         const files = Array.from(event.target.files || []);
         if (files.length > 3) throw new Error(tr('mgpt_refs_max', '最多 3 张参考图。'));
+        const input=$g('mangaGptPrompt');
+        const current=input.value.trim();
+        if(state.characterPromptSuffix && current.endsWith(state.characterPromptSuffix))
+          input.value=current.slice(0,-state.characterPromptSuffix.length).trim();
         state.references = await Promise.all(files.map(toDataUrl));
+        state.characterPromptSuffix='';
+        state.characterReferenceName='';
         $g('mangaGptReferenceList').textContent = files.length ?
           files.map(file => file.name).join(tr('mgpt_list_sep', '、')) : tr('mgpt_refs_none', '尚未选择参考图');
       } catch (error) {
@@ -963,7 +1006,7 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render);
   else render();
 
-  window.MangaGPTRegionEditor = { normalizeRegion, startSelection, cancelSelection, selectRegionForTextRemoval, selectRegionForPanel, prepareManualEdit,
+  window.MangaGPTRegionEditor = { normalizeRegion, startSelection, cancelSelection, selectRegionForTextRemoval, selectRegionForPanel, prepareManualEdit, useCharacterCard, referenceSummary,
     letterboxPlan, resultCropRect, letteringInsertIndex, isLettering, contextRect, featherPlan, featherAlpha, estimateDrift, aspectMismatch,
     findCutBoxes, expandRegion, effectiveSize, bakePatch, tr };
 })();

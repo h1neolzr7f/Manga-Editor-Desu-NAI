@@ -876,10 +876,98 @@ async function run() {
     mock.calls.length===callsBeforeNL,subtitleRoute);
   await page.locator('#mangaSmartClose').click();
 
+  // Character Bible: actual Chromium file selection -> image downscale ->
+  // IndexedDB -> GPT reference staging. No model request or extra charge.
+  const characterCallsBefore=mock.calls.length;
+  const tinyPhoto=Buffer.from((await page.evaluate(() => {
+    const cv=document.createElement('canvas');
+    cv.width=320;cv.height=400;
+    const ct=cv.getContext('2d');
+    ct.fillStyle='#dbb7a3';ct.fillRect(0,0,320,400);
+    ct.fillStyle='#272a42';ct.fillRect(90,30,140,140);
+    return cv.toDataURL('image/png');
+  })).split(',')[1],'base64');
+  await page.locator('#mangaCharacterOpen').click();
+  await page.locator('#mangaCharacterName').fill('测试角色A');
+  await page.locator('#mangaCharacterTraits').fill('金色太阳眼镜、黑色制服、紫色头发');
+  await page.locator('#mangaCharacterNotes').fill('保留原漫画动作');
+  await page.locator('#mangaCharacterPhotos').setInputFiles({
+    name:'reference.png',mimeType:'image/png',buffer:tinyPhoto
+  });
+  await page.locator('#mangaCharacterSave').click();
+  await page.locator('.manga-character-card').first().waitFor({ timeout:18000 });
+  const locallySaved=await page.evaluate(()=>window.MangaCharacterBibleUI.list());
+  record('character reference persists in browser-local database with private card fields',
+    locallySaved.length===1 && locallySaved[0].name==='测试角色A' &&
+    locallySaved[0].referenceCount===1 && mock.calls.length===characterCallsBefore,
+    {locallySaved,modelCalls:mock.calls.length});
+  await page.evaluate(() => {
+    const mode=document.getElementById('mangaGptMode');
+    mode.value='generate';
+    mode.dispatchEvent(new Event('change',{bubbles:true}));
+  });
+  await page.locator('.manga-character-card button').filter({hasText:'用于 GPT 改图'}).click();
+  const gptCharacter=await page.evaluate(()=>({
+    summary:window.MangaGPTRegionEditor.referenceSummary(),
+    mode:document.getElementById('mangaGptMode').value,
+    prompt:document.getElementById('mangaGptPrompt').value,
+    list:document.getElementById('mangaGptReferenceList').textContent
+  }));
+  record('Character Bible attaches reference image and traits to GPT editor without generating',
+    gptCharacter.summary.count===1 && gptCharacter.mode==='edit' &&
+    gptCharacter.summary.character==='测试角色A' &&
+    /金色太阳眼镜/.test(gptCharacter.prompt) &&
+    /1 张参考图/.test(gptCharacter.list) &&
+    mock.calls.length===characterCallsBefore,gptCharacter);
+  // Choosing the same character again must not pile up contradictory traits.
+  await page.locator('#mangaCharacterOpen').click();
+  await page.locator('.manga-character-card button').filter({hasText:'用于 GPT 改图'}).click();
+  const notDuplicated=await page.evaluate(()=>{
+    const p=document.getElementById('mangaGptPrompt').value;
+    return p.split('【角色参考档案：测试角色A】').length - 1;
+  });
+  record('switching/reselecting a character does not accumulate duplicate constraints',
+    notDuplicated===1,{occurrences:notDuplicated});
+  // Explicitly click Generate against the in-process fake image server.
+  // Verify the saved reference is actually serialized into the GPT request.
+  const selected=await page.evaluate(()=>window.MangaGPTRegionEditor.selectRegionForPanel(
+    {x:160,y:160,width:240,height:240,order:1}));
+  assert(selected,'should be able to set a safe mock edit region');
+  await page.locator('#mangaGptGenerate').click();
+  await page.waitForFunction(before=>document.getElementById('mangaGptApply').disabled===false &&
+    !!document.getElementById('mangaGptPreview').src, null,{timeout:30000});
+  const refRequest=mock.calls[mock.calls.length-1];
+  record('saved Character Bible image reaches mocked GPT edit payload only after Generate click',
+    mock.calls.length===characterCallsBefore+1 &&
+    refRequest.refs===1 && refRequest.operation==='edit' && refRequest.auth,
+    {modelCalls:mock.calls.length,refs:refRequest.refs,operation:refRequest.operation});
+  // Manual file selection must replace card references *and* remove its
+  // prompt constraints, so users cannot accidentally send the previous character.
+  await page.locator('#mangaGptReferences').setInputFiles({
+    name:'new-person.png',mimeType:'image/png',buffer:tinyPhoto
+  });
+  await page.waitForFunction(()=>window.MangaGPTRegionEditor.referenceSummary().character==='',
+    null,{timeout:15000});
+  const replaced=await page.evaluate(()=>({
+    summary:window.MangaGPTRegionEditor.referenceSummary(),
+    prompt:document.getElementById('mangaGptPrompt').value
+  }));
+  record('manual reference upload clears previous Character Bible identity and trait prompt',
+    replaced.summary.count===1 && replaced.summary.character==='' &&
+    !replaced.prompt.includes('【角色参考档案：测试角色A】') &&
+    mock.calls.length===characterCallsBefore+1,replaced);
+  await page.screenshot({path:path.join(OUT,'character-bible.png')});
+
   // 10. Two editor tabs side by side.
   const page2 = await openEditor(context);
   const two = await page2.evaluate(() => ({ w: canvas.getWidth(), panel: !!document.getElementById('mangaGptOpen') }));
   record('second editor tab loads independently', two.w > 0 && two.panel, two);
+  await page2.locator('#mangaCharacterOpen').click();
+  await page2.locator('.manga-character-card').first().waitFor({ timeout:15000 });
+  const acrossTabs=await page2.evaluate(()=>window.MangaCharacterBibleUI.list());
+  record('Character Bible survives opening another page/tab on the same local origin',
+    acrossTabs.length===1 && acrossTabs[0].name==='测试角色A',{acrossTabs});
+
   record('mock model received the UI key, never a .env key', mock.calls.every(c => c.auth), { calls: mock.calls.length });
   record('no uncaught page errors', pageErrors.length === 0, { pageErrors: pageErrors.slice(0, 5) });
 }
