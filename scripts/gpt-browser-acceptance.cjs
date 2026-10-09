@@ -771,6 +771,22 @@ async function run() {
   await page.waitForFunction(() => window.MangaPageStructureUI.getAnalysis()?.panels[0].x < 500,
     null, {timeout:25000});
   record('page inspector switches Japanese RTL / comic LTR numbering',true);
+  await page.locator('.manga-page-entry').first().getByRole('button',{name:'左右拆分'}).click();
+  const splitPreview=await page.evaluate(() => {
+    const graph=window.MangaPageStructureUI.getAnalysis();
+    return {count:graph.panels.length,verified:graph.panels.filter(p=>p.verified).length,
+      shapes:document.querySelectorAll('#mangaPageOverlay .manga-page-outline').length};
+  });
+  record('manually split borderless comic frame and update overlay',
+    splitPreview.count===3 && splitPreview.verified===2 && splitPreview.shapes===3,splitPreview);
+  await page.locator('.manga-page-entry').first().getByRole('button',{name:'删除误识别'}).click();
+  const afterDelete=await page.evaluate(() => ({
+    count:window.MangaPageStructureUI.getAnalysis().panels.length,
+    markers:document.querySelectorAll('#mangaPageOverlay .manga-page-outline').length
+  }));
+  record('delete false-positive frame and keep remaining panel IDs consistent',
+    afterDelete.count===2 && afterDelete.markers===2,afterDelete);
+
 
   // 10. Two editor tabs side by side.
   const page2 = await openEditor(context);
