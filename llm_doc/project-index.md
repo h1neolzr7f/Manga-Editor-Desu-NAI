@@ -22,14 +22,14 @@
 |------|------|
 | .bat | 9 |
 | .cjs | 49 |
-| .css | 45 |
-| .html | 11 |
-| .js | 249 |
+| .css | 41 |
+| .html | 9 |
+| .js | 215 |
 | .mjs | 2 |
 | .ps1 | 3 |
 | .py | 32 |
-| シンボル | 11094 |
-| DOM id 定義 | 637 |
+| シンボル | 10191 |
+| DOM id 定義 | 634 |
 | script 読み込み | 230 |
 | stylesheet 読み込み | 43 |
 
@@ -73,8 +73,7 @@
 | `NaiComicChatRenderer` | js/simulator/chat-renderer.js:368 |
 | `NaiComicChatScene` | js/simulator/chat-scene.js:117 |
 | `NaiComicExtraRendererFactory` | js/simulator/extra-renderer-factory.js:441 |
-| `NaiComicExtraRendererKit` | js/simulator/extra-renderers/renderer-kit.js:227 |
-| `NaiComicExtraRendererRegistry` | js/simulator/extra-renderer-factory.js:469, js/simulator/extra-renderers/renderer-kit.js:218 |
+| `NaiComicExtraRendererRegistry` | js/simulator/extra-renderer-factory.js:469 |
 | `NaiComicFreePack` | js/assets/github-free-pack.js:75 |
 | `NaiComicFreePackManifest` | js/assets/github-free-pack.js:48 |
 | `NaiComicLongShot` | js/simulator/longshot-exporter.js:44 |
@@ -116,7 +115,7 @@
 | `NaiVisualStudio` | js/ui/visual-studio.js:485 |
 | `NovelAICompositionDirector` | js/ai/prompt/novelai-composition-director.js:1213 |
 | `PANEL_LAYOUT_TEMPLATES` | js/panel/layout-templates.js:385 |
-| `TestRunner` | js/core/debug.js:404 |
+| `TestRunner` | js/core/debug.js:402 |
 | `__naiBrushEvt` | js/ui/visual-studio.js:142 |
 | `__naiBrushRaf` | js/ui/visual-studio.js:144, js/ui/visual-studio.js:145 |
 | `_clipboard` | js/shortcut.js:102 |
@@ -161,7 +160,7 @@
 | `recommendPanelLayouts` | js/panel/layout-templates.js:386 |
 | `renderPanelLayoutRecommendations` | js/panel/layout-templates.js:387 |
 | `resetFlexGenSizeForPanels` | js/sidebar/panel/panel-template.js:241 |
-| `runAllTests` | js/core/debug.js:403 |
+| `runAllTests` | js/core/debug.js:401 |
 | `setPanelPipelineStatus` | js/ai/prompt/auto/auto-prompt-util.js:816 |
 | `showI2IPrompts` | js/ui/ai/auto-prompt-ui.js:168 |
 | `showT2IPrompts` | js/ui/ai/auto-prompt-ui.js:167 |
@@ -170,11 +169,9 @@
 
 | ファイル | 行数 | 用途 |
 |---------|------|------|
-| js/ai/comfyui/v2/comfyui-default-object-info.js | 10475 |  |
 | js/ui/third/i18next.js | 5754 | "yyyyMMddHHmmss_SSS": { |
 | index.html | 3079 |  |
 | js/ai/manga-importer.js | 2524 |  |
-| js/ai/comfyui/v2/comfyui_workflow/comfyui-t2i-default-workflows.js | 2005 |  |
 | js/ai/prompt/novelai-composition-director.js | 1214 |  |
 | 99_server.py | 1161 |  |
 | scripts/gpt-browser-acceptance.cjs | 1154 | Real headless Chromium acceptance test against the actual HTML/Fabric runtime. |
@@ -191,10 +188,12 @@
 | css/simulator-chat.css | 790 | simulator-chat-area .simulator-chat-panel{ |
 | js/sidebar/panel/panel-manager.js | 753 | function handleSelection(e) { |
 | js/core/font/font-manager-core.js | 750 |  |
-| js/ui/canvas-object-menu.js | 734 | Canvas object right-click context menu |
 | js/ui/imagePromptHelper/image-prompt-helper.js | 730 |  |
 | scripts/gen-project-index.cjs | 722 | プロジェクト索引の自動生成。 |
+| js/ui/canvas-object-menu.js | 714 | Canvas object right-click context menu |
 | js/project-management.js | 712 | Runtime image generation is NovelAI-only. Legacy provider modules may still |
+| js/layer/blend/blend.js | 701 | ブレンドモードUI - カテゴリ分類・プレビュー・適用処理 |
+| js/fabric/fabric-management.js | 694 |  |
 
 ## 再生成
 

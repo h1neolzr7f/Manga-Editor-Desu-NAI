@@ -31,12 +31,6 @@ svgPagging=$('marginFromPanel').value;
 
 
 
-var sdWebUIPort=7860;
-var sdWebUIHost="127.0.0.1";
-
-var comfyuiPort=8188;
-var comfyuiHost="127.0.0.1";
-
 const basePrompt={
 text2img_prompt         :"masterpiece, best quality, 1girl, simple background, ",
 text2img_negative       :"low quality, worst quality, jpeg, normal quality, ",

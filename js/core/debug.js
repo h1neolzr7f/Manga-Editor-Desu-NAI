@@ -89,8 +89,6 @@ const loggerList=[
 {name:'logger',instance:typeof logger!=='undefined'?logger:null},
 {name:'workflowLogger',instance:typeof workflowLogger!=='undefined'?workflowLogger:null},
 {name:'eventLogger',instance:typeof eventLogger!=='undefined'?eventLogger:null},
-{name:'comfyuiLogger',instance:typeof comfyuiLogger!=='undefined'?comfyuiLogger:null},
-{name:'sdwebuiLogger',instance:typeof sdwebuiLogger!=='undefined'?sdwebuiLogger:null},
 {name:'dbLogger',instance:typeof dbLogger!=='undefined'?dbLogger:null},
 {name:'canvasLogger',instance:typeof canvasLogger!=='undefined'?canvasLogger:null},
 {name:'projectLogger',instance:typeof projectLogger!=='undefined'?projectLogger:null},

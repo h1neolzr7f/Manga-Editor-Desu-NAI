@@ -49,10 +49,4 @@ async fetchUpscalers(){
 }
 async fetchDiffusionInformation(){
 }
-canUseInpaint(){
-return this.supportsRole(AI_ROLES.Inpaint);
-}
-canUseAngle(){
-return this.supportsRole(AI_ROLES.I2I_Angle);
-}
 }

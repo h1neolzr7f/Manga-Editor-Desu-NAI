@@ -11,14 +11,12 @@
 | 99_server.bat | 4 |  |
 | 99_server.py | 1161 |  |
 | 99_test_nai_pipeline.bat | 16 |  |
-| css/comfyui-workflow-editor.css | 413 |  |
 | css/common.css | 222 |  |
 | css/components.css | 350 |  |
 | css/controls-mini.css | 568 |  |
 | css/core/main-component.css | 406 |  |
 | css/css2.css | 23 | Bundled locally so icons work offline and where Google Fonts is unreachable; remote copy is only a fallback. |
 | css/cutout-brush.css | 43 |  |
-| css/flag-icon.min.css | 1 |  |
 | css/form.css | 335 |  |
 | css/gpt-region-editor.css | 48 | Optional GPT tools: isolated styles so legacy canvas layout stays intact. |
 | css/icon.css | 55 | Bundled locally so icons work offline and where Google Fonts is unreachable; remote copy is only a fallback. |
@@ -36,7 +34,6 @@
 | css/tagify.css | 42 |  |
 | css/tippy.css | 31 |  |
 | css/toast.css | 131 |  |
-| css/ui/angle-editor.css | 180 |  |
 | css/ui/blend.css | 430 | blendFloatingWindow { |
 | css/ui/bottom-bar.css | 386 |  |
 | css/ui/custom-html-components.css | 103 | input, select, textarea { |
@@ -44,7 +41,6 @@
 | css/ui/floating-window.css | 45 |  |
 | css/ui/font-manager.css | 339 | styles.css |
 | css/ui/image-prompt-helper.css | 592 |  |
-| css/ui/inpaint-editor.css | 211 |  |
 | css/ui/intro.css | 76 |  |
 | css/ui/mode-change.css | 51 |  |
 | css/ui/object-menu.css | 161 |  |
@@ -56,8 +52,6 @@
 | css/ui/unified-settings.css | 82 |  |
 | css/visual-studio.css | 399 |  |
 | gpt_image_proxy.py | 369 |  |
-| html/API_Help/comfyui_settings.html | 170 |  |
-| html/API_Help/sd-api-guide.html | 364 |  |
 | html/Minual/03_xxx2webp.bat | 20 |  |
 | html/Minual/03_xxx2webp_50%.bat | 17 |  |
 | html/Minual/SB/st/03_xxx2webp.bat | 20 |  |
@@ -71,33 +65,12 @@
 | html/common.css | 343 |  |
 | html/functionList.html | 321 |  |
 | index.html | 3079 |  |
-| js/ai/ai-management.js | 144 | AI機能の中央ルーター: プロバイダーレジストリ経由でディスパッチ |
+| js/ai/ai-management.js | 128 | AI機能の中央ルーター: プロバイダーレジストリ経由でディスパッチ |
 | js/ai/ai-settings.js | 422 |  |
-| js/ai/angle/angle-editor.js | 103 | アングル変更エディタ（モーダルオーバーレイ） |
-| js/ai/angle/camera-widget.js | 494 | 3Dカメラウィジェット（アングル選択用） |
-| js/ai/comfyui/comfyui-management.js | 492 |  |
-| js/ai/comfyui/util/comfyui-util.js | 91 |  |
-| js/ai/comfyui/util/comfyui-workflow-builder.js | 157 |  |
-| js/ai/comfyui/v2/comfyui-default-object-info.js | 10475 |  |
-| js/ai/comfyui/v2/comfyui-object-info-repository.js | 57 |  |
-| js/ai/comfyui/v2/comfyui-util-v2.js | 467 |  |
-| js/ai/comfyui/v2/comfyui-workflow-editor-tab.js | 623 | "Upscaler" |
-| js/ai/comfyui/v2/comfyui-workflow-editor.js | 308 |  |
-| js/ai/comfyui/v2/comfyui-workflow-interact.js | 239 |  |
-| js/ai/comfyui/v2/comfyui-workflow-repository.js | 201 |  |
-| js/ai/comfyui/v2/comfyui_workflow/comfyui-angle-default-workflows.js | 185 | Angle default workflow (Qwen Image Edit MultiAngle) |
-| js/ai/comfyui/v2/comfyui_workflow/comfyui-default-workflows.js | 120 |  |
-| js/ai/comfyui/v2/comfyui_workflow/comfyui-inpaint-default-workflows.js | 139 | Inpaint default workflow (SDXL) |
-| js/ai/comfyui/v2/comfyui_workflow/comfyui-rembg-default-workflows.js | 38 |  |
-| js/ai/comfyui/v2/comfyui_workflow/comfyui-t2i-default-workflows.js | 2005 |  |
-| js/ai/comfyui/v2/comfyui_workflow/comfyui-upscale-default-workflows.js | 64 |  |
 | js/ai/director/scene-plan-controller.js | 66 |  |
 | js/ai/director/scene-plan-schema.js | 19 |  |
 | js/ai/director/scene-plan-service.js | 70 |  |
 | js/ai/gpt-region-editor.js | 1149 | Manga-NAI-GPT: isolated, non-destructive image editing surface. |
-| js/ai/inpainting/inpaint-editor.js | 181 | Inpaintエディタ（モーダルオーバーレイ） |
-| js/ai/inpainting/inpaint-mask.js | 206 | Inpaintマスク描画管理 |
-| js/ai/inpainting/inpaint-workflow.js | 68 | Inpaintワークフロー連携 |
 | js/ai/manga-bubble-detector.js | 81 | Conservative local bubble-candidate detector. |
 | js/ai/manga-character-bible-core.js | 64 | Character Bible data contract (own implementation). |
 | js/ai/manga-character-bible-ui.js | 224 | Private, browser-local character reference cards. |
@@ -122,23 +95,15 @@
 | js/ai/prompt/base-event-listener.js | 9 |  |
 | js/ai/prompt/director-safety.js | 29 | Director (third-party LLM gateway) credential safety. |
 | js/ai/prompt/novelai-composition-director.js | 1214 |  |
-| js/ai/provider/ai-provider.js | 58 | AIプロバイダー基底クラス |
-| js/ai/provider/falai-provider.js | 407 | Fal.aiクラウドAIプロバイダー: Queue APIで非同期実行（T2I/I2I/Upscale/RemoveBG） |
-| js/ai/provider/local-comfyui-provider.js | 49 | ローカルComfyUIプロバイダー: 既存のComfyUI関数をAIProviderインターフェースでラップ |
-| js/ai/provider/local-sdwebui-provider.js | 45 | ローカルSDWebUIプロバイダー: 既存のSDWebUI/Forge関数をAIProviderインターフェースでラップ |
+| js/ai/provider/ai-provider.js | 52 | AIプロバイダー基底クラス |
 | js/ai/provider/novelai-provider.js | 581 | NovelAI provider: direct browser call to the official image API. |
 | js/ai/provider/provider-registry.js | 100 | プロバイダーレジストリ: プロバイダー登録とRole→プロバイダーのルーティング管理 |
-| js/ai/provider/runpod-comfyui-provider.js | 55 | RunPod ComfyUIプロバイダー: クラウド上のComfyUIに認証付きHTTPS接続 |
 | js/ai/queue/generation-task-manager.js | 302 |  |
 | js/ai/queue/spinner.js | 116 | AI進捗表示（レイヤー上インジケータ、キャンセル） |
 | js/ai/queue/task-queue.js | 89 |  |
 | js/ai/role/ai-roles.js | 38 | NovelAI-only role definitions. |
 | js/ai/role/role-assignment-ui.js | 78 | Role Assignment: Role×プロバイダーのマトリクスUI |
-| js/ai/sdwebui/sdwebui-multi-call-api.js | 191 |  |
-| js/ai/sdwebui/sdwebui-settings.js | 148 |  |
-| js/ai/sdwebui/sdwebui-single-call-api.js | 143 |  |
 | js/ai/ui/ai-ui-util.js | 8 |  |
-| js/ai/ui/model-settings-window.js | 198 |  |
 | js/ai/ui/unified-settings-window.js | 38 |  |
 | js/assets/asset-blob-store.js | 70 |  |
 | js/assets/asset-library-controller.js | 295 |  |
@@ -157,14 +122,14 @@
 | js/core/auto-save.js | 235 | 自動保存機能：IndexedDBへの定期保存と起動時の復元 |
 | js/core/compression/lz4.js | 226 |  |
 | js/core/compression/project-compression.js | 327 |  |
-| js/core/debug.js | 404 |  |
+| js/core/debug.js | 402 |  |
 | js/core/font/font-dropdown.js | 295 |  |
 | js/core/font/font-manager-core.js | 750 |  |
 | js/core/global-error-handler.js | 17 | グローバルエラーハンドラ（未キャッチのエラーとPromise rejectionを検知） |
-| js/core/logger.js | 206 | ログ出力ユーティリティ（SimpleLogger） |
+| js/core/logger.js | 204 | ログ出力ユーティリティ（SimpleLogger） |
 | js/core/manga-page-size.js | 256 |  |
 | js/core/service/worker-register.js | 115 |  |
-| js/core/settings.js | 170 | FabricCanvas2HtmlCanvas Scale |
+| js/core/settings.js | 164 | FabricCanvas2HtmlCanvas Scale |
 | js/core/svg/google-icon-helper.js | 229 |  |
 | js/core/svg/google-icon-names.js | 12 |  |
 | js/core/util/anime-util.js | 11 |  |
@@ -216,12 +181,9 @@
 | js/sidebar/pen/fabric/brushes/drip.js | 77 | Drip class |
 | js/sidebar/pen/fabric/brushes/ink_brush.js | 155 | InkBrush class |
 | js/sidebar/pen/fabric/brushes/marker_brush.js | 96 | MarkerBrush class |
-| js/sidebar/pen/fabric/brushes/sample_brash.js | 112 |  |
 | js/sidebar/pen/fabric/brushes/spray_brush.js | 116 | SprayBrush class |
 | js/sidebar/pen/fabric/brushes/stroke.js | 63 | Stroke class |
 | js/sidebar/pen/fabric/fabric-brush.min.js | 19 |  |
-| js/sidebar/pen/fabric/util/point.extend.js | 22 |  |
-| js/sidebar/pen/fabric/util/util.extend.js | 13 |  |
 | js/sidebar/pen/original-brush.js | 481 |  |
 | js/sidebar/pen/pen-tools.js | 855 |  |
 | js/sidebar/sidebar-ui.js | 211 |  |
@@ -238,7 +200,6 @@
 | js/sidebar/text/custom/optimized-scratch-text.js | 144 |  |
 | js/sidebar/text/custom/optimized-shadow-text.js | 168 |  |
 | js/sidebar/text/custom/optimized-thrill-text.js | 134 |  |
-| js/sidebar/text/custom/optimized-water-text.js | 189 |  |
 | js/sidebar/text/custom/optimized-wild-text.js | 123 |  |
 | js/sidebar/text/custom/optimized-zebra-text.js | 141 |  |
 | js/sidebar/text/sfx-palette.js | 148 |  |
@@ -257,7 +218,6 @@
 | js/simulator/chat-renderer.js | 373 |  |
 | js/simulator/chat-scene.js | 128 |  |
 | js/simulator/extra-renderer-factory.js | 470 |  |
-| js/simulator/extra-renderers/renderer-kit.js | 249 |  |
 | js/simulator/longshot-exporter.js | 45 |  |
 | js/simulator/page-edit-controller.js | 84 |  |
 | js/simulator/playback-controller.js | 103 |  |
@@ -285,7 +245,7 @@
 | js/ui/ai/auto-prompt-ui.js | 170 |  |
 | js/ui/beginner-guide.js | 523 |  |
 | js/ui/bottom-bar.js | 462 | {guid, { imageLink, blob }} blob is lz4 |
-| js/ui/canvas-object-menu.js | 734 | Canvas object right-click context menu |
+| js/ui/canvas-object-menu.js | 714 | Canvas object right-click context menu |
 | js/ui/control/common-control-management.js | 60 |  |
 | js/ui/control/glfx-control.js | 456 |  |
 | js/ui/control/image-control-manager.js | 14 |  |

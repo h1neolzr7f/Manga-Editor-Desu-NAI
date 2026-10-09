@@ -42,22 +42,6 @@ return provider.executeI2I(layer,spinner.id);
 }
 }
 
-async function aiUpscale(layer,spinner){
-createToastError('NovelAI Only','高清放大已移除');
-}
-
-function canUseInpaint(){
-return false;
-}
-
-function canUseAngle(){
-return false;
-}
-
-function AngleGenerate(layer,spinner,anglePrompt){
-createToastError('NovelAI Only','角度生成已移除');
-}
-
 
 function getDiffusionInformation() {
 var provider=providerRegistry.getActive();

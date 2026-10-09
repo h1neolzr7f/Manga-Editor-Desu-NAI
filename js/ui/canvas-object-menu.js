@@ -16,9 +16,6 @@ var menuIconMap={
 "selectClear":"deselect",
 "generate":"auto_awesome",
 "rembg":"auto_fix_high",
-"upscale":"zoom_in",
-"inpaint":"brush",
-"angleGenerate":"view_in_ar",
 "flipHorizontal":"flip",
 "flipVertical":"flip",
 "cropImage":"crop",
@@ -37,9 +34,8 @@ var menuIconMap={
 "copyAndPast":"content_copy"
 };
 
-var menuAiActions=["generate","upscale","inpaint","angleGenerate"];
+var menuAiActions=["generate"];
 var menuLocalActions=["rembg","cutoutRegion"];
-var naiOnlyMode=true;
 
 function createObjectMenu(){
 if(objectMenu){
@@ -174,9 +170,6 @@ var panelInNotFit=createObjectMenuButton('panelInNotFit');
 var canvasFit=createObjectMenuButton('canvasFit');
 var selectClear=createObjectMenuButton('selectClear');
 var rembg=createObjectMenuButton('rembg');
-var upscale=createObjectMenuButton('upscale');
-var inpaint=createObjectMenuButton('inpaint');
-var angleGenerate=createObjectMenuButton('angleGenerate');
 var clearAllClipPaths=createObjectMenuButton('clearAllClipPaths');
 
 var clearTopClipPath=createObjectMenuButton('clearTopClipPath');
@@ -574,19 +567,6 @@ else if(typeof startCropMode==="function")startCropMode(regionTarget,true);
 break;
 case 'confirmCrop':
 if(typeof completeCrop==="function")completeCrop();
-break;
-case 'upscale':
-if(naiOnlyMode)return;
-var spinner=createSpinner(getGUID(activeObject),'UP');
-aiUpscale(activeObject,spinner);
-break;
-case 'inpaint':
-if(naiOnlyMode)return;
-openInpaintEditor(activeObject);
-break;
-case 'angleGenerate':
-if(naiOnlyMode)return;
-openAngleEditor(activeObject);
 break;
 case 'generate':
 if(window.NaiBeginnerGuide&&typeof window.NaiBeginnerGuide.confirmSpend==='function'){
