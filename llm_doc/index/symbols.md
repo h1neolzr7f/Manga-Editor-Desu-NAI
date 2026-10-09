@@ -4,7 +4,7 @@
 
 - 抽出対象: `root.X=` / `window.X=` / `globalThis.X=`、行頭の `function X` / `var X` / `let X` / `const X`
 - 抽出範囲: js / cjs / mjs と、html のインライン `<script>`（行番号は元ファイル基準）
-- 合計 10191 件 / ユニーク名 5478 件
+- 合計 10193 件 / ユニーク名 5478 件
 
 ## シンボル → 定義
 
@@ -208,7 +208,7 @@
 | `MangaCharacterBibleUI` | global | js/ai/manga-character-bible-ui.js:220 |
 | `MangaEditPlanner` | global | js/ai/manga-edit-planner.js:78 |
 | `MangaEditPlannerUI` | global | js/ai/manga-edit-planner-ui.js:125 |
-| `MangaGPTRegionEditor` | global | js/ai/gpt-region-editor.js:1146 |
+| `MangaGPTRegionEditor` | global | js/ai/gpt-region-editor.js:1153 |
 | `MangaImporter` | var | js/ai/manga-importer.js:1 |
 | `MangaImporter` | global | js/ai/manga-importer.js:2518 |
 | `MangaLamaInpaintUI` | global | js/ai/manga-lama-inpaint-ui.js:343 |
@@ -451,7 +451,7 @@
 | `a2` | var | js/sidebar/panel/knife/knife-geometry.js:104 |
 | `a5HeightInches` | var | js/core/util/image-util.js:413 |
 | `a5WidthInches` | var | js/core/util/image-util.js:412 |
-| `ab` | var | js/core/auto-save.js:188 |
+| `ab` | var | js/core/auto-save.js:206 |
 | `ac` | var | js/ai/manga-importer.js:666 |
 | `ac` | var | js/ai/manga-importer.js:712 |
 | `ac` | var | js/ai/manga-importer.js:744 |
@@ -1282,7 +1282,7 @@
 | `btmGetGuids` | function | js/ui/bottom-bar.js:390 |
 | `btmGetGuidsSize` | function | js/ui/bottom-bar.js:401 |
 | `btmIgnoreClose` | var | js/ui/bottom-bar.js:13 |
-| `btmImageContainer` | var | js/core/auto-save.js:178 |
+| `btmImageContainer` | var | js/core/auto-save.js:196 |
 | `btmImageContainer` | var | js/ui/bottom-bar.js:6 |
 | `btmIsDragging` | var | js/ui/bottom-bar.js:12 |
 | `btmNavCenter` | var | js/ui/bottom-bar.js:15 |
@@ -1310,7 +1310,7 @@
 | `btn` | var | js/ui/visual-studio.js:246 |
 | `btn` | var | js/ui/visual-studio.js:369 |
 | `btnRow` | var | js/project-management.js:623 |
-| `btnWrap` | var | js/core/auto-save.js:149 |
+| `btnWrap` | var | js/core/auto-save.js:153 |
 | `bubble` | var | js/sidebar/speechBubble/speech-bubble-freehand.js:124 |
 | `bubbleArea` | var | js/sidebar/speechBubble/speech-bubble-freehand.js:100 |
 | `bubbleColor` | var | js/simulator/chat-renderer.js:229 |
@@ -1332,7 +1332,7 @@
 | `buffer` | var | js/core/compression/project-compression.js:19 |
 | `buffer` | var | js/core/compression/project-compression.js:23 |
 | `bufferFileLz4List` | var | js/project-management.js:108 |
-| `bufferList` | var | js/core/auto-save.js:184 |
+| `bufferList` | var | js/core/auto-save.js:202 |
 | `buildBatchPanelRoughPrompt` | function | js/ai/prompt/auto/auto-prompt-util.js:433 |
 | `buildBatchPanelRoughPrompt` | global | js/ai/prompt/auto/auto-prompt-util.js:812 |
 | `buildBatchStoryboardContext` | function | js/ai/prompt/auto/auto-prompt-util.js:455 |
@@ -1763,7 +1763,7 @@
 | `chips` | var | js/ai/prompt/auto/character-card-manager.js:406 |
 | `chips` | var | js/simulator/renderers/image-board-renderer.js:45 |
 | `chips` | var | js/simulator/site-ui-parts.js:171 |
-| `chk` | var | js/core/auto-save.js:210 |
+| `chk` | var | js/core/auto-save.js:228 |
 | `chk` | var | js/project-management.js:670 |
 | `chk` | var | js/sidebar/sidebar-ui.js:24 |
 | `choice` | var | js/ai/prompt/novelai-composition-director.js:716 |
@@ -1866,6 +1866,7 @@
 | `clonedObject` | var | js/core/util/image-util.js:254 |
 | `close` | function | js/ai/role/role-assignment-ui.js:14 |
 | `close` | function | js/ai/ui/unified-settings-window.js:15 |
+| `close` | var | js/core/auto-save.js:176 |
 | `close` | function | js/dashboard/dashboard-ui.js:129 |
 | `close` | function | js/simulator/simulator-studio.js:995 |
 | `close` | var | js/ui/visual-ps-tools.js:591 |
@@ -2645,7 +2646,7 @@
 | `detectWhiteGutterBoxes` | function | js/ai/manga-importer.js:915 |
 | `detector` | var | scripts/manga-bubble-detector-test.cjs:5 |
 | `deviation` | var | js/core/util/image-util.js:582 |
-| `dialog` | var | js/core/auto-save.js:141 |
+| `dialog` | var | js/core/auto-save.js:144 |
 | `dialog` | var | js/project-management.js:609 |
 | `dialog` | var | js/ui/bottom-bar.js:412 |
 | `dialogue` | var | js/ai/director/scene-plan-controller.js:21 |
@@ -2683,7 +2684,7 @@
 | `directorPrompt` | var | scripts/nai-pipeline-smoke-test.mjs:300 |
 | `directorSafety` | var | js/ai/prompt/novelai-composition-director.js:762 |
 | `dirs` | var | js/ai/manga-importer.js:145 |
-| `discardBtn` | var | js/core/auto-save.js:154 |
+| `discardBtn` | var | js/core/auto-save.js:160 |
 | `discardText` | var | js/core/auto-save.js:137 |
 | `dismissEmptyHint` | function | js/ui/beginner-guide.js:168 |
 | `dismissEmptyHintAfterUserPage` | function | js/sidebar/panel/panel-template.js:125 |
@@ -3651,7 +3652,7 @@
 | `functionName` | var | js/core/logger.js:48 |
 | `fuzzyTagifySearch` | function | js/ui/util/tagify-util.js:11 |
 | `fw` | var | js/panel/random-cut.js:84 |
-| `g` | var | js/core/auto-save.js:186 |
+| `g` | var | js/core/auto-save.js:204 |
 | `g` | var | js/core/util/html-canvas-util.js:60 |
 | `g` | var | js/core/util/image-util.js:767 |
 | `g` | var | js/core/util/image-util.js:800 |
@@ -4567,7 +4568,7 @@
 | `instance` | var | js/ui/third/tippy.js:37 |
 | `instance` | var | js/ui/third/tippy.js:69 |
 | `int32Buffer` | var | js/core/debug.js:156 |
-| `intInput` | var | js/core/auto-save.js:216 |
+| `intInput` | var | js/core/auto-save.js:234 |
 | `intMaxValue` | var | js/core/util/js-util.js:6 |
 | `integral` | var | js/ai/manga-importer.js:477 |
 | `integrity` | var | js/sidebar/text/vertical-textbox.js:207 |
@@ -5753,7 +5754,7 @@
 | `msg` | var | js/ai/panel-pipeline-review.js:93 |
 | `msg` | var | js/core/auto-save.js:135 |
 | `msg` | var | js/core/global-error-handler.js:12 |
-| `msgEl` | var | js/core/auto-save.js:146 |
+| `msgEl` | var | js/core/auto-save.js:150 |
 | `multi` | var | js/ai/prompt/novelai-composition-director.js:510 |
 | `multiCoverage` | var | js/ai/manga-importer.js:354 |
 | `multiplier` | var | js/canvas-manager.js:566 |
@@ -5821,7 +5822,7 @@
 | `natW` | var | js/local-tools/background-removal-client.js:225 |
 | `natW` | var | js/ui/visual-ps-tools.js:306 |
 | `near` | var | js/ai/manga-importer.js:1025 |
-| `near` | function | scripts/gpt-browser-acceptance.cjs:145 |
+| `near` | function | scripts/gpt-browser-acceptance.cjs:154 |
 | `nearX` | var | js/ai/manga-importer.js:1029 |
 | `nearestMangaPanel` | function | js/canvas-manager.js:831 |
 | `needsMaxH` | var | js/core/font/font-dropdown.js:176 |
@@ -6210,6 +6211,7 @@
 | `on` | var | js/simulator/site-ui-parts.js:175 |
 | `onClick` | function | js/canvas-manager.js:939 |
 | `onDown` | function | js/ui/visual-ps-tools.js:397 |
+| `onKey` | var | js/core/auto-save.js:173 |
 | `onKey` | function | js/ui/beginner-guide.js:259 |
 | `onMouseMove` | function | js/ui/visual-studio.js:135 |
 | `onMove` | function | js/ui/visual-ps-tools.js:448 |
@@ -6456,7 +6458,7 @@
 | `pageArea` | var | js/ai/manga-importer.js:943 |
 | `pageArea` | var | js/ai/manga-importer.js:1282 |
 | `pageArea` | var | js/ai/manga-importer.js:1401 |
-| `pageBlobs` | var | js/core/auto-save.js:180 |
+| `pageBlobs` | var | js/core/auto-save.js:198 |
 | `pageBounds` | function | js/simulator/extra-renderer-factory.js:168 |
 | `pageBtn` | var | js/ui/beginner-guide.js:497 |
 | `pageCount` | var | js/assets/asset-library-controller.js:104 |
@@ -7281,7 +7283,7 @@
 | `recordFor` | function | scripts/vendor-free-public-assets.cjs:122 |
 | `records` | function | js/assets/original-starter-pack.js:79 |
 | `records` | function | js/assets/site-ui-pack.js:58 |
-| `recoverBtn` | var | js/core/auto-save.js:151 |
+| `recoverBtn` | var | js/core/auto-save.js:155 |
 | `recoverText` | var | js/core/auto-save.js:136 |
 | `rect` | var | js/canvas-manager.js:890 |
 | `rect` | var | js/core/font/font-dropdown.js:151 |
@@ -7354,7 +7356,7 @@
 | `regex` | var | js/ui/util/tagify-util.js:13 |
 | `region` | var | js/ai/manga-importer.js:918 |
 | `region` | var | js/ai/manga-importer.js:1266 |
-| `regionOf` | function | scripts/gpt-browser-acceptance.cjs:140 |
+| `regionOf` | function | scripts/gpt-browser-acceptance.cjs:149 |
 | `regionTarget` | var | js/ui/canvas-object-menu.js:559 |
 | `register` | function | js/ai/provider/provider-registry.js:7 |
 | `register` | function | js/assets/image2-client.js:5 |
@@ -9075,7 +9077,7 @@
 | `targetEl` | var | js/ui/tutorial.js:214 |
 | `targetFrame` | var | js/sidebar/panel/panel-manager.js:160 |
 | `targetFrameIndex` | var | js/sidebar/panel/panel-manager.js:157 |
-| `targetGuid` | var | js/core/auto-save.js:193 |
+| `targetGuid` | var | js/core/auto-save.js:211 |
 | `targetGuid` | var | js/ui/bottom-bar.js:60 |
 | `targetGuid` | var | js/ui/bottom-bar.js:147 |
 | `targetH` | var | js/ai/manga-importer.js:1540 |
@@ -9356,7 +9358,7 @@
 | `title` | var | js/simulator/story-composer-controller.js:110 |
 | `title` | var | js/simulator/story-composer-controller.js:313 |
 | `title` | var | js/simulator/story-engine.js:200 |
-| `titleEl` | var | js/core/auto-save.js:143 |
+| `titleEl` | var | js/core/auto-save.js:146 |
 | `titles` | var | js/simulator/site-ui-parts.js:227 |
 | `tmp` | var | js/local-tools/background-removal-client.js:211 |
 | `tmp` | var | js/local-tools/background-removal-client.js:250 |
@@ -9596,7 +9598,7 @@
 | `unfiltered` | var | scripts/png-bit-depth-smoke-test.cjs:212 |
 | `unifiedSettingsWindow` | var | js/ai/ui/unified-settings-window.js:1 |
 | `uniform` | var | js/core/util/image-util.js:583 |
-| `uniform` | function | scripts/gpt-browser-acceptance.cjs:212 |
+| `uniform` | function | scripts/gpt-browser-acceptance.cjs:221 |
 | `uniformContext` | var | scripts/image-export-smoke-test.cjs:292 |
 | `uniformEstimate` | var | scripts/image-export-smoke-test.cjs:325 |
 | `union` | var | js/sidebar/panel/knife/knife-split-engine.js:160 |

@@ -1,5 +1,5 @@
 // Service Worker: Cache management for HTTP/HTTPS deployment
-var CACHE_VERSION='manga-editor-v8-32-legacy-provider-cleanup';
+var CACHE_VERSION='manga-editor-v8-33-selection-scroll-recovery-a11y';
 var STATIC_EXTENSIONS=[
 '.css','.js','.png','.jpg','.jpeg','.gif','.svg','.ico',
 '.woff','.woff2','.ttf','.eot','.otf',

@@ -726,6 +726,10 @@
     });
   }
 
+  function canvasRectMoved(before, now) {
+    return ['left', 'top', 'width', 'height'].some(k => Math.abs(before[k] - now[k]) > 0.5);
+  }
+
   function startSelection() {
     const c = pageCanvas();
     if (!c || !c.upperCanvasEl) {
@@ -751,8 +755,11 @@
     state.selectionOverlay = overlay;
     // The overlay is fixed to the canvas rectangle captured now; if the page scrolls,
     // zooms or resizes the mapping would be wrong, so abort instead of mis-selecting.
-    const abortOnMove = () => {
+    // Resize always aborts. A scroll only aborts if the canvas really moved: scrolling an
+    // unrelated container (this panel, the layer list) also fires a captured 'scroll'.
+    const abortOnMove = event => {
       if (state.selectionOverlay !== overlay) return;
+      if (event && event.type === 'scroll' && !canvasRectMoved(rect, c.upperCanvasEl.getBoundingClientRect())) return;
       cancelSelection();
       feedback(tr('mgpt_canvas_moved', '画布位置已变化（滚动/缩放/窗口大小），请重新点“框选区域”。'), true);
     };

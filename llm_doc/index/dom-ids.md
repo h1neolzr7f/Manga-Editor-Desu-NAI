@@ -73,8 +73,8 @@
 | `assetLibraryStatus` | index.html:1400 | js/assets/asset-library-controller.js:34 |
 | `assetLibraryTags` | index.html:1399 | js/assets/asset-library-controller.js:87 |
 | `auto-generate-area` | index.html:914 | js/sidebar/sidebar.js:80 |
-| `autoSaveCheckbox` | index.html:291 | js/core/auto-save.js:210, js/project-management.js:244 |
-| `autoSaveInterval` | index.html:294 | js/core/auto-save.js:216, js/project-management.js:245 |
+| `autoSaveCheckbox` | index.html:291 | js/core/auto-save.js:228, js/project-management.js:244 |
+| `autoSaveInterval` | index.html:294 | js/core/auto-save.js:234, js/project-management.js:245 |
 | `backgroundRemovalAction` | index.html:1322 | js/core/settings.js:90, js/local-tools/background-removal-client.js:70 |
 | `backgroundRemovalAlphaMatting` | index.html:1328 | js/local-tools/background-removal-client.js:59 |
 | `backgroundRemovalBgThreshold` | index.html:1335 | js/local-tools/background-removal-client.js:61 |
@@ -108,7 +108,7 @@
 | `brushPresetGrid` | index.html:1829 | js/sidebar/pen/pen-tools.js:758, js/ui/visual-studio.js:94 |
 | `btm-drawer` | index.html:2243 | index.html:134, js/ui/bottom-bar.js:4 |
 | `btm-drawer-handle` | index.html:2244 | js/ui/bottom-bar.js:5 |
-| `btm-image-container` | index.html:2248 | js/core/auto-save.js:178, js/ui/bottom-bar.js:6 |
+| `btm-image-container` | index.html:2248 | js/core/auto-save.js:196, js/ui/bottom-bar.js:6 |
 | `btm-scroll-left` | index.html:2249 | js/ui/bottom-bar.js:7 |
 | `btm-scroll-right` | index.html:2250 | js/ui/bottom-bar.js:8 |
 | `btn-en` | html/functionList.html:34 | html/functionList.html:312 |
@@ -190,7 +190,7 @@
 | `dashboardWeeklyProgressText` | index.html:2958 | js/dashboard/dashboard-ui.js:919 |
 | `dashboardWordcloud` | index.html:2845 | js/dashboard/dashboard-ui.js:208, js/ui/third/i18next.js:4011 |
 | `desu-nav` | index.html:212 | index.html:132 |
-| `edit` | index.html:790 | js/ai/gpt-region-editor.js:457, js/core/svg/google-icon-helper.js:78, js/core/svg/google-icon-names.js:11, js/sidebar/panel/panel-manager.js:433, js/ui/canvas-object-menu.js:11, js/ui/util/mode-manager.js:346, scripts/full-feature-e2e.cjs:351, scripts/gpt-browser-acceptance.cjs:880, scripts/gpt-real-api-acceptance.cjs:209, scripts/gpt-region-editor-smoke-test.cjs:66 |
+| `edit` | index.html:790 | js/ai/gpt-region-editor.js:457, js/core/svg/google-icon-helper.js:78, js/core/svg/google-icon-names.js:11, js/sidebar/panel/panel-manager.js:433, js/ui/canvas-object-menu.js:11, js/ui/util/mode-manager.js:346, scripts/full-feature-e2e.cjs:351, scripts/gpt-browser-acceptance.cjs:900, scripts/gpt-real-api-acceptance.cjs:209, scripts/gpt-region-editor-smoke-test.cjs:66 |
 | `esApi-controls-mini` | index.html:2169 |  |
 | `esApiControlsPanel` | index.html:2166 |  |
 | `exportPxCappedNote` | index.html:424 | js/canvas-manager.js:342 |
@@ -665,7 +665,7 @@
 | `blendSelectedInfo` | js/layer/blend/blend.js:207 |
 | `btm-dialog-cancel` | js/ui/bottom-bar.js:430 |
 | `btm-dialog-submit` | js/ui/bottom-bar.js:431 |
-| `canvas-area .area-header` | js/ai/gpt-region-editor.js:1053, js/ai/manga-character-bible-ui.js:181, js/ai/manga-page-structure-ui.js:346, js/ai/manga-smart-text-editor.js:436 |
+| `canvas-area .area-header` | js/ai/gpt-region-editor.js:1060, js/ai/manga-character-bible-ui.js:181, js/ai/manga-page-structure-ui.js:346, js/ai/manga-smart-text-editor.js:436 |
 | `checSD_WebUI_Announce` | js/ai/ai-management.js:108 |
 | `com-fill` | js/ui/canvas-object-menu.js:468 |
 | `com-lineWidth` | js/ui/canvas-object-menu.js:432 |
@@ -786,38 +786,38 @@
 | `mangaCharacterSave` | js/ai/manga-character-bible-ui.js:121 |
 | `mangaCharacterStatus` | js/ai/manga-character-bible-ui.js:50 |
 | `mangaCharacterTraits` | js/ai/manga-character-bible-ui.js:129 |
-| `mangaGptApply` | scripts/full-feature-e2e.cjs:363, scripts/gpt-browser-acceptance.cjs:1110 |
-| `mangaGptGenerate` | scripts/full-feature-e2e.cjs:401, scripts/gpt-browser-acceptance.cjs:197, scripts/gpt-real-api-acceptance.cjs:246 |
-| `mangaGptMode` | scripts/gpt-browser-acceptance.cjs:876 |
-| `mangaGptOpen` | scripts/gpt-browser-acceptance.cjs:1136 |
-| `mangaGptPanel` | scripts/full-feature-e2e.cjs:350, scripts/gpt-browser-acceptance.cjs:608 |
-| `mangaGptPreview` | scripts/gpt-browser-acceptance.cjs:877 |
-| `mangaGptPrompt` | scripts/full-feature-e2e.cjs:343, scripts/gpt-browser-acceptance.cjs:875 |
-| `mangaGptReferenceList` | scripts/full-feature-e2e.cjs:343, scripts/gpt-browser-acceptance.cjs:1087 |
-| `mangaGptReplaceText` | scripts/gpt-browser-acceptance.cjs:410 |
-| `mangaGptStatus` | scripts/full-feature-e2e.cjs:363, scripts/gpt-browser-acceptance.cjs:204, scripts/gpt-real-api-acceptance.cjs:138 |
-| `mangaGptSubtitle` | scripts/gpt-browser-acceptance.cjs:409 |
-| `mangaLamaConfirm` | js/ai/manga-lama-inpaint-ui.js:108, scripts/full-feature-e2e.cjs:312, scripts/gpt-browser-acceptance.cjs:741, scripts/manga-real-ui-acceptance.cjs:96 |
-| `mangaLamaGenerate` | js/ai/manga-lama-inpaint-ui.js:263, scripts/full-feature-e2e.cjs:308, scripts/gpt-browser-acceptance.cjs:819, scripts/manga-real-ui-acceptance.cjs:92 |
-| `mangaLamaMaskCanvas` | js/ai/manga-lama-inpaint-ui.js:61, scripts/full-feature-e2e.cjs:308, scripts/gpt-browser-acceptance.cjs:736, scripts/manga-real-ui-acceptance.cjs:91 |
-| `mangaLamaPreviewImg` | js/ai/manga-lama-inpaint-ui.js:109, scripts/gpt-browser-acceptance.cjs:792 |
-| `mangaLamaPreviewPanel` | js/ai/manga-lama-inpaint-ui.js:163, scripts/gpt-browser-acceptance.cjs:740 |
-| `mangaLamaStatus` | js/ai/manga-lama-inpaint-ui.js:16, scripts/full-feature-e2e.cjs:313, scripts/gpt-browser-acceptance.cjs:750, scripts/manga-real-ui-acceptance.cjs:97 |
+| `mangaGptApply` | scripts/full-feature-e2e.cjs:363, scripts/gpt-browser-acceptance.cjs:1130 |
+| `mangaGptGenerate` | scripts/full-feature-e2e.cjs:401, scripts/gpt-browser-acceptance.cjs:206, scripts/gpt-real-api-acceptance.cjs:246 |
+| `mangaGptMode` | scripts/gpt-browser-acceptance.cjs:896 |
+| `mangaGptOpen` | scripts/gpt-browser-acceptance.cjs:1156 |
+| `mangaGptPanel` | scripts/full-feature-e2e.cjs:350, scripts/gpt-browser-acceptance.cjs:269 |
+| `mangaGptPreview` | scripts/gpt-browser-acceptance.cjs:897 |
+| `mangaGptPrompt` | scripts/full-feature-e2e.cjs:343, scripts/gpt-browser-acceptance.cjs:895 |
+| `mangaGptReferenceList` | scripts/full-feature-e2e.cjs:343, scripts/gpt-browser-acceptance.cjs:1107 |
+| `mangaGptReplaceText` | scripts/gpt-browser-acceptance.cjs:427 |
+| `mangaGptStatus` | scripts/full-feature-e2e.cjs:363, scripts/gpt-browser-acceptance.cjs:213, scripts/gpt-real-api-acceptance.cjs:138 |
+| `mangaGptSubtitle` | scripts/gpt-browser-acceptance.cjs:426 |
+| `mangaLamaConfirm` | js/ai/manga-lama-inpaint-ui.js:108, scripts/full-feature-e2e.cjs:312, scripts/gpt-browser-acceptance.cjs:761, scripts/manga-real-ui-acceptance.cjs:96 |
+| `mangaLamaGenerate` | js/ai/manga-lama-inpaint-ui.js:263, scripts/full-feature-e2e.cjs:308, scripts/gpt-browser-acceptance.cjs:839, scripts/manga-real-ui-acceptance.cjs:92 |
+| `mangaLamaMaskCanvas` | js/ai/manga-lama-inpaint-ui.js:61, scripts/full-feature-e2e.cjs:308, scripts/gpt-browser-acceptance.cjs:756, scripts/manga-real-ui-acceptance.cjs:91 |
+| `mangaLamaPreviewImg` | js/ai/manga-lama-inpaint-ui.js:109, scripts/gpt-browser-acceptance.cjs:812 |
+| `mangaLamaPreviewPanel` | js/ai/manga-lama-inpaint-ui.js:163, scripts/gpt-browser-acceptance.cjs:760 |
+| `mangaLamaStatus` | js/ai/manga-lama-inpaint-ui.js:16, scripts/full-feature-e2e.cjs:313, scripts/gpt-browser-acceptance.cjs:770, scripts/manga-real-ui-acceptance.cjs:97 |
 | `mangaPageAnalyze` | js/ai/manga-page-structure-ui.js:286 |
 | `mangaPageClose` | js/ai/manga-page-structure-ui.js:371 |
 | `mangaPageDirection` | js/ai/manga-page-structure-ui.js:294 |
 | `mangaPageExport` | js/ai/manga-page-structure-ui.js:383 |
 | `mangaPageList` | js/ai/manga-edit-planner-ui.js:116, js/ai/manga-page-structure-ui.js:89 |
-| `mangaPageOverlay .manga-page-bubble-outline` | scripts/gpt-browser-acceptance.cjs:930 |
-| `mangaPageOverlay .manga-page-outline` | scripts/gpt-browser-acceptance.cjs:903 |
-| `mangaPagePanel` | js/ai/manga-edit-planner-ui.js:69, js/ai/manga-page-structure-ui.js:241, scripts/gpt-browser-acceptance.cjs:1013 |
+| `mangaPageOverlay .manga-page-bubble-outline` | scripts/gpt-browser-acceptance.cjs:950 |
+| `mangaPageOverlay .manga-page-outline` | scripts/gpt-browser-acceptance.cjs:923 |
+| `mangaPagePanel` | js/ai/manga-edit-planner-ui.js:69, js/ai/manga-page-structure-ui.js:241, scripts/gpt-browser-acceptance.cjs:1033 |
 | `mangaPageShowBubbles` | js/ai/manga-page-structure-ui.js:380 |
 | `mangaPageShowOverlay` | js/ai/manga-page-structure-ui.js:376 |
 | `mangaPageStatus` | js/ai/manga-page-structure-ui.js:22 |
 | `mangaPlannerBox` | js/ai/manga-edit-planner-ui.js:89 |
 | `mangaPlannerConfirm` | js/ai/manga-edit-planner-ui.js:24 |
 | `mangaPlannerInput` | js/ai/manga-edit-planner-ui.js:30 |
-| `mangaPlannerPreview` | js/ai/manga-edit-planner-ui.js:22, scripts/gpt-browser-acceptance.cjs:1003 |
+| `mangaPlannerPreview` | js/ai/manga-edit-planner-ui.js:22, scripts/gpt-browser-acceptance.cjs:1023 |
 | `mangaPlannerStatus` | js/ai/manga-edit-planner-ui.js:11 |
 | `mangaSmartApply` | js/ai/manga-smart-text-editor.js:81 |
 | `mangaSmartCancel` | js/ai/manga-smart-text-editor.js:13 |
@@ -827,7 +827,7 @@
 | `mangaSmartManual` | js/ai/manga-smart-text-editor.js:466 |
 | `mangaSmartRegions` | js/ai/manga-smart-text-editor.js:120 |
 | `mangaSmartStatus` | js/ai/manga-smart-text-editor.js:34, scripts/full-feature-e2e.cjs:289, scripts/manga-real-ui-acceptance.cjs:72 |
-| `mangaSmartTextPanel` | js/ai/manga-edit-planner-ui.js:66, js/ai/manga-smart-text-editor.js:149, scripts/gpt-browser-acceptance.cjs:1043 |
+| `mangaSmartTextPanel` | js/ai/manga-edit-planner-ui.js:66, js/ai/manga-smart-text-editor.js:149, scripts/gpt-browser-acceptance.cjs:1063 |
 | `naiBootGuard` | js/assets/boot-guard.js:25 |
 | `naiBootGuardProbe` | js/assets/boot-guard.js:32 |
 | `naiBrushCursor` | js/ui/visual-studio.js:125 |

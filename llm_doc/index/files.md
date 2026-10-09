@@ -70,7 +70,7 @@
 | js/ai/director/scene-plan-controller.js | 66 |  |
 | js/ai/director/scene-plan-schema.js | 19 |  |
 | js/ai/director/scene-plan-service.js | 70 |  |
-| js/ai/gpt-region-editor.js | 1149 | Manga-NAI-GPT: isolated, non-destructive image editing surface. |
+| js/ai/gpt-region-editor.js | 1156 | Manga-NAI-GPT: isolated, non-destructive image editing surface. |
 | js/ai/manga-bubble-detector.js | 81 | Conservative local bubble-candidate detector. |
 | js/ai/manga-character-bible-core.js | 64 | Character Bible data contract (own implementation). |
 | js/ai/manga-character-bible-ui.js | 224 | Private, browser-local character reference cards. |
@@ -119,7 +119,7 @@
 | js/assets/original-starter-pack.js | 107 |  |
 | js/assets/site-ui-pack.js | 86 |  |
 | js/canvas-manager.js | 1015 |  |
-| js/core/auto-save.js | 235 | 自動保存機能：IndexedDBへの定期保存と起動時の復元 |
+| js/core/auto-save.js | 253 | 自動保存機能：IndexedDBへの定期保存と起動時の復元 |
 | js/core/compression/lz4.js | 226 |  |
 | js/core/compression/project-compression.js | 327 |  |
 | js/core/debug.js | 402 |  |
@@ -300,7 +300,7 @@
 | scripts/gen-project-index.cjs | 722 | プロジェクト索引の自動生成。 |
 | scripts/generate-original-starter-svgs.cjs | 326 |  |
 | scripts/generate-site-ui-svgs.cjs | 391 |  |
-| scripts/gpt-browser-acceptance.cjs | 1154 | Real headless Chromium acceptance test against the actual HTML/Fabric runtime. |
+| scripts/gpt-browser-acceptance.cjs | 1180 | Real headless Chromium acceptance test against the actual HTML/Fabric runtime. |
 | scripts/gpt-http-integration-test.py | 205 |  |
 | scripts/gpt-image-proxy-smoke-test.py | 183 |  |
 | scripts/gpt-panel-i18n-test.cjs | 53 | Regression: every mgpt_* key used by the GPT region editor exists in all 8 i18next |

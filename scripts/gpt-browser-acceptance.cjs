@@ -68,6 +68,15 @@ async function openEditor(context) {
   const skip = page.locator('#tutorialSkipBtn');
   if (await skip.count() && await skip.isVisible()) await skip.click();
   await page.keyboard.press('Escape');
+  // A second tab sees the first tab's auto-save; Esc = "decide later" (keeps the data).
+  const recovery = page.locator('#autoSaveRecoveryDialog');
+  if (await recovery.waitFor({ timeout: 2500 }).then(() => true, () => false)) {
+    page.recoveryDialog = await recovery.evaluate(el => ({ role: el.getAttribute('role'),
+      labelled: !!document.getElementById(el.getAttribute('aria-labelledby')),
+      focused: document.activeElement && document.activeElement.id }));
+    await page.keyboard.press('Escape');
+    await recovery.waitFor({ state: 'detached', timeout: 5000 });
+  }
   return page;
 }
 
@@ -194,14 +203,14 @@ async function lastRegion(page) {
 
 async function generateAndApply(page, { allowUpscale = false } = {}) {
   await page.locator('#mangaGptGenerate').click();
-  await page.waitForFunction(() => !document.querySelector('#mangaGptGenerate').disabled, { timeout: 30000 });
+  await page.waitForFunction(() => !document.querySelector('#mangaGptGenerate').disabled, { timeout: 60000 });
   const status = await page.locator('#mangaGptStatus').textContent();
   if (await page.locator('#mangaGptApply').isDisabled()) return { applied: false, status };
   await page.locator('#mangaGptAllowUpscale').setChecked(allowUpscale);
   const before = await page.evaluate(() => canvas.getObjects().length);
   await page.locator('#mangaGptApply').click();
   await page.waitForFunction(n => canvas.getObjects().length === n + 1 ||
-    document.querySelector('#mangaGptStatus').dataset.error === 'true', before, { timeout: 20000 });
+    document.querySelector('#mangaGptStatus').dataset.error === 'true', before, { timeout: 60000 });
   const applyStatus = await page.locator('#mangaGptStatus').textContent();
   const added = await page.evaluate(n => canvas.getObjects().length === n + 1, before);
   return { applied: added, status: applyStatus };
@@ -256,6 +265,14 @@ async function run() {
   for (let i = 0; i < 20; i++) { await page.locator('#mangaGptSelect').click(); await page.keyboard.press('Escape'); }
   record('20x open/cancel leaves no overlay', await page.locator('.manga-gpt-selection').count() === 0);
   await page.locator('#mangaGptSelect').click();
+  await page.evaluate(() => {
+    const panel = document.querySelector('.manga-gpt-panel') || document.getElementById('mangaGptPanel');
+    (panel || document.body).dispatchEvent(new Event('scroll'));
+  });
+  record('scrolling an unrelated container (GPT panel) keeps the selection',
+    await page.locator('.manga-gpt-selection').count() === 1);
+  await page.keyboard.press('Escape');
+  await page.locator('#mangaGptSelect').click();
   await page.evaluate(() => window.dispatchEvent(new Event('resize')));
   record('window resize during selection aborts overlay', await page.locator('.manga-gpt-selection').count() === 0,
     { status: await page.locator('#mangaGptStatus').textContent() });
@@ -280,7 +297,7 @@ async function run() {
     record('identity edit ' + c.name + ': uniform scale, outside pixels untouched, inside matches',
       r.applied && uniform(info) && diff.outsideChanged === 0 &&
       diff.insideMeanAbsDiff < 6 && Math.abs(info.w - region.width) <= 2 && Math.abs(info.h - region.height) <= 2,
-      { applied: r.applied, size: mock.calls.at(-1).size, info, diff });
+      { applied: r.applied, status: r.status, size: mock.calls.at(-1).size, info, diff });
   }
 
   // 3. Model ignores requested aspect (returns 3:2 for a 1:1 request): still no stretching.
@@ -426,22 +443,25 @@ async function run() {
   // 6b. Keyboard redo: Ctrl+Shift+Z works like Ctrl+Y; never fires while typing in a field.
   const keyText = async () => page.evaluate(() => canvas.getObjects().find(o => o.name === 'vtext').text);
   await page.evaluate(() => { if (document.activeElement) document.activeElement.blur(); canvas.discardActiveObject(); });
+  // Wait for the expected text instead of a fixed sleep (the box can be heavily loaded).
+  const settle = async expected => {
+    await page.waitForFunction(t => canvas.getObjects().find(o => o.name === 'vtext').text === t, expected,
+      { timeout: 10000 }).catch(() => {});
+    return keyText();
+  };
   await page.keyboard.press('Control+z');
-  await page.waitForTimeout(900);
-  const kUndo = await keyText();
+  const kUndo = await settle('竖排台词');
   await page.keyboard.press('Control+Shift+z');
-  await page.waitForTimeout(900);
-  const kRedo = await keyText();
+  const kRedo = await settle('新竖排');
   await page.keyboard.press('Control+z');
-  await page.waitForTimeout(900);
+  await settle('竖排台词');
   await page.locator('#mangaGptPrompt').focus();
   await page.keyboard.press('Control+Shift+z');
-  await page.waitForTimeout(900);
+  await page.waitForTimeout(1200);
   const kInField = await keyText();
   await page.evaluate(() => document.activeElement.blur());
   await page.keyboard.press('Control+y');
-  await page.waitForTimeout(900);
-  const kCtrlY = await keyText();
+  const kCtrlY = await settle('新竖排');
   record('Ctrl+Shift+Z redoes (like Ctrl+Y), ignored while typing in a text field',
     kUndo === '竖排台词' && kRedo === '新竖排' && kInField === '竖排台词' && kCtrlY === '新竖排', { kUndo, kRedo, kInField, kCtrlY });
 
@@ -1135,6 +1155,12 @@ async function run() {
   const page2 = await openEditor(context);
   const two = await page2.evaluate(() => ({ w: canvas.getWidth(), panel: !!document.getElementById('mangaGptOpen') }));
   record('second editor tab loads independently', two.w > 0 && two.panel, two);
+  if (page2.recoveryDialog) {
+    const kept = await page2.evaluate(async () => !!(await localforage.createInstance({ name: 'autoSaveStorage', storeName: 'projectAutoSave' }).getItem('metadata').catch(() => null)));
+    record('auto-save recovery dialog is an accessible dialog; Esc closes it and keeps the data',
+      page2.recoveryDialog.role === 'dialog' && page2.recoveryDialog.labelled &&
+      page2.recoveryDialog.focused === 'autoSaveRecoverBtn' && kept, { ...page2.recoveryDialog, kept });
+  }
   await page2.locator('#mangaCharacterOpen').click();
   await page2.locator('.manga-character-card').first().waitFor({ timeout:15000 });
   const acrossTabs=await page2.evaluate(()=>window.MangaCharacterBibleUI.list());

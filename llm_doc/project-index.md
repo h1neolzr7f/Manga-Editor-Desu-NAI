@@ -28,7 +28,7 @@
 | .mjs | 2 |
 | .ps1 | 3 |
 | .py | 32 |
-| シンボル | 10191 |
+| シンボル | 10193 |
 | DOM id 定義 | 634 |
 | script 読み込み | 230 |
 | stylesheet 読み込み | 43 |
@@ -47,7 +47,7 @@
 | `MangaCharacterBibleUI` | js/ai/manga-character-bible-ui.js:220 |
 | `MangaEditPlanner` | js/ai/manga-edit-planner.js:78 |
 | `MangaEditPlannerUI` | js/ai/manga-edit-planner-ui.js:125 |
-| `MangaGPTRegionEditor` | js/ai/gpt-region-editor.js:1146 |
+| `MangaGPTRegionEditor` | js/ai/gpt-region-editor.js:1153 |
 | `MangaImporter` | js/ai/manga-importer.js:2518 |
 | `MangaLamaInpaintUI` | js/ai/manga-lama-inpaint-ui.js:343 |
 | `MangaModelRequest` | js/ai/manga-model-request.js:43 |
@@ -173,9 +173,9 @@
 | index.html | 3079 |  |
 | js/ai/manga-importer.js | 2524 |  |
 | js/ai/prompt/novelai-composition-director.js | 1214 |  |
+| scripts/gpt-browser-acceptance.cjs | 1180 | Real headless Chromium acceptance test against the actual HTML/Fabric runtime. |
 | 99_server.py | 1161 |  |
-| scripts/gpt-browser-acceptance.cjs | 1154 | Real headless Chromium acceptance test against the actual HTML/Fabric runtime. |
-| js/ai/gpt-region-editor.js | 1149 | Manga-NAI-GPT: isolated, non-destructive image editing surface. |
+| js/ai/gpt-region-editor.js | 1156 | Manga-NAI-GPT: isolated, non-destructive image editing surface. |
 | js/simulator/simulator-studio.js | 1110 | 模拟器启动页与各类型单开工作区 |
 | js/dashboard/dashboard-ui.js | 1057 | ダッシュボードUIコンポーネント（モーダル表示） |
 | js/canvas-manager.js | 1015 |  |

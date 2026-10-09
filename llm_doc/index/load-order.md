@@ -223,9 +223,9 @@ JS/CSS を編集したら `?v=` を上げてキャッシュを更新する。現
 | 213 | js/core/compression/lz4.js | v=7.2 |  | 2705 |
 | 214 | js/core/util/array-buffer-utils.js | v=7.2 |  | 2706 |
 | 215 | js/core/compression/project-compression.js | v=8.7 |  | 2707 |
-| 216 | js/core/auto-save.js | v=7.2 | defer | 2708 |
+| 216 | js/core/auto-save.js | v=7.3 | defer | 2708 |
 | 217 | cdn-local/jscolor.min.js |  |  | 2710 |
-| 218 | js/ai/gpt-region-editor.js | v=1.2 | defer | 3064 |
+| 218 | js/ai/gpt-region-editor.js | v=1.3 | defer | 3064 |
 | 219 | js/ai/manga-model-request.js | v=1.0 | defer | 3065 |
 | 220 | js/ai/manga-smart-text-core.js | v=1.0 | defer | 3066 |
 | 221 | js/ai/manga-smart-text-editor.js | v=1.2 | defer | 3067 |
