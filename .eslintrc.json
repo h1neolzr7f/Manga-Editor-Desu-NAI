@@ -51,7 +51,6 @@
   },
   "ignorePatterns": [
     "json_js/**",
-    "test/**",
     "third/**",
     "01_build/**",
     "02_images_svg/**",
