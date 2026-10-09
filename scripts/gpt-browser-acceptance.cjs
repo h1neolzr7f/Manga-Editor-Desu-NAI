@@ -736,6 +736,9 @@ async function run() {
     structure.count===2 && structure.firstX>structure.secondX &&
     structure.markers===2 && structure.verified.every(x=>x===false),structure);
   const modelBeforePanel=mock.calls.length;
+  // The OCR panel is separate and stays hidden until opened by a user.
+  await page.locator('#mangaPageClose').click();
+  await page.locator('#mangaSmartOpen').click();
   await page.locator('#mangaSmartDetect').click();
   await page.waitForFunction(() => {
     const g=window.MangaPageStructureUI.getAnalysis();
@@ -750,6 +753,8 @@ async function run() {
     linked.text.panelId==='panel-2' && linked.bubbles.length===1 &&
     linked.bubbles[0].verified===false && linked.bubbles[0].source==='ocr-text-expansion' &&
     /第2格/.test(linked.label),linked);
+  await page.locator('#mangaSmartClose').click();
+  await page.locator('#mangaPageOpen').click();
   await page.locator('.manga-page-entry').first().getByRole('button',{name:'GPT 编辑本格'}).click();
   const handoff=await page.evaluate(() => ({
     gptOpen:!document.getElementById('mangaGptPanel').hidden,
