@@ -17,7 +17,8 @@
 
   const TEXT_TYPES = ['text', 'textbox', 'i-text', 'vertical-textbox'];
   const SIZE_ASPECTS = { '1024x1024': [1024, 1024], '1536x1024': [1536, 1024], '1024x1536': [1024, 1536] };
-  const REQUEST_TIMEOUT_MS = 180000;
+  // Longer than the local relay's upstream timeout (300 s) so its readable 504 arrives first.
+  const REQUEST_TIMEOUT_MS = 330000;
 
   const $g = id => document.getElementById(id);
   const pageCanvas = () => (typeof canvas !== 'undefined' && canvas && typeof canvas.toDataURL === 'function') ? canvas : null;

@@ -20,6 +20,19 @@ MAX_IMAGE_BYTES = 12 * 1024 * 1024
 MAX_RESULT_BYTES = 20 * 1024 * 1024
 CLASH_FAKE_IP = ipaddress.ip_network("198.18.0.0/15")
 OFFICIAL_API = "https://api.openai.com/v1"
+DEFAULT_UPSTREAM_TIMEOUT = 300  # gpt-image edits with references often take 1-3+ minutes
+
+
+def _upstream_timeout(environ=None):
+    """Seconds to wait for the image API (GPT_IMAGE_TIMEOUT, clamped to 30..900)."""
+    raw = (environ if environ is not None else os.environ).get("GPT_IMAGE_TIMEOUT", "")
+    try:
+        value = int(float(raw)) if str(raw).strip() else DEFAULT_UPSTREAM_TIMEOUT
+    except ValueError:
+        value = DEFAULT_UPSTREAM_TIMEOUT
+    return max(30, min(900, value))
+
+
 UPSTREAM_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
 
 
@@ -267,8 +280,9 @@ def request_image_edit(payload, key):
                "User-Agent": UPSTREAM_USER_AGENT}
     opener = _opener()
     request = urllib.request.Request(endpoint, data=body, headers=headers, method="POST")
+    timeout = _upstream_timeout()
     try:
-        with opener.open(request, timeout=120) as response:
+        with opener.open(request, timeout=timeout) as response:
             raw = response.read(MAX_RESULT_BYTES + 1)
         if len(raw) > MAX_RESULT_BYTES:
             raise ImageProxyError("上游响应超过 20MB。", 502)
@@ -284,7 +298,11 @@ def request_image_edit(payload, key):
         message = error.get("message", raw) if isinstance(error, dict) else str(error)
         message = str(message).replace(key, "[redacted]")[:300]
         raise ImageProxyError("上游 HTTP " + str(exc.code) + "：" + message, 502) from exc
+    except TimeoutError as exc:
+        raise ImageProxyError("上游图像接口超时（" + str(timeout) + " 秒），可稍后重试或调大 GPT_IMAGE_TIMEOUT。", 504) from exc
     except urllib.error.URLError as exc:
+        if isinstance(exc.reason, TimeoutError):
+            raise ImageProxyError("上游图像接口超时（" + str(timeout) + " 秒），可稍后重试或调大 GPT_IMAGE_TIMEOUT。", 504) from exc
         raise ImageProxyError("无法连接图像接口，请检查地址、网络代理与模型支持情况。", 502) from exc
 
 

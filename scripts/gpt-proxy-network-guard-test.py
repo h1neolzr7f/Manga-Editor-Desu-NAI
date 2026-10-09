@@ -130,6 +130,31 @@ class NetworkGuardTest(unittest.TestCase):
                 self.assertIn(expected, str(ctx.exception))
                 self.assertNotIn("sk-secret-value", str(ctx.exception))
 
+    def test_upstream_timeout_is_generous_and_readable(self):
+        self.assertEqual(relay._upstream_timeout({}), 300)
+        self.assertEqual(relay._upstream_timeout({"GPT_IMAGE_TIMEOUT": "5"}), 30)
+        self.assertEqual(relay._upstream_timeout({"GPT_IMAGE_TIMEOUT": "9999"}), 900)
+        self.assertEqual(relay._upstream_timeout({"GPT_IMAGE_TIMEOUT": "abc"}), 300)
+        mock.patch.object(relay, "_valid_public_url", lambda v, allow_query=False: relay.urllib.parse.urlsplit(v)).start()
+        seen = []
+        for exc in (TimeoutError("timed out"), urllib.error.URLError(TimeoutError("timed out"))):
+            class Opener:
+                def open(self, request, timeout=None, _e=exc):
+                    seen.append(timeout)
+                    raise _e
+            mock.patch.object(relay, "_opener", lambda o=Opener: o()).start()
+            with self.subTest(type(exc).__name__):
+                with self.assertRaises(relay.ImageProxyError) as ctx:
+                    relay.request_image_edit({"baseUrl": "https://relay.example.com/v1", "model": "m",
+                                              "prompt": "p", "operation": "generate"}, "sk-secret-value")
+                self.assertEqual(ctx.exception.status, 504)
+                self.assertIn("超时", str(ctx.exception))
+        self.assertTrue(all(t >= 240 for t in seen), seen)
+        js = (ROOT / "js" / "ai" / "gpt-region-editor.js").read_text(encoding="utf-8")
+        import re
+        client_ms = int(re.search(r"REQUEST_TIMEOUT_MS = (\d+)", js).group(1))
+        self.assertGreater(client_ms, relay.DEFAULT_UPSTREAM_TIMEOUT * 1000)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
