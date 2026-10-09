@@ -787,6 +787,7 @@ async function run() {
   record('delete false-positive frame and keep remaining panel IDs consistent',
     afterDelete.count===2 && afterDelete.markers===2,afterDelete);
   // Preview-first natural-language planner: never modify before explicit confirmation.
+  await page.evaluate(() => { document.getElementById('mangaGptPanel').hidden = true; });
   await page.locator('#mangaPlannerInput').fill('修改第一格和第二格的背景');
   await page.locator('#mangaPlannerPreviewBtn').click();
   const ambiguous={
