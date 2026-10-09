@@ -197,21 +197,21 @@
     photos.multiple=true;photos.accept='image/png,image/jpeg,image/webp';
     const photosLabel=elem('label','参考图（1～3 张，可本地压缩到最长边 1024px）');
     photosLabel.append(photos);
-    const save=elem('button','保存角色档案');save.type='button';save.id='mangaCharacterSave';
+    const saveButton=elem('button','保存角色档案');saveButton.type='button';saveButton.id='mangaCharacterSave';
     const list=elem('div');list.id='mangaCharacterCards';list.className='manga-character-cards';
     const actions=elem('div');actions.className='manga-character-actions';
     const backup=elem('button','导出 JSON');backup.type='button';backup.id='mangaCharacterExport';
     const upload=elem('input');upload.id='mangaCharacterImport';upload.type='file';upload.accept='application/json,.json';
     actions.append(backup,upload);
     const status=elem('p');status.id='mangaCharacterStatus';status.setAttribute('role','status');
-    panel.append(heading,intro,name,traits,notes,photosLabel,save,list,actions,status);
+    panel.append(heading,intro,name,traits,notes,photosLabel,saveButton,list,actions,status);
     document.body.append(panel);
     open.addEventListener('click',()=>{
       panel.hidden=!panel.hidden;
       if(!panel.hidden)refresh().catch(e=>message(e.message,true));
     });
     close.addEventListener('click',()=>{panel.hidden=true;});
-    save.addEventListener('click',save);
+    saveButton.addEventListener('click',save);
     backup.addEventListener('click',exportCards);
     upload.addEventListener('change',importCards);
   }
