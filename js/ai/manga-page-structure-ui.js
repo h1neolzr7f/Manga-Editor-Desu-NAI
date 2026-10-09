@@ -269,6 +269,12 @@
     $('mangaPagePanel').hidden=true;
     say('已定位第 '+intent.panel.order+' 格并填写修改描述。尚未识别具体人物或生成图片；请确认区域后手动生成。');
   }
+  function isCurrent() {
+    const c=getCanvas();
+    return Boolean(c && c===state.canvas && state.graph &&
+      c.getWidth()===state.graph.width && c.getHeight()===state.graph.height &&
+      snapshotCanvas(c)===state.snapshot);
+  }
   function downloadJSON(){
     const graph=exportGraph();
     if(!graph)return say('请先分析分镜。',true);
@@ -325,5 +331,5 @@
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render);
   else render();
-  window.MangaPageStructureUI={analyze,getAnalysis:exportGraph,refreshFromOCR,invalidate};
+  window.MangaPageStructureUI={analyze,getAnalysis:exportGraph,refreshFromOCR,invalidate,isCurrent};
 })();
