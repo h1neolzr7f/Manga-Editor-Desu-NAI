@@ -4,7 +4,7 @@ var isMacOs=navigator.userAgent.indexOf('Mac OS')!==-1;;
 var hotkeysMap={
 toggleGrid: 'ctrl+g',
 undo:!isMacOs ? 'ctrl+z' : 'command+z',
-redo:!isMacOs ? 'ctrl+y' : 'command+y',
+redo:!isMacOs ? 'ctrl+y, ctrl+shift+z' : 'command+y, command+shift+z',
 toggleLayer: 'ctrl+l',
 toggleControls: 'ctrl+k',
 zoomIn: 'ctrl+8',
@@ -57,8 +57,10 @@ e.preventDefault();
 
 // bind redo shortcut
 hotkeys(hotkeysMap.redo,'all' ,function (e) {
+if (!isEditableTagsActive()) {
 redo();
 e.preventDefault();
+}
 });
 
 // bind toggle layer panel shortcut
@@ -256,7 +258,7 @@ var shortcutCategories=[
 ]},
 {category:'sc_cat_edit',items:[
 {win:'Ctrl + Z',mac:'⌘ + Z',i18n:'sc_undo'},
-{win:'Ctrl + Y',mac:'⌘ + Y',i18n:'sc_redo'},
+{win:'Ctrl + Y / Ctrl + Shift + Z',mac:'⌘ + Y / ⌘ + Shift + Z',i18n:'sc_redo'},
 {win:'Ctrl + C',mac:'⌘ + C',i18n:'sc_copy'},
 {win:'Ctrl + V',mac:'⌘ + V',i18n:'sc_paste'},
 {win:'Delete / Backspace',mac:'Delete / Backspace',i18n:'sc_deleteLayer'},
