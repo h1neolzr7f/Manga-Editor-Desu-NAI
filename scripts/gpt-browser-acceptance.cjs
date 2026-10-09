@@ -699,6 +699,52 @@ async function run() {
   record('smart subtitle can add editable text without erasing complex art',
     manualText.text === '旧对白' && !manualText.erased, manualText);
 
+  // Local LaMa: use a fake identity inpainting model, but REAL canvas crop,
+  // rectangle mask, human preview and non-destructive Fabric overlay.
+  let lamaCalls=0;
+  await page.route('**/manga-smart/lama-inpaint',route=>{
+    lamaCalls++;
+    const payload=route.request().postDataJSON();
+    assert(/^data:image\/png;base64,/.test(payload.image));
+    assert(/^data:image\/png;base64,/.test(payload.mask));
+    const b=Buffer.from(payload.image.split(',')[1],'base64');
+    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+      ok:true,engine:'simple-lama-local',applied:false,verified:false,
+      width:b.readUInt32BE(16),height:b.readUInt32BE(20),image:payload.image
+    })});
+  });
+  await page.locator('#mangaSmartDetect').click();
+  await page.locator('.manga-smart-item textarea').waitFor({timeout:10000});
+  const beforeLama=await page.evaluate(()=>canvas.getObjects().length);
+  const paidCallsBeforeLama=mock.calls.length;
+  await page.locator('.manga-smart-item button').filter({hasText:'本地 LaMa 去字'}).click();
+  await page.locator('#mangaLamaConfirm').waitFor({timeout:16000});
+  await page.waitForFunction(()=>!document.getElementById('mangaLamaConfirm').disabled,
+    null,{timeout:25000});
+  const previewLama=await page.evaluate(()=>({
+    count:canvas.getObjects().length,
+    visible:!document.getElementById('mangaLamaPreviewPanel').hidden
+  }));
+  record('local LaMa preview never changes the original canvas before confirmation',
+    lamaCalls===1 && previewLama.visible && previewLama.count===beforeLama &&
+    mock.calls.length===paidCallsBeforeLama,previewLama);
+  await page.locator('#mangaLamaConfirm').click();
+  await page.waitForFunction(()=>canvas.getObjects().some(o=>o.mangaSmartText==='lama-erase-patch'),
+    null,{timeout:20000});
+  const appliedLama=await page.evaluate(()=>({
+    objects:canvas.getObjects().length,
+    layer:canvas.getObjects().find(o=>o.mangaSmartText==='lama-erase-patch')?.type,
+    erase:window.MangaSmartTextEditor.getDrafts()[0]?.erase
+  }));
+  record('confirmed LaMa result is an independent erasable Fabric layer with no GPT charges',
+    appliedLama.objects===beforeLama+1 && appliedLama.layer==='image' &&
+    appliedLama.erase===false && mock.calls.length===paidCallsBeforeLama,appliedLama);
+  await page.evaluate(()=>undo());
+  await page.waitForFunction(n=>canvas.getObjects().length===n,beforeLama,{timeout:20000});
+  await page.evaluate(()=>redo());
+  await page.waitForFunction(n=>canvas.getObjects().length===n,beforeLama+1,{timeout:20000});
+  record('local LaMa patch undo and redo works as a single history action',true);
+
   // OCR coordinates are snapshot-based; modifying the picture while a draft is open
   // must not let it erase a different page state.
   await page.locator('#mangaSmartDetect').click();
