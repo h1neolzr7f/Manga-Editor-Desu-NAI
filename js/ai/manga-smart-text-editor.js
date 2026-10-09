@@ -50,6 +50,61 @@
       c.requestRenderAll();
     }
   }
+  // Manga OCR is a text recognizer, NOT a bubble detector. Crop one candidate
+  // from the unmodified canvas snapshot, not the live modified Fabric layers.
+  async function refineWithMangaOCR(draft, index) {
+    const c=getCanvas();
+    if(!c || c!==state.canvas || !state.sourceImage ||
+       state.sourceImage!==snapshot(c))
+      return message('漫画页面已变化，请重新检测字幕后再精修。',true);
+    if(state.busy)return;
+    const before=draft.text;
+    const box=core.normalizeBox(draft,c.getWidth(),c.getHeight());
+    if(!box)return message('文字区域无效，请重新框选。',true);
+    state.busy=true;
+    $('mangaSmartDetect').disabled=true;
+    $('mangaSmartApply').disabled=true;
+    message('正在用 Manga OCR 精修第 '+(index+1)+' 条文字。首次运行可能需要下载约 400MB 模型……');
+    try {
+      const source=await loadImage(state.sourceImage);
+      const padX=Math.max(10,Math.round(box.width*.22));
+      const padY=Math.max(10,Math.round(box.height*.40));
+      const x=Math.max(0,Math.floor(box.x-padX));
+      const y=Math.max(0,Math.floor(box.y-padY));
+      const right=Math.min(source.width,Math.ceil(box.x+box.width+padX));
+      const bottom=Math.min(source.height,Math.ceil(box.y+box.height+padY));
+      const w=right-x,h=bottom-y;
+      if(w<2 || h<2 || w*h>4_000_000)
+        throw new Error('选区过大，请先手动框选更小的文字区域。');
+      const crop=document.createElement('canvas');
+      crop.width=w;crop.height=h;
+      crop.getContext('2d').drawImage(source,x,y,w,h,0,0,w,h);
+      const response=await fetch('/manga-smart/manga-ocr',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({image:crop.toDataURL('image/png')})
+      });
+      let result;
+      try {result=await response.json();}
+      catch(_){throw new Error('Manga OCR 服务没有返回 JSON。');}
+      if(!response.ok || !result.ok || !result.text)
+        throw new Error(result.error||'Manga OCR 没有返回有效文本。');
+      if(state.canvas!==c || state.sourceImage!==snapshot(c) ||
+         state.drafts[index]!==draft || draft.text!==before)
+        throw new Error('识别期间页面或文字已修改，结果已丢弃以避免覆盖你的修改。');
+      // Suggestion only. Never change canvas pixels or erase old text here.
+      draft.text=String(result.text).slice(0,500);
+      draft.confidence=0; // Manga OCR provides no calibrated confidence.
+      draft.recognizer='manga-ocr-local';
+      renderDrafts();
+      message('日漫 OCR 已更新第 '+(index+1)+' 条候选文字。请人工核对后再应用；模型可能产生误识别。');
+    }catch(error){message(error.message||String(error),true);}
+    finally{
+      state.busy=false;
+      $('mangaSmartDetect').disabled=false;
+      $('mangaSmartApply').disabled=!state.drafts.length;
+    }
+  }
+
   function renderDrafts() {
     const list = $('mangaSmartRegions');
     list.replaceChildren();
@@ -84,6 +139,12 @@
         message('已把区域送到 GPT 改图。请在 GPT 面板确认提示词后手动生成，完成后重新检测字幕。');
       });
       first.append(ai);
+      const refine=make('button','Manga OCR 精修','manga-smart-small');
+      refine.type='button';
+      refine.title='仅重新识别此候选文字区域，不直接修改画布。需本机安装 manga-ocr；首次点击可能下载约 400MB 模型。';
+      refine.disabled=state.busy;
+      refine.addEventListener('click',()=>refineWithMangaOCR(draft,i));
+      first.append(refine);
       const input = document.createElement('textarea');
       input.rows = 2;
       input.value = draft.text;
@@ -363,7 +424,7 @@
       '<div id="mangaSmartRegions" class="manga-smart-regions"></div>',
       '<button id="mangaSmartApply" type="button" disabled>应用为可编辑图层</button>',
       '<p class="manga-smart-hint">自动去字仅适合纯色气泡。复杂背景请先用 GPT 改图擦字，或取消勾选仅插入文字。',
-      '需要在本机安装 Tesseract 及所选语言包；断网也能识别。</p>',
+      '基础 OCR 需要本机 Tesseract 及所选语言包。Manga OCR 精修为可选依赖，首次点击可能联网下载约 400MB 模型；成功后可用缓存离线运行。精修结果须人工确认。</p>',
       '<div id="mangaSmartStatus" role="status"></div>'
     ].join('');
     document.body.appendChild(panel);
