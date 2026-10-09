@@ -243,6 +243,7 @@ def cors_allow_origin(origin):
     return ''
 
 LOCAL_HOSTNAMES = ('127.0.0.1', 'localhost', '::1')
+NULL_ORIGIN_API_PREFIXES = ('/nai-proxy/', '/director-proxy/', '/tagger-proxy/')
 DEFAULT_DIRECTOR_API_URL = 'https://tokendance.space/gateway/v1/chat/completions'
 
 def is_trusted_local_request(client_address, headers):
@@ -451,6 +452,12 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
     
     def end_headers(self):
         origin = cors_allow_origin(self.headers.get('Origin'))
+        # 'null' origins (file:// pages, but also sandboxed iframes on ANY website) may only
+        # read the explicit-token proxy APIs, never static files such as user_data/ images,
+        # project files or directory listings.
+        path = urllib.parse.urlsplit(self.path or '').path
+        if origin == 'null' and not path.startswith(NULL_ORIGIN_API_PREFIXES):
+            origin = ''
         if origin:
             self.send_header('Access-Control-Allow-Origin', origin)
             self.send_header('Vary', 'Origin')

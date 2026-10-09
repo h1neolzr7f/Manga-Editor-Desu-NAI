@@ -190,6 +190,27 @@ class SecretGuardTest(unittest.TestCase):
         status, _ = self.call("POST", "/gpt-image-proxy", {"Origin": "null"}, b'{"prompt":"x"}')
         self.assertEqual(status, 403)
 
+    def test_null_origin_cannot_read_static_or_private_files(self):
+        for path in ("/index.html", "/user_data/", "/99_server.py", "/user_data/projects/"):
+            conn = http.client.HTTPConnection("127.0.0.1", self.port, timeout=8)
+            try:
+                conn.request("GET", path, headers={"Host": self.host, "Origin": "null"})
+                response = conn.getresponse()
+                response.read()
+                with self.subTest(path):
+                    self.assertIsNone(response.getheader("Access-Control-Allow-Origin"))
+            finally:
+                conn.close()
+        # file:// pages may still read the explicit-token proxy APIs (compatibility).
+        conn = http.client.HTTPConnection("127.0.0.1", self.port, timeout=8)
+        try:
+            conn.request("GET", "/nai-proxy/health", headers={"Host": self.host, "Origin": "null"})
+            response = conn.getresponse()
+            response.read()
+            self.assertEqual(response.getheader("Access-Control-Allow-Origin"), "null")
+        finally:
+            conn.close()
+
     def test_trust_helper_matrix(self):
         ok = srv.is_trusted_local_request
         self.assertTrue(ok(("127.0.0.1", 1), {"Host": "127.0.0.1:8000"}))
