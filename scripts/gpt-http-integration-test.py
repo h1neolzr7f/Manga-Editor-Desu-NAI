@@ -157,8 +157,8 @@ class LiveHTTPTest(unittest.TestCase):
 
     def test_manga_ocr_route_is_guarded_and_does_not_load_model_for_others(self):
         import manga_ocr_refiner
-        png = (b"\\x89PNG\\r\\n\\x1a\\n" + b"\\x00\\x00\\x00\\x0dIHDR" +
-               (350).to_bytes(4, "big") + (220).to_bytes(4, "big") + b"\\x08\\x06\\x00\\x00\\x00")
+        png = (b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\x0dIHDR" +
+               (350).to_bytes(4, "big") + (220).to_bytes(4, "big") + b"\x08\x06\x00\x00\x00")
         data = {"image": "data:image/png;base64," + base64.b64encode(png).decode("ascii")}
         fake_result = {"ok": True, "text": "日本語", "verified": False, "engine": "manga-ocr-local", "width": 350, "height": 220}
         with mock.patch.object(manga_ocr_refiner, "refine_region", return_value=fake_result) as infer:
