@@ -147,7 +147,7 @@ def ocr_image(data_url, language="jpn+eng"):
 
 def handle_smart_ocr_post(handler):
     route = handler.path.split("?", 1)[0]
-    if route not in ("/manga-smart/ocr", "/manga-smart/manga-ocr"):
+    if route not in ("/manga-smart/ocr", "/manga-smart/manga-ocr", "/manga-smart/lama-inpaint"):
         return False
     if not _authorized_local_request(handler):
         handler.close_connection = True
@@ -162,7 +162,10 @@ def handle_smart_ocr_post(handler):
         data = json.loads(handler.rfile.read(length))
         if not isinstance(data, dict):
             raise SmartOcrError("OCR 请求必须是对象。")
-        if route == "/manga-smart/manga-ocr":
+        if route == "/manga-smart/lama-inpaint":
+            from manga_lama_inpaint import inpaint
+            result = inpaint(data.get("image"), data.get("mask"))
+        elif route == "/manga-smart/manga-ocr":
             # Heavy optional model only imported after same-origin, length and JSON guards.
             from manga_ocr_refiner import refine_region
             result = refine_region(data.get("image"))
