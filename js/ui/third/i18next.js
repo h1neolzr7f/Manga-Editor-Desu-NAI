@@ -468,8 +468,8 @@ const resources = {
 "mgpt_refs_max": "参考画像は最大 3 枚です。",
 "mgpt_list_sep": "、",
 "mgpt_ready": "先に編集範囲を選択するか、「テキストから画像」に切り替えてください。",
-"mgpt_ocr_erase_prompt": "選択範囲の印刷文字だけを消し、自然な背景と吹き出しを復元してください。絵柄、構図、人物、未選択領域は維持し、新しい文字を描かないでください。",
-"mgpt_ocr_staged": "スマート字幕から文字消去の範囲を指定しました。範囲と費用を確認してから「プレビュー生成」を押してください。"
+"mgpt_ocr_erase_prompt": "選択範囲の印刷文字を消し、自然な背景と吹き出しを復元してください。元の絵柄、構図、人物、未選択の範囲は維持し、新しい文字を描かないでください。",
+"mgpt_ocr_staged": "スマート字幕から文字消去の範囲を指定しました。範囲と費用を確認してからプレビューを生成してください。"
 },
 "en": {
 "mgpt_ref_type": "Reference images must be PNG, JPEG or WebP.",
@@ -549,9 +549,9 @@ const resources = {
 "mgpt_mode_generate_hint": "Enter a prompt; the generated image is added as a separate layer.",
 "mgpt_refs_max": "At most 3 reference images.",
 "mgpt_list_sep": ", ",
-"mgpt_ready": "Select the region to edit first, or switch to \",
-"mgpt_ocr_erase_prompt": "Erase the printed text inside the selected region and reconstruct the original background and speech bubble. Preserve the art style, composition, characters and unselected area. Do not create new text.",
-"mgpt_ocr_staged": "Text-removal region staged from Smart Lettering. Review the region and cost, then click Generate Preview."Text to image\"."
+"mgpt_ready": "Select the region to edit first, or switch to \"Text to image\".",
+"mgpt_ocr_erase_prompt": "Erase printed text in the selected region and restore the natural background and speech bubble. Preserve the art style, composition, characters and everything outside the selection. Do not create new text.",
+"mgpt_ocr_staged": "Text removal region staged from Smart Lettering. Check the area and cost before generating a preview."
 },
 "ko": {
 "mgpt_ref_type": "참조 이미지는 PNG, JPEG, WebP만 지원합니다.",
@@ -631,9 +631,9 @@ const resources = {
 "mgpt_mode_generate_hint": "프롬프트를 입력하면 생성 이미지가 독립 레이어로 추가됩니다.",
 "mgpt_refs_max": "참조 이미지는 최대 3장입니다.",
 "mgpt_list_sep": ", ",
-"mgpt_ready": "먼저 수정할 영역을 선택하거나 \",
-"mgpt_ocr_erase_prompt": "선택한 영역의 인쇄된 글자만 지우고 자연스러운 배경과 말풍선을 복원하세요. 그림체, 구도, 인물, 선택하지 않은 영역을 유지하고 새 글자를 만들지 마세요.",
-"mgpt_ocr_staged": "스마트 자막의 글자 제거 영역을 설정했습니다. 영역과 비용을 확인한 뒤 미리보기 생성을 누르세요."텍스트로 이미지\"로 전환하세요."
+"mgpt_ready": "먼저 수정할 영역을 선택하거나 \"텍스트로 이미지\"로 전환하세요.",
+"mgpt_ocr_erase_prompt": "선택 영역의 인쇄된 글자만 지우고 배경과 말풍선을 복원하세요. 그림체, 구도, 인물 및 선택하지 않은 영역은 그대로 두고 새 글자를 만들지 마세요.",
+"mgpt_ocr_staged": "스마트 자막에서 글자 제거 영역을 설정했습니다. 영역과 비용을 확인한 후 미리보기를 생성하세요."
 },
 "fr": {
 "mgpt_ref_type": "Les images de référence doivent être en PNG, JPEG ou WebP.",
@@ -714,8 +714,8 @@ const resources = {
 "mgpt_refs_max": "3 images de référence au maximum.",
 "mgpt_list_sep": ", ",
 "mgpt_ready": "Sélectionnez d'abord la zone à modifier, ou passez à « Texte vers image ».",
-"mgpt_ocr_erase_prompt": "Effacez le texte imprimé dans la sélection et reconstituez le fond et la bulle. Conservez le style, la composition, les personnages et les zones hors sélection. N'ajoutez aucun texte.",
-"mgpt_ocr_staged": "Zone de suppression de texte transférée depuis les sous-titres intelligents. Vérifiez la sélection et le coût avant de générer l'aperçu."
+"mgpt_ocr_erase_prompt": "Effacez le texte imprimé dans la sélection et restaurez le fond et la bulle. Préservez le style, la composition, les personnages et le reste de l'image. Ne générez pas de nouveau texte.",
+"mgpt_ocr_staged": "Zone de suppression transférée depuis les sous-titres intelligents. Vérifiez la zone et le coût avant de générer."
 },
 "zh": {
 "mgpt_ref_type": "参考图仅支持 PNG、JPEG、WebP。",
@@ -878,8 +878,8 @@ const resources = {
 "mgpt_refs_max": "Не более 3 референсов.",
 "mgpt_list_sep": ", ",
 "mgpt_ready": "Сначала выделите область для изменения или переключитесь на «Текст в изображение».",
-"mgpt_ocr_erase_prompt": "Удалите печатный текст в выделенной области и восстановите фон и облачко реплики. Сохраните стиль, композицию, персонажей и области вне выделения. Не добавляйте новый текст.",
-"mgpt_ocr_staged": "Область удаления текста передана из умных субтитров. Проверьте область и стоимость, затем создайте предпросмотр."
+"mgpt_ocr_erase_prompt": "Удалите печатный текст внутри выделенной области, восстановите фон и реплику. Сохраните стиль, композицию, персонажей и всё вне выделения. Не добавляйте новый текст.",
+"mgpt_ocr_staged": "Область удаления текста передана из умных субтитров. Проверьте область и стоимость перед генерацией."
 },
 "es": {
 "mgpt_ref_type": "Las imágenes de referencia deben ser PNG, JPEG o WebP.",
@@ -960,8 +960,8 @@ const resources = {
 "mgpt_refs_max": "Como máximo 3 imágenes de referencia.",
 "mgpt_list_sep": ", ",
 "mgpt_ready": "Selecciona primero la zona a modificar o cambia a «Texto a imagen».",
-"mgpt_ocr_erase_prompt": "Borra el texto impreso de la selección y reconstruye el fondo y el globo de diálogo. Conserva el estilo, la composición, los personajes y el área sin seleccionar. No añadas texto nuevo.",
-"mgpt_ocr_staged": "Región de borrado preparada desde subtítulos inteligentes. Revisa la región y el coste antes de generar la vista previa."
+"mgpt_ocr_erase_prompt": "Borra el texto impreso de la selección y restaura el fondo y el globo de diálogo. Conserva el estilo, la composición, los personajes y el resto. No generes texto nuevo.",
+"mgpt_ocr_staged": "Región de borrado preparada desde subtítulos inteligentes. Revisa la región y el coste antes de generar."
 },
 "de": {
 "mgpt_ref_type": "Referenzbilder müssen PNG, JPEG oder WebP sein.",
@@ -1042,8 +1042,8 @@ const resources = {
 "mgpt_refs_max": "Höchstens 3 Referenzbilder.",
 "mgpt_list_sep": ", ",
 "mgpt_ready": "Zuerst den zu ändernden Bereich auswählen oder zu „Text zu Bild“ wechseln.",
-"mgpt_ocr_erase_prompt": "Entferne den gedruckten Text in der Auswahl und stelle Hintergrund und Sprechblase wieder her. Bewahre Stil, Komposition, Figuren und Bereiche außerhalb der Auswahl. Füge keinen neuen Text hinzu.",
-"mgpt_ocr_staged": "Bereich zur Textentfernung aus Smart-Untertiteln übernommen. Vor der Vorschau Auswahl und Kosten prüfen."
+"mgpt_ocr_erase_prompt": "Entferne den gedruckten Text in der Auswahl und stelle Hintergrund und Sprechblase wieder her. Bewahre Stil, Komposition, Figuren und alles außerhalb der Auswahl. Füge keinen neuen Text hinzu.",
+"mgpt_ocr_staged": "Bereich zur Textentfernung aus Smart-Untertiteln übernommen. Vor dem Generieren Auswahl und Kosten prüfen."
 }
 },
 "20260831143000_001":{
