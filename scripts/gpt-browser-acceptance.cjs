@@ -701,12 +701,13 @@ async function run() {
 
   // Local LaMa: use a fake identity inpainting model, but REAL canvas crop,
   // rectangle mask, human preview and non-destructive Fabric overlay.
-  let lamaCalls=0;
+  let lamaCalls=0,lamaMaskUrl='';
   await page.route('**/manga-smart/lama-inpaint',route=>{
     lamaCalls++;
     const payload=route.request().postDataJSON();
     assert(/^data:image\/png;base64,/.test(payload.image));
     assert(/^data:image\/png;base64,/.test(payload.mask));
+    lamaMaskUrl=payload.mask;
     const b=Buffer.from(payload.image.split(',')[1],'base64');
     return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
       ok:true,engine:'simple-lama-local',applied:false,verified:false,
@@ -718,16 +719,52 @@ async function run() {
   const beforeLama=await page.evaluate(()=>canvas.getObjects().length);
   const paidCallsBeforeLama=mock.calls.length;
   await page.locator('.manga-smart-item button').filter({hasText:'本地 LaMa 去字'}).click();
-  await page.locator('#mangaLamaConfirm').waitFor({timeout:16000});
+  await page.locator('#mangaLamaMaskCanvas').waitFor({timeout:16000});
+  await page.waitForFunction(()=>document.getElementById('mangaLamaMaskCanvas').width>10,
+    null,{timeout:16000});
+  const beforeLamaMask=await page.evaluate(()=>({
+    count:canvas.getObjects().length,
+    visible:!document.getElementById('mangaLamaPreviewPanel').hidden,
+    disabled:document.getElementById('mangaLamaConfirm').disabled
+  }));
+  record('LaMa mask editor does not auto-initialize a model or change canvas',
+    lamaCalls===0 && beforeLamaMask.visible && beforeLamaMask.disabled &&
+    beforeLamaMask.count===beforeLama,beforeLamaMask);
+  await page.locator('#mangaLamaErase').click();
+  const maskBounds=await page.locator('#mangaLamaMaskCanvas').boundingBox();
+  await page.mouse.move(maskBounds.x+maskBounds.width/2,maskBounds.y+maskBounds.height/2);
+  await page.mouse.down();
+  await page.mouse.up();
+  record('manual LaMa mask correction does not call the model before explicit preview',
+    lamaCalls===0 && mock.calls.length===paidCallsBeforeLama,{lamaCalls});
+  await page.locator('#mangaLamaGenerate').click();
   await page.waitForFunction(()=>!document.getElementById('mangaLamaConfirm').disabled,
     null,{timeout:25000});
+  const maskContents=await page.evaluate(async url=>{
+    const img=await new Promise((resolve,reject)=>{
+      const element=new Image();
+      element.onload=()=>resolve(element);
+      element.onerror=reject;
+      element.src=url;
+    });
+    const cv=document.createElement('canvas');
+    cv.width=img.width;cv.height=img.height;
+    const ctx=cv.getContext('2d');
+    ctx.drawImage(img,0,0);
+    const center=ctx.getImageData(Math.floor(cv.width/2),Math.floor(cv.height/2),1,1).data[0];
+    return {center,width:cv.width,height:cv.height};
+  },lamaMaskUrl);
+  record('LaMa backend receives user-edited mask with preserved center pixels',
+    lamaCalls===1 && maskContents.center===0,maskContents);
   const previewLama=await page.evaluate(()=>({
     count:canvas.getObjects().length,
-    visible:!document.getElementById('mangaLamaPreviewPanel').hidden
+    visible:!document.getElementById('mangaLamaPreviewPanel').hidden,
+    imageVisible:!document.getElementById('mangaLamaPreviewImg').hidden
   }));
   record('local LaMa preview never changes the original canvas before confirmation',
-    lamaCalls===1 && previewLama.visible && previewLama.count===beforeLama &&
-    mock.calls.length===paidCallsBeforeLama,previewLama);
+    lamaCalls===1 && previewLama.visible && previewLama.imageVisible &&
+    previewLama.count===beforeLama && mock.calls.length===paidCallsBeforeLama,
+    previewLama);
   await page.locator('#mangaLamaConfirm').click();
   await page.waitForFunction(()=>canvas.getObjects().some(o=>o.mangaSmartText==='lama-erase-patch'),
     null,{timeout:20000});
@@ -744,6 +781,19 @@ async function run() {
   await page.evaluate(()=>redo());
   await page.waitForFunction(n=>canvas.getObjects().length===n,beforeLama+1,{timeout:20000});
   record('local LaMa patch undo and redo works as a single history action',true);
+  // Cancelling a mask adjustment must never create another layer or run inference.
+  await page.locator('.manga-smart-item button').filter({hasText:'本地 LaMa 去字'}).click();
+  await page.waitForFunction(()=>document.getElementById('mangaLamaMaskCanvas').width>10,
+    null,{timeout:15000});
+  await page.locator('#mangaLamaCancel').click();
+  const afterCancel=await page.evaluate(()=>({
+    hidden:document.getElementById('mangaLamaPreviewPanel').hidden,
+    count:canvas.getObjects().length
+  }));
+  record('cancelled LaMa mask leaves the saved page unchanged and never invokes model',
+    afterCancel.hidden && afterCancel.count===beforeLama+1 && lamaCalls===1,
+    {afterCancel,lamaCalls});
+
 
   // OCR coordinates are snapshot-based; modifying the picture while a draft is open
   // must not let it erase a different page state.
