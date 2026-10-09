@@ -4,6 +4,8 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 
+const launcher = fs.readFileSync(path.join(__dirname, '../start_manga_editor_nai.ps1'), 'utf8');
+assert(launcher.includes('Get-EnvValue "GPT_IMAGE_API_KEY"'), 'launcher must load optional GPT image key');
 const source = fs.readFileSync(path.join(__dirname, '../js/ai/gpt-region-editor.js'), 'utf8');
 const listeners = new Map();
 const sandbox = {
