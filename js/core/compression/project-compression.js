@@ -150,6 +150,7 @@ throw error;
 
 
 async function multiLoadLz4(bufferFileLz4List) {
+const loadedGuids=[];
 for (const file of bufferFileLz4List) {
 let projectFileList=await lz4Compressor.unLz4FilesByBuffer(file.data.buffer);
 const previewBlobBuffer=projectFileList.find(file=>file.name==="preview-image.jpeg");
@@ -194,6 +195,7 @@ canvasGuid=findCanvasGuid(state);
 if (canvasGuid) {
 const lz4Blob=new Blob([file.data]);
 btmAddImage({href: previewImageUrl},lz4Blob,canvasGuid);
+loadedGuids.push(canvasGuid);
 break;
 }
 } catch (error) {
@@ -205,12 +207,15 @@ if (!canvasGuid) {
 let guid=generateGUID();
 const blob=new Blob([file.data]);
 btmAddImage({href: previewImageUrl},blob,guid);
+loadedGuids.push(guid);
 }
 }
+return loadedGuids;
 }
 
 
 async function multiLoadZip(zip) {
+const loadedGuids=[];
 const zipFiles=Object.keys(zip.files).filter(filename=>filename.endsWith('.zip'));
 
 for (let i=0;i<zipFiles.length;i++) {
@@ -236,6 +241,7 @@ canvasGuid=findCanvasGuid(state);
 
 if (canvasGuid) {
 btmAddImage({href: previewImageUrl},zipContent,canvasGuid);
+loadedGuids.push(canvasGuid);
 break;
 }
 } catch (error) {
@@ -248,8 +254,28 @@ if(canvasGuid){
 }else{
 let guid=generateGUID();
 btmAddImage({href: previewImageUrl},zipContent,guid);
+loadedGuids.push(guid);
 }
 }
+return loadedGuids;
+}
+
+// After "Load project" the pages only appear as thumbnails. When the canvas the
+// user is looking at has nothing of their own on it (fresh start, or just
+// cleared), open the first loaded page so the load is visibly effective.
+// A page with user content is never replaced.
+function countUserObjectsForLoad(){
+if(typeof userObjectCount==='function')return userObjectCount();
+return (typeof getObjectCount==='function')?getObjectCount():0;
+}
+async function openFirstLoadedPageIfCanvasEmpty(loadedGuids){
+if(!Array.isArray(loadedGuids)||loadedGuids.length===0)return false;
+if(countUserObjectsForLoad()>0)return false;
+const guid=loadedGuids[0];
+if(typeof btmProjectsMap==='undefined'||!btmProjectsMap.get(guid))return false;
+await chengeCanvasByGuid(guid);
+if(typeof btmUpdateHandleText==='function')btmUpdateHandleText();
+return true;
 }
 
 

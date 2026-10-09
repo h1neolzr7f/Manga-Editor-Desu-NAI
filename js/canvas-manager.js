@@ -163,6 +163,16 @@ function adjustCanvasSizeWithContainer(windowWidth,windowHeight) {
 fitCanvasViewToContainer(true);
 }
 
+// True when the page holds anything the user placed (panels, images, text, shapes).
+// Template placeholders such as "拖放或生成图片" do not count. An image imported or
+// dropped onto an empty page sets the page size; on a page with content it is fitted.
+function pageHasUserContent() {
+if(typeof canvas==="undefined"||!canvas||typeof canvas.getObjects!=="function")return false;
+return canvas.getObjects().some(function(obj){
+return !(typeof isPlaceholderCanvasObject==="function"&&isPlaceholderCanvasObject(obj));
+});
+}
+
 function addInitialImageToCanvas(img) {
 resizeCanvasByNum(img.width,img.height);
 initialPutImage(img);
@@ -974,10 +984,14 @@ reader.onload=function(f) {
 var data=f.target.result;
 fabric.Image.fromURL(data,function(img) {
 
-if (stateStack.length>2) {
-canvasLogger.debug("imageInput stateStack.length > 2");
+if (pageHasUserContent()) {
+// The page already has panels, art or text: keep the page size and fit the
+// image inside it. (Using the history length here resized an A4 template page
+// to the imported picture and pushed the panels off the page.)
+canvasLogger.debug("imageInput page has content: fit image into the page");
 var scaleFactor=Math.min(canvas.width/img.width,canvas.height/img.height);
 img.scale(scaleFactor);
+img.set({left:(canvas.width-img.getScaledWidth())/2,top:(canvas.height-img.getScaledHeight())/2});
 canvas.add(img);
 canvas.renderAll();
 }else{

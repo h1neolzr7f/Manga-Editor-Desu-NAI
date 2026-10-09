@@ -26,7 +26,7 @@ var reader=new FileReader();
 reader.onload=function(event) {
 var svgText=event.target.result;
 panelLogger.info("[drop SVG] stateStack.length="+stateStack.length+" objectCount="+getObjectCount()+" canvasGUID="+getCanvasGUID());
-if (stateStack.length>=2&&getObjectCount()>0) {
+if (pageHasUserContent()) {
 panelLogger.info("[drop SVG] putImageInFrame branch");
 var canvasX=x/canvasContinerScale;
 var canvasY=y/canvasContinerScale;
@@ -59,7 +59,7 @@ var data=f.target.result;
 
 fabric.Image.fromURL(data,function (img) {
 panelLogger.info("[drop] stateStack.length="+stateStack.length+" objectCount="+getObjectCount()+" canvasGUID="+getCanvasGUID()+" btmProjectsMap.size="+btmProjectsMap.size);
-if (stateStack.length>=2&&getObjectCount()>0) {
+if (pageHasUserContent()) {
 panelLogger.info("[drop] putImageInFrame branch (existing content)");
 var canvasX=x/canvasContinerScale;
 var canvasY=y/canvasContinerScale;

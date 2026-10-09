@@ -100,7 +100,7 @@ await processZip(zip);
 document.body.removeChild(fileInput);
 } else {
 OP_updateLoadingState(loading,{icon: 'process',step: 'Step4',substep: 'UnZip:',progress: 40});
-await multiLoadZip(zip);
+await openFirstLoadedPageIfCanvasEmpty(await multiLoadZip(zip));
 }
 } else if (isLz4) {
 //fileList is {name, data}
@@ -108,7 +108,7 @@ OP_updateLoadingState(loading,{icon: 'process',step: 'Step2',substep: 'UnLz4',pr
 let bufferFileLz4List=await lz4Compressor.unLz4FilesByBuffer(fileBuffer);
 
 OP_updateLoadingState(loading,{icon: 'process',step: 'Step3',substep: 'UnLz4',progress: 25});
-await multiLoadLz4(bufferFileLz4List);
+await openFirstLoadedPageIfCanvasEmpty(await multiLoadLz4(bufferFileLz4List));
 
 OP_updateLoadingState(loading,{icon: 'process',step: 'Step4',substep: 'UnLz4',progress: 85});
 } else {
