@@ -121,6 +121,35 @@
     drawMask();
     show('已恢复初始文字矩形蒙版；可以再用画笔精修。');
   }
+  // This is only a conservative proposal. Failure MUST preserve the user's mask,
+  // and success still requires explicit local-model preview and human approval.
+  function proposeInkMask(){
+    if(!prepared || ongoing)return;
+    const crop=prepared.crop;
+    const detector=window.MangaTextInkMask;
+    if(!detector || typeof detector.propose!=='function')
+      return show('深色文字候选提取模块未加载；原蒙版保持不变。',true);
+    let proposal;
+    try{
+      const sourcePixels=crop.sourceCanvas.getContext('2d',{willReadFrequently:true})
+        .getImageData(0,0,crop.width,crop.height);
+      proposal=detector.propose(sourcePixels,crop.maskRect);
+    }catch(e){return show('候选提取失败：'+(e.message||String(e))+'。原蒙版保持不变。',true);}
+    if(!proposal.ok)
+      return show('无法安全提取深色文字：'+proposal.reason+' 原蒙版保持不变。',true);
+    const ctx=crop.maskCanvas.getContext('2d');
+    const mask=ctx.createImageData(crop.width,crop.height);
+    for(let i=0;i<proposal.mask.length;i++){
+      const val=proposal.mask[i],k=i*4;
+      mask.data[k]=val;mask.data[k+1]=val;mask.data[k+2]=val;mask.data[k+3]=255;
+    }
+    ctx.putImageData(mask,0,0);
+    approved=null;
+    $('mangaLamaConfirm').disabled=true;
+    $('mangaLamaPreviewImg').hidden=true;
+    drawMask();
+    show('已生成深色文字候选蒙版（占文字框 '+Math.round(proposal.textCoverage*100)+'%）。仅是未验证候选，请检查红色区域，必要时用画笔纠错，再手动生成修复预览。');
+  }
   function coverage(crop){
     const data=crop.maskCanvas.getContext('2d',{willReadFrequently:true})
       .getImageData(0,0,crop.width,crop.height).data;
@@ -152,7 +181,10 @@
     const size=node('input');size.id='mangaLamaBrushSize';
     size.type='range';size.min='3';size.max='100';size.value=String(brushRadius);
     sizeLabel.append(size);
-    tools.append(add,erase,reset,sizeLabel);
+    const autoInk=node('button','提取深色文字候选');
+    autoInk.type='button';autoInk.id='mangaLamaAutoInk';
+    autoInk.title='仅对浅色纯净底色试探性提取墨迹；复杂背景会拒绝，绝不直接擦字。';
+    tools.append(add,erase,reset,autoInk,sizeLabel);
     const generate=node('button','根据蒙版生成本地修复预览');
     generate.id='mangaLamaGenerate';generate.type='button';
     const img=node('img');img.id='mangaLamaPreviewImg';
@@ -171,6 +203,7 @@
     add.addEventListener('click',()=>{brushMode='add';show('正在标记需要重建的文字笔画。');});
     erase.addEventListener('click',()=>{brushMode='erase';show('正在从去字蒙版中恢复需要保护的原图区域。');});
     reset.addEventListener('click',resetMask);
+    autoInk.addEventListener('click',proposeInkMask);
     size.addEventListener('input',()=>{brushRadius=Number(size.value)||12;});
     maskCanvas.addEventListener('pointerdown',e=>{
       if(e.button!==0||!prepared||ongoing)return;
