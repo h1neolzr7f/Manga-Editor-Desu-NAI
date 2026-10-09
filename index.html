@@ -147,51 +147,8 @@ const b = `<svg viewBox="0 0 100 100" width="100%" height="100%" style="position
         function gtag() {}
         function trackCustomEvent() {}
 
-document.addEventListener('click', function (event) {
-    var element = event.target;
-    var elementId = element.id || 'no-id';
-    var elementClasses = getElementClasses(element);
-    var tagName = element.tagName.toLowerCase();
-    var textContent = (element.textContent || '').trim().substring(0, 10);
-    var clickX = event.clientX;
-    var clickY = event.clientY;
-    var pageUrl = window.location.href;
-    var parentTag = element.parentElement ? element.parentElement.tagName.toLowerCase() : 'no-parent';
-
-    trackCustomEvent(
-        'click_' + tagName,
-        elementId + ' | ' + elementClasses,
-        textContent,
-        1,
-        {
-            'click_x': clickX,
-            'click_y': clickY,
-            'page_url': pageUrl,
-            'parent_tag': parentTag
-        }
-    );
-});
-
-function getElementClasses(element) {
-    if (element.className && typeof element.className === 'string') {
-        return element.className.split(' ').join(', ');
-    } else if (element.classList && element.classList.length) {
-        return Array.from(element.classList).join(', ');
-    }
-    return 'no-class';
-}
-        window.addEventListener('scroll', function () {
-            var scrollDepth = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
-            trackCustomEvent('scroll', 'page_scroll', 'Scroll Depth', scrollDepth, {});
-        });
-
-        window.addEventListener('load', function () {
-            trackCustomEvent('page_load', 'page_load', 'Page Load', 1, {});
-        });
-
-        window.addEventListener('beforeunload', function () {
-            trackCustomEvent('page_unload', 'page_unload', 'Page Unload', 1, {});
-        });
+        // Removed obsolete analytics listeners. The analytics functions are no-ops;
+        // monitoring every click/scroll was unnecessary work in offline builds.
     </script>
 <!-- ========== CSS Stylesheets ========== -->
 <link rel="stylesheet" href="css/core/main-component.css?v=8.0">
@@ -235,6 +192,7 @@ function getElementClasses(element) {
 
 <link rel="stylesheet" href="css/responsive.css?v=7.8">
 
+    <link rel="stylesheet" href="css/gpt-region-editor.css?v=1.0">
 </head>
 <!-- ========== Body ========== -->
 <body>
@@ -3097,6 +3055,7 @@ setAutoSizeingControlMini();
   <div id="simStudioStatus" class="simulator-chat-status">点一种界面，进入对应模拟器。</div>
 </div>
 
+    <script src="js/ai/gpt-region-editor.js?v=1.0" defer></script>
 </body>
 
 </html>

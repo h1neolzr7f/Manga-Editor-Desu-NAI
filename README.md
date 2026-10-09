@@ -67,3 +67,8 @@ npm run test:proxy-guards
 本修改版继续使用 [GNU GPL v3.0](LICENSE)。上游作者保留原编辑器相应版权；重新分发修改版时须保留许可证、修改说明与对应源码。第三方素材许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
 感谢 [new-sankaku/manga-editor-desu](https://github.com/new-sankaku/manga-editor-desu) 提供编辑器基础。
+
+
+## Manga-NAI-GPT（开发中）
+
+独立的 GPT 局部改图面板、参考图与兼容第三方 HTTPS 中转站的图像代理，使用方式及限制见 [Manga-NAI-GPT 第一阶段指南](docs/MANGA_NAI_GPT_PHASE1.md)。原有 NovelAI 功能保持不变；该功能处于测试阶段。

@@ -623,6 +623,11 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             self._send_json(_director_fallback_models(f'{type(error).__name__}: {error}'))
 
     def do_POST(self):
+        # Load the optional GPT extension on demand: existing scripts that load
+        # 99_server.py through importlib must not require a modified sys.path.
+        from gpt_image_proxy import handle_gpt_image_post
+        if handle_gpt_image_post(self):
+            return
         if self.path == '/nai-proxy/generate-image':
             length = int(self.headers.get('Content-Length', '0') or '0')
             body = self.rfile.read(length) if length else b''

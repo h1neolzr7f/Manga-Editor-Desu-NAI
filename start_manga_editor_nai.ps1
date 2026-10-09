@@ -384,6 +384,8 @@ if (Test-Path -LiteralPath (Join-Path $BundledNodeDir "node.exe")) {
 
 $script:EnvValues = Read-DotEnv (Join-Path $Root ".env")
 Get-EnvValue "NOVELAI_API_KEY"
+Get-EnvValue "GPT_IMAGE_API_KEY"
+Get-EnvValue "GPT_IMAGE_TRUSTED_BASE_URL"
 Get-EnvValue "TOKENDANCE_API_KEY"
 Get-EnvValue "DIRECTOR_API_URL" "https://tokendance.space/gateway/v1/chat/completions"
 Get-EnvValue "DIRECTOR_MODEL" "deepseek-v4-flash"
