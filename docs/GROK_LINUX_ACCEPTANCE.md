@@ -19,7 +19,8 @@ npm --version
 - 使用临时目录和独立浏览器配置，不接触个人数据；`.env` 是本机秘密文件，永远不上传仓库、日志或截图。
 - 先在 `main` 运行相同回归命令建立基线，再在开发分支上运行；区分原来已有问题、分支引入问题、环境问题。
 - 检查端口 8000、8765 已被其他进程占用的情况；先记录 PID，**不要误杀其他程序**。
-- **有修复权限：** 对能够复现的 Bug 直接修复，补针对性测试。请从 `feat/manga-nai-gpt-region-editor` 新建 `fix/grok-linux-acceptance`（已存在就使用新后缀分支），推送到 GitHub，并向 `feat/manga-nai-gpt-region-editor` 发 Pull Request；不要仅保存在本地或只给建议。- **禁止** push/merge `main` 或自动合并任何 PR。报告中必须附 PR URL、每条修复 commit SHA 和复测记录。
+- **有修复权限：** 对能够复现的 Bug 直接修复，补针对性测试。请从 `feat/manga-nai-gpt-region-editor` 新建 `fix/grok-linux-acceptance`（已存在就使用新后缀分支），推送到 GitHub，并向 `feat/manga-nai-gpt-region-editor` 发 Pull Request；不要仅保存在本地或只给建议。
+- **禁止** push/merge `main` 或自动合并任何 PR。报告中必须附 PR URL、每条修复 commit SHA 和复测记录。
 
 ## 1. 完整离线自动回归（不消耗积分）
 
