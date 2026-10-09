@@ -54,3 +54,13 @@
 #mangaPlannerPreview{display:grid;gap:3px;color:#e2edf8;}
 #mangaPlannerStatus{color:#a4d8ff;margin-top:2px;}
 #mangaPlannerStatus[data-error=true]{color:#ffadad;}
+
+.manga-page-bubble-outline{
+  position:absolute;box-sizing:border-box;pointer-events:none;
+  border:2px dashed rgba(255,170,20,.88);background:rgba(255,170,20,.08);
+  color:#f0b741;text-shadow:1px 1px 2px #181818;
+  font:bold 12px Arial,sans-serif;padding:1px;
+}
+.manga-page-bubble-outline[data-source="ocr-text-expansion"]{
+  border-color:rgba(255,194,95,.57);background:rgba(255,194,95,.03);
+}
