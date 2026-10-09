@@ -682,6 +682,31 @@ async function run() {
   record('smart subtitle can add editable text without erasing complex art',
     manualText.text === '旧对白' && !manualText.erased, manualText);
 
+  // OCR coordinates are snapshot-based; modifying the picture while a draft is open
+  // must not let it erase a different page state.
+  await page.locator('#mangaSmartDetect').click();
+  await page.locator('.manga-smart-item textarea').waitFor({ timeout: 10000 });
+  await page.evaluate(() => {
+    canvas.add(new fabric.Rect({ left: 20, top: 30, width: 130, height: 80, fill: '#020102' }));
+    canvas.renderAll();
+  });
+  const beforeStale = await page.evaluate(() => canvas.getObjects().length);
+  await page.locator('#mangaSmartApply').click();
+  const stale = { status: await page.locator('#mangaSmartStatus').textContent(),
+    count: await page.evaluate(() => canvas.getObjects().length) };
+  record('OCR application rejects stale page pixels after a canvas edit',
+    /画布在识别后被修改/.test(stale.status) && stale.count === beforeStale, stale);
+  await page.locator('.manga-smart-item button').filter({ hasText: 'GPT 去字' }).click();
+  const staged = await page.evaluate(() => ({
+    panelOpen: !document.getElementById('mangaGptPanel').hidden,
+    prompt: document.getElementById('mangaGptPrompt').value,
+    mode: document.getElementById('mangaGptMode').value,
+    selection: document.getElementById('mangaGptPreview').src.startsWith('data:image/')
+  }));
+  record('smart OCR can stage complex-background text removal in GPT without charging',
+    staged.panelOpen && staged.mode === 'edit' && staged.selection &&
+    /擦除框选范围内/.test(staged.prompt), staged);
+
   // 10. Two editor tabs side by side.
   const page2 = await openEditor(context);
   const two = await page2.evaluate(() => ({ w: canvas.getWidth(), panel: !!document.getElementById('mangaGptOpen') }));
