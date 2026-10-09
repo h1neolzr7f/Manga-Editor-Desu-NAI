@@ -500,7 +500,7 @@
     $g('mangaGptApply').disabled=true;
     if($g('mangaGptExpand')) $g('mangaGptExpand').hidden=true;
     $g('mangaGptPreview').removeAttribute('src');
-    feedback('人物区域尚未确认。请在画布中手动框选目标角色，确认后再生成。');
+    feedback(tr('mgpt_manual_character_region', '人物区域尚未确认。请在画布中手动框选目标角色，确认后再生成。'));
     startSelection();
     return true;
   }
