@@ -707,6 +707,66 @@ async function run() {
     staged.panelOpen && staged.mode === 'edit' && staged.selection &&
     /擦除框选范围内/.test(staged.prompt), staged);
 
+  // Smart page structure: actual browser pixels, real inspector and GPT bridge.
+  await page.evaluate(async () => {
+    canvas.clear();
+    canvas.backgroundColor='#ffffff';
+    const bitmap=document.createElement('canvas');
+    bitmap.width=2000; bitmap.height=2000;
+    const g=bitmap.getContext('2d');
+    g.fillStyle='#ffffff'; g.fillRect(0,0,2000,2000);
+    g.fillStyle='#242424';
+    g.fillRect(100,100,660,1800);
+    g.fillRect(1240,100,660,1800);
+    const img=await new Promise(resolve => fabric.Image.fromURL(bitmap.toDataURL('image/png'),resolve));
+    canvas.add(img);canvas.renderAll();
+  });
+  await page.locator('#mangaPageOpen').click();
+  await page.locator('#mangaPageAnalyze').click();
+  await page.waitForFunction(() => window.MangaPageStructureUI?.getAnalysis()?.panels.length===2,
+    null, {timeout:30000});
+  const structure=await page.evaluate(() => {
+    const graph=window.MangaPageStructureUI.getAnalysis();
+    const markers=[...document.querySelectorAll('#mangaPageOverlay .manga-page-outline')];
+    return {count:graph.panels.length, firstX:graph.panels[0].x,
+      secondX:graph.panels[1].x, markers:markers.length,
+      verified:graph.panels.map(x=>x.verified)};
+  });
+  record('actual page pixel scan detects two candidate panels and shows read-only overlays',
+    structure.count===2 && structure.firstX>structure.secondX &&
+    structure.markers===2 && structure.verified.every(x=>x===false),structure);
+  const modelBeforePanel=mock.calls.length;
+  await page.locator('#mangaSmartDetect').click();
+  await page.waitForFunction(() => {
+    const g=window.MangaPageStructureUI.getAnalysis();
+    return g && g.texts.length===1 && !!g.texts[0].panelId;
+  },null,{timeout:20000});
+  const linked=await page.evaluate(() => {
+    const g=window.MangaPageStructureUI.getAnalysis();
+    return {text:g.texts[0], bubbles:g.bubbleCandidates,
+      label:document.querySelector('.manga-smart-item span')?.textContent};
+  });
+  record('OCR text linked to correct RTL panel; bubble region marked provisional',
+    linked.text.panelId==='panel-2' && linked.bubbles.length===1 &&
+    linked.bubbles[0].verified===false && linked.bubbles[0].source==='ocr-text-expansion' &&
+    /第2格/.test(linked.label),linked);
+  await page.locator('.manga-page-entry').first().getByRole('button',{name:'GPT 编辑本格'}).click();
+  const handoff=await page.evaluate(() => ({
+    gptOpen:!document.getElementById('mangaGptPanel').hidden,
+    status:document.getElementById('mangaGptStatus').textContent,
+    preview:document.getElementById('mangaGptPreview').src.startsWith('data:image/')
+  }));
+  record('panel selection bridges to GPT without a billable API request',
+    handoff.gptOpen && handoff.preview && /已定位第 1 格/.test(handoff.status) &&
+    mock.calls.length===modelBeforePanel,handoff);
+  await page.screenshot({path:path.join(OUT,'page-structure.png')});
+  await page.locator('#mangaPageOpen').click();
+  await page.locator('#mangaPageDirection').selectOption('ltr');
+  await page.locator('#mangaPageAnalyze').click();
+  await page.waitForFunction(() => window.MangaPageStructureUI.getAnalysis()?.panels[0].x < 500,
+    null, {timeout:25000});
+  record('page inspector switches Japanese RTL / comic LTR numbering',true);
+
   // 10. Two editor tabs side by side.
   const page2 = await openEditor(context);
   const two = await page2.evaluate(() => ({ w: canvas.getWidth(), panel: !!document.getElementById('mangaGptOpen') }));
