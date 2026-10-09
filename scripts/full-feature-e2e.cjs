@@ -241,13 +241,18 @@ async function main() {
   });
 
   await step('screentone on the selected panel', 'UI', async () => {
-    await page.evaluate(() => { const p = canvas.getObjects().find(o => o.isPanel); canvas.setActiveObject(p); canvas.renderAll(); });
+    // like a user: click inside the bottom panel (panels are not selectable), then pick the tone
+    await page.evaluate(() => { canvas.discardActiveObject(); canvas.renderAll(); });
+    const bottom = panels[panels.length - 1];
+    const pt = await toCanvasPoint([bottom.left + bottom.width / 2, bottom.top + bottom.height - 60]);
+    await page.mouse.click(pt.x, pt.y);
     await page.evaluate(() => toggleVisibility('manga-tone-area'));
     const before = await pageImage(); const n0 = await count();
     await page.locator('#ToneButton').click(); await page.waitForTimeout(1500);
     const after = await pageImage();
     const d = await diff(before, after);
-    return { pass: d.changed > 0, detail: { objects: [n0, await count()], changedPixels: d.changed } };
+    const tone = await page.evaluate(() => { const o = canvas.getObjects().find(x => x.name === 'Tone'); return o && o.clipPath ? Math.round(o.clipPath.top) : null; });
+    return { pass: d.changed > 0 && tone !== null && Math.abs(tone - bottom.top) < 40, detail: { objects: [n0, await count()], changedPixels: d.changed, toneClipTop: tone, panelTop: Math.round(bottom.top) } };
   });
 
   // ---------------- 3. manga tools ----------------

@@ -44,10 +44,33 @@ var mangaToneMinRadius=null;
 
 let nowTone=null;
 
+// Panels are not selectable, so "click a panel, then a tone" never produced a
+// selection and the tone fell back to whatever object was added last (often a
+// text box), showing "请先点一个分镜格子" again. Remember where the user last
+// pressed on the page and use the panel under that point.
+var mangaToneLastPagePoint=null;
+document.addEventListener('pointerdown',function(event){
+if(typeof canvas==='undefined'||!canvas||!canvas.upperCanvasEl||event.target!==canvas.upperCanvasEl)return;
+try{mangaToneLastPagePoint=canvas.getPointer(event);}catch(error){mangaToneLastPagePoint=null;}
+},true);
+
+function mangaTonePanelAt(point){
+if(!point||typeof canvas==='undefined'||!canvas||typeof canvas.getObjects!=='function')return null;
+var objects=canvas.getObjects();
+for(var i=objects.length-1;i>=0;i--){
+var obj=objects[i];
+if(!obj||obj.visible===false||!(typeof isPanel==='function'&&isPanel(obj)))continue;
+if(typeof obj.containsPoint==='function'&&obj.containsPoint(new fabric.Point(point.x,point.y),null,true))return obj;
+}
+return null;
+}
+
 function mangaToneTarget(){
 var active=(typeof canvas!=='undefined'&&canvas&&typeof canvas.getActiveObject==='function')?canvas.getActiveObject():null;
 if(active&&typeof isPanel==='function'&&isPanel(active))return active;
 if(active&&typeof isImage==='function'&&isImage(active))return active;
+var clicked=mangaTonePanelAt(mangaToneLastPagePoint);
+if(clicked)return clicked;
 var last=typeof getLastObject==='function'?getLastObject():null;
 if(last&&typeof isPanel==='function'&&isPanel(last))return last;
 if(last&&typeof isImage==='function'&&isImage(last))return last;
