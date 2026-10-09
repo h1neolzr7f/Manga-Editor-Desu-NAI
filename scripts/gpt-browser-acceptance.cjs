@@ -753,6 +753,11 @@ async function run() {
     linked.text.panelId==='panel-2' && linked.bubbles.length===1 &&
     linked.bubbles[0].verified===false && linked.bubbles[0].source==='ocr-text-expansion' &&
     /第2格/.test(linked.label),linked);
+  const bubbleMarkers=await page.evaluate(() =>
+    [...document.querySelectorAll('#mangaPageOverlay .manga-page-bubble-outline')]
+      .map(x=>({source:x.dataset.source,id:x.dataset.bubbleId})));
+  record('actual browser renders tentative OCR bubble as dashed review-only overlay',
+    bubbleMarkers.length===1 && bubbleMarkers[0].source==='ocr-text-expansion',bubbleMarkers);
   await page.locator('#mangaSmartClose').click();
   await page.locator('#mangaPageOpen').click();
   await page.locator('.manga-page-entry').first().getByRole('button',{name:'GPT 编辑本格'}).click();
@@ -766,6 +771,14 @@ async function run() {
     mock.calls.length===modelBeforePanel,handoff);
   await page.screenshot({path:path.join(OUT,'page-structure.png')});
   await page.locator('#mangaPageOpen').click();
+  await page.locator('#mangaPageShowBubbles').uncheck();
+  const hiddenBubbles=await page.evaluate(()=>
+    document.querySelectorAll('#mangaPageOverlay .manga-page-bubble-outline').length);
+  await page.locator('#mangaPageShowBubbles').check();
+  const visibleBubbles=await page.evaluate(()=>
+    document.querySelectorAll('#mangaPageOverlay .manga-page-bubble-outline').length);
+  record('bubble candidates can be shown/hidden independently of panel overlays',
+    hiddenBubbles===0 && visibleBubbles===1,{hiddenBubbles,visibleBubbles});
   await page.locator('#mangaPageDirection').selectOption('ltr');
   await page.locator('#mangaPageAnalyze').click();
   await page.waitForFunction(() => window.MangaPageStructureUI.getAnalysis()?.panels[0].x < 500,
