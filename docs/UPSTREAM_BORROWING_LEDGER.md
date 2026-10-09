@@ -53,6 +53,6 @@
 ## LaMa 去字引用记录（PR #11）
 
 - `manga_lama_inpaint.py` 用公开 API 调用可选上游包，在服务端合成回原图蒙版外像素，避免模型更改整块背景。
-- `js/ai/manga-lama-inpaint-ui.js` 生成局部 PNG 蒙版，展示预览，点击确认才生成可撤销 Fabric 修复图层。
+- `js/ai/manga-lama-inpaint-ui.js` 以 OCR 框生成初始 PNG 蒙版，并提供双向涂抹（标记去字/保留原图）、尺寸调节与重置；只有明确请求 LaMa 预览后才运行可选本地模型，再单独确认生成可撤销 Fabric 修复图层。
 - `scripts/manga-lama-inpaint-test.py` 与 Chromium 模拟模型检查未安装依赖/不调用付费 API/确认前不改原图。
-- **当前仅矩形文字框蒙版**，不能替代精确笔画、字符分割和真实模型质量测试。
+- **目前以 OCR 矩形框初始化蒙版，已经支持人工画笔涂抹擦除区/保护区、调节画笔宽度和重置**（`js/ai/manga-lama-inpaint-ui.js`）。但仍未实现自动逐笔画文字分割、边缘语义吸附，也未通过真实 LaMa 画质和 Windows GUI 实机验收。
