@@ -106,8 +106,9 @@ def ocr_image(data_url, language="jpn+eng"):
             "未安装本地 Tesseract OCR。请安装 Tesseract 和日文语言包（jpn、jpn_vert），或使用手动框选字幕。",
             503)
     try:
+        psm = "5" if language.startswith("jpn_vert") else "11"
         process = subprocess.run(
-            [executable, "stdin", "stdout", "-l", language, "--psm", "11", "tsv"],
+            [executable, "stdin", "stdout", "-l", language, "--psm", psm, "tsv"],
             input=image, capture_output=True, text=False, timeout=75, check=False)
     except subprocess.TimeoutExpired as exc:
         raise SmartOcrError("OCR 超过 75 秒，已停止，请缩小画布后重试。", 504) from exc
