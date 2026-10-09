@@ -922,6 +922,19 @@ async function run() {
   });
   record('switching/reselecting a character does not accumulate duplicate constraints',
     notDuplicated===1,{occurrences:notDuplicated});
+  // Explicitly click Generate against the in-process fake image server.
+  // Verify the saved reference is actually serialized into the GPT request.
+  const selected=await page.evaluate(()=>window.MangaGPTRegionEditor.selectRegionForPanel(
+    {x:160,y:160,width:240,height:240,order:1}));
+  assert(selected,'should be able to set a safe mock edit region');
+  await page.locator('#mangaGptGenerate').click();
+  await page.waitForFunction(before=>document.getElementById('mangaGptApply').disabled===false &&
+    !!document.getElementById('mangaGptPreview').src, null,{timeout:30000});
+  const refRequest=mock.calls[mock.calls.length-1];
+  record('saved Character Bible image reaches mocked GPT edit payload only after Generate click',
+    mock.calls.length===characterCallsBefore+1 &&
+    refRequest.refs===1 && refRequest.operation==='edit' && refRequest.auth,
+    {modelCalls:mock.calls.length,refs:refRequest.refs,operation:refRequest.operation});
   await page.screenshot({path:path.join(OUT,'character-bible.png')});
 
   // 10. Two editor tabs side by side.
