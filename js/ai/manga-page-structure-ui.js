@@ -114,24 +114,13 @@
       overlay.append(node);
     }
     if(state.bubbleVisible)for(const bubble of state.graph.bubbleCandidates||[]){
-      const node=el('div','?', 'manga-page-bubble-outline');
+      // One overlay per candidate: preserves both inspector/toggle and review styles.
+      const node=el('div',bubble.verified?'✓':'?','manga-page-bubble-outline manga-bubble-outline');
       node.dataset.bubbleId=bubble.id;
       node.dataset.source=bubble.source;
-      node.setAttribute('aria-label',bubble.source==='enclosed-light-region' ?
-        '封闭浅色气泡候选' : 'OCR 文字框外扩候选');
-      Object.assign(node.style,{
-        left:bubble.x/state.graph.width*rect.width+'px',
-        top:bubble.y/state.graph.height*rect.height+'px',
-        width:bubble.width/state.graph.width*rect.width+'px',
-        height:bubble.height/state.graph.height*rect.height+'px'
-      });
-      overlay.append(node);
-    }
-    for(const bubble of state.graph.bubbleCandidates||[]){
-      const node=el('div',bubble.verified?'✓':'?','manga-bubble-outline');
-      node.dataset.bubbleId=bubble.id;
       node.title=(bubble.source==='enclosed-light-region'?'浅色封闭区':'文字外扩区域')+
         (bubble.verified?'（人工确认）':'（待核对）');
+      node.setAttribute('aria-label',node.title);
       Object.assign(node.style,{
         left:bubble.x/state.graph.width*rect.width+'px',
         top:bubble.y/state.graph.height*rect.height+'px',
