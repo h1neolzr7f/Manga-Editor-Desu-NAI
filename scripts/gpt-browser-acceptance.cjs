@@ -46,6 +46,10 @@ async function run() {
     width: canvas.getWidth(), height: canvas.getHeight(), objects: canvas.getObjects().length
   }));
   console.log('Real browser baseline', JSON.stringify(baseline));
+  // A fresh account shows the real first-run tutorial overlay; dismiss it
+  // using its supported Skip action before clicking the editor toolbar.
+  const tutorial = page.locator('#tutorialSkipBtn');
+  if (await tutorial.count()) await tutorial.click();
   await page.locator('#mangaGptOpen').click();
   await page.locator('#mangaGptSelect').click();
   const box = await page.evaluate(() => {
