@@ -323,6 +323,7 @@ async function run() {
     return +(s / n).toFixed(2);
   }, { before, after, rect });
   mock.tint = 40;
+  await page.locator('#mangaGptMatchTone').setChecked(false);
   const seams = {};
   for (const on of [false, true]) {
     await page.locator('#mangaGptFeather').setChecked(on);
@@ -337,6 +338,26 @@ async function run() {
     await page.evaluate(() => undo());
     await page.waitForTimeout(800);
   }
+  await page.locator('#mangaGptFeather').setChecked(true);
+  // 3d. Tone matching: the model brightened everything by +40; the drift measured on the
+  // context ring is removed from the patch (inside matches the original again).
+  const tone = {};
+  for (const on of [false, true]) {
+    await page.locator('#mangaGptMatchTone').setChecked(on);
+    await dragSelect(page, [300, 900], [900, 1200]);
+    const before = await snapshot(page);
+    const res = await generateAndApply(page);
+    const pi = await patchInfo(page);
+    const rect = { left: Math.round(pi.left), top: Math.round(pi.top), width: Math.round(pi.w), height: Math.round(pi.h) };
+    const diff = await compare(page, before, await snapshot(page), rect);
+    tone[on ? 'matched' : 'raw'] = { applied: res.applied, inside: +diff.insideMeanAbsDiff.toFixed(2),
+      outside: diff.outsideChanged, offset: pi.crop && pi.crop.toneOffset };
+    await page.evaluate(() => undo());
+    await page.waitForTimeout(800);
+  }
+  record('tone matching removes model colour drift measured on the context ring',
+    tone.raw.applied && tone.matched.applied && tone.raw.inside > 20 && tone.matched.inside < tone.raw.inside / 2 &&
+    tone.matched.offset.every(v => v <= -20) && tone.matched.outside === 0, tone);
   mock.tint = 0;
   record('feathered edge reduces seam from colour drift, outside untouched',
     seams.hard.applied && seams.feather.applied && seams.feather.seam < seams.hard.seam / 4 &&

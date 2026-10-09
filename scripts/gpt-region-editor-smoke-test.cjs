@@ -190,7 +190,7 @@ elements.mangaGptStatus.textContent = savedRegionStatus;
   const createdBefore = createdCanvases.length;
   baked.w = 1956; baked.h = 2200; // native-resolution crop of the 2200x2200 result (1600:1800)
   await elements.mangaGptApply.handlers.click();
-  const bake = createdCanvases[createdBefore];
+  const bake = createdCanvases.slice(createdBefore).find(c => c.drawn.length === 1 && c.drawn[0].length === 9);
   assert(bake && bake.drawn.length === 1, 'patch is baked at the crop native resolution');
   const [, sx, sy, sw, sh] = bake.drawn[0];
   assert(sx > 0 && sy === 0 && Math.abs(sw / sh - 1600 / 1800) < 1e-9, 'crop keeps the selection aspect');

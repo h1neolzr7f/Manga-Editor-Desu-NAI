@@ -170,6 +170,11 @@
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, out.width, out.height);
       const k = plan.width / rect.full.width;
+      region.contextBox = context ? {
+        x0: (rect.clip.left - rect.full.left) * k, y0: (rect.clip.top - rect.full.top) * k,
+        x1: (rect.clip.left - rect.full.left + rect.clip.width) * k, y1: (rect.clip.top - rect.full.top + rect.clip.height) * k
+      } : null;
+      region.sentImage = out;
       if (context) {
         ctx.drawImage(context, (rect.clip.left - rect.full.left) * k, (rect.clip.top - rect.full.top) * k,
           rect.clip.width * k, rect.clip.height * k);
@@ -202,8 +207,40 @@
     return Math.max(0, Math.min(1, a));
   }
 
-  // Bake crop (+ optional feather) into a bitmap at the crop's native resolution.
-  function bakePatch(imageElement, crop, scale, feather) {
+  // Model colour/brightness drift, measured on the padding ring where both the upload and the
+  // result show the same untouched page context. Returns a per-channel offset (clamped) to
+  // apply to the patch, or null when there is too little context to measure.
+  function estimateDrift(sentCanvas, resultElement, plan, box, maxOffset) {
+    if (!sentCanvas || !box) return null;
+    const w = sentCanvas.width;
+    const h = sentCanvas.height;
+    const tmp = document.createElement('canvas');
+    tmp.width = w;
+    tmp.height = h;
+    const tctx = tmp.getContext('2d');
+    tctx.drawImage(resultElement, 0, 0, w, h);
+    const got = tctx.getImageData(0, 0, w, h).data;
+    const sent = sentCanvas.getContext('2d').getImageData(0, 0, w, h).data;
+    const ix0 = plan.inner.x * w - 2, iy0 = plan.inner.y * h - 2;
+    const ix1 = (plan.inner.x + plan.inner.w) * w + 2, iy1 = (plan.inner.y + plan.inner.h) * h + 2;
+    const sum = [0, 0, 0];
+    let n = 0;
+    for (let y = Math.max(0, Math.ceil(box.y0)); y < Math.min(h, Math.floor(box.y1)); y++) {
+      for (let x = Math.max(0, Math.ceil(box.x0)); x < Math.min(w, Math.floor(box.x1)); x++) {
+        if (x >= ix0 && x < ix1 && y >= iy0 && y < iy1) continue;
+        const i = (y * w + x) * 4;
+        sum[0] += sent[i] - got[i];
+        sum[1] += sent[i + 1] - got[i + 1];
+        sum[2] += sent[i + 2] - got[i + 2];
+        n++;
+      }
+    }
+    if (n < Math.max(200, w * h * 0.01)) return null;
+    return sum.map(v => Math.max(-maxOffset, Math.min(maxOffset, Math.round(v / n))));
+  }
+
+  // Bake crop (+ optional colour offset and feather) into a bitmap at the crop's native resolution.
+  function bakePatch(imageElement, crop, scale, feather, offset) {
     const w = Math.max(1, Math.round(crop.w));
     const h = Math.max(1, Math.round(crop.h));
     const out = document.createElement('canvas');
@@ -211,6 +248,16 @@
     out.height = h;
     const ctx = out.getContext('2d');
     ctx.drawImage(imageElement, crop.x, crop.y, crop.w, crop.h, 0, 0, w, h);
+    const hasOffset = offset && (offset[0] || offset[1] || offset[2]);
+    if (hasOffset) {
+      const data = ctx.getImageData(0, 0, w, h);
+      for (let i = 0; i < data.data.length; i += 4) {
+        data.data[i] += offset[0];
+        data.data[i + 1] += offset[1];
+        data.data[i + 2] += offset[2];
+      }
+      ctx.putImageData(data, 0, 0);
+    }
     if (feather && feather.width > 0 && (feather.left || feather.right || feather.top || feather.bottom)) {
       const fw = feather.width / scale; // page pixels -> source pixels
       const data = ctx.getImageData(0, 0, w, h);
@@ -397,6 +444,8 @@
         const plan = letterboxPlan(state.region.width, state.region.height, payload.size);
         state.region.plan = plan;
         payload.size = plan.size;
+        state.region.contextBox = null;
+        state.region.sentImage = null;
         const useContext = !$g('mangaGptContext') || $g('mangaGptContext').checked;
         payload.image = useContext ? await contextPaddedImage(c, state.region, plan) :
           await letterboxImage(state.region.image, plan);
@@ -473,9 +522,17 @@
       if (isEdit) {
         const featherOn = !$g('mangaGptFeather') || $g('mangaGptFeather').checked;
         const feather = featherOn ? featherPlan(region, c.getWidth(), c.getHeight()) : null;
-        const baked = bakePatch(image.getElement(), crop, scale, feather);
+        const matchOn = !$g('mangaGptMatchTone') || $g('mangaGptMatchTone').checked;
+        let offset = null;
+        try {
+          offset = matchOn ? estimateDrift(region.sentImage, image.getElement(), region.plan, region.contextBox, 48) : null;
+        } catch (error) {
+          offset = null;
+        }
+        const baked = bakePatch(image.getElement(), crop, scale, feather, offset);
         const sourceCrop = { x: +crop.x.toFixed(2), y: +crop.y.toFixed(2), w: +crop.w.toFixed(2), h: +crop.h.toFixed(2),
-          resultWidth: image.width, resultHeight: image.height, feather: feather ? feather.width : 0 };
+          resultWidth: image.width, resultHeight: image.height, feather: feather ? feather.width : 0,
+          toneOffset: offset || [0, 0, 0] };
         image = await new Promise((resolve, reject) => {
           fabric.Image.fromURL(baked, img => (img && img.width ? resolve(img) : reject(new Error('生成图片解码失败。'))));
         });
@@ -595,6 +652,7 @@
       '<div id="mangaGptReferenceList" class="manga-gpt-hint">尚未选择参考图</div>',
       '<label class="manga-gpt-hint"><input id="mangaGptAllowUpscale" type="checkbox"> 允许将低于选区分辨率的生成图放大覆盖（会影响选区清晰度）</label>',
       '<label class="manga-gpt-hint"><input id="mangaGptContext" type="checkbox" checked> 附带选区周围画面作为上下文（接缝更自然；会多上传选区外的少量画面）</label>',
+      '<label class="manga-gpt-hint"><input id="mangaGptMatchTone" type="checkbox" checked> 按周围画面校正模型整体偏色（用上下文边带测量，最多 ±48）</label>',
       '<label class="manga-gpt-hint"><input id="mangaGptFeather" type="checkbox" checked> 选区边缘柔化（只在选区内侧过渡，选区外像素不变）</label>',
       '<label class="manga-gpt-hint"><input id="mangaGptIncludeText" type="checkbox"> 框选时包含文字/气泡（默认不包含：文字保持可编辑并留在新图层上方）</label>',
       '<div class="manga-gpt-row"><button type="button" id="mangaGptGenerate">生成预览</button><button type="button" id="mangaGptCancel" disabled>取消请求</button><button type="button" id="mangaGptApply" disabled>作为新图层应用</button></div>',
@@ -642,5 +700,5 @@
   else render();
 
   window.MangaGPTRegionEditor = { normalizeRegion, startSelection, cancelSelection,
-    letterboxPlan, resultCropRect, letteringInsertIndex, isLettering, contextRect, featherPlan, featherAlpha };
+    letterboxPlan, resultCropRect, letteringInsertIndex, isLettering, contextRect, featherPlan, featherAlpha, estimateDrift };
 })();
