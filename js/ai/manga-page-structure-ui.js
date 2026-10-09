@@ -7,7 +7,7 @@
   if (!core) return;
   const state = {
     graph:null, canvas:null, snapshot:'', previewPixels:null, pending:false,
-    overlay:null, overlayVisible:true
+    overlay:null, overlayVisible:true, bubbleVisible:true
   };
   const $ = id => document.getElementById(id);
   const getCanvas = () => typeof canvas !== 'undefined' && canvas && canvas.upperCanvasEl &&
@@ -110,6 +110,20 @@
       const h=panel.height/state.graph.height*rect.height;
       Object.assign(node.style,{
         left:x+'px',top:y+'px',width:w+'px',height:h+'px'
+      });
+      overlay.append(node);
+    }
+    if(state.bubbleVisible)for(const bubble of state.graph.bubbleCandidates||[]){
+      const node=el('div','?', 'manga-page-bubble-outline');
+      node.dataset.bubbleId=bubble.id;
+      node.dataset.source=bubble.source;
+      node.setAttribute('aria-label',bubble.source==='enclosed-light-region' ?
+        '封闭浅色气泡候选' : 'OCR 文字框外扩候选');
+      Object.assign(node.style,{
+        left:bubble.x/state.graph.width*rect.width+'px',
+        top:bubble.y/state.graph.height*rect.height+'px',
+        width:bubble.width/state.graph.width*rect.width+'px',
+        height:bubble.height/state.graph.height*rect.height+'px'
       });
       overlay.append(node);
     }
@@ -299,10 +313,11 @@
       '<option value="ltr">普通：从左到右</option></select></label>',
       '<button type="button" id="mangaPageAnalyze">分析本页</button></div>',
       '<label><input type="checkbox" id="mangaPageShowOverlay" checked>画布标注候选分镜</label>',
+      '<label><input type="checkbox" id="mangaPageShowBubbles" checked>标注气泡候选（虚线表示未确认）</label>',
       '<div id="mangaPageList" class="manga-page-list"></div>',
       '<div class="manga-page-actions"><button id="mangaPageExport" type="button">导出结构 JSON</button></div>',
       '<p class="manga-page-hint">白色分隔线算法并非语义模型，复杂斜框/无框漫画可手动调整或拆分。',
-      '气泡候选只是 OCR 框外围估计，不能当作实际气泡分割。</p>',
+      '浅色连通域与 OCR 外扩都会给出候选气泡，均不等于语义气泡轮廓或说话人识别。</p>',
       '<div id="mangaPageStatus" role="status"></div>'
     ].join('');
     document.body.append(panel);
@@ -315,6 +330,9 @@
     $('mangaPageShowOverlay').addEventListener('change',e=>{
       state.overlayVisible=e.target.checked;
       drawOverlay();
+    });
+    $('mangaPageShowBubbles').addEventListener('change',e=>{
+      state.bubbleVisible=e.target.checked;drawOverlay();
     });
     $('mangaPageExport').addEventListener('click',downloadJSON);
     window.addEventListener('resize',drawOverlay);
