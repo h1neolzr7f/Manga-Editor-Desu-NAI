@@ -263,25 +263,51 @@
     }
   }
 
+  function resolveEditableText(selected, c) {
+    if (!selected) return null;
+    const textTypes = ['text', 'textbox', 'i-text', 'vertical-textbox'];
+    if (textTypes.includes(selected.type)) return selected;
+    if (selected.customType === 'speechBubbleSVG' || selected.isSpeechBubble) {
+      if (typeof getSpeechBubbleTextBySVG === 'function') {
+        const linked = getSpeechBubbleTextBySVG(selected);
+        if (linked && textTypes.includes(linked.type)) return linked;
+      }
+      // Freehand bubbles and SVG bubbles store the linked text as a separate
+      // Fabric object with targetObject set to the bubble.
+      if (c && typeof c.getObjects === 'function') {
+        return c.getObjects().find(obj => obj && obj.customType === 'speechBubbleText' &&
+          obj.targetObject === selected && textTypes.includes(obj.type)) || null;
+      }
+    }
+    return null;
+  }
+
   function changeSelectedText() {
     const c = pageCanvas();
-    const obj = c && c.getActiveObject && c.getActiveObject();
+    const selected = c && c.getActiveObject && c.getActiveObject();
+    const obj = resolveEditableText(selected, c);
     const text = $g('mangaGptSubtitle').value;
-    if (!obj || !['text', 'textbox', 'i-text'].includes(obj.type)) {
-      return feedback('请先选中画布上的文字图层。', true);
+    if (!obj) {
+      return feedback('请选中横排、竖排文字或包含可编辑文字的气泡。纯图片字幕还需要 OCR 功能。', true);
     }
     if (!text.trim()) return feedback('请填写替换后的字幕内容。', true);
     if (typeof changeDoNotSaveHistory === 'function') changeDoNotSaveHistory();
     try {
       obj.set('text', text);
+      if (typeof obj.initDimensions === 'function') obj.initDimensions();
+      if (typeof obj.updateDimensions === 'function') obj.updateDimensions();
       if (typeof obj.setCoords === 'function') obj.setCoords();
+      if (obj.customType === 'speechBubbleText' &&
+          typeof speechBubbleTextChaged === 'function') {
+        speechBubbleTextChaged(obj);
+      }
       c.requestRenderAll();
       if (typeof updateLayerPanel === 'function') updateLayerPanel();
     } finally {
       if (typeof changeDoSaveHistory === 'function') changeDoSaveHistory();
     }
     if (typeof saveStateByManual === 'function') saveStateByManual();
-    feedback('已替换选中文字图层，保留其原有文字样式。');
+    feedback('已更新可编辑文字，保留字体样式及竖排方向；气泡已重新计算文字尺寸。');
   }
 
   function render() {
