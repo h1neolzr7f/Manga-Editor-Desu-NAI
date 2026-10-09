@@ -17,6 +17,9 @@ import uuid
 MAX_REQUEST_BYTES = 36 * 1024 * 1024
 MAX_IMAGE_BYTES = 12 * 1024 * 1024
 MAX_RESULT_BYTES = 20 * 1024 * 1024
+CLASH_FAKE_IP = ipaddress.ip_network("198.18.0.0/15")
+OFFICIAL_API = "https://api.openai.com/v1"
+UPSTREAM_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
 
 
 class ImageProxyError(ValueError):
@@ -44,9 +47,17 @@ def _valid_public_url(value, allow_query=False):
         raise ImageProxyError("无法解析 API 主机名。", 502) from exc
     if not addresses:
         raise ImageProxyError("无法解析 API 主机名。", 502)
+    # Clash TUN's fake-IP DNS returns 198.18.0.0/15 for otherwise public domains.
+    # Never accept direct IP literals or other private/reserved DNS results.
+    try:
+        ipaddress.ip_address(hostname)
+    except ValueError:
+        is_literal = False
+    else:
+        is_literal = True
     for address in addresses:
         ip = ipaddress.ip_address(address[4][0])
-        if not ip.is_global:
+        if not ip.is_global and not (not is_literal and ip in CLASH_FAKE_IP):
             raise ImageProxyError("API 主机名解析到非公网 IP，已拒绝访问。")
     return parsed
 
@@ -136,7 +147,7 @@ def _extract_image(raw, opener):
     elif item.get("url"):
         image_url = str(item["url"])
         _valid_public_url(image_url, allow_query=True)
-        with opener.open(urllib.request.Request(image_url, headers={"Accept": "image/*"}), timeout=30) as response:
+        with opener.open(urllib.request.Request(image_url, headers={"Accept": "image/*", "User-Agent": UPSTREAM_USER_AGENT}), timeout=30) as response:
             data = response.read(MAX_RESULT_BYTES + 1)
     else:
         raise ImageProxyError("上游未返回 b64_json 或 url 图片。", 502)
@@ -183,7 +194,8 @@ def request_image_edit(payload, key):
         content_type = "application/json"
     if len(body) > MAX_REQUEST_BYTES:
         raise ImageProxyError("请求总大小超过 36MB。", 413)
-    headers = {"Authorization": "Bearer " + key, "Accept": "application/json", "Content-Type": content_type}
+    headers = {"Authorization": "Bearer " + key, "Accept": "application/json", "Content-Type": content_type,
+               "User-Agent": UPSTREAM_USER_AGENT}
     opener = _opener()
     request = urllib.request.Request(endpoint, data=body, headers=headers, method="POST")
     try:
@@ -205,17 +217,43 @@ def request_image_edit(payload, key):
         raise ImageProxyError("无法连接图像接口，请检查地址、网络代理与模型支持情况。", 502) from exc
 
 
+def _authorized_local_request(handler):
+    """Reject DNS rebinding and cross-origin requests before reading .env secrets."""
+    try:
+        peer = ipaddress.ip_address(handler.client_address[0])
+        host = handler.headers.get("Host", "")
+        local_hosts = ("localhost:8000", "127.0.0.1:8000", "[::1]:8000")
+        if not peer.is_loopback or host.lower() not in local_hosts:
+            return False
+        origin = handler.headers.get("Origin", "")
+        # No 'null' / file:// origin: arbitrary sandboxed websites can create those.
+        # Require an exact match, not just a localhost-looking substring.
+        if origin != "http://" + host.lower():
+            return False
+        if handler.headers.get("Sec-Fetch-Site", "").lower() not in ("", "same-origin"):
+            return False
+        return True
+    except (ValueError, AttributeError):
+        return False
+
+
+def _env_key_for_destination(payload, environ=None):
+    """Only use a server-side key with its configured destination, never arbitrary URLs."""
+    env = os.environ if environ is None else environ
+    url = str(payload.get("baseUrl") or "").strip().rstrip("/")
+    trusted = str(env.get("GPT_IMAGE_TRUSTED_BASE_URL") or OFFICIAL_API).strip().rstrip("/")
+    if url != trusted:
+        raise ImageProxyError(
+            "此地址不是本地环境密钥信任的 API 地址。请在界面填写 Key，"
+            "或在 .env 中设置 GPT_IMAGE_TRUSTED_BASE_URL。", 403)
+    return str(env.get("GPT_IMAGE_API_KEY") or "").strip()
+
+
 def handle_gpt_image_post(handler):
     if urllib.parse.urlsplit(handler.path).path != "/gpt-image-proxy":
         return False
-    # Local editing API must never become an unauthenticated relay on a LAN bind.
-    peer = ipaddress.ip_address(handler.client_address[0])
-    if not peer.is_loopback:
-        handler._send_json({"ok": False, "error": "只允许本机访问 GPT 图像代理。"}, 403)
-        return True
-    origin = handler.headers.get("Origin")
-    if origin and not handler.headers.get("Host", "").startswith(("localhost:", "127.0.0.1:")):
-        handler._send_json({"ok": False, "error": "请从本机编辑器访问 GPT 图像代理。"}, 403)
+    if not _authorized_local_request(handler):
+        handler._send_json({"ok": False, "error": "只允许本机编辑器同源访问 GPT 图像代理；file:// 页面请改用本地启动器。"}, 403)
         return True
     try:
         length = int(handler.headers.get("Content-Length", "0"))
@@ -224,10 +262,12 @@ def handle_gpt_image_post(handler):
         if not handler.headers.get("Content-Type", "").lower().startswith("application/json"):
             raise ImageProxyError("仅接受 JSON。", 415)
         payload = json.loads(handler.rfile.read(length))
-        key = handler.headers.get("Authorization", "").strip()
-        if key.lower().startswith("bearer "):
-            key = key[7:].strip()
-        key = key or os.environ.get("GPT_IMAGE_API_KEY", "").strip()
+        if not isinstance(payload, dict):
+            raise ImageProxyError("请求必须是 JSON 对象。")
+        header = handler.headers.get("Authorization", "").strip()
+        if header and not header.lower().startswith("bearer "):
+            raise ImageProxyError("Authorization 必须使用 Bearer Key。", 401)
+        key = header[7:].strip() if header else _env_key_for_destination(payload)
         result = request_image_edit(payload, key)
         handler._send_json(result)
     except ImageProxyError as exc:
