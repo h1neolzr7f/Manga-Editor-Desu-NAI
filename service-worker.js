@@ -1,5 +1,5 @@
 // Service Worker: Cache management for HTTP/HTTPS deployment
-var CACHE_VERSION='manga-editor-v8-24-lama-inpaint';
+var CACHE_VERSION='manga-editor-v8-24-lama-inpaint-p0-origin';
 var STATIC_EXTENSIONS=[
 '.css','.js','.png','.jpg','.jpeg','.gif','.svg','.ico',
 '.woff','.woff2','.ttf','.eot','.otf',

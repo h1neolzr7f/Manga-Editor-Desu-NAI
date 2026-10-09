@@ -36,6 +36,7 @@
     "test:nai-errors": "node scripts/run-python.cjs scripts/nai-error-readable-test.py && node scripts/novelai-readable-error-test.cjs",
     "test:local-tools-origin": "node scripts/run-python.cjs scripts/local-tools-origin-test.py",
     "test:no-third-party-director": "node scripts/run-python.cjs scripts/no-third-party-director-test.py",
+    "test:proxy-chain": "node scripts/run-python.cjs scripts/proxy-chain-negative-test.py",
     "test:gpt-i18n": "node scripts/gpt-panel-i18n-test.cjs",
     "test:nai-credentials": "node scripts/nai-pipeline-credentials-test.cjs",
     "test:layout": "node scripts/layout-smoke-test.cjs",

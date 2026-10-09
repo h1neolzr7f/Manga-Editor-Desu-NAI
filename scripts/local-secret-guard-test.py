@@ -127,7 +127,7 @@ class SecretGuardTest(unittest.TestCase):
         for label, headers in self.hostile_variants:
             with self.subTest(label):
                 status, _ = self.call("POST", "/nai-proxy/generate-image", headers, b'{"input":"x"}')
-                self.assertEqual(status, 401)
+                self.assertEqual(status, 403)
         self.assertEqual(self.capture.requests, [])
         status, _ = self.call("POST", "/nai-proxy/generate-image", self.same_origin, b'{"input":"x"}')
         self.assertEqual(status, 200)
@@ -136,12 +136,19 @@ class SecretGuardTest(unittest.TestCase):
     def test_novelai_cross_site_text_plain_csrf_cannot_spend_credits(self):
         status, _ = self.call("POST", "/nai-proxy/generate-image",
                               {"Origin": "https://evil.example", "Content-Type": "text/plain"}, b'{"input":"x"}')
-        self.assertEqual(status, 401)
+        self.assertEqual(status, 403)
         self.assertEqual(self.capture.requests, [])
 
-    def test_explicit_user_token_still_works_from_file_origin(self):
+    def test_explicit_user_token_rejected_from_null_origin(self):
+        # PR #6 review P0: 'null' is also every sandboxed iframe on the web, so even an
+        # explicit token may not turn the proxy into a relay. file:// users are redirected
+        # to http://127.0.0.1:8000 by js/assets/boot-guard.js instead.
         status, _ = self.call("POST", "/nai-proxy/generate-image",
                               {"Origin": "null", "Authorization": "Bearer user-typed"}, b'{"input":"x"}')
+        self.assertEqual(status, 403)
+        self.assertEqual(self.capture.requests, [])
+        status, _ = self.call("POST", "/nai-proxy/generate-image",
+                              dict(self.same_origin, Authorization="Bearer user-typed"), b'{"input":"x"}')
         self.assertEqual(status, 200)
         self.assertEqual(self.capture.requests[-1]["headers"]["authorization"], "Bearer user-typed")
 
@@ -163,9 +170,9 @@ class SecretGuardTest(unittest.TestCase):
 
     def test_director_models_env_key_not_for_hostile_callers(self):
         status, body = self.call("GET", "/director-proxy/models", {"Origin": "null", "X-Director-Api-Url": ATTACKER})
-        self.assertEqual(status, 401)
+        self.assertEqual(status, 403)
         status, body = self.call("GET", "/director-proxy/models", {"Sec-Fetch-Site": "cross-site"})
-        self.assertEqual(status, 401)
+        self.assertEqual(status, 403)
         self.assertEqual(self.capture.requests, [])
         self.call("GET", "/director-proxy/models", self.same_origin)
         self.assertTrue(self.capture.requests[-1]["url"].startswith("https://director.example.com/"))
@@ -201,13 +208,15 @@ class SecretGuardTest(unittest.TestCase):
                     self.assertIsNone(response.getheader("Access-Control-Allow-Origin"))
             finally:
                 conn.close()
-        # file:// pages may still read the explicit-token proxy APIs (compatibility).
+        # API routes are no longer readable by 'null' origins either (PR #6 review P0).
         conn = http.client.HTTPConnection("127.0.0.1", self.port, timeout=8)
         try:
-            conn.request("GET", "/nai-proxy/health", headers={"Host": self.host, "Origin": "null"})
+            conn.request("GET", "/nai-proxy/health", headers={"Host": self.host, "Origin": "null",
+                                                              "Authorization": "Bearer user-typed"})
             response = conn.getresponse()
             response.read()
-            self.assertEqual(response.getheader("Access-Control-Allow-Origin"), "null")
+            self.assertEqual(response.status, 403)
+            self.assertIsNone(response.getheader("Access-Control-Allow-Origin"))
         finally:
             conn.close()
 

@@ -25,9 +25,10 @@ written.unlink()
 
 assert mod.resolve_nai_token('Bearer abc', {'NOVELAI_API_KEY': 'env'}) == 'Bearer abc'
 assert mod.resolve_nai_token('', {'NOVELAI_API_KEY': 'env'}) == 'env'
-assert mod.cors_allow_origin('http://127.0.0.1:8000') == 'http://127.0.0.1:8000'
-assert mod.cors_allow_origin('https://evil.example') == ''
-assert mod.cors_allow_origin('null') == 'null'
+assert mod.cors_allow_origin('http://127.0.0.1:8000', '127.0.0.1:8000') == 'http://127.0.0.1:8000'
+assert mod.cors_allow_origin('http://127.0.0.1:5999', '127.0.0.1:8000') == ''
+assert mod.cors_allow_origin('https://evil.example', '127.0.0.1:8000') == ''
+assert mod.cors_allow_origin('null', '127.0.0.1:8000') == ''
 print('proxy guard smoke test passed')
 
 # Extra regressions run from here so existing CI jobs cover them without workflow edits:
@@ -37,7 +38,7 @@ import subprocess
 import sys
 for name in ('local-secret-guard-test.py', 'server-port-conflict-test.py',
              'nai-error-readable-test.py', 'local-tools-origin-test.py',
-             'no-third-party-director-test.py'):
+             'no-third-party-director-test.py', 'proxy-chain-negative-test.py'):
     result = subprocess.run([sys.executable, str(root / 'scripts' / name)],
                             cwd=str(root), capture_output=True, text=True,
                             encoding='utf-8', errors='replace')
