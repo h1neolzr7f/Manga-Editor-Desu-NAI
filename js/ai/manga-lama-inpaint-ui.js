@@ -5,7 +5,7 @@
   'use strict';
   const $=id=>document.getElementById(id);
   const MAX_PIXELS=3_000_000;
-  let ongoing=false, ticket=0, approved=null, prepared=null, brushMode='add', brushRadius=12, painting=false, lastPointer=null;
+  let ongoing=false, ticket=0, approved=null, prepared=null, brushMode='add', brushRadius=12, painting=false, lastPointer=null, drawScheduled=false;
   const node=(tag,text)=>{
     const n=document.createElement(tag);
     if(text!==undefined)n.textContent=text;
