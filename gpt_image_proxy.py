@@ -85,9 +85,9 @@ def _image_bytes(value):
 
 
 def _detect_mime(data):
-    if data.startswith(b"\\x89PNG\\r\\n\\x1a\\n"):
+    if data.startswith(b"\x89PNG\r\n\x1a\n"):
         return "image/png"
-    if data.startswith(b"\\xff\\xd8\\xff"):
+    if data.startswith(b"\xff\xd8\xff"):
         return "image/jpeg"
     if data.startswith(b"RIFF") and data[8:12] == b"WEBP":
         return "image/webp"
@@ -98,16 +98,16 @@ def _multipart(fields, images):
     boundary = "manga-gpt-" + uuid.uuid4().hex
     body = bytearray()
     for name, value in fields.items():
-        body.extend(("--" + boundary + "\\r\\nContent-Disposition: form-data; name=\\"" + name +
-                     "\\"\\r\\n\\r\\n" + str(value) + "\\r\\n").encode("utf-8"))
+        body.extend(("--" + boundary + "\r\nContent-Disposition: form-data; name=\"" + name +
+                     "\"\r\n\r\n" + str(value) + "\r\n").encode("utf-8"))
     for name, mime, payload, i in images:
         extension = {"image/png": "png", "image/jpeg": "jpg", "image/webp": "webp"}[mime]
-        body.extend(("--" + boundary + "\\r\\nContent-Disposition: form-data; name=\\"" + name +
-                     "\\"; filename=\\"image-" + str(i) + "." + extension + "\\"\\r\\nContent-Type: " + mime +
-                     "\\r\\n\\r\\n").encode("utf-8"))
+        body.extend(("--" + boundary + "\r\nContent-Disposition: form-data; name=\"" + name +
+                     "\"; filename=\"image-" + str(i) + "." + extension + "\"\r\nContent-Type: " + mime +
+                     "\r\n\r\n").encode("utf-8"))
         body.extend(payload)
-        body.extend(b"\\r\\n")
-    body.extend(("--" + boundary + "--\\r\\n").encode("utf-8"))
+        body.extend(b"\r\n")
+    body.extend(("--" + boundary + "--\r\n").encode("utf-8"))
     return bytes(body), "multipart/form-data; boundary=" + boundary
 
 
