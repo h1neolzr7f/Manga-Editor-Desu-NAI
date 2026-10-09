@@ -130,7 +130,7 @@ jobs:
           # Check every tracked runtime asset, including vendored browser dependencies.
           $paths = @(git -c core.quotepath=false ls-files -- ':(top,glob)*' js css html json_js cdn-local third font assets 02_images_svg 03_images local_tools scripts)
           if ($LASTEXITCODE -ne 0 -or $paths.Count -eq 0) { throw "Could not enumerate application files." }
-          $paths = @($paths | Where-Object { $_ -notin @('.env', '.DS_Store', '100_git_push_draft.bat', '99_git_fetch.bat') })
+          $paths = @($paths | Where-Object { [IO.Path]::GetFileName($_) -notin @('.env', '.DS_Store', '100_git_push_draft.bat', '99_git_fetch.bat') })
           foreach ($relative in $paths) {
             $original = Join-Path $PWD $relative
             $packaged = Join-Path $staging $relative
