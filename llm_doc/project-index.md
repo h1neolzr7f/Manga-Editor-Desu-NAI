@@ -21,17 +21,17 @@
 | 種別 | 件数 |
 |------|------|
 | .bat | 14 |
-| .cjs | 23 |
-| .css | 40 |
+| .cjs | 45 |
+| .css | 45 |
 | .html | 11 |
-| .js | 234 |
+| .js | 249 |
 | .mjs | 2 |
 | .ps1 | 3 |
-| .py | 9 |
-| シンボル | 10969 |
+| .py | 32 |
+| シンボル | 11278 |
 | DOM id 定義 | 637 |
-| script 読み込み | 215 |
-| stylesheet 読み込み | 38 |
+| script 読み込み | 230 |
+| stylesheet 読み込み | 43 |
 
 ## 除外ディレクトリ
 
@@ -42,11 +42,24 @@
 | グローバル | 定義 |
 |-----------|------|
 | `ComfyUIGuide` | js/ai/novelai-only-mode.js:121 |
+| `MangaBubbleDetector` | js/ai/manga-bubble-detector.js:80 |
+| `MangaCharacterBibleCore` | js/ai/manga-character-bible-core.js:60 |
+| `MangaCharacterBibleUI` | js/ai/manga-character-bible-ui.js:220 |
+| `MangaEditPlanner` | js/ai/manga-edit-planner.js:78 |
+| `MangaEditPlannerUI` | js/ai/manga-edit-planner-ui.js:125 |
+| `MangaGPTRegionEditor` | js/ai/gpt-region-editor.js:1146 |
 | `MangaImporter` | js/ai/manga-importer.js:2518 |
-| `NaiBackgroundRemovalClient` | js/local-tools/background-removal-client.js:514 |
+| `MangaLamaInpaintUI` | js/ai/manga-lama-inpaint-ui.js:343 |
+| `MangaModelRequest` | js/ai/manga-model-request.js:43 |
+| `MangaPageStructure` | js/ai/manga-page-structure.js:242 |
+| `MangaPageStructureUI` | js/ai/manga-page-structure-ui.js:379 |
+| `MangaSmartTextCore` | js/ai/manga-smart-text-core.js:61 |
+| `MangaSmartTextEditor` | js/ai/manga-smart-text-editor.js:472 |
+| `MangaTextInkMask` | js/ai/manga-text-ink-mask.js:91 |
+| `NaiBackgroundRemovalClient` | js/local-tools/background-removal-client.js:531 |
 | `NaiBeginnerGuide` | js/ui/beginner-guide.js:504 |
 | `NaiBrushPresets` | js/sidebar/pen/brush-presets.js:127 |
-| `NaiCanvasView` | js/canvas-manager.js:951 |
+| `NaiCanvasView` | js/canvas-manager.js:960 |
 | `NaiCharacterCards` | js/ai/prompt/auto/character-card-manager.js:535 |
 | `NaiComicAssetBlobStore` | js/assets/asset-blob-store.js:69 |
 | `NaiComicAssetLibraryController` | js/assets/asset-library-controller.js:293 |
@@ -55,7 +68,7 @@
 | `NaiComicAssetScanner` | js/assets/asset-scanner.js:87 |
 | `NaiComicAssetStore` | js/assets/asset-store.js:412 |
 | `NaiComicAssetStoreDefault` | js/assets/asset-store.js:413 |
-| `NaiComicBootGuard` | js/assets/boot-guard.js:22 |
+| `NaiComicBootGuard` | js/assets/boot-guard.js:42 |
 | `NaiComicChatController` | js/simulator/chat-controller.js:364 |
 | `NaiComicChatRenderer` | js/simulator/chat-renderer.js:368 |
 | `NaiComicChatScene` | js/simulator/chat-scene.js:117 |
@@ -90,7 +103,7 @@
 | `NaiImage2UniqueName` | js/assets/image2-client.js:39 |
 | `NaiLocalToolsClient` | js/local-tools/local-tools-client.js:96 |
 | `NaiLocalToolsDefaultUrl` | js/local-tools/local-tools-client.js:97 |
-| `NaiMangaPageSize` | js/core/manga-page-size.js:229 |
+| `NaiMangaPageSize` | js/core/manga-page-size.js:230 |
 | `NaiPageStudio` | js/sidebar/page/page-studio.js:606 |
 | `NaiPanelPipelineReview` | js/ai/panel-pipeline-review.js:258 |
 | `NaiPngBitDepth` | js/core/util/png-bit-depth.js:563 |
@@ -99,13 +112,14 @@
 | `NaiScenePlanSchema` | js/ai/director/scene-plan-schema.js:18 |
 | `NaiScenePlanService` | js/ai/director/scene-plan-service.js:69 |
 | `NaiSfxPalette` | js/sidebar/text/sfx-palette.js:139 |
+| `NaiStatusFormat` | js/ai/nai-status-format.js:24 |
 | `NaiVisualStudio` | js/ui/visual-studio.js:485 |
-| `NovelAICompositionDirector` | js/ai/prompt/novelai-composition-director.js:1207 |
+| `NovelAICompositionDirector` | js/ai/prompt/novelai-composition-director.js:1213 |
 | `PANEL_LAYOUT_TEMPLATES` | js/panel/layout-templates.js:385 |
 | `TestRunner` | js/core/debug.js:404 |
 | `__naiBrushEvt` | js/ui/visual-studio.js:142 |
 | `__naiBrushRaf` | js/ui/visual-studio.js:144, js/ui/visual-studio.js:145 |
-| `_clipboard` | js/shortcut.js:100 |
+| `_clipboard` | js/shortcut.js:102 |
 | `appendNaiTagExampleFromPanel` | js/ai/prompt/auto/character-card-manager.js:543 |
 | `appendNaiTagExampleToCard` | js/ai/prompt/auto/character-card-manager.js:542 |
 | `applyFlexGenSizeToPanels` | js/sidebar/panel/panel-template.js:240 |
@@ -137,7 +151,7 @@
 | `naiBatchDirectorNeedsRun` | js/ai/prompt/auto/auto-prompt-util.js:831 |
 | `naiBatchDirectorSetPrompts` | js/ai/prompt/auto/auto-prompt-util.js:830 |
 | `naiBatchRunAcceptancePanel` | js/ai/prompt/auto/auto-prompt-util.js:832 |
-| `naiDirectorAvailableModels` | js/ai/ai-settings.js:76 |
+| `naiDirectorAvailableModels` | js/ai/ai-settings.js:77 |
 | `naiLastBatchAcceptanceSignature` | js/ai/prompt/auto/auto-prompt-util.js:203 |
 | `naiLastBatchDirectorSignature` | js/ai/prompt/auto/auto-prompt-util.js:732 |
 | `naiPsTool` | js/ui/visual-ps-tools.js:91 |
@@ -157,21 +171,23 @@
 | ファイル | 行数 | 用途 |
 |---------|------|------|
 | js/ai/comfyui/v2/comfyui-default-object-info.js | 10475 |  |
-| js/ui/third/i18next.js | 4686 | "yyyyMMddHHmmss_SSS": { |
-| index.html | 3102 |  |
+| js/ui/third/i18next.js | 5754 | "yyyyMMddHHmmss_SSS": { |
+| index.html | 3079 |  |
 | js/ai/manga-importer.js | 2524 |  |
 | js/ai/comfyui/v2/comfyui_workflow/comfyui-t2i-default-workflows.js | 2005 |  |
-| js/ai/prompt/novelai-composition-director.js | 1208 |  |
+| js/ai/prompt/novelai-composition-director.js | 1214 |  |
+| 99_server.py | 1161 |  |
+| scripts/gpt-browser-acceptance.cjs | 1154 | Real headless Chromium acceptance test against the actual HTML/Fabric runtime. |
+| js/ai/gpt-region-editor.js | 1149 | Manga-NAI-GPT: isolated, non-destructive image editing surface. |
 | js/simulator/simulator-studio.js | 1110 | 模拟器启动页与各类型单开工作区 |
 | js/dashboard/dashboard-ui.js | 1060 | ダッシュボードUIコンポーネント（モーダル表示） |
-| js/canvas-manager.js | 1006 |  |
+| js/canvas-manager.js | 1019 |  |
 | js/core/util/fabric-util.js | 941 |  |
 | js/sidebar/speechBubble/speech-bubble-freehand.js | 868 |  |
 | js/sidebar/pen/pen-tools.js | 855 |  |
 | css/ui/dashboard.css | 853 | Dashboard Modal Overlay |
+| js/core/util/image-util.js | 847 | image-util.js - Fabric.js画像オブジェクトの処理（変換、WebP、クロップ、反転、色変換など） |
 | js/ai/prompt/auto/auto-prompt-util.js | 846 | generatePageList(btmGetGuidsSize()); |
-| js/core/util/image-util.js | 845 | image-util.js - Fabric.js画像オブジェクトの処理（変換、WebP、クロップ、反転、色変換など） |
-| 99_server.py | 810 |  |
 | css/simulator-chat.css | 790 | simulator-chat-area .simulator-chat-panel{ |
 | js/sidebar/panel/panel-manager.js | 769 | function handleSelection(e) { |
 | js/core/font/font-manager-core.js | 750 |  |
@@ -179,8 +195,6 @@
 | js/ui/imagePromptHelper/image-prompt-helper.js | 730 |  |
 | scripts/gen-project-index.cjs | 722 | プロジェクト索引の自動生成。 |
 | js/layer/blend/blend.js | 719 | ブレンドモードUI - カテゴリ分類・プレビュー・適用処理 |
-| js/project-management.js | 696 | Runtime image generation is NovelAI-only. Legacy provider modules may still |
-| js/fabric/fabric-management.js | 694 |  |
 
 ## 再生成
 

@@ -12,8 +12,8 @@
 | 99_generate_nai_comic_demo.bat | 8 |  |
 | 99_generate_theresa_doctor_mature_comic.bat | 9 |  |
 | 99_git_fetch.bat | 2 |  |
-| 99_server.bat | 1 |  |
-| 99_server.py | 810 |  |
+| 99_server.bat | 4 |  |
+| 99_server.py | 1161 |  |
 | 99_test_nai_pipeline.bat | 16 |  |
 | claude --dangerously-skip-permissions.bat | 1 |  |
 | css/comfyui-workflow-editor.css | 413 |  |
@@ -21,14 +21,19 @@
 | css/components.css | 350 |  |
 | css/controls-mini.css | 568 |  |
 | css/core/main-component.css | 406 |  |
-| css/css2.css | 23 | fallback |
+| css/css2.css | 23 | Bundled locally so icons work offline and where Google Fonts is unreachable; remote copy is only a fallback. |
 | css/cutout-brush.css | 43 |  |
 | css/flag-icon.min.css | 1 |  |
 | css/form.css | 335 |  |
-| css/icon.css | 55 | fallback |
+| css/gpt-region-editor.css | 48 | Optional GPT tools: isolated styles so legacy canvas layout stays intact. |
+| css/icon.css | 55 | Bundled locally so icons work offline and where Google Fonts is unreachable; remote copy is only a fallback. |
 | css/image-control-manager.css | 100 |  |
 | css/layout-layer.css | 356 |  |
 | css/layout.css | 528 |  |
+| css/manga-character-bible.css | 32 | Private character reference library. |
+| css/manga-lama-inpaint.css | 22 | Non-destructive local LaMa preview and explicit confirmation. |
+| css/manga-page-structure.css | 75 | Local page-structure inspector. Rectangles are read-only DOM overlays. |
+| css/manga-smart-text.css | 37 | Local OCR / editable manga text panel; no external visual framework. |
 | css/responsive.css | 144 | Responsive breakpoints for main layout structure |
 | css/root.css | 400 |  |
 | css/simulator-chat.css | 790 | simulator-chat-area .simulator-chat-panel{ |
@@ -50,11 +55,12 @@
 | css/ui/object-menu.css | 161 |  |
 | css/ui/overlay-progress.css | 14 |  |
 | css/ui/role-assign-modal.css | 16 |  |
-| css/ui/share.css | 153 |  |
+| css/ui/share.css | 153 | Decorative web fonts are no longer fetched from Google at startup (blocked in some regions, adds a failed request); the system sans-serif fallback is used. |
 | css/ui/shortcut-modal.css | 16 |  |
 | css/ui/tutorial.css | 357 |  |
 | css/ui/unified-settings.css | 82 |  |
 | css/visual-studio.css | 399 |  |
+| gpt_image_proxy.py | 369 |  |
 | html/API_Help/comfyui_settings.html | 170 |  |
 | html/API_Help/sd-api-guide.html | 364 |  |
 | html/Minual/03_xxx2webp.bat | 20 |  |
@@ -69,9 +75,9 @@
 | html/TermsOfService/terms-of-service.html | 120 |  |
 | html/common.css | 343 |  |
 | html/functionList.html | 321 |  |
-| index.html | 3102 |  |
+| index.html | 3079 |  |
 | js/ai/ai-management.js | 153 | AI機能の中央ルーター: プロバイダーレジストリ経由でディスパッチ |
-| js/ai/ai-settings.js | 424 |  |
+| js/ai/ai-settings.js | 422 |  |
 | js/ai/angle/angle-editor.js | 103 | アングル変更エディタ（モーダルオーバーレイ） |
 | js/ai/angle/camera-widget.js | 494 | 3Dカメラウィジェット（アングル選択用） |
 | js/ai/comfyui/comfyui-management.js | 511 |  |
@@ -93,10 +99,24 @@
 | js/ai/director/scene-plan-controller.js | 66 |  |
 | js/ai/director/scene-plan-schema.js | 19 |  |
 | js/ai/director/scene-plan-service.js | 70 |  |
+| js/ai/gpt-region-editor.js | 1149 | Manga-NAI-GPT: isolated, non-destructive image editing surface. |
 | js/ai/inpainting/inpaint-editor.js | 181 | Inpaintエディタ（モーダルオーバーレイ） |
 | js/ai/inpainting/inpaint-mask.js | 206 | Inpaintマスク描画管理 |
 | js/ai/inpainting/inpaint-workflow.js | 68 | Inpaintワークフロー連携 |
+| js/ai/manga-bubble-detector.js | 81 | Conservative local bubble-candidate detector. |
+| js/ai/manga-character-bible-core.js | 64 | Character Bible data contract (own implementation). |
+| js/ai/manga-character-bible-ui.js | 224 | Private, browser-local character reference cards. |
+| js/ai/manga-edit-planner-ui.js | 126 | Natural-language *plan* preview. Deterministic parser, no cloud calls. |
+| js/ai/manga-edit-planner.js | 79 | Editable plan, not an AI semantic parser. |
 | js/ai/manga-importer.js | 2524 |  |
+| js/ai/manga-lama-inpaint-ui.js | 344 | Optional local masked inpainting: preview first, commit as editable Fabric image layer. |
+| js/ai/manga-model-request.js | 44 | Shared POST helper for the optional local models (Tesseract, Manga OCR, LaMa). |
+| js/ai/manga-page-structure-ui.js | 380 | Manga page structure inspector: Fabric snapshot -> sampled pixels -> reviewable panels. |
+| js/ai/manga-page-structure.js | 245 | Manga page structure v1: deterministic, low-cost XY-cut candidates. |
+| js/ai/manga-smart-text-core.js | 64 | Shared, dependency-free geometry and light-bubble erase rules. |
+| js/ai/manga-smart-text-editor.js | 481 | Smart manga lettering workflow. |
+| js/ai/manga-text-ink-mask.js | 92 | Conservative dark-ink proposal for a user-selected TEXT rectangle. |
+| js/ai/nai-status-format.js | 25 | Human-readable NovelAI subscription status for the "检查 NAI" toast. |
 | js/ai/novelai-only-mode.js | 132 |  |
 | js/ai/panel-pipeline-review.js | 270 | 分镜流水线状态 + 生图后人工审阅 |
 | js/ai/prompt/auto/auto-generation.js | 105 |  |
@@ -105,12 +125,13 @@
 | js/ai/prompt/auto/prompt-map.js | 193 |  |
 | js/ai/prompt/auto/story-prompt-map.js | 114 |  |
 | js/ai/prompt/base-event-listener.js | 9 |  |
-| js/ai/prompt/novelai-composition-director.js | 1208 |  |
+| js/ai/prompt/director-safety.js | 29 | Director (third-party LLM gateway) credential safety. |
+| js/ai/prompt/novelai-composition-director.js | 1214 |  |
 | js/ai/provider/ai-provider.js | 58 | AIプロバイダー基底クラス |
 | js/ai/provider/falai-provider.js | 407 | Fal.aiクラウドAIプロバイダー: Queue APIで非同期実行（T2I/I2I/Upscale/RemoveBG） |
 | js/ai/provider/local-comfyui-provider.js | 49 | ローカルComfyUIプロバイダー: 既存のComfyUI関数をAIProviderインターフェースでラップ |
 | js/ai/provider/local-sdwebui-provider.js | 45 | ローカルSDWebUIプロバイダー: 既存のSDWebUI/Forge関数をAIProviderインターフェースでラップ |
-| js/ai/provider/novelai-provider.js | 564 | NovelAI provider: direct browser call to the official image API. |
+| js/ai/provider/novelai-provider.js | 581 | NovelAI provider: direct browser call to the official image API. |
 | js/ai/provider/provider-registry.js | 100 | プロバイダーレジストリ: プロバイダー登録とRole→プロバイダーのルーティング管理 |
 | js/ai/provider/runpod-comfyui-provider.js | 55 | RunPod ComfyUIプロバイダー: クラウド上のComfyUIに認証付きHTTPS接続 |
 | js/ai/queue/generation-task-manager.js | 322 |  |
@@ -130,23 +151,23 @@
 | js/assets/asset-pack.js | 23 |  |
 | js/assets/asset-scanner.js | 94 |  |
 | js/assets/asset-store.js | 414 |  |
-| js/assets/boot-guard.js | 27 |  |
+| js/assets/boot-guard.js | 47 |  |
 | js/assets/github-free-pack.js | 82 |  |
 | js/assets/image2-client.js | 40 |  |
 | js/assets/image2-controller.js | 18 |  |
 | js/assets/image2-job-store.js | 15 |  |
 | js/assets/original-starter-pack.js | 107 |  |
 | js/assets/site-ui-pack.js | 86 |  |
-| js/canvas-manager.js | 1006 |  |
+| js/canvas-manager.js | 1019 |  |
 | js/core/auto-save.js | 235 | 自動保存機能：IndexedDBへの定期保存と起動時の復元 |
 | js/core/compression/lz4.js | 226 |  |
-| js/core/compression/project-compression.js | 367 |  |
+| js/core/compression/project-compression.js | 393 |  |
 | js/core/debug.js | 404 |  |
 | js/core/font/font-dropdown.js | 295 |  |
 | js/core/font/font-manager-core.js | 750 |  |
 | js/core/global-error-handler.js | 17 | グローバルエラーハンドラ（未キャッチのエラーとPromise rejectionを検知） |
 | js/core/logger.js | 206 | ログ出力ユーティリティ（SimpleLogger） |
-| js/core/manga-page-size.js | 255 |  |
+| js/core/manga-page-size.js | 256 |  |
 | js/core/service/worker-register.js | 115 |  |
 | js/core/settings.js | 170 | FabricCanvas2HtmlCanvas Scale |
 | js/core/svg/google-icon-helper.js | 215 |  |
@@ -157,7 +178,7 @@
 | js/core/util/fabric-util.js | 941 |  |
 | js/core/util/html-canvas-util.js | 91 | html-canvas-util.js - HTMLキャンバスに対する低レベル操作（境界検出、スケーリング、ピクセル処理） |
 | js/core/util/image-analyzer-util.js | 121 |  |
-| js/core/util/image-util.js | 845 | image-util.js - Fabric.js画像オブジェクトの処理（変換、WebP、クロップ、反転、色変換など） |
+| js/core/util/image-util.js | 847 | image-util.js - Fabric.js画像オブジェクトの処理（変換、WebP、クロップ、反転、色変換など） |
 | js/core/util/js-util.js | 20 |  |
 | js/core/util/load-util.js | 94 | ユーティリティ関数：エラーハンドリングとログ出力を行う |
 | js/core/util/log-util.js | 48 |  |
@@ -173,14 +194,14 @@
 | js/layer/image-history-management.js | 359 |  |
 | js/layer/layer-button.js | 303 |  |
 | js/layer/layer-management.js | 578 |  |
-| js/local-tools/background-removal-client.js | 528 |  |
+| js/local-tools/background-removal-client.js | 545 |  |
 | js/local-tools/cutout-presets.js | 107 |  |
 | js/local-tools/local-tools-client.js | 98 |  |
 | js/panel/grid.js | 153 |  |
 | js/panel/layout-templates.js | 388 | 常见漫画分镜模板（直线切分，可后期手调刀线） |
 | js/panel/random-cut.js | 136 |  |
-| js/project-management.js | 696 | Runtime image generation is NovelAI-only. Legacy provider modules may still |
-| js/shortcut.js | 536 | simple check if the user is using a mac os , not the best way to detect the OS |
+| js/project-management.js | 712 | Runtime image generation is NovelAI-only. Legacy provider modules may still |
+| js/shortcut.js | 538 | simple check if the user is using a mac os , not the best way to detect the OS |
 | js/sidebar/effect/c2bw_tone.js | 91 |  |
 | js/sidebar/effect/c2c.js | 122 |  |
 | js/sidebar/effect/effect-manager.js | 227 |  |
@@ -210,7 +231,7 @@
 | js/sidebar/pen/pen-tools.js | 855 |  |
 | js/sidebar/sidebar-ui.js | 248 |  |
 | js/sidebar/sidebar.js | 118 |  |
-| js/sidebar/speechBubble/speech-bubble-effect.js | 295 |  |
+| js/sidebar/speechBubble/speech-bubble-effect.js | 304 |  |
 | js/sidebar/speechBubble/speech-bubble-freehand.js | 868 |  |
 | js/sidebar/speechBubble/speech-bubble-text.js | 453 |  |
 | js/sidebar/text/custom/custom-text-util.js | 48 |  |
@@ -290,7 +311,7 @@
 | js/ui/third/base-translation/base-ko.js | 569 |  |
 | js/ui/third/base-translation/base-ru.js | 555 |  |
 | js/ui/third/base-translation/base-zh.js | 603 |  |
-| js/ui/third/i18next.js | 4686 | "yyyyMMddHHmmss_SSS": { |
+| js/ui/third/i18next.js | 5754 | "yyyyMMddHHmmss_SSS": { |
 | js/ui/third/intro.js | 23 |  |
 | js/ui/third/tippy.js | 94 | Tooltip initialization using Tippy.js |
 | js/ui/toast.js | 130 | createToast(NieR風): success/info, createToastError(DbD風): error/warning |
@@ -306,7 +327,12 @@
 | local_tools/cutout.py | 167 |  |
 | local_tools/model_manager.py | 207 |  |
 | local_tools/processors/__init__.py | 1 |  |
-| local_tools/server.py | 245 |  |
+| local_tools/server.py | 340 |  |
+| manga_lama_inpaint.py | 153 |  |
+| manga_model_guard.py | 86 |  |
+| manga_ocr_preclean.py | 139 |  |
+| manga_ocr_refiner.py | 88 |  |
+| manga_smart_ocr.py | 226 |  |
 | scripts/MangaMakerUI.py | 64 |  |
 | scripts/asset-library-smoke-test.cjs | 113 |  |
 | scripts/check-translations.cjs | 227 | Translation key validation script - compares keys across all languages in i18next resources |
@@ -314,24 +340,63 @@
 | scripts/cutout-color-key-smoke-test.py | 36 |  |
 | scripts/cutout-presets-smoke-test.cjs | 34 |  |
 | scripts/fabric-text-focus-smoke-test.cjs | 145 | fabric の編集用 textarea がスクロールを起こさないことを検証する。 |
+| scripts/full-feature-e2e.cjs | 406 | Full-feature end-to-end walk-through in real Chromium against the real 99_server.py. |
 | scripts/gen-project-index.cjs | 722 | プロジェクト索引の自動生成。 |
 | scripts/generate-original-starter-svgs.cjs | 326 |  |
 | scripts/generate-site-ui-svgs.cjs | 391 |  |
+| scripts/gpt-browser-acceptance.cjs | 1154 | Real headless Chromium acceptance test against the actual HTML/Fabric runtime. |
+| scripts/gpt-http-integration-test.py | 205 |  |
+| scripts/gpt-image-proxy-smoke-test.py | 183 |  |
+| scripts/gpt-panel-i18n-test.cjs | 53 | Regression: every mgpt_* key used by the GPT region editor exists in all 8 i18next |
+| scripts/gpt-panel-line-protect-test.cjs | 58 | Regression: GPT region edits must not erase panel borders / gutters inside the selection. |
+| scripts/gpt-proxy-network-guard-test.py | 160 |  |
+| scripts/gpt-real-api-acceptance.cjs | 321 | OPT-IN, BILLABLE real-API acceptance for the GPT region editor (never part of npm test / CI). |
+| scripts/gpt-region-editor-smoke-test.cjs | 315 | Offline UI smoke test: verifies the standalone editor parses and maps CSS pixels. |
 | scripts/image-export-integration-test.cjs | 324 | 位深度と画素プレビューの統合テスト。 |
-| scripts/image-export-smoke-test.cjs | 403 |  |
+| scripts/image-export-smoke-test.cjs | 433 |  |
 | scripts/image2-interface-smoke-test.cjs | 19 |  |
+| scripts/import-image-keeps-page-test.cjs | 25 | Regression: File > Import image on a page that only had a manga template resized the |
 | scripts/layout-smoke-test.cjs | 201 |  |
+| scripts/local-secret-guard-test.py | 261 |  |
+| scripts/local-tools-origin-test.py | 179 |  |
 | scripts/make-one-click-zip.ps1 | 63 | Build a beginner zip without git history, secrets, or machine caches. |
+| scripts/manga-bubble-detector-test.cjs | 46 |  |
+| scripts/manga-character-bible-test.cjs | 24 |  |
+| scripts/manga-edit-planner-test.cjs | 67 |  |
 | scripts/manga-import-smoke-test.cjs | 169 |  |
+| scripts/manga-lama-inpaint-test.py | 64 |  |
+| scripts/manga-lama-pixel-test.py | 92 |  |
+| scripts/manga-model-guard-test.py | 161 |  |
+| scripts/manga-ocr-preclean-test.py | 119 | !/usr/bin/env python3 |
+| scripts/manga-ocr-refiner-test.py | 94 |  |
 | scripts/manga-page-size-smoke-test.cjs | 47 |  |
-| scripts/nai-pipeline-smoke-test.mjs | 314 | NAI-only pipeline smoke test (NovelAI + Director proxy). |
+| scripts/manga-page-structure-test.cjs | 94 | Red/green contract: inspect page pixels, split only credible gutters and |
+| scripts/manga-real-model-acceptance.py | 133 | !/usr/bin/env python3 |
+| scripts/manga-real-ui-acceptance.cjs | 160 | REAL (unmocked) Chromium acceptance for the local OCR -> Manga OCR -> LaMa flow. |
+| scripts/manga-smart-ocr-runtime-test.py | 21 |  |
+| scripts/manga-smart-ocr-test.py | 91 |  |
+| scripts/manga-smart-text-test.cjs | 45 |  |
+| scripts/manga-text-ink-mask-test.cjs | 61 |  |
+| scripts/nai-error-readable-test.py | 164 |  |
+| scripts/nai-pipeline-credentials-test.cjs | 24 | Regression: the NAI pipeline smoke test must never reuse the NovelAI token as the |
+| scripts/nai-pipeline-smoke-test.mjs | 324 | NAI-only pipeline smoke test (NovelAI + Director proxy). |
+| scripts/nai-real-acceptance.cjs | 178 | OPT-IN real NovelAI acceptance (never part of npm test / CI). Stays inside Opus free |
+| scripts/nai-status-format-test.cjs | 18 | Regression: "检查 NAI" must not show the misleading "无限生图：否" for Opus users. |
+| scripts/no-third-party-director-test.py | 231 |  |
 | scripts/novelai-batch-tools.mjs | 680 |  |
+| scripts/novelai-readable-error-test.cjs | 39 | Regression: NovelAI errors shown to the user are readable (JSON from the local proxy, |
+| scripts/offline-icon-fonts-test.cjs | 16 | Regression: icon fonts came only from fonts.gstatic.com, so offline (or where Google |
 | scripts/page-studio-smoke-test.cjs | 106 |  |
 | scripts/png-bit-depth-smoke-test.cjs | 351 |  |
+| scripts/portability-smoke-test.cjs | 22 | Portability regressions: npm scripts must not depend on a bare `python` alias (absent on |
 | scripts/prepare-installer.ps1 | 118 |  |
-| scripts/proxy-guard-smoke-test.py | 31 |  |
+| scripts/project-load-open-page-test.cjs | 43 | Regression: "Load project" only added page thumbnails; when the canvas was empty |
+| scripts/proxy-chain-negative-test.py | 269 |  |
+| scripts/proxy-guard-smoke-test.py | 66 |  |
 | scripts/remove-spaces.cjs | 84 | JSファイルからインデントと不要なスペースを削除するスクリプト |
+| scripts/run-python.cjs | 29 | !/usr/bin/env node |
 | scripts/scene-plan-smoke-test.cjs | 9 |  |
+| scripts/server-port-conflict-test.py | 44 |  |
 | scripts/simulator-chat-smoke-test.cjs | 51 |  |
 | scripts/simulator-extra-smoke-test.cjs | 173 |  |
 | scripts/simulator-timeline-smoke-test.cjs | 11 |  |
@@ -341,5 +406,5 @@
 | service-worker.js | 93 | Service Worker: Cache management for HTTP/HTTPS deployment |
 | start_local_tools.bat | 4 |  |
 | start_manga_editor_nai.bat | 23 |  |
-| start_manga_editor_nai.ps1 | 565 |  |
+| start_manga_editor_nai.ps1 | 567 |  |
 | 一键启动.bat | 29 |  |
