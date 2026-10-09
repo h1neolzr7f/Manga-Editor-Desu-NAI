@@ -160,7 +160,41 @@
     }
     return result;
   }
+
+  // Explicit human correction for slanted / borderless panels missed by the heuristic.
+  function renumber(panels,direction) {
+    return sortedPanels(panels,direction).map((p,i) => ({
+      ...p,id:'panel-'+(i+1),order:i+1
+    }));
+  }
+  function splitPanel(panels,id,axis,direction) {
+    if(!Array.isArray(panels)||!['x','y'].includes(axis))return null;
+    const index=panels.findIndex(p=>p.id===id);
+    if(index<0||panels.length>=16)return null;
+    const source=panels[index];
+    const extent=axis==='x'?source.width:source.height;
+    if(!Number.isFinite(extent)||extent<24)return null;
+    const half=Math.floor(extent/2);
+    const first={...source,verified:true,source:'manual-split'};
+    const second={...source,verified:true,source:'manual-split'};
+    if(axis==='x') {
+      first.width=half;
+      second.x+=half;
+      second.width=extent-half;
+    }else{
+      first.height=half;
+      second.y+=half;
+      second.height=extent-half;
+    }
+    return renumber([...panels.slice(0,index),first,second,...panels.slice(index+1)],
+      direction==='ltr'?'ltr':'rtl');
+  }
+  function removePanel(panels,id,direction) {
+    if(!Array.isArray(panels)||panels.length<=1||
+      !panels.some(p=>p.id===id))return null;
+    return renumber(panels.filter(p=>p.id!==id),direction==='ltr'?'ltr':'rtl');
+  }
   root.MangaPageStructure = Object.freeze({
-    pageSchemaVersion, analyze, attachText
+    pageSchemaVersion, analyze, attachText, splitPanel, removePanel
   });
 })(typeof window !== 'undefined' ? window : this);
