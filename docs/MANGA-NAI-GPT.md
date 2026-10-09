@@ -14,6 +14,7 @@
 | image2-client / asset-store / job-store | URL 字符串被当作已保存结果；现在下载、验证图片字节并持久化。只有保存成功才完成；保存重试复用生成字节，不再次扣费生成。 |
 | image-history-management / compression / bottom-bar | Fabric 异步恢复未等待，undo/redo/page switch 互相覆盖；加入明确的恢复锁，等待真实 loadFromJSON 回调，拒绝重叠恢复，空历史不清空工程。保存不再追加重复历史，撤销位置随工程保存重开，重做记录保留。 |
 | NovelAI Provider | 任务完成后原目标页不在当前画布，错误回退到当前页；拒绝错页放置。 |
+| generation-task-manager | 非当前页的生成结果忽略工程保存的撤销位置；现在读取当前历史状态、截断其重做分支，追加图像后更新保存索引，重开即能看到图像。 |
 | panel-pipeline-review | 生成成功直接标记自动审核通过；现在仅标记已生成或待人工审核，旧 AUTO_OK 同样作为未审核处理。 |
 | project-compression | 旧工程没有新角色档案字段时继承上一工程档案；两种导入格式均清空缺失档案。 |
 | png-bit-depth | `24-bit` 回落到 ARGB；规范化带空格/连字符的位深名称，已有回归测试现在通过。 |

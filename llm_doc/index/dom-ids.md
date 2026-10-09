@@ -449,7 +449,7 @@
 | `prompt-manager-area` | index.html:1451 | js/sidebar/sidebar.js:81 |
 | `ps-tools-area` | index.html:1847 | js/ui/visual-studio.js:332 |
 | `pwa-install-button` | index.html:624 | js/core/service/worker-register.js:84 |
-| `redo` | index.html:2195 | html/Shortcut/shortcut.html:66, js/core/svg/google-icon-names.js:11, js/ui/third/base-translation/base-de.js:316, js/ui/third/base-translation/base-en.js:322, js/ui/third/base-translation/base-es.js:315, js/ui/third/base-translation/base-fr.js:316, js/ui/third/base-translation/base-ja.js:321, js/ui/third/base-translation/base-ko.js:316, js/ui/third/base-translation/base-ru.js:316, js/ui/third/base-translation/base-zh.js:327, js/ui/third/tippy.js:91 |
+| `redo` | index.html:2195 | html/Shortcut/shortcut.html:66, js/core/svg/google-icon-names.js:11, js/ui/third/base-translation/base-de.js:316, js/ui/third/base-translation/base-en.js:322, js/ui/third/base-translation/base-es.js:315, js/ui/third/base-translation/base-fr.js:316, js/ui/third/base-translation/base-ja.js:321, js/ui/third/base-translation/base-ko.js:316, js/ui/third/base-translation/base-ru.js:316, js/ui/third/base-translation/base-zh.js:327, js/ui/third/tippy.js:91, scripts/gpt-editor-browser-test.cjs:491 |
 | `resetFlexGenSizeBtn` | index.html:1041 | js/sidebar/panel/panel-template.js:236 |
 | `resizable-container` | index.html:2162 | js/canvas-manager.js:42, js/ui/beginner-guide.js:434 |
 | `roleMatrixBody` | index.html:2334 | js/ai/role/role-assignment-ui.js:31 |
@@ -998,7 +998,7 @@
 - js/ui/visual-ps-tools.js : `naiHistoryClose`, `naiHistoryList`, `naiHistoryPanel`, `naiPropFill`, `naiPropStroke`, `shape-area`, `sidebar .icon-wrapper[data-ps-tool]`
 - js/ui/visual-studio.js : `addHeart`, `addHexagon`, `addPentagon`, `addSquare`, `addStar`, `addTallRect`, `addTriangle`, `addWideRect`, `asset-library-area`, `brushPresetGrid`, `cutout-area`, `head-id .left_area`, `manga-effect-area`, `manga-tone-area`, `manga-tone-buttons button, #manga-effect-buttons button, #pen-tool-buttons button, #image-text-tool-buttons button, .visual-shape-grid button, .visual-text-grid button`, `naiBrushCursor`, `naiOptBrushSize`, `naiPropFill`, `naiPropOpacity`, `naiPropShadow`, `naiPropStrip`, `naiPropStroke`, `naiPropStrokeW`, `naiToolOptionsBar`, `naiToolOptionsControls`, `naiToolOptionsMain`, `panel-manager-area`, `ps-tools-area`, `sfxPaletteList`, `shape-area`, `sidebar .icon-wrapper[data-target]`, `speech-bubble-area`, `speech-bubble-preview`, `svg-container-template`, `svg-preview-area-landscape`, `svg-preview-area-vertical`, `text-area`, `text-area2`, `tool-area`, `tool-settings input[type="range"]`, `verticalText`
 - scripts/gen-project-index.cjs : `id`
-- scripts/gpt-editor-browser-test.cjs : `gpt-mask-section`, `gpt-width`, `gpt-x`, `gpt-y`, `nai-gpt-editor`
+- scripts/gpt-editor-browser-test.cjs : `gpt-mask-section`, `gpt-width`, `gpt-x`, `gpt-y`, `nai-gpt-editor`, `redo`
 - scripts/gpt-provider-test.cjs : `edit`
 - scripts/image-export-smoke-test.cjs : `outputBitDepth`, `outputBitDepthHint`, `outputDpi`
 - scripts/layout-smoke-test.cjs : `canvasEmptyHint`

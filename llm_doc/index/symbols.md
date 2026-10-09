@@ -4,7 +4,7 @@
 
 - 抽出対象: `root.X=` / `window.X=` / `globalThis.X=`、行頭の `function X` / `var X` / `let X` / `const X`
 - 抽出範囲: js / cjs / mjs と、html のインライン `<script>`（行番号は元ファイル基準）
-- 合計 11057 件 / ユニーク名 5864 件
+- 合計 11058 件 / ユニーク名 5865 件
 
 ## シンボル → 定義
 
@@ -2659,7 +2659,7 @@
 | `customSetJson` | var | js/ui/imagePromptHelper/image-prompt-helper.js:162 |
 | `customSpeechBubbleAllRelocation` | function | js/sidebar/speechBubble/speech-bubble-text.js:441 |
 | `customToJSON` | function | js/layer/image-history-management.js:133 |
-| `customToJSONLocal` | function | js/ai/queue/generation-task-manager.js:260 |
+| `customToJSONLocal` | function | js/ai/queue/generation-task-manager.js:263 |
 | `cutChangeRate` | var | js/sidebar/panel/knife/knife-split-engine.js:73 |
 | `cutout` | var | scripts/layout-smoke-test.cjs:42 |
 | `cutoutRegion` | var | js/ui/canvas-object-menu.js:186 |
@@ -3585,7 +3585,7 @@
 | `file` | var | scripts/image-export-smoke-test.cjs:154 |
 | `file` | var | scripts/image-export-smoke-test.cjs:366 |
 | `fileBuffer` | var | js/project-management.js:77 |
-| `fileBufferList` | var | js/ai/queue/generation-task-manager.js:230 |
+| `fileBufferList` | var | js/ai/queue/generation-task-manager.js:233 |
 | `fileBufferList` | var | js/core/compression/lz4.js:107 |
 | `fileBufferList` | var | js/core/compression/lz4.js:150 |
 | `fileBufferList` | var | js/core/compression/project-compression.js:3 |
@@ -3877,15 +3877,15 @@
 | `frame` | var | js/core/logger.js:19 |
 | `frame` | var | js/core/logger.js:45 |
 | `frame` | var | js/sidebar/panel/panel-template.js:526 |
-| `frameBounds` | var | js/ai/queue/generation-task-manager.js:286 |
+| `frameBounds` | var | js/ai/queue/generation-task-manager.js:289 |
 | `frameBounds` | var | js/sidebar/panel/panel-manager.js:157 |
 | `frameBounds` | var | js/sidebar/panel/panel-manager.js:219 |
 | `frameBounds` | var | js/sidebar/panel/panel-manager.js:234 |
 | `frameBounds` | var | js/sidebar/panel/panel-manager.js:248 |
 | `frameBoxes` | var | js/ai/manga-importer.js:1464 |
-| `frameCenterX` | var | js/ai/queue/generation-task-manager.js:292 |
+| `frameCenterX` | var | js/ai/queue/generation-task-manager.js:295 |
 | `frameCenterX` | var | js/sidebar/panel/panel-manager.js:163 |
-| `frameCenterY` | var | js/ai/queue/generation-task-manager.js:293 |
+| `frameCenterY` | var | js/ai/queue/generation-task-manager.js:296 |
 | `frameCenterY` | var | js/sidebar/panel/panel-manager.js:164 |
 | `frameCount` | var | js/ui/control/information-control.js:4 |
 | `frameGeo` | var | js/ai/angle/camera-widget.js:103 |
@@ -4272,7 +4272,7 @@
 | `grid` | var | js/simulator/simulator-studio.js:488 |
 | `gridCanvas` | var | js/panel/grid.js:7 |
 | `gridCtx` | var | js/panel/grid.js:10 |
-| `gridData` | var | js/ai/queue/generation-task-manager.js:247 |
+| `gridData` | var | js/ai/queue/generation-task-manager.js:250 |
 | `gridData` | var | js/layer/image-history-management.js:167 |
 | `gridData` | var | js/sidebar/speechBubble/speech-bubble-freehand.js:595 |
 | `gridDiv` | var | js/layer/blend/blend.js:269 |
@@ -4280,7 +4280,7 @@
 | `gridResult` | var | js/sidebar/speechBubble/speech-bubble-freehand.js:588 |
 | `gridSize` | var | js/ai/angle/camera-widget.js:75 |
 | `gridSize` | var | js/panel/grid.js:2 |
-| `gridStr` | var | js/ai/queue/generation-task-manager.js:271 |
+| `gridStr` | var | js/ai/queue/generation-task-manager.js:274 |
 | `gridStr` | var | js/layer/image-history-management.js:145 |
 | `gridWidth` | var | js/core/util/image-analyzer-util.js:5 |
 | `grids` | var | js/core/font/font-dropdown.js:120 |
@@ -4416,9 +4416,9 @@
 | `hasThird` | var | js/core/util/png-bit-depth.js:94 |
 | `hasUnverifiedNodes` | var | js/ai/comfyui/v2/comfyui-workflow-editor-tab.js:420 |
 | `hasUrl` | var | js/ui/imagePromptHelper/image-prompt-helper.js:327 |
-| `hash` | var | js/ai/queue/generation-task-manager.js:246 |
-| `hash` | var | js/ai/queue/generation-task-manager.js:264 |
-| `hash` | var | js/ai/queue/generation-task-manager.js:272 |
+| `hash` | var | js/ai/queue/generation-task-manager.js:249 |
+| `hash` | var | js/ai/queue/generation-task-manager.js:267 |
+| `hash` | var | js/ai/queue/generation-task-manager.js:275 |
 | `hash` | var | js/assets/asset-scanner.js:8 |
 | `hash` | var | js/core/auto-save.js:65 |
 | `hash` | var | js/core/compression/project-compression.js:85 |
@@ -4810,7 +4810,7 @@
 | `imgElement` | var | js/core/util/image-util.js:107 |
 | `imgElement` | var | js/layer/layer-management.js:454 |
 | `imgFile2webpFile` | var | js/core/util/image-util.js:817 |
-| `imgGuid` | var | js/ai/queue/generation-task-manager.js:314 |
+| `imgGuid` | var | js/ai/queue/generation-task-manager.js:317 |
 | `imgHeight` | var | js/layer/layer-management.js:456 |
 | `imgObj` | var | js/ui/control/glfx-control.js:435 |
 | `imgWidth` | var | js/layer/layer-management.js:455 |
@@ -5280,7 +5280,7 @@
 | `json` | var | js/ai/prompt/novelai-composition-director.js:797 |
 | `json` | var | js/ai/prompt/novelai-composition-director.js:877 |
 | `json` | var | js/ai/provider/novelai-provider.js:416 |
-| `json` | var | js/ai/queue/generation-task-manager.js:261 |
+| `json` | var | js/ai/queue/generation-task-manager.js:264 |
 | `json` | var | js/dashboard/dashboard-ui.js:964 |
 | `json` | var | js/layer/image-history-management.js:134 |
 | `json` | var | js/layer/image-history-management.js:204 |
@@ -5442,7 +5442,7 @@
 | `lastSavedGuid` | var | js/core/auto-save.js:9 |
 | `lastSavedHash` | var | js/core/auto-save.js:8 |
 | `lastSectorEnd` | var | js/sidebar/text/vertical-textbox.js:495 |
-| `lastState` | var | js/ai/queue/generation-task-manager.js:216 |
+| `lastState` | var | js/ai/queue/generation-task-manager.js:217 |
 | `lastStyle` | var | js/sidebar/text/vertical-textbox.js:195 |
 | `lastTime` | var | js/ui/control/information-control.js:5 |
 | `lastUpdateTime` | var | js/layer/layer-management.js:118 |
@@ -6342,7 +6342,7 @@
 | `neonIntensity` | var | js/sidebar/text/text-effect.js:1 |
 | `nested` | var | js/core/debug.js:321 |
 | `nestedCopy` | var | js/core/debug.js:322 |
-| `newBlob` | var | js/ai/queue/generation-task-manager.js:231 |
+| `newBlob` | var | js/ai/queue/generation-task-manager.js:234 |
 | `newBottom` | var | js/sidebar/speechBubble/speech-bubble-freehand.js:224 |
 | `newClipPath` | var | js/core/util/fabric-util.js:671 |
 | `newDist` | var | js/ai/angle/camera-widget.js:357 |
@@ -6391,7 +6391,7 @@
 | `newSettings` | var | js/ui/canvas-object-menu.js:411 |
 | `newSettings` | var | js/ui/canvas-object-menu.js:511 |
 | `newSize` | var | js/sidebar/text/text-effect.js:505 |
-| `newState` | var | js/ai/queue/generation-task-manager.js:227 |
+| `newState` | var | js/ai/queue/generation-task-manager.js:228 |
 | `newSvgContent` | var | js/core/svg/google-icon-helper.js:190 |
 | `newTab` | var | js/ai/comfyui/v2/comfyui-workflow-editor.js:257 |
 | `newText` | var | js/sidebar/text/vertical-textbox.js:228 |
@@ -7178,7 +7178,7 @@
 | `parsed` | var | js/ai/comfyui/v2/comfyui-util-v2.js:201 |
 | `parsed` | var | js/ai/prompt/novelai-composition-director.js:799 |
 | `parsed` | var | js/ai/prompt/novelai-composition-director.js:879 |
-| `parsed` | var | js/ai/queue/generation-task-manager.js:240 |
+| `parsed` | var | js/ai/queue/generation-task-manager.js:243 |
 | `parsed` | var | js/core/svg/google-icon-helper.js:104 |
 | `parsed` | var | js/core/util/image-util.js:449 |
 | `parsed` | var | js/core/util/png-bit-depth.js:532 |
@@ -7359,7 +7359,7 @@
 | `place` | function | js/simulator/site-ui-parts.js:275 |
 | `placeGradient` | function | js/ui/visual-ps-tools.js:217 |
 | `placeImage` | function | js/sidebar/page/page-studio.js:368 |
-| `placeImageLocal` | function | js/ai/queue/generation-task-manager.js:283 |
+| `placeImageLocal` | function | js/ai/queue/generation-task-manager.js:286 |
 | `placeObject` | function | js/sidebar/panel/panel-manager.js:141 |
 | `placeOnCanvas` | function | js/simulator/extra-renderer-factory.js:409 |
 | `placeProcedural` | function | js/sidebar/page/page-studio.js:321 |
@@ -7569,7 +7569,7 @@
 | `previewContainer` | var | js/ai/comfyui/v2/comfyui-workflow-editor-tab.js:485 |
 | `previewContainer` | var | js/ai/comfyui/v2/comfyui-workflow-editor-tab.js:586 |
 | `previewContainer` | var | js/layer/blend/blend.js:337 |
-| `previewDataUrl` | var | js/ai/queue/generation-task-manager.js:229 |
+| `previewDataUrl` | var | js/ai/queue/generation-task-manager.js:232 |
 | `previewDataUrl` | var | js/core/compression/project-compression.js:37 |
 | `previewDiv` | var | js/layer/layer-management.js:220 |
 | `previewDiv` | var | js/layer/layer-management.js:403 |
@@ -8247,10 +8247,10 @@
 | `restoreGridAfterExport` | function | js/core/util/image-util.js:27 |
 | `restoreHistoryState` | function | js/layer/image-history-management.js:222 |
 | `restoreImage` | function | js/layer/image-history-management.js:159 |
-| `restoreImageLocal` | function | js/ai/queue/generation-task-manager.js:239 |
+| `restoreImageLocal` | function | js/ai/queue/generation-task-manager.js:242 |
 | `restoreSession` | function | js/simulator/simulator-studio.js:434 |
 | `restoreVisibility` | function | js/layer/blend/blend.js:529 |
-| `restored` | var | js/ai/queue/generation-task-manager.js:217 |
+| `restored` | var | js/ai/queue/generation-task-manager.js:218 |
 | `restored` | var | scripts/asset-library-smoke-test.cjs:41 |
 | `result` | var | js/ai/ai-settings.js:161 |
 | `result` | var | js/ai/comfyui/comfyui-management.js:288 |
@@ -8533,6 +8533,7 @@
 | `saved` | var | scripts/custom-brush-smoke-test.cjs:34 |
 | `saved` | var | scripts/cutout-presets-smoke-test.cjs:25 |
 | `savedBg` | var | js/project-management.js:480 |
+| `savedIndex` | var | js/ai/queue/generation-task-manager.js:216 |
 | `savedLanguage` | var | js/ui/third/i18next.js:4613 |
 | `savedPrimary` | var | js/simulator/chat-renderer.js:235 |
 | `sawEnd` | var | scripts/image-export-integration-test.cjs:92 |
@@ -8560,7 +8561,7 @@
 | `scale` | var | js/ai/manga-importer.js:1521 |
 | `scale` | var | js/ai/prompt/novelai-composition-director.js:1084 |
 | `scale` | var | js/ai/provider/novelai-provider.js:251 |
-| `scale` | var | js/ai/queue/generation-task-manager.js:296 |
+| `scale` | var | js/ai/queue/generation-task-manager.js:299 |
 | `scale` | var | js/assets/asset-scanner.js:46 |
 | `scale` | var | js/assets/asset-store.js:379 |
 | `scale` | var | js/canvas-manager.js:73 |
@@ -8613,7 +8614,7 @@
 | `scaleWidth` | var | js/sidebar/speechBubble/speech-bubble-text.js:173 |
 | `scaleX` | var | js/ai/inpainting/inpaint-mask.js:47 |
 | `scaleX` | var | js/ai/inpainting/inpaint-mask.js:56 |
-| `scaleX` | var | js/ai/queue/generation-task-manager.js:294 |
+| `scaleX` | var | js/ai/queue/generation-task-manager.js:297 |
 | `scaleX` | var | js/canvas-manager.js:113 |
 | `scaleX` | var | js/core/util/image-util.js:117 |
 | `scaleX` | var | js/core/util/image-util.js:167 |
@@ -8636,7 +8637,7 @@
 | `scaleX2` | var | js/sidebar/panel/knife/knife-split-engine.js:275 |
 | `scaleY` | var | js/ai/inpainting/inpaint-mask.js:48 |
 | `scaleY` | var | js/ai/inpainting/inpaint-mask.js:57 |
-| `scaleY` | var | js/ai/queue/generation-task-manager.js:295 |
+| `scaleY` | var | js/ai/queue/generation-task-manager.js:298 |
 | `scaleY` | var | js/canvas-manager.js:114 |
 | `scaleY` | var | js/core/util/image-util.js:118 |
 | `scaleY` | var | js/core/util/image-util.js:168 |
@@ -9869,7 +9870,7 @@
 | `targetIndex` | var | js/ui/bottom-bar.js:141 |
 | `targetIntersection` | var | js/sidebar/panel/knife/knife-geometry.js:147 |
 | `targetLayer` | var | js/ai/inpainting/inpaint-editor.js:5 |
-| `targetLayer` | var | js/ai/queue/generation-task-manager.js:224 |
+| `targetLayer` | var | js/ai/queue/generation-task-manager.js:225 |
 | `targetLayer` | var | js/layer/blend/blend.js:422 |
 | `targetLayerGuid` | var | js/ai/comfyui/comfyui-management.js:261 |
 | `targetLayerGuid` | var | js/ai/provider/falai-provider.js:248 |

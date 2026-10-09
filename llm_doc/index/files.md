@@ -119,7 +119,7 @@
 | js/ai/provider/novelai-provider.js | 565 | NovelAI provider: direct browser call to the official image API. |
 | js/ai/provider/provider-registry.js | 100 | プロバイダーレジストリ: プロバイダー登録とRole→プロバイダーのルーティング管理 |
 | js/ai/provider/runpod-comfyui-provider.js | 55 | RunPod ComfyUIプロバイダー: クラウド上のComfyUIに認証付きHTTPS接続 |
-| js/ai/queue/generation-task-manager.js | 322 |  |
+| js/ai/queue/generation-task-manager.js | 325 |  |
 | js/ai/queue/spinner.js | 119 | AI進捗表示（レイヤー上インジケータ、キャンセル） |
 | js/ai/queue/task-queue.js | 89 |  |
 | js/ai/role/ai-roles.js | 38 | NovelAI-only role definitions. |
@@ -324,7 +324,7 @@
 | scripts/generate-original-starter-svgs.cjs | 326 |  |
 | scripts/generate-site-ui-svgs.cjs | 391 |  |
 | scripts/gpt-edit-core-test.cjs | 84 |  |
-| scripts/gpt-editor-browser-test.cjs | 495 | Real Fabric/Canvas integration. No paid API requests: candidate image is a deterministic fixture. |
+| scripts/gpt-editor-browser-test.cjs | 550 | Real Fabric/Canvas integration. No paid API requests: candidate image is a deterministic fixture. |
 | scripts/gpt-images-proxy-test.py | 248 |  |
 | scripts/gpt-images-real-test.py | 84 |  |
 | scripts/gpt-provider-test.cjs | 126 |  |

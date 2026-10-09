@@ -485,6 +485,61 @@ const { chromium } = requireRuntime("playwright");
     assert.equal(pages.reopenedUndoneText, "原句 1");
     assert.equal(pages.redoText, "日本語の台詞\nそのまま");
     console.log("Real multipage editable captions/save/reopen/undo/redo: PASS");
+    const offscreen = await page.evaluate(async () => {
+      const results = [];
+      for (const index of [0, 1]) {
+        const states = ["visible", "redo"].map((text) =>
+          JSON.stringify({
+            version: fabric.version,
+            objects: [
+              new fabric.Textbox(text, {
+                left: 10,
+                top: 10,
+                width: 100,
+                fontSize: 18,
+              }).toObject(commonProperties),
+            ],
+            canvasGuid: "nai-target",
+          }),
+        );
+        const files = await generateProjectFileBufferListCore(
+          states,
+          new Map(),
+          { width: 220, height: 180, historyIndex: index },
+          {},
+          "",
+        );
+        const blob = await lz4Compressor.buffersToLz4Blob(files),
+          raw = NaiGptEditor.makeCanvas(40, 40);
+        raw.getContext("2d").fillRect(0, 0, 40, 40);
+        const image = await new Promise((r) =>
+            fabric.Image.fromURL(raw.toDataURL(), r),
+          ),
+          before = NaiGptEditor.signature();
+        const placed = await processImageOnOffscreenCanvas(
+          blob,
+          { targetLayerGuid: null },
+          image,
+        );
+        const currentUntouched = NaiGptEditor.signature() === before;
+        await loadLz4BlobProjectFile(placed.blob, "nai-target");
+        results.push({
+          index,
+          text: canvas.getObjects()[0].text,
+          imageCount: canvas.getObjects().filter((o) => o.type === "image")
+            .length,
+          currentUntouched,
+        });
+      }
+      return results;
+    });
+    assert.deepEqual(offscreen, [
+      { index: 0, text: "visible", imageCount: 1, currentUntouched: true },
+      { index: 1, text: "redo", imageCount: 1, currentUntouched: true },
+    ]);
+    console.log(
+      "Offscreen NovelAI placement honors saved undo position and reopens visible: PASS",
+    );
     assert.deepEqual(errors, [], "app page errors");
   } finally {
     await browser.close();
