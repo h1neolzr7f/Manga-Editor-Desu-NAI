@@ -127,7 +127,7 @@ class SecretGuardTest(unittest.TestCase):
         for label, headers in self.hostile_variants:
             with self.subTest(label):
                 status, _ = self.call("POST", "/nai-proxy/generate-image", headers, b'{"input":"x"}')
-                self.assertEqual(status, 401)
+                self.assertEqual(status, 403)
         self.assertEqual(self.capture.requests, [])
         status, _ = self.call("POST", "/nai-proxy/generate-image", self.same_origin, b'{"input":"x"}')
         self.assertEqual(status, 200)
@@ -136,14 +136,14 @@ class SecretGuardTest(unittest.TestCase):
     def test_novelai_cross_site_text_plain_csrf_cannot_spend_credits(self):
         status, _ = self.call("POST", "/nai-proxy/generate-image",
                               {"Origin": "https://evil.example", "Content-Type": "text/plain"}, b'{"input":"x"}')
-        self.assertEqual(status, 401)
+        self.assertEqual(status, 403)
         self.assertEqual(self.capture.requests, [])
 
-    def test_explicit_user_token_still_works_from_file_origin(self):
+    def test_explicit_user_token_is_rejected_from_opaque_file_origin(self):
         status, _ = self.call("POST", "/nai-proxy/generate-image",
                               {"Origin": "null", "Authorization": "Bearer user-typed"}, b'{"input":"x"}')
-        self.assertEqual(status, 200)
-        self.assertEqual(self.capture.requests[-1]["headers"]["authorization"], "Bearer user-typed")
+        self.assertEqual(status, 403)
+        self.assertEqual(self.capture.requests, [])
 
     def test_director_env_key_cannot_be_redirected(self):
         for label, headers in self.hostile_variants:
@@ -163,9 +163,9 @@ class SecretGuardTest(unittest.TestCase):
 
     def test_director_models_env_key_not_for_hostile_callers(self):
         status, body = self.call("GET", "/director-proxy/models", {"Origin": "null", "X-Director-Api-Url": ATTACKER})
-        self.assertEqual(status, 401)
+        self.assertEqual(status, 403)
         status, body = self.call("GET", "/director-proxy/models", {"Sec-Fetch-Site": "cross-site"})
-        self.assertEqual(status, 401)
+        self.assertEqual(status, 403)
         self.assertEqual(self.capture.requests, [])
         self.call("GET", "/director-proxy/models", self.same_origin)
         self.assertTrue(self.capture.requests[-1]["url"].startswith("https://director.example.com/"))
@@ -201,15 +201,42 @@ class SecretGuardTest(unittest.TestCase):
                     self.assertIsNone(response.getheader("Access-Control-Allow-Origin"))
             finally:
                 conn.close()
-        # file:// pages may still read the explicit-token proxy APIs (compatibility).
+        # Even explicit-token APIs must not be CORS-accessible to sandboxed files.
         conn = http.client.HTTPConnection("127.0.0.1", self.port, timeout=8)
         try:
             conn.request("GET", "/nai-proxy/health", headers={"Host": self.host, "Origin": "null"})
             response = conn.getresponse()
             response.read()
-            self.assertEqual(response.getheader("Access-Control-Allow-Origin"), "null")
+            self.assertEqual(response.status, 403)
+            self.assertIsNone(response.getheader("Access-Control-Allow-Origin"))
         finally:
             conn.close()
+
+    def test_opaque_and_foreign_origin_never_reach_any_proxy(self):
+        destinations = (
+            ("POST", "/nai-proxy/generate-image"),
+            ("POST", "/director-proxy/chat-completions"),
+            ("POST", "/tagger-proxy/interrogate"),
+            ("GET", "/director-proxy/models"),
+            ("GET", "/nai-proxy/health"),
+            ("OPTIONS", "/tagger-proxy/interrogate"),
+        )
+        # Supplying an explicit token must never exempt an unsafe caller.
+        attacks = (
+            {"Origin": "null"},
+            {"Origin": "https://attacker.invalid", "Sec-Fetch-Site": "cross-site"},
+            {"Origin": "http://127.0.0.1:9999", "Sec-Fetch-Site": "same-site"},
+            {"Host": "rebinding.attacker.invalid"},
+        )
+        for method, path in destinations:
+            for headers in attacks:
+                with self.subTest(method=method, path=path, headers=headers):
+                    status, _ = self.call(method, path, dict(headers, **{
+                        "Authorization": "Bearer explicit-own-token",
+                        "X-Director-Api-Url": "http://127.0.0.1:9001/private",
+                    }))
+                    self.assertEqual(status, 403)
+        self.assertEqual(self.capture.requests, [], "unsafe callers must make zero upstream requests")
 
     def test_trust_helper_matrix(self):
         ok = srv.is_trusted_local_request
