@@ -4,10 +4,13 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - "99_server.py"
-      - "gpt_image_proxy.py"
-      - "js/ai/gpt-region-editor.js"
-      - "scripts/gpt-*"
+      - "*.py"
+      - "index.html"
+      - "service-worker.js"
+      - "package.json"
+      - "js/**"
+      - "css/**"
+      - "scripts/**"
       - "start_manga_editor_nai.ps1"
       - ".github/workflows/manga-full-acceptance.yml"
   push:
