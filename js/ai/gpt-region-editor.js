@@ -217,19 +217,30 @@
           else resolve(img);
         });
       });
-      if (isEdit && (image.width < region.width || image.height < region.height) &&
-          !$g('mangaGptAllowUpscale').checked) {
-        throw new Error('生成图像 (' + image.width + ' × ' + image.height + ') 小于选区 (' +
-          region.width + ' × ' + region.height + ')。为保留局部清晰度，已阻止放大覆盖；可缩小选区或勾选允许放大。');
-      }
       const targetWidth = isEdit ? region.width : image.width;
       const targetHeight = isEdit ? region.height : image.height;
-      const scale = !isEdit ? Math.min(1, c.getWidth() / targetWidth, c.getHeight() / targetHeight) : 1;
+      // Center-crop to the selected region's aspect ratio before uniform scaling.
+      // Scaling X and Y independently distorted faces and lettering in non-square regions.
+      const aspect = targetWidth / targetHeight;
+      const cropWidth = isEdit ? Math.min(image.width, image.height * aspect) : image.width;
+      const cropHeight = isEdit ? Math.min(image.height, image.width / aspect) : image.height;
+      if (isEdit && (cropWidth < region.width || cropHeight < region.height) &&
+          !$g('mangaGptAllowUpscale').checked) {
+        throw new Error('生成图片中心裁切后的有效像素 (' + Math.floor(cropWidth) + ' × ' +
+          Math.floor(cropHeight) + ') 小于选区 (' + region.width + ' × ' + region.height +
+          ')。已阻止低清晰度放大，可重新生成或勾选允许放大。');
+      }
+      const scale = isEdit ? targetWidth / cropWidth :
+        Math.min(1, c.getWidth() / targetWidth, c.getHeight() / targetHeight);
       image.set({
         left: isEdit ? region.left : (c.getWidth() - targetWidth * scale) / 2,
         top: isEdit ? region.top : (c.getHeight() - targetHeight * scale) / 2,
-        scaleX: (targetWidth / image.width) * scale,
-        scaleY: (targetHeight / image.height) * scale,
+        cropX: isEdit ? (image.width - cropWidth) / 2 : 0,
+        cropY: isEdit ? (image.height - cropHeight) / 2 : 0,
+        width: cropWidth,
+        height: cropHeight,
+        scaleX: scale,
+        scaleY: scale,
         objectCaching: false
       });
       image.set('mangaGptSource', 'openai-compatible-image');
@@ -245,7 +256,7 @@
       if (typeof saveStateByManual === 'function') saveStateByManual();
       state.result = '';
       state.region = null;
-      feedback('已添加独立图层。原图和画布尺寸未改变；可用现有撤销功能恢复。');
+      feedback('已添加独立图层，按选区比例居中裁切、等比例缩放（不会拉变形）。原图和画布尺寸未改变，可撤销。');
     } catch (error) {
       feedback(error.message || '无法插入图层。', true);
       $g('mangaGptApply').disabled = false;
