@@ -20,6 +20,19 @@ assert.equal(rain.requiresManualRegion,false);
 assert(rain.prompt.includes('下雨的城市'));
 assert.equal(rain.userConfirmed,false);
 
+const preserveCharacter=planner.plan(
+  '把第二格的背景改成下雨的城市，人物和对白保持不变',graph);
+assert.equal(preserveCharacter.scope,'panel',
+  'unchanged character mention is not a character edit');
+assert.equal(preserveCharacter.requiresManualRegion,false);
+const preserveBackground=planner.plan(
+  '第二格把蓝发少女换成参考图人物，保留背景和对白',graph);
+assert.equal(preserveBackground.scope,'character');
+const textOnly=planner.plan(
+  '第三格角色保持不变，修改气泡文字',graph);
+assert.equal(textOnly.scope,'text',
+  'protected character mention must not redirect OCR to paid image edits');
+
 const woman=planner.plan('第二格把蓝发少女换成参考图人物，保留动作和对白',graph);
 assert.equal(woman.ok,true);
 assert.equal(woman.panelId,'panel-2');
