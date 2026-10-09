@@ -7,11 +7,13 @@
 | npm script | テストファイル | 検証内容（先頭コメント） |
 |-----------|---------------|--------------------|
 | `npm run check-translations` | scripts/check-translations.cjs | Translation key validation script - compares keys across all languages in i18next resources |
-| `npm run test` | scripts/layout-smoke-test.cjs |  |
+| `npm run test` | scripts/run-offline-tests.cjs | Deterministic regressions only. Never discover credentials or call paid APIs. |
 | `npm run test:assets` | scripts/asset-library-smoke-test.cjs |  |
 | `npm run test:brushes` | scripts/custom-brush-smoke-test.cjs |  |
 | `npm run test:cutout` | scripts/cutout-presets-smoke-test.cjs |  |
 | `npm run test:fabric-text-focus` | scripts/fabric-text-focus-smoke-test.cjs | fabric の編集用 textarea がスクロールを起こさないことを検証する。 |
+| `npm run test:gpt-browser` | scripts/gpt-editor-browser-test.cjs | Real Fabric/Canvas integration. No paid API requests: candidate image is a deterministic fixture. |
+| `npm run test:gpt-proxy` | scripts/gpt-images-proxy-test.py |  |
 | `npm run test:image-export` | scripts/image-export-smoke-test.cjs |  |
 | `npm run test:image-export-integration` | scripts/image-export-integration-test.cjs | 位深度と画素プレビューの統合テスト。 |
 | `npm run test:image2` | scripts/image2-interface-smoke-test.cjs |  |
@@ -26,6 +28,7 @@
 | `npm run test:simulator` | scripts/simulator-chat-smoke-test.cjs |  |
 | `npm run test:simulator-extra` | scripts/simulator-extra-smoke-test.cjs |  |
 | `npm run test:story-engine` | scripts/story-engine-smoke-test.cjs |  |
+| `npm run test:subtitles-browser` | scripts/subtitle-editor-browser-test.cjs | Real Fabric + VerticalTextbox UI regression. Run with node scripts/subtitle-editor-browser-test.cjs. |
 | `npm run test:timeline` | scripts/simulator-timeline-smoke-test.cjs |  |
 
 ## テストが読む対象ファイル
@@ -34,14 +37,14 @@
 
 | テスト | 対象ファイル |
 |--------|-----------|
-| `npm run test` | `css/common.css`, `css/core/main-component.css`, `css/icon.css`, `css/layout-layer.css`, `css/layout.css`, `css/simulator-chat.css`, `js/ai/director/scene-plan-controller.js`, `js/assets/asset-library-controller.js`, `js/assets/asset-store.js`, `js/assets/boot-guard.js`, `js/assets/github-free-pack.js`, `js/assets/image2-controller.js`, `js/canvas-manager.js`, `js/core/font/font-manager-core.js`, `js/core/manga-page-size.js`, `js/core/settings.js`, `js/layer/layer-management.js`, `js/local-tools/background-removal-client.js`, `js/panel/random-cut.js`, `js/project-management.js`, `js/sidebar/panel/panel-template.js`, `js/sidebar/sidebar.js`, `js/simulator/extra-renderer-factory.js`, `js/simulator/page-edit-controller.js`, `js/simulator/playback-controller.js`, `js/simulator/simulator-controller.js`, `js/simulator/simulator-studio.js`, `js/simulator/site-ui-parts.js`, `js/simulator/story-composer-controller.js`, `js/ui/beginner-guide.js`, `js/ui/bottom-bar.js`, `js/ui/canvas-object-menu.js`, `js/ui/tutorial.js`, `js/ui/visual-ps-tools.js`, `js/ui/visual-studio.js`, `scripts/make-one-click-zip.ps1` |
 | `npm run test:assets` | `js/assets/asset-manifest.js`, `js/assets/asset-pack.js`, `js/assets/asset-scanner.js`, `js/assets/asset-store.js`, `js/assets/github-free-pack.js`, `js/assets/original-starter-pack.js`, `js/assets/site-ui-pack.js`, `js/simulator/site-ui-parts.js` |
 | `npm run test:brushes` | `js/sidebar/pen/brush-presets.js`, `js/sidebar/pen/custom-brush.js` |
 | `npm run test:cutout` | `js/local-tools/cutout-presets.js`, `js/local-tools/local-tools-client.js` |
 | `npm run test:fabric-text-focus` | `js/core/util/fabric-text-focus.js` |
+| `npm run test:gpt-proxy` | `scripts/gpt-images-real-test.py` |
 | `npm run test:image-export` | `js/canvas-manager.js`, `js/core/compression/project-compression.js`, `js/core/manga-page-size.js`, `js/core/util/image-util.js`, `js/project-management.js` |
 | `npm run test:image-export-integration` | `js/core/manga-page-size.js`, `js/core/util/image-util.js`, `js/core/util/png-bit-depth.js` |
-| `npm run test:image2` | `js/assets/image2-client.js`, `js/assets/image2-job-store.js` |
+| `npm run test:image2` | `js/assets/asset-manifest.js`, `js/assets/asset-store.js`, `js/assets/image2-client.js`, `js/assets/image2-job-store.js` |
 | `npm run test:layout` | `css/common.css`, `css/core/main-component.css`, `css/icon.css`, `css/layout-layer.css`, `css/layout.css`, `css/simulator-chat.css`, `js/ai/director/scene-plan-controller.js`, `js/assets/asset-library-controller.js`, `js/assets/asset-store.js`, `js/assets/boot-guard.js`, `js/assets/github-free-pack.js`, `js/assets/image2-controller.js`, `js/canvas-manager.js`, `js/core/font/font-manager-core.js`, `js/core/manga-page-size.js`, `js/core/settings.js`, `js/layer/layer-management.js`, `js/local-tools/background-removal-client.js`, `js/panel/random-cut.js`, `js/project-management.js`, `js/sidebar/panel/panel-template.js`, `js/sidebar/sidebar.js`, `js/simulator/extra-renderer-factory.js`, `js/simulator/page-edit-controller.js`, `js/simulator/playback-controller.js`, `js/simulator/simulator-controller.js`, `js/simulator/simulator-studio.js`, `js/simulator/site-ui-parts.js`, `js/simulator/story-composer-controller.js`, `js/ui/beginner-guide.js`, `js/ui/bottom-bar.js`, `js/ui/canvas-object-menu.js`, `js/ui/tutorial.js`, `js/ui/visual-ps-tools.js`, `js/ui/visual-studio.js`, `scripts/make-one-click-zip.ps1` |
 | `npm run test:manga-import` | `js/ai/manga-importer.js`, `js/ai/provider/novelai-provider.js` |
 | `npm run test:page-size` | `js/core/manga-page-size.js` |
@@ -51,22 +54,12 @@
 | `npm run test:simulator` | `js/local-tools/local-tools-client.js`, `js/simulator/chat-scene.js`, `js/simulator/template-registry.js` |
 | `npm run test:simulator-extra` | `js/simulator/extra-renderer-factory.js`, `js/simulator/renderers/danmaku-player-renderer.js`, `js/simulator/renderers/forum-renderer.js`, `js/simulator/renderers/image-board-renderer.js`, `js/simulator/renderers/livestream-renderer.js`, `js/simulator/renderers/phone-renderer.js`, `js/simulator/renderers/social-feed-renderer.js`, `js/simulator/renderers/video-tube-renderer.js`, `js/simulator/renderers/visual-novel-renderer.js`, `js/simulator/scene-serializer.js`, `js/simulator/template-registry.js` |
 | `npm run test:story-engine` | `js/ai/director/scene-plan-controller.js`, `js/ai/director/scene-plan-schema.js`, `js/simulator/extra-renderer-factory.js`, `js/simulator/renderers/danmaku-player-renderer.js`, `js/simulator/renderers/forum-renderer.js`, `js/simulator/renderers/image-board-renderer.js`, `js/simulator/renderers/livestream-renderer.js`, `js/simulator/renderers/phone-renderer.js`, `js/simulator/renderers/social-feed-renderer.js`, `js/simulator/renderers/video-tube-renderer.js`, `js/simulator/renderers/visual-novel-renderer.js`, `js/simulator/scene-serializer.js`, `js/simulator/story-adapters.js`, `js/simulator/story-engine.js`, `js/simulator/story-to-manga.js`, `js/simulator/template-registry.js`, `js/simulator/timeline.js` |
+| `npm run test:subtitles-browser` | `js/ai/gpt/subtitle-editor.js`, `js/sidebar/text/vertical-textbox.js` |
 | `npm run test:timeline` | `js/simulator/longshot-exporter.js`, `js/simulator/timeline.js` |
 
 ## テストが見ている条件（アサーションメッセージ）
 
 テスト内のリテラルなアサーションメッセージの抜粋。上限 8 件。
-
-### `npm run test`
-
-- boot-guard script missing
-- boot-guard overlay missing
-- open-simulator action missing
-- token badge missing
-- remember token checkbox missing
-- acceptance gate should default off
-- story tabs missing
-- merged bubble panel missing
 
 ### `npm run test:brushes`
 
@@ -86,6 +79,12 @@
 - preventScroll 無視実装で縦スクロールが戻っていない
 - preventScroll 無視実装で横スクロールが戻っていない
 - 再実行で initHiddenTextarea が二重ラップされた
+
+### `npm run test:gpt-browser`
+
+- 原句 1
+- 日本語の台詞 そのまま
+- app page errors
 
 ### `npm run test:image-export`
 
@@ -154,11 +153,11 @@
 - PNG シグネチャ
 - チャンク列が末尾まで整合する
 - NaiPngBitDepth must be defined
+- argb
 - resolveExportMode は normalizeMode の別名
 - gray
-- argb
-- 空文字は rgb
-- 空白のみは rgb
+- latin1
+- p=15 で c を選ぶ
 
 ### `npm run test:simulator`
 
@@ -179,6 +178,11 @@
 - story-log-dark
 - visual-novel
 - visual-novel-generic
+
+### `npm run test:subtitles-browser`
+
+- 旧台词 第二行
+- remove
 
 ## テスト以外の script
 

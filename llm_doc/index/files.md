@@ -13,7 +13,7 @@
 | 99_generate_theresa_doctor_mature_comic.bat | 9 |  |
 | 99_git_fetch.bat | 2 |  |
 | 99_server.bat | 1 |  |
-| 99_server.py | 810 |  |
+| 99_server.py | 868 |  |
 | 99_test_nai_pipeline.bat | 16 |  |
 | claude --dangerously-skip-permissions.bat | 1 |  |
 | css/comfyui-workflow-editor.css | 413 |  |
@@ -25,6 +25,7 @@
 | css/cutout-brush.css | 43 |  |
 | css/flag-icon.min.css | 1 |  |
 | css/form.css | 335 |  |
+| css/gpt-editor.css | 180 | nai-gpt-toolbar { |
 | css/icon.css | 55 | fallback |
 | css/image-control-manager.css | 100 |  |
 | css/layout-layer.css | 356 |  |
@@ -55,6 +56,7 @@
 | css/ui/tutorial.css | 357 |  |
 | css/ui/unified-settings.css | 82 |  |
 | css/visual-studio.css | 399 |  |
+| gpt_images.py | 348 |  |
 | html/API_Help/comfyui_settings.html | 170 |  |
 | html/API_Help/sd-api-guide.html | 364 |  |
 | html/Minual/03_xxx2webp.bat | 20 |  |
@@ -69,7 +71,7 @@
 | html/TermsOfService/terms-of-service.html | 120 |  |
 | html/common.css | 343 |  |
 | html/functionList.html | 321 |  |
-| index.html | 3102 |  |
+| index.html | 3109 |  |
 | js/ai/ai-management.js | 153 | AI機能の中央ルーター: プロバイダーレジストリ経由でディスパッチ |
 | js/ai/ai-settings.js | 424 |  |
 | js/ai/angle/angle-editor.js | 103 | アングル変更エディタ（モーダルオーバーレイ） |
@@ -93,12 +95,15 @@
 | js/ai/director/scene-plan-controller.js | 66 |  |
 | js/ai/director/scene-plan-schema.js | 19 |  |
 | js/ai/director/scene-plan-service.js | 70 |  |
+| js/ai/gpt/edit-controller.js | 369 |  |
+| js/ai/gpt/edit-core.js | 114 |  |
+| js/ai/gpt/edit-ui.js | 880 |  |
+| js/ai/gpt/subtitle-editor.js | 729 | Exact editable dialogue. No model is permitted to rewrite the text field. |
 | js/ai/inpainting/inpaint-editor.js | 181 | Inpaintエディタ（モーダルオーバーレイ） |
 | js/ai/inpainting/inpaint-mask.js | 206 | Inpaintマスク描画管理 |
 | js/ai/inpainting/inpaint-workflow.js | 68 | Inpaintワークフロー連携 |
 | js/ai/manga-importer.js | 2524 |  |
-| js/ai/novelai-only-mode.js | 132 |  |
-| js/ai/panel-pipeline-review.js | 270 | 分镜流水线状态 + 生图后人工审阅 |
+| js/ai/panel-pipeline-review.js | 268 | 分镜流水线状态 + 生图后人工审阅 |
 | js/ai/prompt/auto/auto-generation.js | 105 |  |
 | js/ai/prompt/auto/auto-prompt-util.js | 846 | generatePageList(btmGetGuidsSize()); |
 | js/ai/prompt/auto/character-card-manager.js | 544 |  |
@@ -108,16 +113,17 @@
 | js/ai/prompt/novelai-composition-director.js | 1208 |  |
 | js/ai/provider/ai-provider.js | 58 | AIプロバイダー基底クラス |
 | js/ai/provider/falai-provider.js | 407 | Fal.aiクラウドAIプロバイダー: Queue APIで非同期実行（T2I/I2I/Upscale/RemoveBG） |
+| js/ai/provider/gpt-image-provider.js | 202 |  |
 | js/ai/provider/local-comfyui-provider.js | 49 | ローカルComfyUIプロバイダー: 既存のComfyUI関数をAIProviderインターフェースでラップ |
 | js/ai/provider/local-sdwebui-provider.js | 45 | ローカルSDWebUIプロバイダー: 既存のSDWebUI/Forge関数をAIProviderインターフェースでラップ |
-| js/ai/provider/novelai-provider.js | 564 | NovelAI provider: direct browser call to the official image API. |
+| js/ai/provider/novelai-provider.js | 565 | NovelAI provider: direct browser call to the official image API. |
 | js/ai/provider/provider-registry.js | 100 | プロバイダーレジストリ: プロバイダー登録とRole→プロバイダーのルーティング管理 |
 | js/ai/provider/runpod-comfyui-provider.js | 55 | RunPod ComfyUIプロバイダー: クラウド上のComfyUIに認証付きHTTPS接続 |
 | js/ai/queue/generation-task-manager.js | 322 |  |
 | js/ai/queue/spinner.js | 119 | AI進捗表示（レイヤー上インジケータ、キャンセル） |
 | js/ai/queue/task-queue.js | 89 |  |
 | js/ai/role/ai-roles.js | 38 | NovelAI-only role definitions. |
-| js/ai/role/role-assignment-ui.js | 78 | Role Assignment: Role×プロバイダーのマトリクスUI |
+| js/ai/role/role-assignment-ui.js | 79 | Role Assignment: Role×プロバイダーのマトリクスUI |
 | js/ai/sdwebui/sdwebui-multi-call-api.js | 214 |  |
 | js/ai/sdwebui/sdwebui-settings.js | 148 |  |
 | js/ai/sdwebui/sdwebui-single-call-api.js | 143 |  |
@@ -129,26 +135,26 @@
 | js/assets/asset-manifest.js | 79 |  |
 | js/assets/asset-pack.js | 23 |  |
 | js/assets/asset-scanner.js | 94 |  |
-| js/assets/asset-store.js | 414 |  |
+| js/assets/asset-store.js | 421 |  |
 | js/assets/boot-guard.js | 27 |  |
 | js/assets/github-free-pack.js | 82 |  |
-| js/assets/image2-client.js | 40 |  |
+| js/assets/image2-client.js | 94 |  |
 | js/assets/image2-controller.js | 18 |  |
-| js/assets/image2-job-store.js | 15 |  |
+| js/assets/image2-job-store.js | 35 |  |
 | js/assets/original-starter-pack.js | 107 |  |
 | js/assets/site-ui-pack.js | 86 |  |
-| js/canvas-manager.js | 1006 |  |
+| js/canvas-manager.js | 1005 |  |
 | js/core/auto-save.js | 235 | 自動保存機能：IndexedDBへの定期保存と起動時の復元 |
 | js/core/compression/lz4.js | 226 |  |
-| js/core/compression/project-compression.js | 367 |  |
+| js/core/compression/project-compression.js | 398 |  |
 | js/core/debug.js | 404 |  |
 | js/core/font/font-dropdown.js | 295 |  |
 | js/core/font/font-manager-core.js | 750 |  |
 | js/core/global-error-handler.js | 17 | グローバルエラーハンドラ（未キャッチのエラーとPromise rejectionを検知） |
 | js/core/logger.js | 206 | ログ出力ユーティリティ（SimpleLogger） |
-| js/core/manga-page-size.js | 255 |  |
+| js/core/manga-page-size.js | 256 |  |
 | js/core/service/worker-register.js | 115 |  |
-| js/core/settings.js | 170 | FabricCanvas2HtmlCanvas Scale |
+| js/core/settings.js | 171 | FabricCanvas2HtmlCanvas Scale |
 | js/core/svg/google-icon-helper.js | 215 |  |
 | js/core/svg/google-icon-names.js | 12 |  |
 | js/core/util/anime-util.js | 11 |  |
@@ -157,7 +163,7 @@
 | js/core/util/fabric-util.js | 941 |  |
 | js/core/util/html-canvas-util.js | 91 | html-canvas-util.js - HTMLキャンバスに対する低レベル操作（境界検出、スケーリング、ピクセル処理） |
 | js/core/util/image-analyzer-util.js | 121 |  |
-| js/core/util/image-util.js | 845 | image-util.js - Fabric.js画像オブジェクトの処理（変換、WebP、クロップ、反転、色変換など） |
+| js/core/util/image-util.js | 847 | image-util.js - Fabric.js画像オブジェクトの処理（変換、WebP、クロップ、反転、色変換など） |
 | js/core/util/js-util.js | 20 |  |
 | js/core/util/load-util.js | 94 | ユーティリティ関数：エラーハンドリングとログ出力を行う |
 | js/core/util/log-util.js | 48 |  |
@@ -170,7 +176,7 @@
 | js/fabric/fabric-management.js | 694 |  |
 | js/layer/blend/blend.js | 719 | ブレンドモードUI - カテゴリ分類・プレビュー・適用処理 |
 | js/layer/floating-window-management.js | 80 |  |
-| js/layer/image-history-management.js | 359 |  |
+| js/layer/image-history-management.js | 337 |  |
 | js/layer/layer-button.js | 303 |  |
 | js/layer/layer-management.js | 578 |  |
 | js/local-tools/background-removal-client.js | 528 |  |
@@ -192,8 +198,8 @@
 | js/sidebar/panel/knife/knife-mode.js | 81 | knife-mode.js |
 | js/sidebar/panel/knife/knife-split-engine.js | 519 | knife-split-engine.js |
 | js/sidebar/panel/knife/knife-state.js | 57 | knife-state.js |
-| js/sidebar/panel/panel-manager.js | 769 | function handleSelection(e) { |
-| js/sidebar/panel/panel-template.js | 612 |  |
+| js/sidebar/panel/panel-manager.js | 765 | function handleSelection(e) { |
+| js/sidebar/panel/panel-template.js | 618 |  |
 | js/sidebar/pen/brush-presets.js | 138 |  |
 | js/sidebar/pen/custom-brush.js | 274 |  |
 | js/sidebar/pen/fabric/brushes/crayon_brush.js | 120 | CrayonBrush class |
@@ -268,8 +274,8 @@
 | js/svg/speechbubble.js | 50 |  |
 | js/ui/ai/auto-prompt-ui.js | 179 |  |
 | js/ui/beginner-guide.js | 523 |  |
-| js/ui/bottom-bar.js | 466 | {guid, { imageLink, blob }} blob is lz4 |
-| js/ui/canvas-object-menu.js | 734 | Canvas object right-click context menu |
+| js/ui/bottom-bar.js | 473 | {guid, { imageLink, blob }} blob is lz4 |
+| js/ui/canvas-object-menu.js | 731 | Canvas object right-click context menu |
 | js/ui/control/common-control-management.js | 60 |  |
 | js/ui/control/glfx-control.js | 456 |  |
 | js/ui/control/image-control-manager.js | 14 |  |
@@ -301,7 +307,7 @@
 | js/ui/util/mode-manager.js | 416 | mode-manager.js - モード管理の統合（ナイフ、ペン、吹き出し、クロップ等） |
 | js/ui/util/tagify-util.js | 103 |  |
 | js/ui/util/ui-util.js | 67 |  |
-| js/ui/visual-ps-tools.js | 630 |  |
+| js/ui/visual-ps-tools.js | 629 |  |
 | js/ui/visual-studio.js | 491 |  |
 | local_tools/cutout.py | 167 |  |
 | local_tools/model_manager.py | 207 |  |
@@ -317,25 +323,37 @@
 | scripts/gen-project-index.cjs | 722 | プロジェクト索引の自動生成。 |
 | scripts/generate-original-starter-svgs.cjs | 326 |  |
 | scripts/generate-site-ui-svgs.cjs | 391 |  |
+| scripts/gpt-edit-core-test.cjs | 84 |  |
+| scripts/gpt-editor-browser-test.cjs | 495 | Real Fabric/Canvas integration. No paid API requests: candidate image is a deterministic fixture. |
+| scripts/gpt-images-proxy-test.py | 248 |  |
+| scripts/gpt-images-real-test.py | 84 |  |
+| scripts/gpt-provider-test.cjs | 126 |  |
+| scripts/history-panel-regression-test.cjs | 216 |  |
 | scripts/image-export-integration-test.cjs | 324 | 位深度と画素プレビューの統合テスト。 |
-| scripts/image-export-smoke-test.cjs | 403 |  |
-| scripts/image2-interface-smoke-test.cjs | 19 |  |
+| scripts/image-export-smoke-test.cjs | 433 |  |
+| scripts/image2-interface-smoke-test.cjs | 23 |  |
+| scripts/image2-persistence-regression-test.cjs | 159 |  |
 | scripts/layout-smoke-test.cjs | 201 |  |
 | scripts/make-one-click-zip.ps1 | 63 | Build a beginner zip without git history, secrets, or machine caches. |
 | scripts/manga-import-smoke-test.cjs | 169 |  |
 | scripts/manga-page-size-smoke-test.cjs | 47 |  |
 | scripts/nai-pipeline-smoke-test.mjs | 314 | NAI-only pipeline smoke test (NovelAI + Director proxy). |
 | scripts/novelai-batch-tools.mjs | 680 |  |
+| scripts/novelai-page-result-test.cjs | 9 |  |
 | scripts/page-studio-smoke-test.cjs | 106 |  |
+| scripts/panel-pipeline-review-smoke-test.cjs | 94 |  |
 | scripts/png-bit-depth-smoke-test.cjs | 351 |  |
 | scripts/prepare-installer.ps1 | 118 |  |
 | scripts/proxy-guard-smoke-test.py | 31 |  |
 | scripts/remove-spaces.cjs | 84 | JSファイルからインデントと不要なスペースを削除するスクリプト |
+| scripts/run-offline-tests.cjs | 42 | Deterministic regressions only. Never discover credentials or call paid APIs. |
 | scripts/scene-plan-smoke-test.cjs | 9 |  |
 | scripts/simulator-chat-smoke-test.cjs | 51 |  |
 | scripts/simulator-extra-smoke-test.cjs | 173 |  |
 | scripts/simulator-timeline-smoke-test.cjs | 11 |  |
 | scripts/story-engine-smoke-test.cjs | 126 |  |
+| scripts/subtitle-editor-browser-test.cjs | 77 | Real Fabric + VerticalTextbox UI regression. Run with node scripts/subtitle-editor-browser-test.cjs. |
+| scripts/subtitle-editor-smoke-test.cjs | 75 |  |
 | scripts/validate-manga-split-samples.py | 546 |  |
 | scripts/vendor-free-public-assets.cjs | 274 | Download clearly licensed free assets into assets/public/. |
 | service-worker.js | 93 | Service Worker: Cache management for HTTP/HTTPS deployment |

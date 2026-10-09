@@ -42,6 +42,10 @@ cd Manga-Editor-Desu-NAI
 .\一键启动.bat
 ```
 
+## Manga-NAI-GPT 开发分支
+
+GPT 区域编辑、参考图、透明素材、精确可编辑字幕和非破坏性回贴已加入开发分支。操作、源码审计、真实测试结果及限制见 [验收说明](docs/MANGA-NAI-GPT.md)。真实供应商兼容性与 Windows 构建状态以该说明和 PR 的实际验证结果为准。
+
 ## 开发与验证
 
 ```powershell
