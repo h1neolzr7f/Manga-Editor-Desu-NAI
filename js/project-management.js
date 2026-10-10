@@ -25,7 +25,7 @@ var loadButton=$("projectLoad");
 
 saveButton.addEventListener("click",async function () {
 if (stateStack.length===0) {
-createToastError("Save Error","Not Found.");
+createToastError("无法保存项目","画布上还没有内容。先导入图片或画点东西再保存。");
 return;
 }
 
@@ -53,7 +53,7 @@ AutoSaveManager.clearAutoSave();
 .catch((error)=>{
 projectLogger.error("error",error);
 projectLogger.error("error json,",JSON.stringify(error));
-createToastError("Save Error","Failed to save project.");
+createToastError("保存项目失败","生成项目文件时出错，请重试；多次失败可先用「文件 › 下载图片」保住画面。");
 })
 .finally(()=>{
 OP_hideLoading(loading);
@@ -75,6 +75,8 @@ const loading=OP_showLoading({icon: 'process',step: 'Step1',substep: 'Load Proje
 try {
 var file=this.files[0];
 if (file) {
+// keep unsaved edits of the visible page before the loaded pages take over
+if(typeof btmSaveProjectFile==='function'&&typeof stateStack!=='undefined'&&stateStack.length>0)await btmSaveProjectFile(null,false);
 const fileBuffer=await file.arrayBuffer();
 const fileName=file.name.toLowerCase();
 const isZip=fileName.endsWith('.zip');
@@ -101,7 +103,7 @@ await processZip(zip);
 document.body.removeChild(fileInput);
 } else {
 OP_updateLoadingState(loading,{icon: 'process',step: 'Step4',substep: 'UnZip:',progress: 40});
-await openFirstLoadedPageIfCanvasEmpty(await multiLoadZip(zip));
+await openFirstLoadedPageIfCanvasEmpty(await multiLoadZip(zip),true);
 }
 } else if (isLz4) {
 //fileList is {name, data}
@@ -109,7 +111,7 @@ OP_updateLoadingState(loading,{icon: 'process',step: 'Step2',substep: 'UnLz4',pr
 let bufferFileLz4List=await lz4Compressor.unLz4FilesByBuffer(fileBuffer);
 
 OP_updateLoadingState(loading,{icon: 'process',step: 'Step3',substep: 'UnLz4',progress: 25});
-await openFirstLoadedPageIfCanvasEmpty(await multiLoadLz4(bufferFileLz4List));
+await openFirstLoadedPageIfCanvasEmpty(await multiLoadLz4(bufferFileLz4List),true);
 
 OP_updateLoadingState(loading,{icon: 'process',step: 'Step4',substep: 'UnLz4',progress: 85});
 } else {
@@ -120,7 +122,7 @@ createToastError(title,message,4000);
 }
 } catch (error) {
 projectLogger.error("error:",error);
-createToastError("Load Error","Failed to load project.");
+createToastError("打开项目失败","这个文件读不出来。请选择本软件「保存项目」得到的 .lz4 文件（旧版 .zip 也可以）。");
 } finally {
 OP_hideLoading(loading);
 }
@@ -633,7 +635,21 @@ btnRow.appendChild(cancelBtn);
 btnRow.appendChild(okBtn);
 dialog.appendChild(btnRow);
 overlay.appendChild(dialog);
+overlay.id='settingsResetDialog';
+overlay.setAttribute('role','dialog');
+overlay.setAttribute('aria-modal','true');
+title.id='settingsResetDialogTitle';
+overlay.setAttribute('aria-labelledby','settingsResetDialogTitle');
+cancelBtn.type='button';
+okBtn.type='button';
+okBtn.id='settingsResetOk';
+cancelBtn.id='settingsResetCancel';
 document.body.appendChild(overlay);
+// Esc closes without resetting; focus starts on the safe button.
+function onResetKey(e){if(e.key==='Escape'){e.preventDefault();overlay.remove();}}
+document.addEventListener('keydown',onResetKey);
+new MutationObserver(function(_,obs){if(!overlay.isConnected){document.removeEventListener('keydown',onResetKey);obs.disconnect();}}).observe(document.body,{childList:true});
+cancelBtn.focus();
 cancelBtn.addEventListener('click',function(){overlay.remove();});
 overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.remove();});
 okBtn.addEventListener('click',function(){

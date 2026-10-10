@@ -282,9 +282,13 @@ function countUserObjectsForLoad(){
 if(typeof userObjectCount==='function')return userObjectCount();
 return (typeof getObjectCount==='function')?getObjectCount():0;
 }
-async function openFirstLoadedPageIfCanvasEmpty(loadedGuids){
+// 打开项目 must show what was opened. It used to switch only when the canvas was empty, so opening a
+// project over a non-empty page (or re-opening the page you just saved: same guid, its page-bar data
+// silently replaced) looked like nothing happened, and the next save of the visible page overwrote
+// the loaded data. The caller saves the current page before loading, so switching is safe.
+async function openFirstLoadedPageIfCanvasEmpty(loadedGuids,alwaysOpen){
 if(!Array.isArray(loadedGuids)||loadedGuids.length===0)return false;
-if(countUserObjectsForLoad()>0)return false;
+if(!alwaysOpen&&countUserObjectsForLoad()>0)return false;
 const guid=loadedGuids[0];
 if(typeof btmProjectsMap==='undefined'||!btmProjectsMap.get(guid))return false;
 await chengeCanvasByGuid(guid);

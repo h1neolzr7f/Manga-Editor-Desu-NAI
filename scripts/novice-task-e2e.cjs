@@ -699,8 +699,10 @@ async function main() {
     await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
     await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 });
     await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {}); await p.keyboard.press('Escape');
+    await p.waitForFunction(() => { const n = document.getElementById('desu-nav'); return !!n && getComputedStyle(n).display !== 'none'; }, null, { timeout: 60000 }).catch(() => {});
     await p.locator('#imageInput').setInputFiles(PAGES[0]);
     await p.waitForFunction(() => canvas.getObjects().some(o => o.type === 'image'), null, { timeout: 60000 });
+    await p.waitForTimeout(800);
     return { ctx, p, errors };
   };
 
@@ -761,6 +763,93 @@ async function main() {
     await ctx.close();
     return { pass: clicked.length >= 20 && errors.length === 0 && !!grid && grid.before !== grid.after,
       detail: { clicked: clicked.length, skipped: skipped.length, grid, errors: errors.slice(0, 5) } };
+  });
+
+  await flow('20 左侧工具栏：笔记本屏幕上主要工具不用滚动就能点到；逐个面板点一遍无控制台报错', async () => {
+    const reach = {};
+    for (const [w, h, must] of [[1440, 900, ['tool', 'ps-tools', 'speech-bubble', 'text', 'manga-tone', 'shape', 'cutout']], [1366, 768, ['tool', 'speech-bubble', 'text', 'manga-tone']]]) {
+      const { ctx, p } = await freshEditor({ viewport: { width: w, height: h } });
+      const r = await p.evaluate(() => Object.fromEntries([...document.querySelectorAll('#sidebar [data-action="toggleVisibility"]')].filter(ic => !ic.closest('#sidebarMore') && ic.offsetParent)
+        .map(ic => { const q = ic.getBoundingClientRect(); const u = document.elementFromPoint(q.x + q.width / 2, q.y + q.height / 2); return [ic.dataset.target.replace(/-area$/, ''), !!u && ic.contains(u)]; })));
+      reach[w + 'x' + h] = must.filter(k => !r[k]);
+      if (w === 1440) await p.screenshot({ path: path.join(OUT, 'flow20-sidebar-1440x900.png'), clip: { x: 0, y: 0, width: 300, height: 900 } });
+      await ctx.close();
+    }
+    const { ctx, p, errors } = await freshEditor();
+    p.on('dialog', d => d.dismiss());
+    const targets = await p.$$eval('#sidebar [data-action="toggleVisibility"]', es => es.filter(e => e.offsetParent && !e.closest('#sidebarMore')).map(e => e.dataset.target));
+    const swept = {};
+    for (const t of targets) {
+      p.__cur = t;
+      await p.evaluate(() => { const img = canvas.getObjects().find(o => o.type === 'image'); if (img) { canvas.setActiveObject(img); canvas.renderAll(); } });
+      const open = await p.evaluate(t => { const a = document.getElementById(t); return !!a && getComputedStyle(a).display !== 'none'; }, t);
+      if (!open) await p.locator(`#sidebar [data-target="${t}"]`).first().click({ timeout: 5000 });
+      await p.waitForTimeout(500);
+      const n = await p.evaluate(t => { const a = document.getElementById(t); if (!a) return 0;
+        const els = [...a.querySelectorAll('button,[onclick],.visual-preset-card')].filter(e => e.offsetParent && !e.closest('a[target]') && !/delete|clear|删除|清空|reset/i.test(e.id + e.textContent));
+        els.forEach((e, i) => e.setAttribute('data-sweep', t + '-' + i)); return els.length; }, t);
+      let ok = 0;
+      for (let i = 0; i < Math.min(n, 12); i++) {
+        const sel = `[data-sweep="${t}-${i}"]`;
+        p.__cur = t + '#' + i;
+        try { await p.locator(sel).click({ timeout: 2000 }); ok++; } catch (e) { /* hidden by a previous click: fine */ }
+        await p.waitForTimeout(120); await p.keyboard.press('Escape');
+      }
+      swept[t.replace(/-area$/, '')] = ok + '/' + Math.min(n, 12);
+    }
+    await ctx.close();
+    const unreachable = Object.values(reach).flat();
+    return { pass: unreachable.length === 0 && errors.length === 0 && Object.keys(swept).length >= 10,
+      detail: { reach, swept, errors: errors.slice(0, 5) } };
+  });
+
+  await flow('21 文件菜单：保存项目 → 打开项目（文件选择框）往返；导入图片；重置设置可取消/Esc', async () => {
+    const { ctx, p, errors } = await freshEditor();
+    // marker text so the round trip is verifiable
+    await p.locator('#sidebar [data-target="text-area"]').click();
+    await p.locator('#text-area .visual-preset-card').first().click();
+    await p.waitForTimeout(600);
+    await p.evaluate(() => { const t = canvas.getActiveObject(); t.set({ text: '往返标记' }); canvas.renderAll(); saveStateByManual(); });
+    await p.locator('#navbarDropdownFile').click();
+    const dlP = p.waitForEvent('download', { timeout: 60000 });
+    await p.locator('#projectSave').click();
+    const dl = await dlP;
+    const projFile = path.join(OUT, 'flow21-project' + path.extname(dl.suggestedFilename() || '.zip'));
+    await dl.saveAs(projFile);
+    // clear the canvas content, then open the saved project from the menu
+    await p.evaluate(() => { canvas.getObjects().filter(o => o.text === '往返标记').forEach(o => canvas.remove(o)); canvas.renderAll(); });
+    await p.locator('#navbarDropdownFile').click();
+    const fcP = p.waitForEvent('filechooser', { timeout: 15000 });
+    await p.locator('#projectLoad').click();
+    const fc = await fcP; await fc.setFiles(projFile);
+    await p.waitForFunction(() => canvas.getObjects().some(o => o.text === '往返标记'), null, { timeout: 60000 }).catch(() => {});
+    const restored = await p.evaluate(() => ({ marker: canvas.getObjects().some(o => o.text === '往返标记'), images: canvas.getObjects().filter(o => o.type === 'image').length, objs: canvas.getObjects().map(o => o.type + ':' + (o.text || o.name || '')).slice(0, 6), pages: btmGetGuids().length }));
+    // 导入图片 from the menu goes through a file chooser too
+    const imgs0 = await p.evaluate(() => canvas.getObjects().filter(o => o.type === 'image').length + btmGetGuids().length * 1000);
+    await p.locator('#navbarDropdownFile').click();
+    const fc2P = p.waitForEvent('filechooser', { timeout: 15000 });
+    await p.locator('[aria-labelledby="navbarDropdownFile"] a:has-text("导入图片")').click();
+    const fc2 = await fc2P; await fc2.setFiles(PAGES[1]);
+    await p.waitForTimeout(3000);
+    const imgs1 = await p.evaluate(() => canvas.getObjects().filter(o => o.type === 'image').length + btmGetGuids().length * 1000);
+    // 重置设置: dialog, Esc closes, 取消 closes, nothing cleared
+    await p.evaluate(() => localStorage.setItem('__noviceProbe', '1'));
+    const openReset = async () => { await p.locator('#navbarDropdownFile').click(); await p.locator('#settingsReset').click(); return p.locator('#settingsResetDialog').isVisible(); };
+    const shown = await openReset();
+    const a11y = await p.evaluate(() => { const d = document.getElementById('settingsResetDialog'); return d && d.getAttribute('role') === 'dialog' && document.activeElement && document.activeElement.id === 'settingsResetCancel'; });
+    await p.keyboard.press('Escape');
+    const escClosed = !(await p.locator('#settingsResetDialog').count());
+    await openReset(); await p.locator('#settingsResetCancel').click();
+    const cancelClosed = !(await p.locator('#settingsResetDialog').count());
+    const kept = await p.evaluate(() => localStorage.getItem('__noviceProbe') === '1');
+    // confirm really resets and the editor comes back
+    await openReset();
+    await Promise.all([p.waitForEvent('load', { timeout: 30000 }), p.locator('#settingsResetOk').click()]);
+    await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 });
+    const cleared = await p.evaluate(() => localStorage.getItem('__noviceProbe') === null);
+    await ctx.close();
+    return { pass: restored.marker && imgs1 > imgs0 && shown && a11y && escClosed && cancelClosed && kept && cleared && errors.length === 0,
+      detail: { project: path.basename(projFile), restored, imported: imgs1 > imgs0, shown, a11y, escClosed, cancelClosed, kept, cleared, errors: errors.slice(0, 4) } };
   });
 
   await flow('7 生成中切页→结果不得贴到别的页→切回后再应用', async () => {
