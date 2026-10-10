@@ -69,3 +69,7 @@ body.ui-beginner #mangaPageOpen, body.ui-beginner #mangaCharacterOpen { display:
 .task-card-body .ui-textarea { resize: vertical; }
 .task-page-panel legend { font: var(--ui-font); font-size: 12px; font-weight: 600; }
 .task-page-panel textarea { min-height: 44px; }
+/* one row at 1440: icon-only utilities, tighter buttons */
+.task-bar .ui-btn { padding: 2px 7px; gap: 3px; font-size: 12px; white-space: nowrap; }
+#taskServiceSettings, #uiModeToggle { font-size: 12px; }
+.task-card > .task-head { margin-top: var(--ui-space-2); }

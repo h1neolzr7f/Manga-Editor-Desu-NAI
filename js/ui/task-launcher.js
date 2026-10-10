@@ -120,7 +120,7 @@ row.appendChild(adv);
 var back=el('button',{type:'button',class:'ui-btn ui-btn-ghost',id:'taskBack'},'换个任务');
 row.appendChild(back);
 h.appendChild(row);
-container.insertBefore(h,before||container.firstChild);
+container.insertBefore(h,before===undefined?container.firstChild:before);   // before===null appends
 $('taskAdvanced').addEventListener('change',function(e){
 if(t.kind==='gpt'&&window.MangaGPTRegionEditor)MangaGPTRegionEditor.setSimple(!e.target.checked);
 if(t.kind==='caption'&&window.MangaSmartTextEditor)MangaSmartTextEditor.setSimple(!e.target.checked);
@@ -142,7 +142,7 @@ var old=$('taskWizardCard');if(old)old.remove();
 var c=el('section',{id:'taskWizardCard',class:'ui-card task-card',role:'dialog','aria-labelledby':'taskWizardTitle'});
 c.innerHTML='<header><strong id="taskWizardTitle">'+t.title+'</strong><button type="button" class="ui-btn ui-btn-ghost" id="taskWizardClose" aria-label="关闭">×</button></header>';
 document.body.appendChild(c);
-head(t,c,null);
+head(t,c,c.querySelector('header').nextSibling);
 $('taskWizardClose').addEventListener('click',function(){stop(true);});
 var body=el('div',{class:'task-card-body',id:'taskWizardBody'});
 c.appendChild(body);
@@ -347,11 +347,11 @@ if(typeof getGUID==='function')getGUID(p);
 return p;
 }
 function addBubble(rect,text,index){
-var w=Math.max(150,Math.min(rect.width*.42,380));
+var w=Math.max(150,Math.min(rect.width*.6,460));
 var fontSize=Math.max(20,Math.round(Math.min(rect.width,rect.height)*.06));
 // splitByGrapheme: Chinese has no spaces, so wrap per character; .66 keeps lines inside the ellipse
 // balance lines: about sqrt(1.6*chars) glyphs per line, so punctuation does not end up alone
-var perLine=Math.max(3,Math.min(text.length,Math.ceil(Math.sqrt(text.length*1.6))));
+var perLine=text.length<=9?text.length:Math.ceil(Math.sqrt(text.length*1.6));
 w=Math.min(Math.max(w,0),Math.max(perLine*fontSize*1.08/.66,fontSize*4));
 var tb=new fabric.Textbox(text,{width:w*.66,fontSize:fontSize,textAlign:'center',fill:'#111',splitByGrapheme:true,
 fontFamily:'"Noto Sans SC","Microsoft YaHei",sans-serif',name:'对白 '+index});
