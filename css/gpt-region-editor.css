@@ -46,3 +46,6 @@
   position: absolute; pointer-events: none; border: 2px solid #62caff;
   background: #54befe2e;
 }
+.manga-gpt-lasso { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
+.manga-gpt-lasso polygon { fill: #54befe2e; stroke: #62caff; stroke-width: 2; stroke-dasharray: 6 4; }
+#mangaGptShape { min-width: 4.5em; }

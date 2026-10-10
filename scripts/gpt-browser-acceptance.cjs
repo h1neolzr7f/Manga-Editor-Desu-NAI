@@ -636,6 +636,48 @@ async function run() {
     alpha.keep.applied && alpha.keep.hole === 0 && alpha.keep.solid === 255 && alpha.keep.flag === true &&
     /恢复透明/.test(alpha.keep.status) && alpha.off.applied && alpha.off.hole === 255 && alpha.off.flag === false, alpha);
 
+  // 9e. Lasso (freehand) selection: only pixels inside the drawn outline change, even inside its box.
+  {
+    await page.locator('#mangaGptShape').selectOption('lasso');
+    await page.locator('#mangaGptSelect').click();
+    const b = await canvasBox(page);
+    const px = p => ({ x: b.x + p[0] * b.w / b.cw, y: b.y + p[1] * b.h / b.ch });
+    const tri = [[300, 300], [700, 300], [500, 700]];
+    const before = await snapshot(page);
+    await page.mouse.move(px(tri[0]).x, px(tri[0]).y); await page.mouse.down();
+    for (const p of [tri[1], tri[2], tri[0]]) await page.mouse.move(px(p).x, px(p).y, { steps: 20 });
+    await page.mouse.up();
+    const lassoStatus = await page.locator('#mangaGptStatus').textContent();
+    mock.tint = 60;
+    const res = await generateAndApply(page);
+    mock.tint = 0;
+    const after = await snapshot(page);
+    const px3 = await page.evaluate(async ({ before, after, pts }) => {
+      const load = async src => { const i = new Image(); i.src = src; await i.decode(); const c = document.createElement('canvas');
+        c.width = i.width; c.height = i.height; const g = c.getContext('2d'); g.drawImage(i, 0, 0); return g; };
+      const A = await load(before), B = await load(after);
+      const d = ([x, y]) => { const a = A.getImageData(x, y, 1, 1).data, z = B.getImageData(x, y, 1, 1).data; return Math.abs(a[0] - z[0]) + Math.abs(a[1] - z[1]) + Math.abs(a[2] - z[2]); };
+      // whole bounding box: count changed pixels outside the triangle (allow the 1px anti-aliased edge)
+      let outsideChanged = 0;
+      const inTri = (x, y) => { const [[ax, ay], [bx, by], [cx, cy]] = pts; const s = (px, py, qx, qy, rx, ry) => (px - rx) * (qy - ry) - (qx - rx) * (py - ry);
+        const d1 = s(x, y, ax, ay, bx, by), d2 = s(x, y, bx, by, cx, cy), d3 = s(x, y, cx, cy, ax, ay); return !((d1 < 0 || d2 < 0 || d3 < 0) && (d1 > 0 || d2 > 0 || d3 > 0)); };
+      const da = A.getImageData(300, 300, 400, 400).data, db = B.getImageData(300, 300, 400, 400).data;
+      for (let y = 0; y < 400; y += 2) for (let x = 0; x < 400; x += 2) {
+        const i = (y * 400 + x) * 4;
+        if (Math.abs(da[i] - db[i]) + Math.abs(da[i + 1] - db[i + 1]) + Math.abs(da[i + 2] - db[i + 2]) > 6) {
+          // distance-tolerant: only count if clearly outside (shrink-test 4px around)
+          if (!inTri(300 + x, 300 + y) && !inTri(300 + x + 4, 300 + y) && !inTri(300 + x - 4, 300 + y) && !inTri(300 + x, 300 + y + 4) && !inTri(300 + x, 300 + y - 4)) outsideChanged++;
+        }
+      }
+      return { inside: d([500, 430]), corner: d([320, 680]), outsideChanged };
+    }, { before, after, pts: tri });
+    await page.evaluate(() => undo()); await page.waitForTimeout(800);
+    await page.locator('#mangaGptShape').selectOption('rect');
+    record('lasso selection: only the freehand outline changes (box corners untouched), status explains it',
+      res.applied && /套索/.test(lassoStatus) && px3.inside > 30 && px3.corner === 0 && px3.outsideChanged === 0,
+      { lassoStatus: lassoStatus.slice(0, 60), ...px3, applied: res.applied });
+  }
+
   // 10. Smart manga text: real Chromium/Fabric UI, fake OCR only, no model charges.
   await page.evaluate(() => {
     canvas.clear();
