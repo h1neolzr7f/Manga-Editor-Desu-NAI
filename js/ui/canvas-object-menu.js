@@ -1,4 +1,3 @@
-/* exported pointer */
 // Canvas object right-click context menu
 let lastClickType=null;
 let objectMenu=null;
@@ -673,7 +672,6 @@ objectMenu.style.display='none';
 
 canvas.wrapperEl.addEventListener('contextmenu',function(e){
 e.preventDefault();
-const pointer=canvas.getPointer(e);
 const clickedObject=canvas.findTarget(e,false);
 if(clickedObject){
 canvas.setActiveObject(clickedObject);

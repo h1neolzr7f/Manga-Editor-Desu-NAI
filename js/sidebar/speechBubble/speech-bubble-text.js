@@ -1,4 +1,4 @@
-/* exported createSpeechBubbleMetrics, customSpeechBubbleAllRelocation, fontSize, parseSvg, sbTextChange, textFrameScaling, updateObjectPositions */
+/* exported createSpeechBubbleMetrics, customSpeechBubbleAllRelocation, parseSvg, sbTextChange, textFrameScaling, updateObjectPositions */
 function sbTextChange(alignment,button) {
 changeSelected(button);
 }
@@ -81,8 +81,7 @@ function updateShapeMetrics(svgObj) {
 const rect=getSpeechBubbleRectBySVG(svgObj);
 const textbox=getSpeechBubbleTextBySVG(svgObj);
 
-let grid,scale,viewBox,largestRect;
-grid=svgObj.speechBubbleGrid;
+let scale,viewBox,largestRect;
 scale=svgObj.speechBubbleScale;
 viewBox={
 width: svgObj.speechBubbleViewBoxWidth,
@@ -388,7 +387,6 @@ const rect=canvas
 
 if (rect) {
 const chars=Math.max(textObj.text.length,1);
-const fontSize=textObj.fontSize;
 const charWidth=
 textObj.calcTextWidth()/Math.max(textObj.text.length,1);
 const singleLineHeight=

@@ -1,4 +1,4 @@
-/* exported blindSplitPanel, guidedSplitPanel, strokeWidthScale */
+/* exported blindSplitPanel, guidedSplitPanel */
 /**
  * knife-split-engine.js
  * パネル分割ロジック
@@ -62,7 +62,6 @@ return splitResult;
 }
 
 function blindSplitPanel(panel,isVertical) {
-const canvasArea=canvas.width*canvas.height;
 
 var centerX=getCenterXByFabricObject(panel);
 var centerY=getCenterYByFabricObject(panel);
@@ -273,19 +272,15 @@ var top=0;
 
 scaleX=getScaleX();
 scaleY=getScaleY();
-var scaleX2=getScaleX();
-var scaleY2=getScaleY();
 
 if (isSplit==KNIFE_CONSTANTS.DIRECTION.HORIZONTAL) {
 top=polygon2MinY;
 left=polygon2MinX;
 scaleY=1;
-scaleY2=1;
 } else if (isSplit==KNIFE_CONSTANTS.DIRECTION.VERTICAL) {
 top=polygon2MinY;
 left=polygon2MinX;
 scaleX=1;
-scaleX2=1;
 } else {
 stopKnifeLineAnimation();
 setNotSave(currentKnifeLine);
@@ -293,7 +288,6 @@ canvas.remove(currentKnifeLine);
 return {isSplit: false,polygon1: null,polygon2: null};
 }
 
-var strokeWidthScale=canvas.width/700;
 
 var tempLockMovementX=polygon.lockMovementX;
 var tempLockMovementY=polygon.lockMovementY;

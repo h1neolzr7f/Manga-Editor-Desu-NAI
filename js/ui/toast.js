@@ -1,4 +1,4 @@
-/* exported checkActiveImage, createToast, lineHeight */
+/* exported checkActiveImage, createToast */
 // createToast(NieR風): success/info, createToastError(DbD風): error/warning
 function createToast(title,messages,time=4000) {
 uiLogger.debug("createToast",time);
@@ -48,7 +48,6 @@ autohide: false
 bsToast.show();
 
 const messageContainer=toast.querySelector('#sp-manga-toastMessageContainer');
-const lineHeight=24;
 
 if (typeof messages==='string') {
 const messageLine=document.createElement('div');

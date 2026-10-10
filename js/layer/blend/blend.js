@@ -41,7 +41,6 @@ const blendCategories=[
 const layerDisplaySize=150;
 const blendDisplaySize=200;
 
-var selectedBlendMode=null;
 var selectedBlendCanvas=null;
 var blendResultMap={};
 var blendCheckedSet=new Set();
@@ -203,7 +202,7 @@ function selectBlendMode(mode,blendedCanvas,containerEl) {
 var prev=document.querySelector(".blend-mode-selected");
 if(prev)prev.classList.remove("blend-mode-selected");
 containerEl.classList.add("blend-mode-selected");
-selectedBlendMode=mode;
+
 selectedBlendCanvas=blendedCanvas;
 var info=$("blendSelectedInfo");
 if(info){
@@ -227,7 +226,7 @@ async function updateBlendModes(imageLayerList) {
 var currentSession=++blendSessionId;
 const blendModesContainer=$("blendModes");
 blendModesContainer.innerHTML="";
-selectedBlendMode=null;
+
 selectedBlendCanvas=null;
 blendResultMap={};
 var applyBtn=$("blendApplyButton");

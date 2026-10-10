@@ -236,21 +236,6 @@ uiLogger.error('Error loading data:',error);
 }
 }
 
-function iphFilterEnglishData(data) {
-var filteredData={};
-for(var key in data){
-if(key==='hr'){
-filteredData[key]=data[key];
-}else if(data[key].hasOwnProperty('en')){
-filteredData[data[key].en]=iphFilterEnglishData(data[key]);
-}else if(typeof data[key]==='object'&&!Array.isArray(data[key])){
-filteredData[key]=iphFilterEnglishData(data[key]);
-}else{
-filteredData[key]=data[key];
-}
-}
-return filteredData;
-}
 
 function iphGetMajorCats(majorIdx) {
 var major=iphMajors[majorIdx];

@@ -1,3 +1,4 @@
+/* exported initializeTagify */
 
 
 function fuzzyTagifySearch(query,text) {
@@ -23,27 +24,6 @@ return null;
 }
 
 
-function updateTagifyDropdown(id,listValues,initialSelectedValues=[]) {
-const tagify=getTagify(id);
-if (!tagify) {
-initializeTagify(id,listValues,initialSelectedValues);
-}else{
-const updatedTagify=getTagify(id);
-updatedTagify.removeAllTags();
-updatedTagify.settings.whitelist=listValues;
-if (initialSelectedValues.length>0) {
-const selectedTags=listValues
-.filter(tag=>initialSelectedValues.includes(tag.n))
-.map(tag=>({
-value: tag.n,// valueプロパティを明示的に設定
-n: tag.n,
-p: tag.p
-}));
-uiLogger.debug("updateTagifyDropdown selectedTags",selectedTags);
-updatedTagify.addTags(selectedTags);
-}
-}
-}
 
 function initializeTagify(id,listValues,initialSelectedValues=[]) {
 const input=$(id);

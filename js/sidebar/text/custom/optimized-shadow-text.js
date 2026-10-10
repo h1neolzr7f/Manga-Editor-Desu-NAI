@@ -1,4 +1,4 @@
-/* exported filterElements, t2_shadow_updateAll */
+/* exported t2_shadow_updateAll */
 let t2_shadow_textSvg,t2_shadow_defs,t2_shadow_filter,t2_shadow_primaryShadowFlood,
 t2_shadow_secondaryShadowFlood,t2_shadow_mainText,nowT2ShadowStr=null;
 
@@ -24,7 +24,7 @@ type:"feOffset",attrs:{in:"expand",dx:i,dy:i,result:`primaryShadow_${i}`}
 const secondaryOffsets=[1,2,3,4,5].map(i=>({
 type:"feOffset",attrs:{in:"secondaryShadowBase",dx:i,dy:i,result:`secondaryShadow_${i}`}
 }));
-const filterElements=[
+[
 {type:"feMorphology",attrs:{in:"SourceAlpha",operator:"dilate",radius:"2",result:"expand"}},
 ...primaryOffsets,
 {type:"feMerge",attrs:{result:"primaryShadow"},

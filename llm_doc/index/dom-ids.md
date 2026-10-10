@@ -5,7 +5,7 @@
 - 定義: index.html / html 配下の `id="..."`
 - 参照: `$('id')` / `getElementById('id')` / `querySelector('#id')` と、定義済み id と一致する文字列リトラル
   （`['a','b'].forEach(function(id){$(id);})` のような動的参照を抽うため。js と html インライン script が対象）
-- 定義 634 件 / 参照 759 件
+- 定義 634 件 / 参照 772 件
 
 ## id → 定義と参照
 
@@ -19,15 +19,15 @@
 | `Color2BlackWhiteSimpleButton` | index.html:1764 |  |
 | `CrayonButton` | index.html:1839 |  |
 | `CustomBrushButton` | index.html:1863 |  |
-| `CustomPanelButton` | index.html:743 | js/sidebar/panel/panel-template.js:156 |
+| `CustomPanelButton` | index.html:743 | js/sidebar/panel/panel-template.js:162 |
 | `EffectGLFXButton` | index.html:1789 |  |
 | `EffectGlowButton` | index.html:1785 |  |
 | `EnhanceDarkButton` | index.html:1775 |  |
 | `EraserButton` | index.html:1859 |  |
 | `ExternalService_Heartbeat_Container` | index.html:2178 | js/ai/ai-management.js:64 |
 | `FocusingLineButton` | index.html:1900 |  |
-| `InformationCoordinate` | index.html:1926 | js/project-management.js:278, js/ui/control/information-control.js:3 |
-| `InformationFPS` | index.html:1920 | js/project-management.js:277, js/ui/control/information-control.js:2 |
+| `InformationCoordinate` | index.html:1926 | js/project-management.js:282, js/ui/control/information-control.js:3 |
+| `InformationFPS` | index.html:1920 | js/project-management.js:281, js/ui/control/information-control.js:2 |
 | `InkButton` | index.html:1835 |  |
 | `Intro_Tutorial` | index.html:490 |  |
 | `MarkerButton` | index.html:1831 |  |
@@ -40,8 +40,8 @@
 | `ToneNoiseButton` | index.html:1884 |  |
 | `ToneRainButton` | index.html:1892 |  |
 | `ToneSnowButton` | index.html:1888 |  |
-| `a` | index.html:63 | index.html:72, js/ai/manga-character-bible-ui.js:149, js/ai/manga-page-structure-ui.js:338, js/ai/panel-pipeline-review.js:154, js/assets/asset-pack.js:8, js/core/compression/lz4.js:207, js/core/util/image-util.js:658, js/dashboard/dashboard-ui.js:968, js/local-tools/background-removal-client.js:494, js/project-management.js:43, js/sidebar/pen/pen-tools.js:638, js/simulator/chat-controller.js:295, js/simulator/longshot-exporter.js:29, js/simulator/simulator-controller.js:100, js/simulator/story-composer-controller.js:264, js/svg/manga-panels-image-vertical.js:3, js/ui/imagePromptHelper/image-prompt-helper.js:119, scripts/manga-bubble-detector-test.cjs:42, scripts/novelai-readable-error-test.cjs:35, scripts/simulator-timeline-smoke-test.cjs:7 |
-| `add` | index.html:788 | js/ai/manga-lama-inpaint-ui.js:9, js/core/svg/google-icon-names.js:12, js/layer/blend/blend.js:3, js/ui/third/base-translation/base-de.js:147, js/ui/third/base-translation/base-en.js:152, js/ui/third/base-translation/base-es.js:147, js/ui/third/base-translation/base-fr.js:147, js/ui/third/base-translation/base-ja.js:152, js/ui/third/base-translation/base-ko.js:147, js/ui/third/base-translation/base-ru.js:147, js/ui/third/base-translation/base-zh.js:153 |
+| `a` | index.html:63 | index.html:72, js/ai/manga-character-bible-ui.js:149, js/ai/manga-page-structure-ui.js:338, js/ai/panel-pipeline-review.js:151, js/assets/asset-pack.js:8, js/core/compression/lz4.js:207, js/core/util/image-util.js:658, js/dashboard/dashboard-ui.js:968, js/local-tools/background-removal-client.js:494, js/project-management.js:43, js/sidebar/pen/pen-tools.js:638, js/simulator/chat-controller.js:295, js/simulator/longshot-exporter.js:29, js/simulator/simulator-controller.js:100, js/simulator/story-composer-controller.js:264, js/svg/manga-panels-image-vertical.js:3, js/ui/imagePromptHelper/image-prompt-helper.js:119, scripts/manga-bubble-detector-test.cjs:42, scripts/novelai-readable-error-test.cjs:35, scripts/simulator-timeline-smoke-test.cjs:7 |
+| `add` | index.html:788 | js/ai/manga-lama-inpaint-ui.js:9, js/core/svg/google-icon-names.js:12, js/layer/blend/blend.js:3, js/ui/third/base-translation/base-de.js:147, js/ui/third/base-translation/base-en.js:152, js/ui/third/base-translation/base-es.js:147, js/ui/third/base-translation/base-fr.js:147, js/ui/third/base-translation/base-ja.js:152, js/ui/third/base-translation/base-ko.js:147, js/ui/third/base-translation/base-ru.js:147, js/ui/third/base-translation/base-zh.js:153, scripts/tone-target-apply-test.cjs:14 |
 | `addHeart` | index.html:892 | js/ui/visual-studio.js:472 |
 | `addHexagon` | index.html:884 | js/ui/visual-studio.js:472 |
 | `addPentagon` | index.html:880 | js/ui/visual-studio.js:472 |
@@ -50,13 +50,13 @@
 | `addTallRect` | index.html:868 | js/ui/visual-studio.js:471 |
 | `addTriangle` | index.html:876 | js/ui/visual-studio.js:471 |
 | `addWideRect` | index.html:872 | js/ui/visual-studio.js:471 |
-| `align-center` | index.html:1640 |  |
-| `align-left` | index.html:1637 |  |
-| `align-right` | index.html:1643 |  |
+| `align-center` | index.html:1640 | scripts/novice-task-e2e.cjs:586 |
+| `align-left` | index.html:1637 | scripts/novice-task-e2e.cjs:586 |
+| `align-right` | index.html:1643 | scripts/novice-task-e2e.cjs:586 |
 | `angle-control` | index.html:1935 | js/ui/control/common-control-management.js:3 |
-| `apiHeartbeatCheckbox` | index.html:309 | js/ai/ai-management.js:83, js/ai/ai-settings.js:412, js/project-management.js:244 |
+| `apiHeartbeatCheckbox` | index.html:309 | js/ai/ai-management.js:83, js/ai/ai-settings.js:418, js/project-management.js:248 |
 | `apiSettingsUrlHelpe` | index.html:2172 |  |
-| `applyFlexGenSizeBtn` | index.html:1001 | js/sidebar/panel/panel-template.js:223 |
+| `applyFlexGenSizeBtn` | index.html:1001 | js/sidebar/panel/panel-template.js:229 |
 | `asset-library-area` | index.html:1370 | js/sidebar/sidebar.js:84, js/ui/visual-studio.js:338 |
 | `assetLibraryExportButton` | index.html:1380 | js/assets/asset-library-controller.js:270 |
 | `assetLibraryGroups` | index.html:1384 | js/assets/asset-library-controller.js:240 |
@@ -73,8 +73,8 @@
 | `assetLibraryStatus` | index.html:1400 | js/assets/asset-library-controller.js:34 |
 | `assetLibraryTags` | index.html:1399 | js/assets/asset-library-controller.js:87 |
 | `auto-generate-area` | index.html:914 | js/sidebar/sidebar.js:81 |
-| `autoSaveCheckbox` | index.html:291 | js/core/auto-save.js:229, js/project-management.js:245 |
-| `autoSaveInterval` | index.html:294 | js/core/auto-save.js:235, js/project-management.js:246 |
+| `autoSaveCheckbox` | index.html:291 | js/core/auto-save.js:233, js/project-management.js:249 |
+| `autoSaveInterval` | index.html:294 | js/core/auto-save.js:239, js/project-management.js:250 |
 | `backgroundRemovalAction` | index.html:1322 | js/core/settings.js:90, js/local-tools/background-removal-client.js:70 |
 | `backgroundRemovalAlphaMatting` | index.html:1328 | js/local-tools/background-removal-client.js:59 |
 | `backgroundRemovalBgThreshold` | index.html:1335 | js/local-tools/background-removal-client.js:61 |
@@ -91,48 +91,48 @@
 | `backgroundRemovalPostMask` | index.html:1341 | js/local-tools/background-removal-client.js:63 |
 | `base-controls-mini` | index.html:2191 |  |
 | `baseControlsPanel` | index.html:2186 |  |
-| `basePrompt_height` | index.html:2217 | js/ai/prompt/base-event-listener.js:8, js/project-management.js:312 |
-| `basePrompt_negative` | index.html:2207 | js/ai/prompt/base-event-listener.js:6, js/project-management.js:308 |
-| `basePrompt_prompt` | index.html:2201 | js/ai/prompt/base-event-listener.js:5, js/project-management.js:307 |
-| `basePrompt_seed` | index.html:2224 | js/ai/prompt/base-event-listener.js:9, js/project-management.js:309 |
-| `basePrompt_width` | index.html:2213 | js/ai/prompt/base-event-listener.js:7, js/project-management.js:311 |
+| `basePrompt_height` | index.html:2217 | js/ai/prompt/base-event-listener.js:8, js/project-management.js:316 |
+| `basePrompt_negative` | index.html:2207 | js/ai/prompt/base-event-listener.js:6, js/project-management.js:312 |
+| `basePrompt_prompt` | index.html:2201 | js/ai/prompt/base-event-listener.js:5, js/project-management.js:311 |
+| `basePrompt_seed` | index.html:2224 | js/ai/prompt/base-event-listener.js:9, js/project-management.js:313 |
+| `basePrompt_width` | index.html:2213 | js/ai/prompt/base-event-listener.js:7, js/project-management.js:315 |
 | `beginnerToolHud` | index.html:2080 | js/ui/beginner-guide.js:21 |
-| `bg-color` | index.html:392 | js/ai/manga-importer.js:1701, js/canvas-manager.js:195, js/core/util/image-util.js:627, js/layer/image-history-management.js:303, js/project-management.js:198, js/sidebar/panel/panel-manager.js:281 |
-| `bgColorButton` | index.html:393 | js/canvas-manager.js:215 |
-| `bgColorSwatch` | index.html:395 | js/canvas-manager.js:235 |
-| `bgColorValue` | index.html:394 | js/canvas-manager.js:229 |
+| `bg-color` | index.html:392 | js/ai/manga-importer.js:1701, js/canvas-manager.js:204, js/core/util/image-util.js:627, js/layer/image-history-management.js:285, js/project-management.js:202, js/sidebar/panel/panel-manager.js:277 |
+| `bgColorButton` | index.html:393 | js/canvas-manager.js:220 |
+| `bgColorSwatch` | index.html:395 | js/canvas-manager.js:240 |
+| `bgColorValue` | index.html:394 | js/canvas-manager.js:234 |
 | `blend` | html/Minual/effect.html:45 | js/ui/third/base-translation/base-de.js:173, js/ui/third/base-translation/base-en.js:178, js/ui/third/base-translation/base-es.js:173, js/ui/third/base-translation/base-fr.js:173, js/ui/third/base-translation/base-ja.js:178, js/ui/third/base-translation/base-ko.js:173, js/ui/third/base-translation/base-ru.js:173, js/ui/third/base-translation/base-zh.js:179 |
 | `blendButton` | index.html:1781 |  |
-| `bold-toggle-btn` | index.html:1613 | js/sidebar/text/text-effect.js:234 |
+| `bold-toggle-btn` | index.html:1613 | js/sidebar/text/text-effect.js:217, scripts/novice-task-e2e.cjs:586 |
 | `brokenButton` | index.html:1701 |  |
 | `brushPresetGrid` | index.html:1829 | js/sidebar/pen/pen-tools.js:759, js/ui/visual-studio.js:94 |
-| `btm-drawer` | index.html:2243 | index.html:134, js/ui/bottom-bar.js:4 |
+| `btm-drawer` | index.html:2243 | index.html:134, js/ui/bottom-bar.js:4, scripts/novice-task-e2e.cjs:122 |
 | `btm-drawer-handle` | index.html:2244 | js/ui/bottom-bar.js:5 |
-| `btm-image-container` | index.html:2248 | js/core/auto-save.js:197, js/ui/bottom-bar.js:6 |
+| `btm-image-container` | index.html:2248 | js/core/auto-save.js:197, js/ui/bottom-bar.js:6, scripts/novice-task-e2e.cjs:509 |
 | `btm-scroll-left` | index.html:2249 | js/ui/bottom-bar.js:7 |
 | `btm-scroll-right` | index.html:2250 | js/ui/bottom-bar.js:8 |
 | `btn-en` | html/functionList.html:34 | html/functionList.html:312 |
 | `btn-ja` | html/functionList.html:33 | html/functionList.html:306 |
-| `bubbleFillColor` | index.html:1459 | js/project-management.js:256, js/sidebar/speechBubble/speech-bubble-effect.js:5 |
-| `bubbleStrokeColor` | index.html:1455 | js/project-management.js:255, js/sidebar/speechBubble/speech-bubble-effect.js:6 |
-| `bubbleStrokewidht` | index.html:1466 | js/project-management.js:258, js/sidebar/speechBubble/speech-bubble-effect.js:4 |
+| `bubbleFillColor` | index.html:1459 | js/project-management.js:260, js/sidebar/speechBubble/speech-bubble-effect.js:5 |
+| `bubbleStrokeColor` | index.html:1455 | js/project-management.js:259, js/sidebar/speechBubble/speech-bubble-effect.js:6 |
+| `bubbleStrokewidht` | index.html:1466 | js/project-management.js:262, js/sidebar/speechBubble/speech-bubble-effect.js:4 |
 | `c2bw` | html/Minual/effect.html:25 |  |
-| `canvas-area` | index.html:2058 | js/canvas-manager.js:912 |
-| `canvas-container` | index.html:2124 | js/canvas-manager.js:43, js/sidebar/panel/panel-manager.js:8 |
-| `canvas-help-text` | index.html:2084 | js/ui/beginner-guide.js:62, js/ui/util/mode-change.js:28 |
-| `canvasEmptyHint` | index.html:2128 | js/ui/beginner-guide.js:152, scripts/layout-smoke-test.cjs:66 |
-| `canvasEmptyHintDismiss` | index.html:2140 | js/ui/third/i18next.js:1091 |
+| `canvas-area` | index.html:2058 | js/ai/gpt-region-editor.js:869, js/canvas-manager.js:917, scripts/novice-task-e2e.cjs:1057 |
+| `canvas-container` | index.html:2124 | js/canvas-manager.js:42, js/sidebar/panel/panel-manager.js:8 |
+| `canvas-help-text` | index.html:2084 | js/ui/beginner-guide.js:61, js/ui/util/mode-change.js:28 |
+| `canvasEmptyHint` | index.html:2128 | js/ui/beginner-guide.js:151, scripts/layout-smoke-test.cjs:66 |
+| `canvasEmptyHintDismiss` | index.html:2140 | js/ui/third/i18next.js:1235 |
 | `canvasEmptyHintSimulator` | index.html:2138 |  |
 | `canvasEmptyHintTemplate` | index.html:2139 |  |
-| `clearMode` | index.html:2064 | js/ui/beginner-guide.js:50, js/ui/third/base-translation/base-de.js:262, js/ui/third/base-translation/base-en.js:268, js/ui/third/base-translation/base-es.js:262, js/ui/third/base-translation/base-fr.js:262, js/ui/third/base-translation/base-ja.js:267, js/ui/third/base-translation/base-ko.js:262, js/ui/third/base-translation/base-ru.js:262, js/ui/third/base-translation/base-zh.js:268, js/ui/third/tippy.js:90, js/ui/util/mode-manager.js:359 |
+| `clearMode` | index.html:2064 | js/ui/beginner-guide.js:49, js/ui/third/base-translation/base-de.js:262, js/ui/third/base-translation/base-en.js:268, js/ui/third/base-translation/base-es.js:262, js/ui/third/base-translation/base-fr.js:262, js/ui/third/base-translation/base-ja.js:267, js/ui/third/base-translation/base-ko.js:262, js/ui/third/base-translation/base-ru.js:262, js/ui/third/base-translation/base-zh.js:268, js/ui/third/tippy.js:90, js/ui/util/mode-manager.js:359 |
 | `cloudButton` | index.html:1707 |  |
 | `control-area` | index.html:1913 | js/sidebar/sidebar.js:94 |
 | `control-preview-area` | index.html:1915 |  |
-| `controls` | index.html:2164 | js/project-management.js:656, js/shortcut.js:75, js/sidebar/panel/panel-manager.js:644, js/ui/beginner-guide.js:352 |
-| `customPanelSizeX` | index.html:749 | js/project-management.js:249, js/sidebar/panel/panel-template.js:157, js/ui/third/base-translation/base-de.js:332, js/ui/third/base-translation/base-en.js:338, js/ui/third/base-translation/base-es.js:331, js/ui/third/base-translation/base-fr.js:332, js/ui/third/base-translation/base-ja.js:337, js/ui/third/base-translation/base-ko.js:332, js/ui/third/base-translation/base-ru.js:332, js/ui/third/base-translation/base-zh.js:344 |
-| `customPanelSizeY` | index.html:754 | js/project-management.js:250, js/sidebar/panel/panel-template.js:158, js/ui/third/base-translation/base-de.js:333, js/ui/third/base-translation/base-en.js:339, js/ui/third/base-translation/base-es.js:332, js/ui/third/base-translation/base-fr.js:333, js/ui/third/base-translation/base-ja.js:338, js/ui/third/base-translation/base-ko.js:333, js/ui/third/base-translation/base-ru.js:333, js/ui/third/base-translation/base-zh.js:345 |
-| `cutChangeRate` | index.html:987 | js/project-management.js:286, js/sidebar/panel/knife/knife-split-engine.js:74, js/ui/third/base-translation/base-de.js:117, js/ui/third/base-translation/base-en.js:122, js/ui/third/base-translation/base-es.js:117, js/ui/third/base-translation/base-fr.js:117, js/ui/third/base-translation/base-ja.js:121, js/ui/third/base-translation/base-ko.js:117, js/ui/third/base-translation/base-ru.js:117, js/ui/third/base-translation/base-zh.js:123 |
-| `cutout-area` | index.html:1286 | js/layer/layer-button.js:30, js/local-tools/background-removal-client.js:519, js/sidebar/sidebar.js:90, js/ui/canvas-object-menu.js:556, js/ui/visual-studio.js:335 |
+| `controls` | index.html:2164 | js/project-management.js:674, js/shortcut.js:75, js/sidebar/panel/panel-manager.js:640, js/ui/beginner-guide.js:351 |
+| `customPanelSizeX` | index.html:749 | js/project-management.js:253, js/sidebar/panel/panel-template.js:163, js/ui/third/base-translation/base-de.js:332, js/ui/third/base-translation/base-en.js:338, js/ui/third/base-translation/base-es.js:331, js/ui/third/base-translation/base-fr.js:332, js/ui/third/base-translation/base-ja.js:337, js/ui/third/base-translation/base-ko.js:332, js/ui/third/base-translation/base-ru.js:332, js/ui/third/base-translation/base-zh.js:344 |
+| `customPanelSizeY` | index.html:754 | js/project-management.js:254, js/sidebar/panel/panel-template.js:164, js/ui/third/base-translation/base-de.js:333, js/ui/third/base-translation/base-en.js:339, js/ui/third/base-translation/base-es.js:332, js/ui/third/base-translation/base-fr.js:333, js/ui/third/base-translation/base-ja.js:338, js/ui/third/base-translation/base-ko.js:333, js/ui/third/base-translation/base-ru.js:333, js/ui/third/base-translation/base-zh.js:345 |
+| `cutChangeRate` | index.html:987 | js/project-management.js:290, js/sidebar/panel/knife/knife-split-engine.js:73, js/ui/third/base-translation/base-de.js:117, js/ui/third/base-translation/base-en.js:122, js/ui/third/base-translation/base-es.js:117, js/ui/third/base-translation/base-fr.js:117, js/ui/third/base-translation/base-ja.js:121, js/ui/third/base-translation/base-ko.js:117, js/ui/third/base-translation/base-ru.js:117, js/ui/third/base-translation/base-zh.js:123 |
+| `cutout-area` | index.html:1286 | js/layer/layer-button.js:30, js/local-tools/background-removal-client.js:519, js/sidebar/sidebar.js:90, js/ui/canvas-object-menu.js:554, js/ui/visual-studio.js:335 |
 | `cutoutHealthButton` | index.html:1358 | js/local-tools/background-removal-client.js:478 |
 | `cutoutOriginalPreview` | index.html:1363 | js/local-tools/background-removal-client.js:191 |
 | `cutoutPresetDeleteButton` | index.html:1301 | js/local-tools/background-removal-client.js:488 |
@@ -146,68 +146,68 @@
 | `cutoutRunButton` | index.html:1359 | js/local-tools/background-removal-client.js:480 |
 | `cutoutServiceUrl` | index.html:1292 | js/local-tools/background-removal-client.js:32 |
 | `cutoutStatus` | index.html:1361 | js/local-tools/background-removal-client.js:23 |
-| `dashboard-close-btn` | index.html:2744 | js/dashboard/dashboard-ui.js:218 |
-| `dashboard-modal` | index.html:2742 | js/dashboard/dashboard-ui.js:121 |
-| `dashboardAvgSession` | index.html:2884 | js/dashboard/dashboard-ui.js:609, js/ui/third/i18next.js:3474 |
-| `dashboardBadgeGrid` | index.html:2966 | js/dashboard/dashboard-ui.js:931 |
-| `dashboardCalendar` | index.html:2897 | js/dashboard/dashboard-ui.js:613, js/ui/third/i18next.js:3476 |
-| `dashboardChart` | index.html:2808 | js/dashboard/dashboard-ui.js:319 |
-| `dashboardClearStats` | index.html:2748 | js/dashboard/dashboard-ui.js:184 |
-| `dashboardClearTags` | index.html:2833 | js/dashboard/dashboard-ui.js:194, js/ui/third/i18next.js:4014 |
-| `dashboardCoOccurrenceTable` | index.html:2927 | js/dashboard/dashboard-ui.js:818 |
-| `dashboardCurrentSession` | index.html:2876 | js/dashboard/dashboard-ui.js:607, js/ui/third/i18next.js:3472 |
-| `dashboardCurrentStreak` | index.html:2855 | js/dashboard/dashboard-ui.js:601, js/ui/third/i18next.js:3468 |
-| `dashboardDailyGoalInput` | index.html:2946 | js/dashboard/dashboard-ui.js:231, js/project-management.js:294 |
-| `dashboardDailyProgressBar` | index.html:2950 | js/dashboard/dashboard-ui.js:905 |
-| `dashboardDailyProgressText` | index.html:2950 | js/dashboard/dashboard-ui.js:908 |
-| `dashboardDownloadWordcloud` | index.html:2842 | js/dashboard/dashboard-ui.js:205 |
-| `dashboardExportCSV` | index.html:2974 | js/dashboard/dashboard-ui.js:254, js/ui/third/i18next.js:3495 |
-| `dashboardExportJSON` | index.html:2973 | js/dashboard/dashboard-ui.js:250, js/ui/third/i18next.js:3494 |
-| `dashboardFirstLaunch` | index.html:2776 | js/dashboard/dashboard-ui.js:300 |
-| `dashboardGlobalAvg` | index.html:2756 | js/dashboard/dashboard-ui.js:295 |
-| `dashboardGlobalMax` | index.html:2764 | js/dashboard/dashboard-ui.js:297 |
-| `dashboardGlobalMin` | index.html:2760 | js/dashboard/dashboard-ui.js:296 |
-| `dashboardHeatmap` | index.html:2815 | js/dashboard/dashboard-ui.js:381 |
-| `dashboardLaunchCount` | index.html:2772 | js/dashboard/dashboard-ui.js:299 |
-| `dashboardLongestStreak` | index.html:2860 | js/dashboard/dashboard-ui.js:602, js/ui/third/i18next.js:3469 |
-| `dashboardModeSelector` | index.html:2802 | js/dashboard/dashboard-ui.js:170 |
-| `dashboardModelChart` | index.html:2936 | js/dashboard/dashboard-ui.js:835 |
-| `dashboardPromptLengthChart` | index.html:2912 | js/dashboard/dashboard-ui.js:745 |
-| `dashboardSaveDailyGoal` | index.html:2947 | js/dashboard/dashboard-ui.js:228 |
-| `dashboardSaveWeeklyGoal` | index.html:2955 | js/dashboard/dashboard-ui.js:239 |
-| `dashboardSessionGenCount` | index.html:2880 | js/dashboard/dashboard-ui.js:608 |
-| `dashboardStatsTable` | index.html:2795 | js/dashboard/dashboard-ui.js:301 |
-| `dashboardSuccessRateChart` | index.html:2904 | js/dashboard/dashboard-ui.js:696 |
-| `dashboardTodayCount` | index.html:2865 | js/dashboard/dashboard-ui.js:603 |
-| `dashboardTopTags` | index.html:2835 | js/dashboard/dashboard-ui.js:518, js/ui/third/i18next.js:4010 |
-| `dashboardTotalGenerations` | index.html:2752 | js/dashboard/dashboard-ui.js:294 |
-| `dashboardTotalSessions` | index.html:2888 | js/dashboard/dashboard-ui.js:610, js/ui/third/i18next.js:3475 |
-| `dashboardTrendChart` | index.html:2827 | js/dashboard/dashboard-ui.js:442 |
-| `dashboardTrendSelector` | index.html:2820 | js/dashboard/dashboard-ui.js:177 |
-| `dashboardUniqueTags` | index.html:2768 | js/dashboard/dashboard-ui.js:298 |
-| `dashboardWeeklyGoalInput` | index.html:2954 | js/dashboard/dashboard-ui.js:242, js/project-management.js:295 |
-| `dashboardWeeklyProgressBar` | index.html:2958 | js/dashboard/dashboard-ui.js:917 |
-| `dashboardWeeklyProgressText` | index.html:2958 | js/dashboard/dashboard-ui.js:920 |
-| `dashboardWordcloud` | index.html:2845 | js/dashboard/dashboard-ui.js:209, js/ui/third/i18next.js:4012 |
-| `desu-nav` | index.html:212 | index.html:132 |
-| `edit` | index.html:790 | js/ai/gpt-region-editor.js:457, js/core/svg/google-icon-helper.js:79, js/core/svg/google-icon-names.js:12, js/sidebar/panel/panel-manager.js:426, js/ui/canvas-object-menu.js:12, js/ui/util/mode-manager.js:347, scripts/full-feature-e2e.cjs:366, scripts/gpt-browser-acceptance.cjs:900, scripts/gpt-real-api-acceptance.cjs:209, scripts/gpt-region-editor-smoke-test.cjs:66 |
+| `dashboard-close-btn` | index.html:2743 | js/dashboard/dashboard-ui.js:218 |
+| `dashboard-modal` | index.html:2741 | js/dashboard/dashboard-ui.js:121 |
+| `dashboardAvgSession` | index.html:2883 | js/dashboard/dashboard-ui.js:609, js/ui/third/i18next.js:3618 |
+| `dashboardBadgeGrid` | index.html:2965 | js/dashboard/dashboard-ui.js:931 |
+| `dashboardCalendar` | index.html:2896 | js/dashboard/dashboard-ui.js:613, js/ui/third/i18next.js:3620 |
+| `dashboardChart` | index.html:2807 | js/dashboard/dashboard-ui.js:319 |
+| `dashboardClearStats` | index.html:2747 | js/dashboard/dashboard-ui.js:184 |
+| `dashboardClearTags` | index.html:2832 | js/dashboard/dashboard-ui.js:194, js/ui/third/i18next.js:4158 |
+| `dashboardCoOccurrenceTable` | index.html:2926 | js/dashboard/dashboard-ui.js:818 |
+| `dashboardCurrentSession` | index.html:2875 | js/dashboard/dashboard-ui.js:607, js/ui/third/i18next.js:3616 |
+| `dashboardCurrentStreak` | index.html:2854 | js/dashboard/dashboard-ui.js:601, js/ui/third/i18next.js:3612 |
+| `dashboardDailyGoalInput` | index.html:2945 | js/dashboard/dashboard-ui.js:231, js/project-management.js:298 |
+| `dashboardDailyProgressBar` | index.html:2949 | js/dashboard/dashboard-ui.js:905 |
+| `dashboardDailyProgressText` | index.html:2949 | js/dashboard/dashboard-ui.js:908 |
+| `dashboardDownloadWordcloud` | index.html:2841 | js/dashboard/dashboard-ui.js:205 |
+| `dashboardExportCSV` | index.html:2973 | js/dashboard/dashboard-ui.js:254, js/ui/third/i18next.js:3639 |
+| `dashboardExportJSON` | index.html:2972 | js/dashboard/dashboard-ui.js:250, js/ui/third/i18next.js:3638 |
+| `dashboardFirstLaunch` | index.html:2775 | js/dashboard/dashboard-ui.js:300 |
+| `dashboardGlobalAvg` | index.html:2755 | js/dashboard/dashboard-ui.js:295 |
+| `dashboardGlobalMax` | index.html:2763 | js/dashboard/dashboard-ui.js:297 |
+| `dashboardGlobalMin` | index.html:2759 | js/dashboard/dashboard-ui.js:296 |
+| `dashboardHeatmap` | index.html:2814 | js/dashboard/dashboard-ui.js:381 |
+| `dashboardLaunchCount` | index.html:2771 | js/dashboard/dashboard-ui.js:299 |
+| `dashboardLongestStreak` | index.html:2859 | js/dashboard/dashboard-ui.js:602, js/ui/third/i18next.js:3613 |
+| `dashboardModeSelector` | index.html:2801 | js/dashboard/dashboard-ui.js:170 |
+| `dashboardModelChart` | index.html:2935 | js/dashboard/dashboard-ui.js:835 |
+| `dashboardPromptLengthChart` | index.html:2911 | js/dashboard/dashboard-ui.js:745 |
+| `dashboardSaveDailyGoal` | index.html:2946 | js/dashboard/dashboard-ui.js:228 |
+| `dashboardSaveWeeklyGoal` | index.html:2954 | js/dashboard/dashboard-ui.js:239 |
+| `dashboardSessionGenCount` | index.html:2879 | js/dashboard/dashboard-ui.js:608 |
+| `dashboardStatsTable` | index.html:2794 | js/dashboard/dashboard-ui.js:301 |
+| `dashboardSuccessRateChart` | index.html:2903 | js/dashboard/dashboard-ui.js:696 |
+| `dashboardTodayCount` | index.html:2864 | js/dashboard/dashboard-ui.js:603 |
+| `dashboardTopTags` | index.html:2834 | js/dashboard/dashboard-ui.js:518, js/ui/third/i18next.js:4154 |
+| `dashboardTotalGenerations` | index.html:2751 | js/dashboard/dashboard-ui.js:294 |
+| `dashboardTotalSessions` | index.html:2887 | js/dashboard/dashboard-ui.js:610, js/ui/third/i18next.js:3619 |
+| `dashboardTrendChart` | index.html:2826 | js/dashboard/dashboard-ui.js:442 |
+| `dashboardTrendSelector` | index.html:2819 | js/dashboard/dashboard-ui.js:177 |
+| `dashboardUniqueTags` | index.html:2767 | js/dashboard/dashboard-ui.js:298 |
+| `dashboardWeeklyGoalInput` | index.html:2953 | js/dashboard/dashboard-ui.js:242, js/project-management.js:299 |
+| `dashboardWeeklyProgressBar` | index.html:2957 | js/dashboard/dashboard-ui.js:917 |
+| `dashboardWeeklyProgressText` | index.html:2957 | js/dashboard/dashboard-ui.js:920 |
+| `dashboardWordcloud` | index.html:2844 | js/dashboard/dashboard-ui.js:209, js/ui/third/i18next.js:4156 |
+| `desu-nav` | index.html:212 | index.html:132, scripts/novice-task-e2e.cjs:718 |
+| `edit` | index.html:790 | js/ai/gpt-region-editor.js:593, js/core/svg/google-icon-helper.js:79, js/core/svg/google-icon-names.js:12, js/sidebar/panel/panel-manager.js:422, js/ui/canvas-object-menu.js:10, js/ui/util/mode-manager.js:347, scripts/full-feature-e2e.cjs:369, scripts/gpt-browser-acceptance.cjs:1001, scripts/gpt-real-api-acceptance.cjs:209, scripts/gpt-region-editor-smoke-test.cjs:66, scripts/novice-task-e2e.cjs:296 |
 | `esApi-controls-mini` | index.html:2169 |  |
 | `esApiControlsPanel` | index.html:2166 |  |
-| `exportPxCappedNote` | index.html:424 | js/canvas-manager.js:343 |
-| `exportPxLandscapeHeight` | index.html:421 | js/canvas-manager.js:493 |
-| `exportPxLandscapeWidth` | index.html:418 | js/canvas-manager.js:493 |
-| `exportPxPortraitHeight` | index.html:412 | js/canvas-manager.js:493 |
-| `exportPxPortraitWidth` | index.html:409 | js/canvas-manager.js:493 |
+| `exportPxCappedNote` | index.html:424 | js/canvas-manager.js:348 |
+| `exportPxLandscapeHeight` | index.html:421 | js/canvas-manager.js:498 |
+| `exportPxLandscapeWidth` | index.html:418 | js/canvas-manager.js:498 |
+| `exportPxPortraitHeight` | index.html:412 | js/canvas-manager.js:498 |
+| `exportPxPortraitWidth` | index.html:409 | js/canvas-manager.js:498 |
 | `featureTable` | html/functionList.html:40 |  |
-| `flexGenH` | index.html:1000 | js/panel/random-cut.js:85, js/sidebar/panel/panel-template.js:227 |
-| `flexGenW` | index.html:998 | js/panel/random-cut.js:84, js/sidebar/panel/panel-template.js:226 |
-| `fontSelector` | index.html:1610 | js/core/font/font-dropdown.js:282, js/sidebar/speechBubble/speech-bubble-freehand.js:635, js/sidebar/speechBubble/speech-bubble-text.js:207, js/sidebar/text/text-effect.js:183, js/sidebar/text/vertical-text.js:5 |
-| `fontSizeSlider` | index.html:1631 | js/project-management.js:299, js/sidebar/speechBubble/speech-bubble-freehand.js:636, js/sidebar/speechBubble/speech-bubble-text.js:208, js/sidebar/text/text-effect.js:128, js/sidebar/text/vertical-text.js:6 |
-| `fontStrokeWidthSlider` | index.html:1634 | js/project-management.js:300, js/sidebar/speechBubble/speech-bubble-freehand.js:637, js/sidebar/speechBubble/speech-bubble-text.js:209, js/sidebar/text/text-effect.js:131, js/sidebar/text/vertical-text.js:7 |
-| `gridSizeInput` | index.html:470 | js/panel/grid.js:105, js/project-management.js:203 |
+| `flexGenH` | index.html:1000 | js/panel/random-cut.js:85, js/sidebar/panel/panel-template.js:233 |
+| `flexGenW` | index.html:998 | js/panel/random-cut.js:84, js/sidebar/panel/panel-template.js:232 |
+| `fontSelector` | index.html:1610 | js/core/font/font-dropdown.js:280, js/sidebar/speechBubble/speech-bubble-freehand.js:656, js/sidebar/speechBubble/speech-bubble-text.js:206, js/sidebar/text/text-effect.js:166, js/sidebar/text/vertical-text.js:5 |
+| `fontSizeSlider` | index.html:1631 | js/project-management.js:303, js/sidebar/speechBubble/speech-bubble-freehand.js:657, js/sidebar/speechBubble/speech-bubble-text.js:207, js/sidebar/text/text-effect.js:126, js/sidebar/text/vertical-text.js:6 |
+| `fontStrokeWidthSlider` | index.html:1634 | js/project-management.js:304, js/sidebar/speechBubble/speech-bubble-freehand.js:658, js/sidebar/speechBubble/speech-bubble-text.js:208, js/sidebar/text/text-effect.js:129, js/sidebar/text/vertical-text.js:7 |
+| `gridSizeInput` | index.html:470 | js/panel/grid.js:105, js/project-management.js:207 |
 | `head-id` | index.html:603 | index.html:133 |
-| `horizontalRandomPanelCount` | index.html:981 | js/panel/random-cut.js:11, js/project-management.js:284 |
-| `i` | index.html:96 | index.html:96, js/sidebar/pen/pen-tools.js:673, js/sidebar/sidebar.js:69, js/svg/manga-panels-image-vertical.js:22, js/ui/imagePromptHelper/image-prompt-helper.js:377, js/ui/util/tagify-util.js:5 |
+| `horizontalRandomPanelCount` | index.html:981 | js/panel/random-cut.js:11, js/project-management.js:288 |
+| `i` | index.html:96 | index.html:96, js/sidebar/pen/pen-tools.js:673, js/sidebar/sidebar.js:69, js/svg/manga-panels-image-vertical.js:22, js/ui/imagePromptHelper/image-prompt-helper.js:362, js/ui/util/tagify-util.js:6 |
 | `image-text-tool-buttons` | index.html:1681 |  |
 | `image2-section` | index.html:1268 | js/assets/image2-controller.js:9 |
 | `image2AssetName` | index.html:1275 |  |
@@ -223,10 +223,10 @@
 | `image2Width` | index.html:1277 | js/assets/image2-controller.js:15 |
 | `imageCopy` | index.html:262 | js/ui/third/base-translation/base-de.js:441, js/ui/third/base-translation/base-en.js:400, js/ui/third/base-translation/base-es.js:393, js/ui/third/base-translation/base-fr.js:395, js/ui/third/base-translation/base-ja.js:446, js/ui/third/base-translation/base-ko.js:395, js/ui/third/base-translation/base-ru.js:394, js/ui/third/base-translation/base-zh.js:407 |
 | `imageDownload` | index.html:256 | js/ui/third/base-translation/base-de.js:442, js/ui/third/base-translation/base-en.js:399, js/ui/third/base-translation/base-es.js:392, js/ui/third/base-translation/base-fr.js:394, js/ui/third/base-translation/base-ja.js:447, js/ui/third/base-translation/base-ko.js:394, js/ui/third/base-translation/base-ru.js:393, js/ui/third/base-translation/base-zh.js:406, scripts/beginner-ux-guards-test.cjs:29 |
-| `imageInput` | index.html:2062 | js/canvas-manager.js:971, scripts/import-image-keeps-page-test.cjs:19 |
+| `imageInput` | index.html:2062 | js/canvas-manager.js:976, scripts/import-image-keeps-page-test.cjs:19, scripts/novice-task-e2e.cjs:382 |
 | `intro_asset-library-area` | index.html:619 |  |
 | `intro_auto-generate-area` | index.html:624 | js/ui/third/tippy.js:50 |
-| `intro_content` | index.html:2122 | js/ui/canvas-object-menu.js:702 |
+| `intro_content` | index.html:2122 | js/ui/canvas-object-menu.js:699 |
 | `intro_control-area` | index.html:695 | js/ui/third/tippy.js:59 |
 | `intro_crop-tool` | index.html:641 |  |
 | `intro_cutout-area` | index.html:678 |  |
@@ -250,12 +250,12 @@
 | `intro_text-area2` | index.html:687 | js/ui/third/tippy.js:55 |
 | `intro_tool-area` | index.html:645 | js/ui/third/tippy.js:56 |
 | `j` | index.html:96 | index.html:96, js/svg/manga-panels-image-vertical.js:23 |
-| `k` | index.html:96 | index.html:96, js/svg/manga-panels-image-vertical.js:25, js/ui/beginner-guide.js:305 |
+| `k` | index.html:96 | index.html:96, js/svg/manga-panels-image-vertical.js:25, js/ui/beginner-guide.js:304 |
 | `knifeModeButton` | index.html:762 | js/sidebar/panel/knife/knife-mode.js:10, js/ui/util/mode-manager.js:200 |
-| `knifePanelSpaceSize` | index.html:768 | js/project-management.js:197, js/sidebar/panel/knife/knife-split-engine.js:377 |
-| `layer-content` | index.html:2158 | js/layer/layer-management.js:120 |
-| `layer-panel` | index.html:2149 | js/project-management.js:655, js/shortcut.js:68, js/sidebar/panel/panel-manager.js:641 |
-| `layerSelectPageButton` | index.html:2152 | js/ui/beginner-guide.js:497 |
+| `knifePanelSpaceSize` | index.html:768 | js/project-management.js:201, js/sidebar/panel/knife/knife-split-engine.js:371 |
+| `layer-content` | index.html:2158 | js/layer/layer-management.js:128 |
+| `layer-panel` | index.html:2149 | js/project-management.js:673, js/shortcut.js:68, js/sidebar/panel/panel-manager.js:637 |
+| `layerSelectPageButton` | index.html:2152 | js/ui/beginner-guide.js:496 |
 | `layeredButton` | index.html:1713 |  |
 | `left-control` | index.html:1944 | js/ui/control/common-control-management.js:3 |
 | `mLandscapeButton` | index.html:941 |  |
@@ -263,40 +263,40 @@
 | `manga-effect-area` | index.html:1747 | js/sidebar/sidebar.js:92, js/ui/visual-studio.js:326 |
 | `manga-effect-buttons` | index.html:1750 |  |
 | `manga-effect-settings` | index.html:1795 | js/sidebar/effect/effect-manager.js:117, js/ui/glfx-ui.js:198 |
-| `manga-tone-area` | index.html:1876 | js/sidebar/sidebar.js:91, js/ui/visual-studio.js:324, scripts/full-feature-e2e.cjs:249 |
+| `manga-tone-area` | index.html:1876 | js/sidebar/sidebar.js:91, js/ui/visual-studio.js:324, scripts/full-feature-e2e.cjs:252 |
 | `manga-tone-buttons` | index.html:1879 |  |
 | `manga-tone-settings` | index.html:1906 | js/sidebar/tone/tone-manager.js:164 |
 | `mangaImageCanvas` | index.html:2125 | js/assets/asset-library-controller.js:195, js/core/settings.js:10 |
-| `mangaImportAutoTag` | index.html:1043 | js/ai/manga-importer.js:2397, js/project-management.js:237 |
-| `mangaImportCharacterPlaceholders` | index.html:1044 | js/ai/manga-importer.js:2376, js/project-management.js:238 |
-| `mangaImportCharacterReferences` | index.html:1045 | js/ai/manga-importer.js:2378, js/project-management.js:239, scripts/manga-import-smoke-test.cjs:51 |
+| `mangaImportAutoTag` | index.html:1043 | js/ai/manga-importer.js:2397, js/project-management.js:241 |
+| `mangaImportCharacterPlaceholders` | index.html:1044 | js/ai/manga-importer.js:2376, js/project-management.js:242 |
+| `mangaImportCharacterReferences` | index.html:1045 | js/ai/manga-importer.js:2378, js/project-management.js:243, scripts/manga-import-smoke-test.cjs:51 |
 | `mangaImportDirectorButton` | index.html:1028 | js/ai/manga-importer.js:2479, scripts/manga-import-smoke-test.cjs:48 |
 | `mangaImportGenerateButton` | index.html:1036 | js/ai/manga-importer.js:2487, scripts/manga-import-smoke-test.cjs:50 |
 | `mangaImportInput` | index.html:1009 | js/ai/manga-importer.js:2405 |
-| `mangaImportKeepReference` | index.html:1042 | js/ai/manga-importer.js:2365, js/project-management.js:236 |
-| `mangaImportMinPanelArea` | index.html:2432 | js/ai/manga-importer.js:1455, js/project-management.js:234 |
-| `mangaImportPanelThreshold` | index.html:2431 | js/ai/manga-importer.js:1454, js/project-management.js:233 |
+| `mangaImportKeepReference` | index.html:1042 | js/ai/manga-importer.js:2365, js/project-management.js:240 |
+| `mangaImportMinPanelArea` | index.html:2432 | js/ai/manga-importer.js:1455, js/project-management.js:238 |
+| `mangaImportPanelThreshold` | index.html:2431 | js/ai/manga-importer.js:1454, js/project-management.js:237 |
 | `mangaImportPickButton` | index.html:1012 | js/ai/manga-importer.js:2475, scripts/manga-import-smoke-test.cjs:44 |
 | `mangaImportPreflightButton` | index.html:1032 | js/ai/manga-importer.js:2481, scripts/manga-import-smoke-test.cjs:49 |
 | `mangaImportRetagButton` | index.html:1016 | js/ai/manga-importer.js:2477, scripts/manga-import-smoke-test.cjs:45 |
 | `mangaImportSelectNextPanelButton` | index.html:1020 | js/ai/manga-importer.js:2483, scripts/manga-import-smoke-test.cjs:46 |
 | `mangaImportSelectPlaceholderButton` | index.html:1024 | js/ai/manga-importer.js:2485, scripts/manga-import-smoke-test.cjs:47 |
 | `mangaImportStatus` | index.html:1047 | js/ai/manga-importer.js:36 |
-| `mangaImportTaggerThreshold` | index.html:2430 | js/ai/manga-importer.js:1920, js/project-management.js:232 |
-| `mangaImportTaggerUrl` | index.html:2429 | js/ai/manga-importer.js:1951, js/project-management.js:231 |
-| `mangaImportUseTaggerProxy` | index.html:2436 | js/ai/manga-importer.js:1959, js/project-management.js:235 |
-| `marginFromPanel` | index.html:476 | js/core/settings.js:26, js/project-management.js:204, js/ui/third/base-translation/base-de.js:456, js/ui/third/base-translation/base-en.js:492, js/ui/third/base-translation/base-es.js:485, js/ui/third/base-translation/base-fr.js:487, js/ui/third/base-translation/base-ja.js:461, js/ui/third/base-translation/base-ko.js:487, js/ui/third/base-translation/base-ru.js:486, js/ui/third/base-translation/base-zh.js:499 |
+| `mangaImportTaggerThreshold` | index.html:2430 | js/ai/manga-importer.js:1920, js/project-management.js:236 |
+| `mangaImportTaggerUrl` | index.html:2429 | js/ai/manga-importer.js:1951, js/project-management.js:235 |
+| `mangaImportUseTaggerProxy` | index.html:2436 | js/ai/manga-importer.js:1959, js/project-management.js:239 |
+| `marginFromPanel` | index.html:476 | js/core/settings.js:26, js/project-management.js:208, js/ui/third/base-translation/base-de.js:456, js/ui/third/base-translation/base-en.js:492, js/ui/third/base-translation/base-es.js:485, js/ui/third/base-translation/base-fr.js:487, js/ui/third/base-translation/base-ja.js:461, js/ui/third/base-translation/base-ko.js:487, js/ui/third/base-translation/base-ru.js:486, js/ui/third/base-translation/base-zh.js:499 |
 | `meshButton` | index.html:1719 |  |
 | `mode-toggle` | index.html:590 | js/ui/util/mode-change.js:58 |
 | `multiPageGenerate` | index.html:930 | js/panel/random-cut.js:136, js/ui/third/base-translation/base-de.js:111, js/ui/third/base-translation/base-en.js:116, js/ui/third/base-translation/base-es.js:111, js/ui/third/base-translation/base-fr.js:111, js/ui/third/base-translation/base-ja.js:115, js/ui/third/base-translation/base-ko.js:111, js/ui/third/base-translation/base-ru.js:111, js/ui/third/base-translation/base-zh.js:117 |
 | `nai-scene-plan-section` | index.html:1122 |  |
 | `naiBatchAcceptanceButton` | index.html:1081 | js/ai/ai-settings.js:214 |
 | `naiBatchAcceptanceConfirmButton` | index.html:1082 | js/ai/ai-settings.js:227 |
-| `naiBatchAcceptanceGate` | index.html:1064 | js/ai/ai-settings.js:196, js/ai/prompt/auto/auto-prompt-util.js:295, js/project-management.js:222 |
-| `naiBatchAutoGenerateAfterPrompts` | index.html:1068 | js/ai/ai-settings.js:196, js/ai/prompt/auto/auto-prompt-util.js:300, js/project-management.js:223 |
-| `naiBatchDirectorEnabled` | index.html:1058 | js/ai/manga-importer.js:2430, js/ai/prompt/auto/auto-prompt-util.js:355, js/project-management.js:291 |
+| `naiBatchAcceptanceGate` | index.html:1064 | js/ai/ai-settings.js:196, js/ai/prompt/auto/auto-prompt-util.js:295, js/project-management.js:226 |
+| `naiBatchAutoGenerateAfterPrompts` | index.html:1068 | js/ai/ai-settings.js:196, js/ai/prompt/auto/auto-prompt-util.js:300, js/project-management.js:227 |
+| `naiBatchDirectorEnabled` | index.html:1058 | js/ai/manga-importer.js:2430, js/ai/prompt/auto/auto-prompt-util.js:355, js/project-management.js:295 |
 | `naiBatchDirectorGenerateButton` | index.html:1117 |  |
-| `naiBatchDirectorPrompt` | index.html:1056 | js/ai/manga-importer.js:2015, js/ai/prompt/auto/auto-prompt-util.js:237, js/project-management.js:290, js/simulator/story-to-manga.js:81 |
+| `naiBatchDirectorPrompt` | index.html:1056 | js/ai/manga-importer.js:2015, js/ai/prompt/auto/auto-prompt-util.js:237, js/project-management.js:294, js/simulator/story-to-manga.js:81 |
 | `naiBatchDirectorPromptButton` | index.html:1106 |  |
 | `naiBatchSaveTagDnaButton` | index.html:1083 | js/ai/ai-settings.js:236 |
 | `naiCharacterAddCard` | index.html:1088 | js/ai/prompt/auto/character-card-manager.js:459 |
@@ -306,38 +306,38 @@
 | `naiCharacterMaterialCategory` | index.html:1094 | js/ai/prompt/auto/character-card-manager.js:254 |
 | `naiCharacterMaterialTag` | index.html:1095 | js/ai/prompt/auto/character-card-manager.js:255 |
 | `naiCharacterTargetSelect` | index.html:1093 | js/ai/prompt/auto/character-card-manager.js:240 |
-| `naiCompositionAgent` | index.html:2407 | js/ai/ai-settings.js:196, js/ai/prompt/novelai-composition-director.js:1034, js/project-management.js:217 |
-| `naiDirectorAdjustCanvas` | index.html:2407 | js/ai/ai-settings.js:196, js/ai/prompt/novelai-composition-director.js:502, js/project-management.js:218 |
-| `naiDirectorApiKey` | index.html:2417 | js/ai/ai-settings.js:102, js/ai/prompt/novelai-composition-director.js:436, js/project-management.js:228 |
+| `naiCompositionAgent` | index.html:2407 | js/ai/ai-settings.js:196, js/ai/prompt/novelai-composition-director.js:1027, js/project-management.js:221 |
+| `naiDirectorAdjustCanvas` | index.html:2407 | js/ai/ai-settings.js:196, js/ai/prompt/novelai-composition-director.js:495, js/project-management.js:222 |
+| `naiDirectorApiKey` | index.html:2417 | js/ai/ai-settings.js:102, js/ai/prompt/novelai-composition-director.js:429, js/project-management.js:232 |
 | `naiDirectorApiKeyToggle` | index.html:2418 | js/ai/ai-settings.js:139 |
-| `naiDirectorApiUrl` | index.html:2412 | js/ai/ai-settings.js:28, js/ai/prompt/novelai-composition-director.js:435, js/project-management.js:227 |
-| `naiDirectorHonorCharacterCards` | index.html:2407 | js/ai/ai-settings.js:196, js/ai/prompt/novelai-composition-director.js:274, js/project-management.js:220 |
-| `naiDirectorMessageMode` | index.html:2407 | js/ai/ai-settings.js:196, js/ai/prompt/novelai-composition-director.js:306, js/project-management.js:221 |
-| `naiDirectorModel` | index.html:2412 | js/ai/ai-settings.js:38, js/ai/prompt/novelai-composition-director.js:437, js/project-management.js:229 |
+| `naiDirectorApiUrl` | index.html:2412 | js/ai/ai-settings.js:28, js/ai/prompt/novelai-composition-director.js:428, js/project-management.js:231 |
+| `naiDirectorHonorCharacterCards` | index.html:2407 | js/ai/ai-settings.js:196, js/ai/prompt/novelai-composition-director.js:267, js/project-management.js:224 |
+| `naiDirectorMessageMode` | index.html:2407 | js/ai/ai-settings.js:196, js/ai/prompt/novelai-composition-director.js:299, js/project-management.js:225 |
+| `naiDirectorModel` | index.html:2412 | js/ai/ai-settings.js:38, js/ai/prompt/novelai-composition-director.js:430, js/project-management.js:233 |
 | `naiDirectorModelList` | index.html:2412 | js/ai/ai-settings.js:72 |
 | `naiDirectorRefreshModels` | index.html:2412 | js/ai/ai-settings.js:93 |
 | `naiDirectorResetSystemPrompt` | index.html:2408 | js/ai/ai-settings.js:205 |
-| `naiDirectorStoreDrafts` | index.html:2407 | js/ai/ai-settings.js:196, js/project-management.js:224, js/ui/ai/auto-prompt-ui.js:63 |
-| `naiDirectorSystemPrompt` | index.html:2440 | js/ai/ai-settings.js:196, js/ai/prompt/novelai-composition-director.js:378, js/project-management.js:240 |
+| `naiDirectorStoreDrafts` | index.html:2407 | js/ai/ai-settings.js:196, js/project-management.js:228, js/ui/ai/auto-prompt-ui.js:63 |
+| `naiDirectorSystemPrompt` | index.html:2440 | js/ai/ai-settings.js:196, js/ai/prompt/novelai-composition-director.js:371, js/project-management.js:244 |
 | `naiDirectorTestApi` | index.html:2418 | js/ai/ai-settings.js:155 |
-| `naiDirectorTimeout` | index.html:2422 | js/ai/ai-settings.js:196, js/ai/prompt/novelai-composition-director.js:438, js/project-management.js:230 |
-| `naiDirectorUseApi` | index.html:2407 | js/ai/ai-settings.js:196, js/ai/prompt/novelai-composition-director.js:433, js/project-management.js:225 |
-| `naiDirectorUseProxy` | index.html:2413 | js/ai/ai-settings.js:196, js/ai/prompt/novelai-composition-director.js:434, js/project-management.js:226 |
-| `naiDirectorUseTagAnchors` | index.html:2407 | js/ai/ai-settings.js:196, js/ai/prompt/novelai-composition-director.js:952, js/project-management.js:219 |
-| `naiExportAllPagesPngButton` | index.html:1078 | js/ai/panel-pipeline-review.js:201 |
-| `naiGenerateComicDemo` | index.html:2463 | js/ai/ai-settings.js:393 |
-| `naiGenerateMaterialPreviews` | index.html:2463 | js/ai/ai-settings.js:361 |
-| `naiGoNextReviewPanelButton` | index.html:1077 | js/ai/panel-pipeline-review.js:194 |
-| `naiHealthCheck` | index.html:2459 | js/ai/ai-settings.js:384, scripts/nai-real-acceptance.cjs:152 |
+| `naiDirectorTimeout` | index.html:2422 | js/ai/ai-settings.js:196, js/ai/prompt/novelai-composition-director.js:431, js/project-management.js:234 |
+| `naiDirectorUseApi` | index.html:2407 | js/ai/ai-settings.js:196, js/ai/prompt/novelai-composition-director.js:426, js/project-management.js:229 |
+| `naiDirectorUseProxy` | index.html:2413 | js/ai/ai-settings.js:196, js/ai/prompt/novelai-composition-director.js:427, js/project-management.js:230 |
+| `naiDirectorUseTagAnchors` | index.html:2407 | js/ai/ai-settings.js:196, js/ai/prompt/novelai-composition-director.js:945, js/project-management.js:223 |
+| `naiExportAllPagesPngButton` | index.html:1078 | js/ai/panel-pipeline-review.js:198 |
+| `naiGenerateComicDemo` | index.html:2463 | js/ai/ai-settings.js:399 |
+| `naiGenerateMaterialPreviews` | index.html:2463 | js/ai/ai-settings.js:367 |
+| `naiGoNextReviewPanelButton` | index.html:1077 | js/ai/panel-pipeline-review.js:191 |
+| `naiHealthCheck` | index.html:2459 | js/ai/ai-settings.js:390, scripts/nai-real-acceptance.cjs:152 |
 | `naiHistoryClose` | index.html:2118 | js/ui/visual-ps-tools.js:591 |
 | `naiHistoryList` | index.html:2119 | js/ui/visual-ps-tools.js:536 |
 | `naiHistoryPanel` | index.html:2117 | js/ui/visual-ps-tools.js:555 |
-| `naiMarkPanelsForManualReview` | index.html:1073 | js/ai/panel-pipeline-review.js:23, js/project-management.js:289 |
-| `naiMaterialPreviewStatus` | index.html:2463 | js/ai/ai-settings.js:375 |
-| `naiObjectBiggerBtn` | index.html:2113 | js/canvas-manager.js:949 |
-| `naiObjectFitBtn` | index.html:2114 | js/canvas-manager.js:951 |
-| `naiObjectSmallerBtn` | index.html:2112 | js/canvas-manager.js:950 |
-| `naiPageSizeBadge` | index.html:2081 | js/canvas-manager.js:54 |
+| `naiMarkPanelsForManualReview` | index.html:1073 | js/ai/panel-pipeline-review.js:24, js/project-management.js:293 |
+| `naiMaterialPreviewStatus` | index.html:2463 | js/ai/ai-settings.js:381 |
+| `naiObjectBiggerBtn` | index.html:2113 | js/canvas-manager.js:954 |
+| `naiObjectFitBtn` | index.html:2114 | js/canvas-manager.js:956 |
+| `naiObjectSmallerBtn` | index.html:2112 | js/canvas-manager.js:955 |
+| `naiPageSizeBadge` | index.html:2081 | js/canvas-manager.js:53 |
 | `naiPropFill` | index.html:2089 | js/ui/visual-ps-tools.js:229, js/ui/visual-studio.js:227 |
 | `naiPropOpacity` | index.html:2092 | js/ui/visual-studio.js:227 |
 | `naiPropShadow` | index.html:2093 | js/ui/visual-studio.js:227 |
@@ -353,94 +353,94 @@
 | `naiScenePlanRollback` | index.html:1131 | js/ai/director/scene-plan-controller.js:44 |
 | `naiScenePlanStatus` | index.html:1132 | js/ai/director/scene-plan-controller.js:5 |
 | `naiTemplatePlaceMode` | index.html:717 | js/sidebar/speechBubble/speech-bubble-effect.js:152 |
-| `naiTokenBadge` | index.html:2082 | js/ui/beginner-guide.js:335 |
-| `naiToolJobStatus` | index.html:2464 | js/ai/ai-settings.js:402 |
+| `naiTokenBadge` | index.html:2082 | js/ui/beginner-guide.js:334 |
+| `naiToolJobStatus` | index.html:2464 | js/ai/ai-settings.js:408 |
 | `naiToolOptionsBar` | index.html:2086 | js/ui/visual-studio.js:285 |
 | `naiToolOptionsControls` | index.html:2103 | js/ui/visual-studio.js:287 |
 | `naiToolOptionsMain` | index.html:2087 | js/ui/visual-studio.js:286 |
-| `naiZoomFitBtn` | index.html:2109 | js/canvas-manager.js:948 |
-| `naiZoomInBtn` | index.html:2108 | js/canvas-manager.js:946 |
-| `naiZoomLabel` | index.html:2107 | js/canvas-manager.js:652 |
-| `naiZoomLabelHeader` | index.html:2079 | js/canvas-manager.js:652 |
-| `naiZoomOutBtn` | index.html:2106 | js/canvas-manager.js:947 |
+| `naiZoomFitBtn` | index.html:2109 | js/canvas-manager.js:953 |
+| `naiZoomInBtn` | index.html:2108 | js/canvas-manager.js:951 |
+| `naiZoomLabel` | index.html:2107 | js/canvas-manager.js:657 |
+| `naiZoomLabelHeader` | index.html:2079 | js/canvas-manager.js:657 |
+| `naiZoomOutBtn` | index.html:2106 | js/canvas-manager.js:952 |
 | `naiZoomTools` | index.html:2104 |  |
 | `navbar-logo` | index.html:213 | js/ui/util/mode-change.js:43 |
 | `navbarDropdownCanvas` | index.html:383 |  |
 | `navbarDropdownDonate` | index.html:566 |  |
-| `navbarDropdownFile` | index.html:221 |  |
+| `navbarDropdownFile` | index.html:221 | scripts/novice-task-e2e.cjs:1063 |
 | `navbarDropdownHelp` | index.html:484 |  |
 | `navbarDropdownLinks` | index.html:524 |  |
 | `navbarDropdownPrompt` | index.html:362 |  |
 | `navbarDropdownView` | index.html:324 |  |
 | `navbarNavDropdown` | index.html:218 |  |
 | `negativeAreaId` | index.html:2203 | js/ai/novelai-only-mode.js:85, js/ai/ui/ai-ui-util.js:8 |
-| `novelaiApiKey` | index.html:2329 | js/ai/ai-settings.js:135, js/ai/prompt/director-safety.js:16, js/ai/provider/novelai-provider.js:16, js/project-management.js:207, js/ui/beginner-guide.js:323, scripts/nai-real-acceptance.cjs:102 |
+| `novelaiApiKey` | index.html:2329 | js/ai/ai-settings.js:135, js/ai/prompt/director-safety.js:16, js/ai/provider/novelai-provider.js:16, js/project-management.js:211, js/ui/beginner-guide.js:322, scripts/nai-real-acceptance.cjs:102 |
 | `novelaiApiKeyToggle` | index.html:2330 | js/ai/ai-settings.js:133 |
-| `novelaiApiUrl` | index.html:2319 | js/ai/ai-settings.js:180, js/ai/provider/novelai-provider.js:24, js/project-management.js:205 |
+| `novelaiApiUrl` | index.html:2319 | js/ai/ai-settings.js:180, js/ai/provider/novelai-provider.js:24, js/project-management.js:209 |
 | `novelaiApiUrlDefaultUrl` | index.html:2320 | js/ai/ai-settings.js:178 |
-| `novelaiCfgRescale` | index.html:2382 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:320, js/project-management.js:213 |
-| `novelaiConcurrency` | index.html:2453 | js/ai/ai-management.js:6, js/ai/ai-settings.js:196, js/project-management.js:216 |
+| `novelaiCfgRescale` | index.html:2382 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:320, js/project-management.js:217 |
+| `novelaiConcurrency` | index.html:2453 | js/ai/ai-management.js:6, js/ai/ai-settings.js:196, js/project-management.js:220 |
 | `novelaiDashboard` | index.html:2320 | js/ai/ai-settings.js:182 |
-| `novelaiI2INoise` | index.html:2392 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:357, js/project-management.js:215 |
-| `novelaiI2IStrength` | index.html:2387 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:356, js/project-management.js:214 |
-| `novelaiModel` | index.html:2342 | js/ai/ai-settings.js:191, js/ai/provider/novelai-provider.js:46, js/project-management.js:208 |
-| `novelaiQualityToggle` | index.html:2397 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:302, js/project-management.js:241 |
-| `novelaiRememberToken` | index.html:2335 | js/project-management.js:327, js/ui/beginner-guide.js:397 |
-| `novelaiSM` | index.html:2402 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:313, js/project-management.js:242 |
-| `novelaiSMDyn` | index.html:2402 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:314, js/project-management.js:243 |
-| `novelaiSampler` | index.html:2355 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:308, js/project-management.js:209 |
-| `novelaiScale` | index.html:2372 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:307, js/project-management.js:211 |
-| `novelaiSteps` | index.html:2367 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:309, js/project-management.js:210, scripts/nai-real-acceptance.cjs:105 |
-| `novelaiUcPreset` | index.html:2377 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:311, js/project-management.js:212 |
-| `novelaiUseLocalProxy` | index.html:2324 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:30, js/project-management.js:206, scripts/nai-real-acceptance.cjs:104 |
-| `onePanelGenerateNumber` | index.html:1115 | js/ai/prompt/auto/auto-generation.js:4, js/project-management.js:287, js/ui/third/base-translation/base-ja.js:37, js/ui/third/i18next.js:74 |
+| `novelaiI2INoise` | index.html:2392 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:357, js/project-management.js:219 |
+| `novelaiI2IStrength` | index.html:2387 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:356, js/project-management.js:218 |
+| `novelaiModel` | index.html:2342 | js/ai/ai-settings.js:191, js/ai/provider/novelai-provider.js:46, js/project-management.js:212 |
+| `novelaiQualityToggle` | index.html:2397 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:302, js/project-management.js:245 |
+| `novelaiRememberToken` | index.html:2335 | js/project-management.js:331, js/ui/beginner-guide.js:396 |
+| `novelaiSM` | index.html:2402 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:313, js/project-management.js:246 |
+| `novelaiSMDyn` | index.html:2402 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:314, js/project-management.js:247 |
+| `novelaiSampler` | index.html:2355 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:308, js/project-management.js:213 |
+| `novelaiScale` | index.html:2372 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:307, js/project-management.js:215 |
+| `novelaiSteps` | index.html:2367 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:309, js/project-management.js:214, scripts/nai-real-acceptance.cjs:105 |
+| `novelaiUcPreset` | index.html:2377 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:311, js/project-management.js:216 |
+| `novelaiUseLocalProxy` | index.html:2324 | js/ai/ai-settings.js:196, js/ai/provider/novelai-provider.js:30, js/project-management.js:210, scripts/nai-real-acceptance.cjs:104 |
+| `onePanelGenerateNumber` | index.html:1115 | js/ai/prompt/auto/auto-generation.js:4, js/project-management.js:291, js/ui/third/base-translation/base-ja.js:37, js/ui/third/i18next.js:74 |
 | `opacity-control` | index.html:1953 | js/ui/control/common-control-management.js:3 |
 | `other-controls-mini` | index.html:2234 | js/ui/ai/auto-prompt-ui.js:83 |
 | `otherControlsPanel` | index.html:2231 |  |
-| `outputBitDepth` | index.html:439 | js/canvas-manager.js:242, js/core/util/image-util.js:618, js/project-management.js:201, js/ui/third/base-translation/base-de.js:405, js/ui/third/base-translation/base-en.js:485, js/ui/third/base-translation/base-es.js:478, js/ui/third/base-translation/base-fr.js:480, js/ui/third/base-translation/base-ja.js:410, js/ui/third/base-translation/base-ko.js:480, js/ui/third/base-translation/base-ru.js:479, js/ui/third/base-translation/base-zh.js:492, scripts/image-export-smoke-test.cjs:368 |
-| `outputBitDepthHint` | index.html:445 | js/canvas-manager.js:250, js/ui/third/base-translation/base-de.js:409, js/ui/third/base-translation/base-en.js:489, js/ui/third/base-translation/base-es.js:482, js/ui/third/base-translation/base-fr.js:484, js/ui/third/base-translation/base-ja.js:414, js/ui/third/base-translation/base-ko.js:484, js/ui/third/base-translation/base-ru.js:483, js/ui/third/base-translation/base-zh.js:496, scripts/image-export-smoke-test.cjs:368 |
-| `outputDpi` | index.html:403 | js/canvas-manager.js:270, js/core/util/image-util.js:667, js/project-management.js:199, scripts/image-export-smoke-test.cjs:150 |
-| `outputImageEstimate` | index.html:461 | js/canvas-manager.js:546, js/ui/third/base-translation/base-de.js:399, js/ui/third/base-translation/base-en.js:479, js/ui/third/base-translation/base-es.js:472, js/ui/third/base-translation/base-fr.js:474, js/ui/third/base-translation/base-ja.js:404, js/ui/third/base-translation/base-ko.js:474, js/ui/third/base-translation/base-ru.js:473, js/ui/third/base-translation/base-zh.js:486 |
+| `outputBitDepth` | index.html:439 | js/canvas-manager.js:247, js/core/util/image-util.js:618, js/project-management.js:205, js/ui/third/base-translation/base-de.js:405, js/ui/third/base-translation/base-en.js:485, js/ui/third/base-translation/base-es.js:478, js/ui/third/base-translation/base-fr.js:480, js/ui/third/base-translation/base-ja.js:410, js/ui/third/base-translation/base-ko.js:480, js/ui/third/base-translation/base-ru.js:479, js/ui/third/base-translation/base-zh.js:492, scripts/image-export-smoke-test.cjs:368 |
+| `outputBitDepthHint` | index.html:445 | js/canvas-manager.js:255, js/ui/third/base-translation/base-de.js:409, js/ui/third/base-translation/base-en.js:489, js/ui/third/base-translation/base-es.js:482, js/ui/third/base-translation/base-fr.js:484, js/ui/third/base-translation/base-ja.js:414, js/ui/third/base-translation/base-ko.js:484, js/ui/third/base-translation/base-ru.js:483, js/ui/third/base-translation/base-zh.js:496, scripts/image-export-smoke-test.cjs:368 |
+| `outputDpi` | index.html:403 | js/canvas-manager.js:275, js/core/util/image-util.js:667, js/project-management.js:203, scripts/image-export-smoke-test.cjs:150 |
+| `outputImageEstimate` | index.html:461 | js/canvas-manager.js:551, js/ui/third/base-translation/base-de.js:399, js/ui/third/base-translation/base-en.js:479, js/ui/third/base-translation/base-es.js:472, js/ui/third/base-translation/base-fr.js:474, js/ui/third/base-translation/base-ja.js:404, js/ui/third/base-translation/base-ko.js:474, js/ui/third/base-translation/base-ru.js:473, js/ui/third/base-translation/base-zh.js:486 |
 | `outputImageEstimateRow` | index.html:458 |  |
-| `outputImageFormat` | index.html:430 | js/canvas-manager.js:241, js/core/util/image-util.js:673, js/project-management.js:200, js/ui/third/base-translation/base-de.js:397, js/ui/third/base-translation/base-en.js:477, js/ui/third/base-translation/base-es.js:470, js/ui/third/base-translation/base-fr.js:472, js/ui/third/base-translation/base-ja.js:402, js/ui/third/base-translation/base-ko.js:472, js/ui/third/base-translation/base-ru.js:471, js/ui/third/base-translation/base-zh.js:484 |
-| `outputImageQuality` | index.html:449 | js/canvas-manager.js:523, js/core/util/image-util.js:674, js/project-management.js:202, js/ui/third/base-translation/base-de.js:398, js/ui/third/base-translation/base-en.js:478, js/ui/third/base-translation/base-es.js:471, js/ui/third/base-translation/base-fr.js:473, js/ui/third/base-translation/base-ja.js:403, js/ui/third/base-translation/base-ko.js:473, js/ui/third/base-translation/base-ru.js:472, js/ui/third/base-translation/base-zh.js:485 |
-| `page-landscape` | index.html:739 | js/sidebar/panel/panel-template.js:164 |
-| `page-portrait` | index.html:735 | js/sidebar/panel/panel-template.js:163 |
+| `outputImageFormat` | index.html:430 | js/canvas-manager.js:246, js/core/util/image-util.js:673, js/project-management.js:204, js/ui/third/base-translation/base-de.js:397, js/ui/third/base-translation/base-en.js:477, js/ui/third/base-translation/base-es.js:470, js/ui/third/base-translation/base-fr.js:472, js/ui/third/base-translation/base-ja.js:402, js/ui/third/base-translation/base-ko.js:472, js/ui/third/base-translation/base-ru.js:471, js/ui/third/base-translation/base-zh.js:484 |
+| `outputImageQuality` | index.html:449 | js/canvas-manager.js:528, js/core/util/image-util.js:674, js/project-management.js:206, js/ui/third/base-translation/base-de.js:398, js/ui/third/base-translation/base-en.js:478, js/ui/third/base-translation/base-es.js:471, js/ui/third/base-translation/base-fr.js:473, js/ui/third/base-translation/base-ja.js:403, js/ui/third/base-translation/base-ko.js:473, js/ui/third/base-translation/base-ru.js:472, js/ui/third/base-translation/base-zh.js:485 |
+| `page-landscape` | index.html:739 | js/sidebar/panel/panel-template.js:170 |
+| `page-portrait` | index.html:735 | js/sidebar/panel/panel-template.js:169 |
 | `page-title` | html/functionList.html:37 | html/functionList.html:294 |
-| `pageCount` | index.html:935 | js/panel/random-cut.js:71, js/project-management.js:282, js/ui/third/base-translation/base-de.js:112, js/ui/third/base-translation/base-en.js:117, js/ui/third/base-translation/base-es.js:112, js/ui/third/base-translation/base-fr.js:112, js/ui/third/base-translation/base-ja.js:116, js/ui/third/base-translation/base-ko.js:112, js/ui/third/base-translation/base-ru.js:112, js/ui/third/base-translation/base-zh.js:118 |
-| `pageEffectAngle` | index.html:840 | js/sidebar/page/page-studio.js:495 |
-| `pageEffectApply` | index.html:856 | js/sidebar/page/page-studio.js:551 |
-| `pageEffectBehind` | index.html:854 | js/sidebar/page/page-studio.js:499 |
-| `pageEffectClear` | index.html:857 | js/sidebar/page/page-studio.js:557 |
-| `pageEffectColor` | index.html:852 | js/sidebar/page/page-studio.js:498 |
-| `pageEffectDensity` | index.html:836 | js/sidebar/page/page-studio.js:494 |
-| `pageEffectLength` | index.html:844 | js/sidebar/page/page-studio.js:497 |
-| `pageEffectOpacity` | index.html:848 | js/sidebar/page/page-studio.js:496 |
-| `pageEffectPreset` | index.html:832 | js/sidebar/page/page-studio.js:493 |
-| `pagePaperApply` | index.html:811 | js/sidebar/page/page-studio.js:533 |
-| `pagePaperClear` | index.html:814 | js/sidebar/page/page-studio.js:547 |
-| `pagePaperFile` | index.html:813 | js/sidebar/page/page-studio.js:539 |
-| `pagePaperPreset` | index.html:808 | js/sidebar/page/page-studio.js:506 |
-| `pagePaperReveal` | index.html:816 | js/sidebar/page/page-studio.js:549 |
-| `pagePaperSwatches` | index.html:805 | js/sidebar/page/page-studio.js:576 |
-| `panel-manager-area` | index.html:728 | js/sidebar/sidebar.js:80, js/ui/beginner-guide.js:179, js/ui/visual-studio.js:328 |
+| `pageCount` | index.html:935 | js/panel/random-cut.js:71, js/project-management.js:286, js/ui/third/base-translation/base-de.js:112, js/ui/third/base-translation/base-en.js:117, js/ui/third/base-translation/base-es.js:112, js/ui/third/base-translation/base-fr.js:112, js/ui/third/base-translation/base-ja.js:116, js/ui/third/base-translation/base-ko.js:112, js/ui/third/base-translation/base-ru.js:112, js/ui/third/base-translation/base-zh.js:118 |
+| `pageEffectAngle` | index.html:840 | js/sidebar/page/page-studio.js:494 |
+| `pageEffectApply` | index.html:856 | js/sidebar/page/page-studio.js:550 |
+| `pageEffectBehind` | index.html:854 | js/sidebar/page/page-studio.js:498 |
+| `pageEffectClear` | index.html:857 | js/sidebar/page/page-studio.js:556 |
+| `pageEffectColor` | index.html:852 | js/sidebar/page/page-studio.js:497 |
+| `pageEffectDensity` | index.html:836 | js/sidebar/page/page-studio.js:493 |
+| `pageEffectLength` | index.html:844 | js/sidebar/page/page-studio.js:496 |
+| `pageEffectOpacity` | index.html:848 | js/sidebar/page/page-studio.js:495 |
+| `pageEffectPreset` | index.html:832 | js/sidebar/page/page-studio.js:492 |
+| `pagePaperApply` | index.html:811 | js/sidebar/page/page-studio.js:532 |
+| `pagePaperClear` | index.html:814 | js/sidebar/page/page-studio.js:546 |
+| `pagePaperFile` | index.html:813 | js/sidebar/page/page-studio.js:538 |
+| `pagePaperPreset` | index.html:808 | js/sidebar/page/page-studio.js:505 |
+| `pagePaperReveal` | index.html:816 | js/sidebar/page/page-studio.js:548 |
+| `pagePaperSwatches` | index.html:805 | js/sidebar/page/page-studio.js:575 |
+| `panel-manager-area` | index.html:728 | js/sidebar/sidebar.js:80, js/ui/beginner-guide.js:178, js/ui/visual-studio.js:328 |
 | `panel-manager-items` | index.html:730 |  |
-| `panelFillColor` | index.html:780 | js/project-management.js:252, js/sidebar/page/page-studio.js:457, js/sidebar/panel/panel-manager.js:531, js/simulator/story-to-manga.js:89 |
+| `panelFillColor` | index.html:780 | js/project-management.js:256, js/sidebar/page/page-studio.js:456, js/sidebar/panel/panel-manager.js:527, js/simulator/story-to-manga.js:89 |
 | `panelLayoutModeRandom` | index.html:954 |  |
 | `panelLayoutModeTemplate` | index.html:951 |  |
 | `panelLayoutRecommendButton` | index.html:969 | js/panel/layout-templates.js:368 |
 | `panelLayoutRecommendList` | index.html:970 | js/panel/layout-templates.js:320 |
 | `panelLayoutTemplateButton` | index.html:968 | js/panel/layout-templates.js:366 |
-| `panelLayoutTemplateSelect` | index.html:966 | js/panel/layout-templates.js:30, js/panel/random-cut.js:106, js/project-management.js:288 |
+| `panelLayoutTemplateSelect` | index.html:966 | js/panel/layout-templates.js:30, js/panel/random-cut.js:106, js/project-management.js:292 |
 | `panelLayoutTemplateWrap` | index.html:962 | js/panel/layout-templates.js:69 |
-| `panelOpacity` | index.html:786 | js/project-management.js:254, js/sidebar/panel/panel-manager.js:529, js/ui/third/base-translation/base-de.js:362, js/ui/third/base-translation/base-en.js:368, js/ui/third/base-translation/base-es.js:361, js/ui/third/base-translation/base-fr.js:362, js/ui/third/base-translation/base-ja.js:367, js/ui/third/base-translation/base-ko.js:364, js/ui/third/base-translation/base-ru.js:362, js/ui/third/base-translation/base-zh.js:374 |
+| `panelOpacity` | index.html:786 | js/project-management.js:258, js/sidebar/panel/panel-manager.js:525, js/ui/third/base-translation/base-de.js:362, js/ui/third/base-translation/base-en.js:368, js/ui/third/base-translation/base-es.js:361, js/ui/third/base-translation/base-fr.js:362, js/ui/third/base-translation/base-ja.js:367, js/ui/third/base-translation/base-ko.js:364, js/ui/third/base-translation/base-ru.js:362, js/ui/third/base-translation/base-zh.js:374 |
 | `panelRandomCutButton` | index.html:973 | js/panel/random-cut.js:135 |
-| `panelStrokeColor` | index.html:776 | js/project-management.js:251, js/sidebar/page/page-studio.js:469, js/sidebar/panel/panel-manager.js:511, js/simulator/story-to-manga.js:90 |
-| `panelStrokeWidth` | index.html:783 | js/project-management.js:253, js/sidebar/page/page-studio.js:470, js/sidebar/panel/panel-manager.js:510, js/simulator/story-to-manga.js:91 |
+| `panelStrokeColor` | index.html:776 | js/project-management.js:255, js/sidebar/page/page-studio.js:468, js/sidebar/panel/panel-manager.js:507, js/simulator/story-to-manga.js:90 |
+| `panelStrokeWidth` | index.html:783 | js/project-management.js:257, js/sidebar/page/page-studio.js:469, js/sidebar/panel/panel-manager.js:506, js/simulator/story-to-manga.js:91 |
 | `panelVariedMangaPerPage` | index.html:959 | js/panel/random-cut.js:81 |
 | `pen-tool-buttons` | index.html:1830 |  |
-| `projectLoad` | index.html:234 | js/project-management.js:24, js/shortcut.js:190, js/ui/third/base-translation/base-de.js:469, js/ui/third/base-translation/base-en.js:396, js/ui/third/base-translation/base-es.js:389, js/ui/third/base-translation/base-fr.js:391, js/ui/third/base-translation/base-ja.js:474, js/ui/third/base-translation/base-ko.js:391, js/ui/third/base-translation/base-ru.js:390, js/ui/third/base-translation/base-zh.js:403, scripts/beginner-ux-guards-test.cjs:29, scripts/full-feature-e2e.cjs:218 |
-| `projectSave` | index.html:228 | js/project-management.js:23, js/shortcut.js:182, js/ui/third/base-translation/base-de.js:470, js/ui/third/base-translation/base-en.js:395, js/ui/third/base-translation/base-es.js:388, js/ui/third/base-translation/base-fr.js:390, js/ui/third/base-translation/base-ja.js:475, js/ui/third/base-translation/base-ko.js:390, js/ui/third/base-translation/base-ru.js:389, js/ui/third/base-translation/base-zh.js:402, scripts/beginner-ux-guards-test.cjs:29, scripts/full-feature-e2e.cjs:208 |
+| `projectLoad` | index.html:234 | js/project-management.js:24, js/shortcut.js:190, js/ui/third/base-translation/base-de.js:469, js/ui/third/base-translation/base-en.js:396, js/ui/third/base-translation/base-es.js:389, js/ui/third/base-translation/base-fr.js:391, js/ui/third/base-translation/base-ja.js:474, js/ui/third/base-translation/base-ko.js:391, js/ui/third/base-translation/base-ru.js:390, js/ui/third/base-translation/base-zh.js:403, scripts/beginner-ux-guards-test.cjs:29, scripts/full-feature-e2e.cjs:221 |
+| `projectSave` | index.html:228 | js/project-management.js:23, js/shortcut.js:182, js/ui/third/base-translation/base-de.js:470, js/ui/third/base-translation/base-en.js:395, js/ui/third/base-translation/base-es.js:388, js/ui/third/base-translation/base-fr.js:390, js/ui/third/base-translation/base-ja.js:475, js/ui/third/base-translation/base-ko.js:390, js/ui/third/base-translation/base-ru.js:389, js/ui/third/base-translation/base-zh.js:402, scripts/beginner-ux-guards-test.cjs:29, scripts/full-feature-e2e.cjs:211 |
 | `prompt-A` | index.html:2197 | js/ai/ui/ai-ui-util.js:3 |
 | `prompt-E` | index.html:2211 | js/ai/ui/ai-ui-util.js:4 |
 | `prompt-F` | index.html:2222 | js/ai/ui/ai-ui-util.js:5 |
@@ -448,13 +448,13 @@
 | `ps-tools-area` | index.html:1808 | js/ui/visual-studio.js:332 |
 | `pwa-install-button` | index.html:585 | js/core/service/worker-register.js:85 |
 | `redo` | index.html:2156 | html/Shortcut/shortcut.html:66, js/core/svg/google-icon-names.js:12, js/ui/third/base-translation/base-de.js:316, js/ui/third/base-translation/base-en.js:322, js/ui/third/base-translation/base-es.js:315, js/ui/third/base-translation/base-fr.js:316, js/ui/third/base-translation/base-ja.js:321, js/ui/third/base-translation/base-ko.js:316, js/ui/third/base-translation/base-ru.js:316, js/ui/third/base-translation/base-zh.js:328, js/ui/third/tippy.js:92 |
-| `resetFlexGenSizeBtn` | index.html:1002 | js/sidebar/panel/panel-template.js:231 |
-| `resizable-container` | index.html:2123 | js/canvas-manager.js:43, js/ui/beginner-guide.js:434 |
+| `resetFlexGenSizeBtn` | index.html:1002 | js/sidebar/panel/panel-template.js:237 |
+| `resizable-container` | index.html:2123 | js/canvas-manager.js:42, js/ui/beginner-guide.js:433 |
 | `roleMatrixBody` | index.html:2294 | js/ai/role/role-assignment-ui.js:31 |
 | `sbDeleteButton` | index.html:1508 | js/sidebar/speechBubble/speech-bubble-freehand.js:10 |
-| `sbFillColor` | index.html:1534 | js/project-management.js:261, js/sidebar/speechBubble/speech-bubble-freehand.js:13 |
-| `sbFillOpacity` | index.html:1547 | js/project-management.js:265, js/sidebar/speechBubble/speech-bubble-freehand.js:16 |
-| `sbFillOpacity2` | index.html:1553 | js/project-management.js:267 |
+| `sbFillColor` | index.html:1534 | js/project-management.js:265, js/sidebar/speechBubble/speech-bubble-freehand.js:13 |
+| `sbFillOpacity` | index.html:1547 | js/project-management.js:269, js/sidebar/speechBubble/speech-bubble-freehand.js:16 |
+| `sbFillOpacity2` | index.html:1553 | js/project-management.js:271 |
 | `sbFreehandButton` | index.html:1506 | js/sidebar/speechBubble/speech-bubble-freehand.js:7 |
 | `sbFreehandHorizontalText` | index.html:1515 |  |
 | `sbFreehandNothingText` | index.html:1511 |  |
@@ -463,12 +463,12 @@
 | `sbMoveButton` | index.html:1507 | js/sidebar/speechBubble/speech-bubble-freehand.js:9 |
 | `sbNothingText` | index.html:1470 |  |
 | `sbPointButton` | index.html:1505 | js/sidebar/speechBubble/speech-bubble-freehand.js:6 |
-| `sbPointSpace` | index.html:1544 | js/project-management.js:264, js/sidebar/speechBubble/speech-bubble-freehand.js:18 |
+| `sbPointSpace` | index.html:1544 | js/project-management.js:268, js/sidebar/speechBubble/speech-bubble-freehand.js:18 |
 | `sbSelectButton` | index.html:1504 | js/sidebar/speechBubble/speech-bubble-freehand.js:8 |
-| `sbSmoothing` | index.html:1538 | js/project-management.js:262, js/sidebar/speechBubble/speech-bubble-freehand.js:12 |
-| `sbSornerRadius` | index.html:1550 | js/project-management.js:266, js/sidebar/speechBubble/speech-bubble-freehand.js:17 |
-| `sbStrokeColor` | index.html:1530 | js/project-management.js:260, js/sidebar/speechBubble/speech-bubble-freehand.js:14 |
-| `sbStrokeWidth` | index.html:1541 | js/project-management.js:263, js/sidebar/speechBubble/speech-bubble-freehand.js:15 |
+| `sbSmoothing` | index.html:1538 | js/project-management.js:266, js/sidebar/speechBubble/speech-bubble-freehand.js:12 |
+| `sbSornerRadius` | index.html:1550 | js/project-management.js:270, js/sidebar/speechBubble/speech-bubble-freehand.js:17 |
+| `sbStrokeColor` | index.html:1530 | js/project-management.js:264, js/sidebar/speechBubble/speech-bubble-freehand.js:14 |
+| `sbStrokeWidth` | index.html:1541 | js/project-management.js:267, js/sidebar/speechBubble/speech-bubble-freehand.js:15 |
 | `sbVerticalText` | index.html:1478 |  |
 | `sb_aButton` | index.html:1559 | js/sidebar/speechBubble/speech-bubble-freehand.js:53 |
 | `sb_bButton` | index.html:1562 | js/sidebar/speechBubble/speech-bubble-freehand.js:53 |
@@ -479,8 +479,8 @@
 | `sb_gButton` | index.html:1577 | js/sidebar/speechBubble/speech-bubble-freehand.js:53 |
 | `scale-control` | index.html:1938 | js/ui/control/common-control-management.js:3 |
 | `scratchButton` | index.html:1695 |  |
-| `settingsAutoSaveCheckbox` | index.html:301 | js/project-management.js:247, js/sidebar/sidebar-ui.js:25 |
-| `settingsReset` | index.html:244 | js/ui/third/base-translation/base-zh.js:591, js/ui/third/i18next.js:4901, scripts/beginner-ux-guards-test.cjs:29 |
+| `settingsAutoSaveCheckbox` | index.html:301 | js/project-management.js:251, js/sidebar/sidebar-ui.js:25 |
+| `settingsReset` | index.html:244 | js/ui/third/base-translation/base-zh.js:591, js/ui/third/i18next.js:5045, scripts/beginner-ux-guards-test.cjs:29 |
 | `settingsSave` | index.html:239 | js/project-management.js:20, js/shortcut.js:212, js/ui/third/base-translation/base-de.js:482, js/ui/third/base-translation/base-en.js:397, js/ui/third/base-translation/base-es.js:390, js/ui/third/base-translation/base-fr.js:392, js/ui/third/base-translation/base-ja.js:487, js/ui/third/base-translation/base-ko.js:392, js/ui/third/base-translation/base-ru.js:391, js/ui/third/base-translation/base-zh.js:404, scripts/beginner-ux-guards-test.cjs:29 |
 | `sfxPaletteAdd` | index.html:1678 | js/sidebar/text/sfx-palette.js:125 |
 | `sfxPaletteInput` | index.html:1668 | js/sidebar/text/sfx-palette.js:126 |
@@ -493,49 +493,49 @@
 | `shortcutModal` | index.html:2259 | js/shortcut.js:360 |
 | `shortcutPage` | index.html:494 | js/ui/third/base-translation/base-de.js:487, js/ui/third/base-translation/base-en.js:497, js/ui/third/base-translation/base-es.js:490, js/ui/third/base-translation/base-fr.js:492, js/ui/third/base-translation/base-ja.js:492, js/ui/third/base-translation/base-ko.js:492, js/ui/third/base-translation/base-ru.js:491, js/ui/third/base-translation/base-zh.js:504 |
 | `sidebar` | index.html:604 |  |
-| `sidebarMore` | index.html:681 | js/sidebar/sidebar.js:10, js/ui/tutorial.js:150 |
+| `sidebarMore` | index.html:681 | js/sidebar/sidebar.js:10, js/ui/tutorial.js:159 |
 | `sidebarMoreToggle` | index.html:699 | js/sidebar/sidebar.js:9 |
-| `simStudioBack` | index.html:2983 | js/simulator/simulator-studio.js:830, js/ui/third/base-translation/base-de.js:523, js/ui/third/base-translation/base-en.js:538, js/ui/third/base-translation/base-es.js:515, js/ui/third/base-translation/base-fr.js:532, js/ui/third/base-translation/base-ja.js:528, js/ui/third/base-translation/base-ko.js:530, js/ui/third/base-translation/base-ru.js:516, js/ui/third/base-translation/base-zh.js:544 |
-| `simStudioChatActions` | index.html:3032 | js/simulator/simulator-studio.js:864 |
-| `simStudioChatDock` | index.html:2997 | js/simulator/simulator-studio.js:861 |
-| `simStudioChatInsert` | index.html:3033 | js/simulator/simulator-studio.js:1051 |
-| `simStudioChatLoad` | index.html:3034 | js/simulator/simulator-studio.js:1053 |
-| `simStudioChatScript` | index.html:3010 | js/simulator/simulator-studio.js:116 |
-| `simStudioChatStore` | index.html:3003 | js/simulator/simulator-studio.js:441 |
-| `simStudioChatTemplate` | index.html:3006 | js/simulator/simulator-studio.js:414 |
-| `simStudioChatTitle` | index.html:3000 | js/simulator/simulator-studio.js:125 |
-| `simStudioClose` | index.html:2985 | js/simulator/simulator-studio.js:1038, js/ui/third/base-translation/base-de.js:524, js/ui/third/base-translation/base-en.js:539, js/ui/third/base-translation/base-es.js:516, js/ui/third/base-translation/base-fr.js:533, js/ui/third/base-translation/base-ja.js:529, js/ui/third/base-translation/base-ko.js:531, js/ui/third/base-translation/base-ru.js:517, js/ui/third/base-translation/base-zh.js:545 |
-| `simStudioFit` | index.html:3056 | js/simulator/simulator-studio.js:1088 |
-| `simStudioHome` | index.html:2987 | js/simulator/simulator-studio.js:828 |
-| `simStudioHomeGrid` | index.html:2989 | js/simulator/simulator-studio.js:462 |
-| `simStudioPartActions` | index.html:3041 | js/simulator/simulator-studio.js:866 |
-| `simStudioPartDock` | index.html:3021 | js/simulator/simulator-studio.js:863 |
-| `simStudioPartForm` | index.html:3028 | js/simulator/simulator-studio.js:429 |
-| `simStudioPartInsert` | index.html:3042 | js/simulator/simulator-studio.js:1072 |
-| `simStudioPartLoad` | index.html:3043 | js/simulator/simulator-studio.js:1074 |
-| `simStudioPartSelect` | index.html:3026 |  |
-| `simStudioPartStore` | index.html:3023 | js/simulator/simulator-studio.js:488 |
-| `simStudioPlay` | index.html:3048 | js/simulator/simulator-studio.js:1080, js/ui/third/base-translation/base-de.js:530, js/ui/third/base-translation/base-en.js:545, js/ui/third/base-translation/base-es.js:522, js/ui/third/base-translation/base-fr.js:539, js/ui/third/base-translation/base-ja.js:535, js/ui/third/base-translation/base-ko.js:537, js/ui/third/base-translation/base-ru.js:523, js/ui/third/base-translation/base-zh.js:551 |
-| `simStudioPlayIndex` | index.html:3050 | js/simulator/simulator-studio.js:515 |
-| `simStudioPlayNext` | index.html:3047 | js/simulator/simulator-studio.js:1078, js/ui/third/base-translation/base-de.js:529, js/ui/third/base-translation/base-en.js:544, js/ui/third/base-translation/base-es.js:521, js/ui/third/base-translation/base-fr.js:538, js/ui/third/base-translation/base-ja.js:534, js/ui/third/base-translation/base-ko.js:536, js/ui/third/base-translation/base-ru.js:522, js/ui/third/base-translation/base-zh.js:550 |
-| `simStudioPlayPrev` | index.html:3046 | js/simulator/simulator-studio.js:1076, js/ui/third/base-translation/base-de.js:528, js/ui/third/base-translation/base-en.js:543, js/ui/third/base-translation/base-es.js:520, js/ui/third/base-translation/base-fr.js:537, js/ui/third/base-translation/base-ja.js:533, js/ui/third/base-translation/base-ko.js:535, js/ui/third/base-translation/base-ru.js:521, js/ui/third/base-translation/base-zh.js:549 |
-| `simStudioPlayStop` | index.html:3049 | js/simulator/simulator-studio.js:1082 |
-| `simStudioPlayTotal` | index.html:3050 | js/simulator/simulator-studio.js:516 |
-| `simStudioPreview` | index.html:2993 | js/simulator/simulator-studio.js:570 |
-| `simStudioPreviewHost` | index.html:2992 | js/simulator/simulator-studio.js:569 |
-| `simStudioScaleDown` | index.html:3054 | js/simulator/simulator-studio.js:1084 |
-| `simStudioScaleUp` | index.html:3055 | js/simulator/simulator-studio.js:1086 |
-| `simStudioStatus` | index.html:3061 | js/simulator/simulator-studio.js:105 |
-| `simStudioTitle` | index.html:2984 | js/simulator/simulator-studio.js:834, js/ui/third/base-translation/base-de.js:521, js/ui/third/base-translation/base-en.js:536, js/ui/third/base-translation/base-es.js:513, js/ui/third/base-translation/base-fr.js:530, js/ui/third/base-translation/base-ja.js:526, js/ui/third/base-translation/base-ko.js:528, js/ui/third/base-translation/base-ru.js:514, js/ui/third/base-translation/base-zh.js:542 |
-| `simStudioWebActions` | index.html:3036 | js/simulator/simulator-studio.js:865 |
-| `simStudioWebDock` | index.html:3014 | js/simulator/simulator-studio.js:862 |
-| `simStudioWebExample` | index.html:3037 | js/simulator/simulator-studio.js:1059 |
-| `simStudioWebForm` | index.html:3019 | js/simulator/simulator-studio.js:428 |
-| `simStudioWebInsert` | index.html:3038 | js/simulator/simulator-studio.js:1055 |
-| `simStudioWebLoad` | index.html:3039 | js/simulator/simulator-studio.js:1057 |
-| `simStudioWebTemplate` | index.html:3017 | js/simulator/simulator-studio.js:445 |
-| `simStudioWork` | index.html:2991 | js/simulator/simulator-studio.js:829 |
-| `simulator-chat-area` | index.html:1140 | js/sidebar/sidebar.js:83, js/ui/beginner-guide.js:198 |
+| `simStudioBack` | index.html:2982 | js/simulator/simulator-studio.js:830, js/ui/third/base-translation/base-de.js:523, js/ui/third/base-translation/base-en.js:538, js/ui/third/base-translation/base-es.js:515, js/ui/third/base-translation/base-fr.js:532, js/ui/third/base-translation/base-ja.js:528, js/ui/third/base-translation/base-ko.js:530, js/ui/third/base-translation/base-ru.js:516, js/ui/third/base-translation/base-zh.js:544 |
+| `simStudioChatActions` | index.html:3031 | js/simulator/simulator-studio.js:864 |
+| `simStudioChatDock` | index.html:2996 | js/simulator/simulator-studio.js:861 |
+| `simStudioChatInsert` | index.html:3032 | js/simulator/simulator-studio.js:1051 |
+| `simStudioChatLoad` | index.html:3033 | js/simulator/simulator-studio.js:1053 |
+| `simStudioChatScript` | index.html:3009 | js/simulator/simulator-studio.js:116 |
+| `simStudioChatStore` | index.html:3002 | js/simulator/simulator-studio.js:441 |
+| `simStudioChatTemplate` | index.html:3005 | js/simulator/simulator-studio.js:414 |
+| `simStudioChatTitle` | index.html:2999 | js/simulator/simulator-studio.js:125 |
+| `simStudioClose` | index.html:2984 | js/simulator/simulator-studio.js:1038, js/ui/third/base-translation/base-de.js:524, js/ui/third/base-translation/base-en.js:539, js/ui/third/base-translation/base-es.js:516, js/ui/third/base-translation/base-fr.js:533, js/ui/third/base-translation/base-ja.js:529, js/ui/third/base-translation/base-ko.js:531, js/ui/third/base-translation/base-ru.js:517, js/ui/third/base-translation/base-zh.js:545 |
+| `simStudioFit` | index.html:3055 | js/simulator/simulator-studio.js:1088 |
+| `simStudioHome` | index.html:2986 | js/simulator/simulator-studio.js:828 |
+| `simStudioHomeGrid` | index.html:2988 | js/simulator/simulator-studio.js:462 |
+| `simStudioPartActions` | index.html:3040 | js/simulator/simulator-studio.js:866 |
+| `simStudioPartDock` | index.html:3020 | js/simulator/simulator-studio.js:863 |
+| `simStudioPartForm` | index.html:3027 | js/simulator/simulator-studio.js:429 |
+| `simStudioPartInsert` | index.html:3041 | js/simulator/simulator-studio.js:1072 |
+| `simStudioPartLoad` | index.html:3042 | js/simulator/simulator-studio.js:1074 |
+| `simStudioPartSelect` | index.html:3025 |  |
+| `simStudioPartStore` | index.html:3022 | js/simulator/simulator-studio.js:488 |
+| `simStudioPlay` | index.html:3047 | js/simulator/simulator-studio.js:1080, js/ui/third/base-translation/base-de.js:530, js/ui/third/base-translation/base-en.js:545, js/ui/third/base-translation/base-es.js:522, js/ui/third/base-translation/base-fr.js:539, js/ui/third/base-translation/base-ja.js:535, js/ui/third/base-translation/base-ko.js:537, js/ui/third/base-translation/base-ru.js:523, js/ui/third/base-translation/base-zh.js:551 |
+| `simStudioPlayIndex` | index.html:3049 | js/simulator/simulator-studio.js:515 |
+| `simStudioPlayNext` | index.html:3046 | js/simulator/simulator-studio.js:1078, js/ui/third/base-translation/base-de.js:529, js/ui/third/base-translation/base-en.js:544, js/ui/third/base-translation/base-es.js:521, js/ui/third/base-translation/base-fr.js:538, js/ui/third/base-translation/base-ja.js:534, js/ui/third/base-translation/base-ko.js:536, js/ui/third/base-translation/base-ru.js:522, js/ui/third/base-translation/base-zh.js:550 |
+| `simStudioPlayPrev` | index.html:3045 | js/simulator/simulator-studio.js:1076, js/ui/third/base-translation/base-de.js:528, js/ui/third/base-translation/base-en.js:543, js/ui/third/base-translation/base-es.js:520, js/ui/third/base-translation/base-fr.js:537, js/ui/third/base-translation/base-ja.js:533, js/ui/third/base-translation/base-ko.js:535, js/ui/third/base-translation/base-ru.js:521, js/ui/third/base-translation/base-zh.js:549 |
+| `simStudioPlayStop` | index.html:3048 | js/simulator/simulator-studio.js:1082 |
+| `simStudioPlayTotal` | index.html:3049 | js/simulator/simulator-studio.js:516 |
+| `simStudioPreview` | index.html:2992 | js/simulator/simulator-studio.js:570 |
+| `simStudioPreviewHost` | index.html:2991 | js/simulator/simulator-studio.js:569 |
+| `simStudioScaleDown` | index.html:3053 | js/simulator/simulator-studio.js:1084 |
+| `simStudioScaleUp` | index.html:3054 | js/simulator/simulator-studio.js:1086 |
+| `simStudioStatus` | index.html:3060 | js/simulator/simulator-studio.js:105 |
+| `simStudioTitle` | index.html:2983 | js/simulator/simulator-studio.js:834, js/ui/third/base-translation/base-de.js:521, js/ui/third/base-translation/base-en.js:536, js/ui/third/base-translation/base-es.js:513, js/ui/third/base-translation/base-fr.js:530, js/ui/third/base-translation/base-ja.js:526, js/ui/third/base-translation/base-ko.js:528, js/ui/third/base-translation/base-ru.js:514, js/ui/third/base-translation/base-zh.js:542 |
+| `simStudioWebActions` | index.html:3035 | js/simulator/simulator-studio.js:865 |
+| `simStudioWebDock` | index.html:3013 | js/simulator/simulator-studio.js:862 |
+| `simStudioWebExample` | index.html:3036 | js/simulator/simulator-studio.js:1059 |
+| `simStudioWebForm` | index.html:3018 | js/simulator/simulator-studio.js:428 |
+| `simStudioWebInsert` | index.html:3037 | js/simulator/simulator-studio.js:1055 |
+| `simStudioWebLoad` | index.html:3038 | js/simulator/simulator-studio.js:1057 |
+| `simStudioWebTemplate` | index.html:3016 | js/simulator/simulator-studio.js:445 |
+| `simStudioWork` | index.html:2990 | js/simulator/simulator-studio.js:829 |
+| `simulator-chat-area` | index.html:1140 | js/sidebar/sidebar.js:83, js/ui/beginner-guide.js:197 |
 | `simulator-extra-section` | index.html:1249 |  |
 | `simulator-playback-section` | index.html:1188 |  |
 | `simulatorChatAddMessageButton` | index.html:1232 | js/simulator/chat-controller.js:334 |
@@ -568,19 +568,19 @@
 | `simulatorPlaybackStatus` | index.html:1203 | js/simulator/playback-controller.js:11 |
 | `simulatorPlaybackStop` | index.html:1194 | js/simulator/playback-controller.js:100 |
 | `simulatorPlaybackTotal` | index.html:1196 | js/simulator/playback-controller.js:23 |
-| `simulatorStudioOverlay` | index.html:2981 | js/simulator/simulator-studio.js:85 |
+| `simulatorStudioOverlay` | index.html:2980 | js/simulator/simulator-studio.js:85 |
 | `simulatorWorkspaceTabs` | index.html:1143 | js/assets/asset-library-controller.js:211 |
 | `skewX-control` | index.html:1947 | js/ui/control/common-control-management.js:3 |
 | `skewY-control` | index.html:1950 | js/ui/control/common-control-management.js:3 |
-| `sp-manga-toastContainer` | index.html:2255 | js/ui/toast.js:14, scripts/nai-real-acceptance.cjs:112 |
+| `sp-manga-toastContainer` | index.html:2255 | js/ui/toast.js:14, scripts/nai-real-acceptance.cjs:112, scripts/novice-task-e2e.cjs:384 |
 | `speech-bubble-area` | index.html:1443 | js/sidebar/sidebar.js:85, js/sidebar/speechBubble/speech-bubble-effect.js:304, js/ui/visual-studio.js:317, scripts/full-feature-e2e.cjs:148 |
 | `speech-bubble-area1` | index.html:1449 | js/sidebar/sidebar.js:48, js/sidebar/speechBubble/speech-bubble-effect.js:304 |
 | `speech-bubble-area2` | index.html:1494 | js/sidebar/sidebar.js:49 |
-| `speech-bubble-preview` | index.html:1488 | js/sidebar/panel/panel-manager.js:405, js/sidebar/speechBubble/speech-bubble-effect.js:138, js/ui/visual-studio.js:92 |
+| `speech-bubble-preview` | index.html:1488 | js/sidebar/panel/panel-manager.js:401, js/sidebar/speechBubble/speech-bubble-effect.js:138, js/ui/visual-studio.js:92 |
 | `speech-bubble-svg-preview-area1` | index.html:1452 |  |
 | `speech-bubble-svg-preview-area2` | index.html:1500 |  |
-| `speechBubbleLineSizeSlider` | index.html:1485 | js/project-management.js:259 |
-| `speechBubbleOpacity` | index.html:1463 | js/project-management.js:257, js/sidebar/speechBubble/speech-bubble-effect.js:7 |
+| `speechBubbleLineSizeSlider` | index.html:1485 | js/project-management.js:263 |
+| `speechBubbleOpacity` | index.html:1463 | js/project-management.js:261, js/sidebar/speechBubble/speech-bubble-effect.js:7 |
 | `speechBubbleTabs` | index.html:1445 | js/sidebar/sidebar.js:38 |
 | `story-composer-section` | index.html:1150 |  |
 | `storyComposerAddCharacter` | index.html:1163 | js/simulator/story-composer-controller.js:318 |
@@ -600,46 +600,46 @@
 | `storyComposerTemplate` | index.html:1168 | js/simulator/simulator-studio.js:951, js/simulator/story-composer-controller.js:95 |
 | `storyComposerTitle` | index.html:1154 | js/simulator/story-composer-controller.js:110 |
 | `storyComposerTypes` | index.html:1157 | js/simulator/story-composer-controller.js:272 |
-| `svg-container-template` | index.html:703 | js/sidebar/panel/panel-manager.js:393, js/sidebar/sidebar.js:4, js/sidebar/speechBubble/speech-bubble-effect.js:294, js/ui/beginner-guide.js:187, js/ui/visual-studio.js:315 |
+| `svg-container-template` | index.html:703 | js/sidebar/panel/panel-manager.js:389, js/sidebar/sidebar.js:4, js/sidebar/speechBubble/speech-bubble-effect.js:294, js/ui/beginner-guide.js:186, js/ui/visual-studio.js:315 |
 | `svg-preview-area-landscape` | index.html:724 | js/sidebar/sidebar.js:106, js/sidebar/speechBubble/speech-bubble-effect.js:137, js/ui/visual-studio.js:91 |
 | `svg-preview-area-vertical` | index.html:723 | js/sidebar/sidebar.js:105, js/sidebar/speechBubble/speech-bubble-effect.js:136, js/ui/visual-studio.js:90 |
-| `svgDownload` | index.html:267 | js/project-management.js:698, scripts/full-feature-e2e.cjs:237 |
-| `svg_icon_fillColor` | index.html:2020 | js/core/svg/google-icon-helper.js:155, js/project-management.js:270 |
-| `svg_icon_fillOpacity` | index.html:2026 | js/core/svg/google-icon-helper.js:156, js/project-management.js:272 |
-| `svg_icon_iconStyle` | index.html:2003 | js/core/svg/google-icon-helper.js:56, js/project-management.js:268 |
-| `svg_icon_lineColor` | index.html:2016 | js/core/svg/google-icon-helper.js:154, js/project-management.js:269 |
-| `svg_icon_lineWidth` | index.html:2023 | js/core/svg/google-icon-helper.js:157, js/project-management.js:271 |
+| `svgDownload` | index.html:267 | js/project-management.js:716, scripts/full-feature-e2e.cjs:240 |
+| `svg_icon_fillColor` | index.html:2020 | js/core/svg/google-icon-helper.js:155, js/project-management.js:274 |
+| `svg_icon_fillOpacity` | index.html:2026 | js/core/svg/google-icon-helper.js:156, js/project-management.js:276 |
+| `svg_icon_iconStyle` | index.html:2003 | js/core/svg/google-icon-helper.js:56, js/project-management.js:272 |
+| `svg_icon_lineColor` | index.html:2016 | js/core/svg/google-icon-helper.js:154, js/project-management.js:273 |
+| `svg_icon_lineWidth` | index.html:2023 | js/core/svg/google-icon-helper.js:157, js/project-management.js:275 |
 | `svg_icon_results` | index.html:2049 | js/core/svg/google-icon-helper.js:54 |
 | `svg_icon_searchInput` | index.html:1996 | js/core/svg/google-icon-helper.js:85 |
-| `svg_icon_shadowBlur` | index.html:2037 | js/core/svg/google-icon-helper.js:185, js/project-management.js:274 |
-| `svg_icon_shadowColor` | index.html:2034 | js/core/svg/google-icon-helper.js:184, js/project-management.js:273 |
-| `svg_icon_shadowOffsetX` | index.html:2040 | js/core/svg/google-icon-helper.js:186, js/project-management.js:275 |
-| `svg_icon_shadowOffsetY` | index.html:2043 | js/core/svg/google-icon-helper.js:187, js/project-management.js:276 |
+| `svg_icon_shadowBlur` | index.html:2037 | js/core/svg/google-icon-helper.js:185, js/project-management.js:278 |
+| `svg_icon_shadowColor` | index.html:2034 | js/core/svg/google-icon-helper.js:184, js/project-management.js:277 |
+| `svg_icon_shadowOffsetX` | index.html:2040 | js/core/svg/google-icon-helper.js:186, js/project-management.js:279 |
+| `svg_icon_shadowOffsetY` | index.html:2043 | js/core/svg/google-icon-helper.js:187, js/project-management.js:280 |
 | `table-header` | html/functionList.html:42 | html/functionList.html:293 |
 | `template-orientation-toggle` | index.html:707 | js/sidebar/sidebar.js:104, js/sidebar/speechBubble/speech-bubble-effect.js:295 |
 | `text-area` | index.html:1586 | js/sidebar/sidebar.js:87, js/ui/visual-studio.js:319, scripts/full-feature-e2e.cjs:155 |
 | `text-area2` | index.html:1660 | js/sidebar/sidebar.js:88, js/ui/visual-studio.js:322 |
 | `text-area2-settings` | index.html:1739 | js/sidebar/text/text-2-manager.js:127 |
 | `text-preview-area` | index.html:1588 |  |
-| `textBgColorPicker` | index.html:1628 | js/project-management.js:298, js/sidebar/text/text-effect.js:123, js/sidebar/text/vertical-text.js:19 |
-| `textColorPicker` | index.html:1620 | js/project-management.js:296, js/sidebar/speechBubble/speech-bubble-freehand.js:644, js/sidebar/speechBubble/speech-bubble-text.js:218, js/sidebar/text/text-effect.js:114, js/sidebar/text/vertical-text.js:16 |
-| `textOutlineColorPicker` | index.html:1624 | js/project-management.js:297, js/sidebar/speechBubble/speech-bubble-freehand.js:645, js/sidebar/speechBubble/speech-bubble-text.js:219, js/sidebar/text/text-effect.js:118, js/sidebar/text/vertical-text.js:17 |
+| `textBgColorPicker` | index.html:1628 | js/project-management.js:302, js/sidebar/text/text-effect.js:121, js/sidebar/text/vertical-text.js:19 |
+| `textColorPicker` | index.html:1620 | js/project-management.js:300, js/sidebar/speechBubble/speech-bubble-freehand.js:667, js/sidebar/speechBubble/speech-bubble-text.js:217, js/sidebar/text/text-effect.js:112, js/sidebar/text/vertical-text.js:16 |
+| `textOutlineColorPicker` | index.html:1624 | js/project-management.js:301, js/sidebar/speechBubble/speech-bubble-freehand.js:668, js/sidebar/speechBubble/speech-bubble-text.js:218, js/sidebar/text/text-effect.js:116, js/sidebar/text/vertical-text.js:17 |
 | `thrillButton` | index.html:1726 |  |
-| `tiltRandom` | index.html:984 | js/project-management.js:285, js/sidebar/panel/knife/knife-split-engine.js:71 |
-| `toggleAiPanelButton` | index.html:2083 | js/ui/beginner-guide.js:409 |
-| `toggleGridButton` | index.html:464 | js/panel/grid.js:104 |
+| `tiltRandom` | index.html:984 | js/project-management.js:289, js/sidebar/panel/knife/knife-split-engine.js:70 |
+| `toggleAiPanelButton` | index.html:2083 | js/ui/beginner-guide.js:408 |
+| `toggleGridButton` | index.html:464 | js/panel/grid.js:104, scripts/novice-task-e2e.cjs:775 |
 | `toneList` | html/Minual/screen-tone.html:61 |  |
 | `tool-area` | index.html:1826 | js/sidebar/pen/pen-tools.js:664, js/sidebar/sidebar.js:64, js/ui/util/event-delegator.js:62, js/ui/visual-studio.js:340 |
 | `tool-settings` | index.html:1868 | js/sidebar/pen/pen-tools.js:115 |
 | `top-control` | index.html:1941 | js/ui/control/common-control-management.js:3 |
 | `undo` | index.html:2155 | html/Shortcut/shortcut.html:65, js/core/svg/google-icon-names.js:12, js/ui/third/base-translation/base-de.js:315, js/ui/third/base-translation/base-en.js:321, js/ui/third/base-translation/base-es.js:314, js/ui/third/base-translation/base-fr.js:315, js/ui/third/base-translation/base-ja.js:320, js/ui/third/base-translation/base-ko.js:315, js/ui/third/base-translation/base-ru.js:315, js/ui/third/base-translation/base-zh.js:327, js/ui/third/tippy.js:91 |
-| `unifiedSettingsOverlay` | index.html:2273 | js/ai/ui/unified-settings-window.js:5 |
-| `usTabAI` | index.html:2280 | js/ui/third/i18next.js:1538 |
-| `verticalRandomPanelCount` | index.html:978 | js/panel/random-cut.js:10, js/project-management.js:283, js/ui/third/base-translation/base-de.js:114, js/ui/third/base-translation/base-en.js:119, js/ui/third/base-translation/base-es.js:114, js/ui/third/base-translation/base-fr.js:114, js/ui/third/base-translation/base-ja.js:118, js/ui/third/base-translation/base-ko.js:114, js/ui/third/base-translation/base-ru.js:114, js/ui/third/base-translation/base-zh.js:120 |
-| `verticalText` | index.html:1599 | js/layer/layer-management.js:214, js/sidebar/text/vertical-text.js:3, js/ui/visual-studio.js:395 |
-| `view_controls_checkbox` | index.html:342 | js/project-management.js:196, js/shortcut.js:75, js/sidebar/panel/panel-manager.js:643, js/ui/beginner-guide.js:349 |
-| `view_layers_checkbox` | index.html:333 | js/project-management.js:195, js/shortcut.js:68, js/sidebar/panel/panel-manager.js:640 |
-| `view_prompt_checkbox` | index.html:351 | js/project-management.js:248, js/shortcut.js:220, js/sidebar/panel/panel-manager.js:646 |
+| `unifiedSettingsOverlay` | index.html:2273 | js/ai/ui/unified-settings-window.js:11 |
+| `usTabAI` | index.html:2280 | js/ui/third/i18next.js:1682 |
+| `verticalRandomPanelCount` | index.html:978 | js/panel/random-cut.js:10, js/project-management.js:287, js/ui/third/base-translation/base-de.js:114, js/ui/third/base-translation/base-en.js:119, js/ui/third/base-translation/base-es.js:114, js/ui/third/base-translation/base-fr.js:114, js/ui/third/base-translation/base-ja.js:118, js/ui/third/base-translation/base-ko.js:114, js/ui/third/base-translation/base-ru.js:114, js/ui/third/base-translation/base-zh.js:120 |
+| `verticalText` | index.html:1599 | js/layer/layer-management.js:222, js/sidebar/text/vertical-text.js:3, js/ui/visual-studio.js:395 |
+| `view_controls_checkbox` | index.html:342 | js/project-management.js:200, js/shortcut.js:75, js/sidebar/panel/panel-manager.js:639, js/ui/beginner-guide.js:348 |
+| `view_layers_checkbox` | index.html:333 | js/project-management.js:199, js/shortcut.js:68, js/sidebar/panel/panel-manager.js:636 |
+| `view_prompt_checkbox` | index.html:351 | js/project-management.js:252, js/shortcut.js:220, js/sidebar/panel/panel-manager.js:642 |
 | `wildButton` | index.html:1689 |  |
 | `zebraButton` | index.html:1732 |  |
 | `zoomFit` | index.html:2076 | js/ui/third/base-translation/base-de.js:314, js/ui/third/base-translation/base-en.js:320, js/ui/third/base-translation/base-es.js:313, js/ui/third/base-translation/base-fr.js:314, js/ui/third/base-translation/base-ja.js:319, js/ui/third/base-translation/base-ko.js:314, js/ui/third/base-translation/base-ru.js:314, js/ui/third/base-translation/base-zh.js:326, js/ui/third/tippy.js:89 |
@@ -657,21 +657,24 @@
 | `T2-align-left` | js/sidebar/text/text-2-manager.js:136 |
 | `T2-align-right` | js/sidebar/text/text-2-manager.js:138 |
 | `addGlowEffectCheckBox` | js/sidebar/effect/effect-manager.js:118 |
-| `blendApplyButton` | js/layer/blend/blend.js:213 |
-| `blendFillColor` | js/layer/blend/blend.js:631 |
-| `blendFloatingWindow` | js/layer/blend/blend.js:488 |
-| `blendImageListBody` | js/layer/blend/blend.js:415 |
-| `blendModes` | js/layer/blend/blend.js:228 |
-| `blendSelectedInfo` | js/layer/blend/blend.js:208 |
-| `btm-dialog-cancel` | js/ui/bottom-bar.js:430 |
-| `btm-dialog-submit` | js/ui/bottom-bar.js:431 |
-| `canvas-area .area-header` | js/ai/gpt-region-editor.js:1060, js/ai/manga-character-bible-ui.js:181, js/ai/manga-page-structure-ui.js:346, js/ai/manga-smart-text-editor.js:450 |
+| `blendApplyButton` | js/layer/blend/blend.js:212 |
+| `blendFillColor` | js/layer/blend/blend.js:630 |
+| `blendFloatingWindow` | js/layer/blend/blend.js:487 |
+| `blendImageListBody` | js/layer/blend/blend.js:414 |
+| `blendModes` | js/layer/blend/blend.js:227 |
+| `blendSelectedInfo` | js/layer/blend/blend.js:207 |
+| `btm-dialog-cancel` | js/ui/bottom-bar.js:526 |
+| `btm-dialog-submit` | js/ui/bottom-bar.js:527 |
+| `btm-image-container > *` | scripts/novice-task-e2e.cjs:357 |
+| `btm-image-container button` | scripts/novice-task-e2e.cjs:544 |
+| `btmPageRestoreBar` | js/ui/bottom-bar.js:451 |
+| `canvas-area .area-header` | js/ai/gpt-region-editor.js:1329, js/ai/manga-character-bible-ui.js:181, js/ai/manga-page-structure-ui.js:346, js/ai/manga-smart-text-editor.js:475 |
 | `checSD_WebUI_Announce` | js/ai/ai-management.js:103 |
-| `com-fill` | js/ui/canvas-object-menu.js:469 |
-| `com-lineWidth` | js/ui/canvas-object-menu.js:433 |
-| `com-opacity` | js/ui/canvas-object-menu.js:471 |
-| `com-strokeColor` | js/ui/canvas-object-menu.js:470 |
-| `comfyGuideDontShow` | js/ui/tutorial.js:362 |
+| `com-fill` | js/ui/canvas-object-menu.js:467 |
+| `com-lineWidth` | js/ui/canvas-object-menu.js:431 |
+| `com-opacity` | js/ui/canvas-object-menu.js:469 |
+| `com-strokeColor` | js/ui/canvas-object-menu.js:468 |
+| `comfyGuideDontShow` | js/ui/tutorial.js:371 |
 | `customBrushAngle` | js/sidebar/pen/pen-tools.js:502 |
 | `customBrushApplyButton` | js/sidebar/pen/pen-tools.js:609 |
 | `customBrushColor` | js/sidebar/pen/pen-tools.js:498 |
@@ -694,10 +697,9 @@
 | `customBrushTipInput` | js/sidebar/pen/pen-tools.js:596 |
 | `effectEnhanceDarkIntensity` | js/core/util/image-util.js:321, js/sidebar/effect/effect-manager.js:129 |
 | `effectEnhanceDarkSubmit` | js/sidebar/effect/effect-manager.js:130 |
-| `fabricjs-delete-btn` | js/ui/canvas-object-menu.js:390 |
-| `fabricjs-language-selector` | js/ui/canvas-object-menu.js:3 |
+| `fabricjs-delete-btn` | js/ui/canvas-object-menu.js:388 |
 | `featureTable tbody` | html/functionList.html:267 |
-| `fm-fontFileUpload` | js/ui/font/user-font-manager.js:108 |
+| `fm-fontFileUpload` | js/ui/font/user-font-manager.js:113 |
 | `fm-fontManagerModal` | js/core/font/font-manager-core.js:501 |
 | `fm-localFontInput` | js/core/font/font-manager-core.js:379 |
 | `fm-modalOverlay` | js/core/font/font-manager-core.js:504 |
@@ -705,7 +707,7 @@
 | `fm-styles` | js/core/font/font-dropdown.js:51 |
 | `fm-userFontGroup` | js/core/font/font-manager-core.js:363 |
 | `fm-webFontUrlInput` | js/core/font/font-manager-core.js:428 |
-| `fontSelectorMenu` | js/ui/canvas-object-menu.js:364 |
+| `fontSelectorMenu` | js/ui/canvas-object-menu.js:362 |
 | `glfxApplyButton` | js/ui/control/glfx-control.js:407 |
 | `glfxBlurAngle` | js/ui/control/glfx-control.js:18 |
 | `glfxBlurBrightness` | js/ui/control/glfx-control.js:17 |
@@ -749,30 +751,30 @@
 | `glfxZoomStrength` | js/ui/control/glfx-control.js:28 |
 | `glowOutLineColorPicker` | js/sidebar/effect/effect-manager.js:120 |
 | `glowOutLineSlider` | js/sidebar/effect/effect-manager.js:119 |
-| `gradientDirection` | js/layer/blend/blend.js:599 |
-| `gradientEnd` | js/layer/blend/blend.js:624 |
-| `gradientStart` | js/layer/blend/blend.js:622 |
+| `gradientDirection` | js/layer/blend/blend.js:598 |
+| `gradientEnd` | js/layer/blend/blend.js:623 |
+| `gradientStart` | js/layer/blend/blend.js:621 |
 | `h div` | index.html:118 |
 | `head-id .left_area` | js/ui/visual-studio.js:44 |
 | `id` | scripts/gen-project-index.cjs:188 |
 | `img2imgScale` | js/ui/ai/auto-prompt-ui.js:138 |
 | `img2img_denoise` | js/ui/ai/auto-prompt-ui.js:141 |
-| `iph-breadcrumb` | js/ui/imagePromptHelper/image-prompt-helper.js:500 |
-| `iph-cat-panel` | js/ui/imagePromptHelper/image-prompt-helper.js:409 |
+| `iph-breadcrumb` | js/ui/imagePromptHelper/image-prompt-helper.js:485 |
+| `iph-cat-panel` | js/ui/imagePromptHelper/image-prompt-helper.js:394 |
 | `iph-clear-button` | js/ui/imagePromptHelper/image-prompt-helper.js:126 |
 | `iph-copy-button` | js/ui/imagePromptHelper/image-prompt-helper.js:106 |
 | `iph-download-button` | js/ui/imagePromptHelper/image-prompt-helper.js:115 |
-| `iph-free-input` | js/ui/imagePromptHelper/image-prompt-helper.js:677, js/ui/imagePromptHelper/prompt-helper.js:10 |
-| `iph-img-grid` | js/ui/imagePromptHelper/image-prompt-helper.js:508 |
-| `iph-major-tabs` | js/ui/imagePromptHelper/image-prompt-helper.js:369 |
+| `iph-free-input` | js/ui/imagePromptHelper/image-prompt-helper.js:662, js/ui/imagePromptHelper/prompt-helper.js:10 |
+| `iph-img-grid` | js/ui/imagePromptHelper/image-prompt-helper.js:493 |
+| `iph-major-tabs` | js/ui/imagePromptHelper/image-prompt-helper.js:354 |
 | `iph-name-input` | js/ui/imagePromptHelper/prompt-helper.js:9 |
 | `iph-prompt-box` | js/ui/imagePromptHelper/image-prompt-helper.js:132 |
 | `iph-prompt-copy` | js/ui/imagePromptHelper/image-prompt-helper.js:131 |
 | `iph-prompt-download` | js/ui/imagePromptHelper/image-prompt-helper.js:140 |
 | `iph-save-button` | js/ui/imagePromptHelper/prompt-helper.js:8 |
 | `iph-search-input` | js/ui/imagePromptHelper/image-prompt-helper.js:101 |
-| `iph-sel-list` | js/ui/imagePromptHelper/image-prompt-helper.js:614 |
-| `languageFlag` | js/ui/third/i18next.js:5691 |
+| `iph-sel-list` | js/ui/imagePromptHelper/image-prompt-helper.js:599 |
+| `languageFlag` | js/ui/third/i18next.js:5835 |
 | `line-style` | js/sidebar/pen/pen-tools.js:124 |
 | `manga-tone-buttons button, #manga-effect-buttons button, #pen-tool-buttons button, #image-text-tool-buttons button, .visual-shape-grid button, .visual-text-grid button` | js/ui/visual-studio.js:110 |
 | `mangaBubbleList` | js/ai/manga-page-structure-ui.js:175 |
@@ -785,48 +787,52 @@
 | `mangaCharacterSave` | js/ai/manga-character-bible-ui.js:121 |
 | `mangaCharacterStatus` | js/ai/manga-character-bible-ui.js:50 |
 | `mangaCharacterTraits` | js/ai/manga-character-bible-ui.js:129 |
-| `mangaGptApply` | scripts/full-feature-e2e.cjs:378, scripts/gpt-browser-acceptance.cjs:1130 |
-| `mangaGptGenerate` | scripts/full-feature-e2e.cjs:416, scripts/gpt-browser-acceptance.cjs:206, scripts/gpt-real-api-acceptance.cjs:246 |
-| `mangaGptMode` | scripts/gpt-browser-acceptance.cjs:896 |
-| `mangaGptOpen` | scripts/gpt-browser-acceptance.cjs:1156 |
-| `mangaGptPanel` | scripts/full-feature-e2e.cjs:365, scripts/gpt-browser-acceptance.cjs:269 |
-| `mangaGptPreview` | scripts/gpt-browser-acceptance.cjs:897 |
-| `mangaGptPrompt` | scripts/full-feature-e2e.cjs:358, scripts/gpt-browser-acceptance.cjs:895 |
-| `mangaGptReferenceList` | scripts/full-feature-e2e.cjs:358, scripts/gpt-browser-acceptance.cjs:1107 |
-| `mangaGptReplaceText` | scripts/gpt-browser-acceptance.cjs:427 |
-| `mangaGptStatus` | scripts/full-feature-e2e.cjs:378, scripts/gpt-browser-acceptance.cjs:213, scripts/gpt-real-api-acceptance.cjs:138 |
-| `mangaGptSubtitle` | scripts/gpt-browser-acceptance.cjs:426 |
-| `mangaLamaConfirm` | js/ai/manga-lama-inpaint-ui.js:108, scripts/full-feature-e2e.cjs:312, scripts/gpt-browser-acceptance.cjs:761, scripts/manga-real-ui-acceptance.cjs:96 |
-| `mangaLamaGenerate` | js/ai/manga-lama-inpaint-ui.js:263, scripts/full-feature-e2e.cjs:308, scripts/gpt-browser-acceptance.cjs:839, scripts/manga-real-ui-acceptance.cjs:92 |
-| `mangaLamaMaskCanvas` | js/ai/manga-lama-inpaint-ui.js:61, scripts/full-feature-e2e.cjs:308, scripts/gpt-browser-acceptance.cjs:756, scripts/manga-real-ui-acceptance.cjs:91 |
-| `mangaLamaPreviewImg` | js/ai/manga-lama-inpaint-ui.js:109, scripts/gpt-browser-acceptance.cjs:812 |
-| `mangaLamaPreviewPanel` | js/ai/manga-lama-inpaint-ui.js:163, scripts/gpt-browser-acceptance.cjs:760 |
-| `mangaLamaStatus` | js/ai/manga-lama-inpaint-ui.js:16, scripts/full-feature-e2e.cjs:313, scripts/gpt-browser-acceptance.cjs:770, scripts/manga-real-ui-acceptance.cjs:97 |
+| `mangaGptApply` | scripts/full-feature-e2e.cjs:381, scripts/gpt-browser-acceptance.cjs:1231, scripts/novice-task-e2e.cjs:219 |
+| `mangaGptCancel` | scripts/novice-task-e2e.cjs:946 |
+| `mangaGptCompare` | scripts/novice-task-e2e.cjs:225 |
+| `mangaGptGenerate` | scripts/full-feature-e2e.cjs:419, scripts/gpt-browser-acceptance.cjs:206, scripts/gpt-real-api-acceptance.cjs:246, scripts/novice-task-e2e.cjs:952 |
+| `mangaGptMode` | scripts/gpt-browser-acceptance.cjs:997 |
+| `mangaGptModel` | scripts/gpt-browser-acceptance.cjs:249 |
+| `mangaGptModelPreset` | scripts/gpt-browser-acceptance.cjs:249 |
+| `mangaGptOpen` | scripts/gpt-browser-acceptance.cjs:1259, scripts/novice-task-e2e.cjs:166 |
+| `mangaGptPanel` | scripts/full-feature-e2e.cjs:368, scripts/gpt-browser-acceptance.cjs:285, scripts/novice-task-e2e.cjs:1043 |
+| `mangaGptPreview` | scripts/gpt-browser-acceptance.cjs:998, scripts/novice-task-e2e.cjs:225 |
+| `mangaGptPrompt` | scripts/full-feature-e2e.cjs:361, scripts/gpt-browser-acceptance.cjs:996 |
+| `mangaGptReferenceList` | scripts/full-feature-e2e.cjs:361, scripts/gpt-browser-acceptance.cjs:1208 |
+| `mangaGptReplaceText` | scripts/gpt-browser-acceptance.cjs:446 |
+| `mangaGptStatus` | scripts/full-feature-e2e.cjs:381, scripts/gpt-browser-acceptance.cjs:213, scripts/gpt-real-api-acceptance.cjs:138, scripts/novice-task-e2e.cjs:219 |
+| `mangaGptSubtitle` | scripts/gpt-browser-acceptance.cjs:445 |
+| `mangaLamaConfirm` | js/ai/manga-lama-inpaint-ui.js:108, scripts/full-feature-e2e.cjs:315, scripts/gpt-browser-acceptance.cjs:860, scripts/manga-real-ui-acceptance.cjs:96, scripts/novice-task-e2e.cjs:485 |
+| `mangaLamaGenerate` | js/ai/manga-lama-inpaint-ui.js:263, scripts/full-feature-e2e.cjs:311, scripts/gpt-browser-acceptance.cjs:940, scripts/manga-real-ui-acceptance.cjs:92, scripts/novice-task-e2e.cjs:477 |
+| `mangaLamaMaskCanvas` | js/ai/manga-lama-inpaint-ui.js:61, scripts/full-feature-e2e.cjs:311, scripts/gpt-browser-acceptance.cjs:855, scripts/manga-real-ui-acceptance.cjs:91, scripts/novice-task-e2e.cjs:477 |
+| `mangaLamaPreviewImg` | js/ai/manga-lama-inpaint-ui.js:109, scripts/gpt-browser-acceptance.cjs:911 |
+| `mangaLamaPreviewPanel` | js/ai/manga-lama-inpaint-ui.js:163, scripts/gpt-browser-acceptance.cjs:859 |
+| `mangaLamaStatus` | js/ai/manga-lama-inpaint-ui.js:16, scripts/full-feature-e2e.cjs:316, scripts/gpt-browser-acceptance.cjs:869, scripts/manga-real-ui-acceptance.cjs:97, scripts/novice-task-e2e.cjs:485 |
 | `mangaPageAnalyze` | js/ai/manga-page-structure-ui.js:286 |
 | `mangaPageClose` | js/ai/manga-page-structure-ui.js:371 |
 | `mangaPageDirection` | js/ai/manga-page-structure-ui.js:294 |
 | `mangaPageExport` | js/ai/manga-page-structure-ui.js:383 |
 | `mangaPageList` | js/ai/manga-edit-planner-ui.js:116, js/ai/manga-page-structure-ui.js:89 |
-| `mangaPageOverlay .manga-page-bubble-outline` | scripts/gpt-browser-acceptance.cjs:950 |
-| `mangaPageOverlay .manga-page-outline` | scripts/gpt-browser-acceptance.cjs:923 |
-| `mangaPagePanel` | js/ai/manga-edit-planner-ui.js:69, js/ai/manga-page-structure-ui.js:241, scripts/gpt-browser-acceptance.cjs:1033 |
+| `mangaPageOverlay .manga-page-bubble-outline` | scripts/gpt-browser-acceptance.cjs:1051 |
+| `mangaPageOverlay .manga-page-outline` | scripts/gpt-browser-acceptance.cjs:1024 |
+| `mangaPagePanel` | js/ai/manga-edit-planner-ui.js:69, js/ai/manga-page-structure-ui.js:241, scripts/gpt-browser-acceptance.cjs:1134 |
 | `mangaPageShowBubbles` | js/ai/manga-page-structure-ui.js:380 |
 | `mangaPageShowOverlay` | js/ai/manga-page-structure-ui.js:376 |
 | `mangaPageStatus` | js/ai/manga-page-structure-ui.js:22 |
 | `mangaPlannerBox` | js/ai/manga-edit-planner-ui.js:89 |
 | `mangaPlannerConfirm` | js/ai/manga-edit-planner-ui.js:24 |
 | `mangaPlannerInput` | js/ai/manga-edit-planner-ui.js:30 |
-| `mangaPlannerPreview` | js/ai/manga-edit-planner-ui.js:22, scripts/gpt-browser-acceptance.cjs:1023 |
+| `mangaPlannerPreview` | js/ai/manga-edit-planner-ui.js:22, scripts/gpt-browser-acceptance.cjs:1124 |
 | `mangaPlannerStatus` | js/ai/manga-edit-planner-ui.js:11 |
 | `mangaSmartApply` | js/ai/manga-smart-text-editor.js:81 |
 | `mangaSmartCancel` | js/ai/manga-smart-text-editor.js:13 |
-| `mangaSmartClose` | js/ai/manga-smart-text-editor.js:477 |
+| `mangaSmartClose` | js/ai/manga-smart-text-editor.js:502 |
 | `mangaSmartDetect` | js/ai/manga-smart-text-editor.js:80 |
 | `mangaSmartLanguage` | js/ai/manga-smart-text-editor.js:219 |
-| `mangaSmartManual` | js/ai/manga-smart-text-editor.js:480 |
+| `mangaSmartManual` | js/ai/manga-smart-text-editor.js:505 |
 | `mangaSmartRegions` | js/ai/manga-smart-text-editor.js:120 |
-| `mangaSmartStatus` | js/ai/manga-smart-text-editor.js:34, scripts/full-feature-e2e.cjs:289, scripts/manga-real-ui-acceptance.cjs:72 |
-| `mangaSmartTextPanel` | js/ai/manga-edit-planner-ui.js:66, js/ai/manga-smart-text-editor.js:149, scripts/gpt-browser-acceptance.cjs:1063 |
+| `mangaSmartStatus` | js/ai/manga-smart-text-editor.js:34, scripts/full-feature-e2e.cjs:292, scripts/manga-real-ui-acceptance.cjs:72, scripts/novice-task-e2e.cjs:253 |
+| `mangaSmartTextPanel` | js/ai/manga-edit-planner-ui.js:66, js/ai/manga-smart-text-editor.js:149, scripts/gpt-browser-acceptance.cjs:1164 |
 | `naiBootGuard` | js/assets/boot-guard.js:25 |
 | `naiBootGuardProbe` | js/assets/boot-guard.js:32 |
 | `naiBrushCursor` | js/ui/visual-studio.js:125 |
@@ -848,6 +854,7 @@
 | `otherControlsPanel .area-header` | js/ai/novelai-only-mode.js:79 |
 | `pen-tool-buttons [data-brush]` | js/sidebar/pen/pen-tools.js:676 |
 | `promptRun` | js/ui/ai/auto-prompt-ui.js:119 |
+| `settingsResetDialog` | scripts/novice-task-e2e.cjs:913 |
 | `sidebar .icon-wrapper i.active` | js/simulator/simulator-studio.js:820 |
 | `sidebar .icon-wrapper[data-action="openSimulatorStudio"] i` | js/simulator/simulator-studio.js:821 |
 | `sidebar .icon-wrapper[data-action='selectCrop']` | js/sidebar/pen/pen-tools.js:700 |
@@ -857,19 +864,21 @@
 | `sidebar .icon-wrapper[data-ps-tool]` | js/ui/visual-ps-tools.js:113 |
 | `sidebar .icon-wrapper[data-target="tool-area"]` | js/sidebar/pen/pen-tools.js:670 |
 | `sidebar .icon-wrapper[data-target]` | js/sidebar/sidebar.js:67, js/ui/visual-studio.js:418 |
-| `sourceImages` | js/layer/blend/blend.js:312 |
+| `sidebar [data-action="toggleVisibility"]` | scripts/novice-task-e2e.cjs:793 |
+| `sourceImages` | js/layer/blend/blend.js:311 |
 | `sp-manga-toastMessageContainer` | js/ui/toast.js:50 |
+| `speech-bubble-preview > *` | scripts/novice-task-e2e.cjs:579 |
 | `speed-line-style` | js/sidebar/tone/speedline.js:82 |
 | `t2_shadow_dualShadow` | js/sidebar/text/custom/optimized-shadow-text.js:122 |
 | `testCanvas` | js/core/font/font-manager-core.js:612 |
 | `text2img_negative` | js/ui/ai/auto-prompt-ui.js:61 |
 | `text2img_prompt` | js/ui/ai/auto-prompt-ui.js:40 |
 | `tool-settings input[type="range"]` | js/ui/visual-studio.js:65 |
-| `tutorialCloseHint` | js/ui/tutorial.js:259 |
-| `tutorialDontShow` | js/ui/tutorial.js:252 |
-| `tutorialExitBtn` | js/ui/tutorial.js:198 |
-| `tutorialGotIt` | js/ui/tutorial.js:260 |
-| `tutorialNextBtn` | js/ui/tutorial.js:194 |
+| `tutorialCloseHint` | js/ui/tutorial.js:268 |
+| `tutorialDontShow` | js/ui/tutorial.js:261 |
+| `tutorialExitBtn` | js/ui/tutorial.js:207 |
+| `tutorialGotIt` | js/ui/tutorial.js:269 |
+| `tutorialNextBtn` | js/ui/tutorial.js:203 |
 | `tutorialSkipBtn` | js/ui/tutorial.js:108 |
 | `tutorialStartBtn` | js/ui/tutorial.js:103 |
 | `unifiedSettingsOverlay .us-header h2` | js/ai/novelai-only-mode.js:61 |
@@ -883,7 +892,7 @@
 - js/ai/ai-management.js : `ExternalService_Heartbeat_Container`, `apiHeartbeatCheckbox`, `checSD_WebUI_Announce`, `novelaiConcurrency`
 - js/ai/ai-settings.js : `ScenarioPromptSelecter`, `apiHeartbeatCheckbox`, `naiBatchAcceptanceButton`, `naiBatchAcceptanceConfirmButton`, `naiBatchAcceptanceGate`, `naiBatchAutoGenerateAfterPrompts`, `naiBatchSaveTagDnaButton`, `naiCompositionAgent`, `naiDirectorAdjustCanvas`, `naiDirectorApiKey`, `naiDirectorApiKeyToggle`, `naiDirectorApiUrl`, `naiDirectorHonorCharacterCards`, `naiDirectorMessageMode`, `naiDirectorModel`, `naiDirectorModelList`, `naiDirectorRefreshModels`, `naiDirectorResetSystemPrompt`, `naiDirectorStoreDrafts`, `naiDirectorSystemPrompt`, `naiDirectorTestApi`, `naiDirectorTimeout`, `naiDirectorUseApi`, `naiDirectorUseProxy`, `naiDirectorUseTagAnchors`, `naiGenerateComicDemo`, `naiGenerateMaterialPreviews`, `naiHealthCheck`, `naiMaterialPreviewStatus`, `naiToolJobStatus`, `novelaiApiKey`, `novelaiApiKeyToggle`, `novelaiApiUrl`, `novelaiApiUrlDefaultUrl`, `novelaiCfgRescale`, `novelaiConcurrency`, `novelaiDashboard`, `novelaiI2INoise`, `novelaiI2IStrength`, `novelaiModel`, `novelaiQualityToggle`, `novelaiSM`, `novelaiSMDyn`, `novelaiSampler`, `novelaiScale`, `novelaiSteps`, `novelaiUcPreset`, `novelaiUseLocalProxy`
 - js/ai/director/scene-plan-controller.js : `naiScenePlanApply`, `naiScenePlanGenerate`, `naiScenePlanInput`, `naiScenePlanJson`, `naiScenePlanPreview`, `naiScenePlanRetry`, `naiScenePlanRollback`, `naiScenePlanStatus`
-- js/ai/gpt-region-editor.js : `canvas-area .area-header`, `edit`
+- js/ai/gpt-region-editor.js : `canvas-area`, `canvas-area .area-header`, `edit`
 - js/ai/manga-character-bible-ui.js : `a`, `canvas-area .area-header`, `mangaCharacterCards`, `mangaCharacterImport`, `mangaCharacterName`, `mangaCharacterNotes`, `mangaCharacterPanel`, `mangaCharacterPhotos`, `mangaCharacterSave`, `mangaCharacterStatus`, `mangaCharacterTraits`
 - js/ai/manga-edit-planner-ui.js : `mangaPageList`, `mangaPagePanel`, `mangaPlannerBox`, `mangaPlannerConfirm`, `mangaPlannerInput`, `mangaPlannerPreview`, `mangaPlannerStatus`, `mangaSmartTextPanel`
 - js/ai/manga-importer.js : `bg-color`, `mangaImportAutoTag`, `mangaImportCharacterPlaceholders`, `mangaImportCharacterReferences`, `mangaImportDirectorButton`, `mangaImportGenerateButton`, `mangaImportInput`, `mangaImportKeepReference`, `mangaImportMinPanelArea`, `mangaImportPanelThreshold`, `mangaImportPickButton`, `mangaImportPreflightButton`, `mangaImportRetagButton`, `mangaImportSelectNextPanelButton`, `mangaImportSelectPlaceholderButton`, `mangaImportStatus`, `mangaImportTaggerThreshold`, `mangaImportTaggerUrl`, `mangaImportUseTaggerProxy`, `naiBatchDirectorEnabled`, `naiBatchDirectorPrompt`
@@ -957,8 +966,8 @@
 - js/svg/manga-panels-image-vertical.js : `a`, `i`, `j`, `k`
 - js/ui/ai/auto-prompt-ui.js : `img2imgScale`, `img2img_denoise`, `naiDirectorDraft`, `naiDirectorPlanPreview`, `naiDirectorStoreDrafts`, `other-controls-mini`, `promptRun`, `text2img_negative`, `text2img_prompt`
 - js/ui/beginner-guide.js : `beginnerToolHud`, `canvas-help-text`, `canvasEmptyHint`, `clearMode`, `controls`, `k`, `layerSelectPageButton`, `naiTokenBadge`, `novelaiApiKey`, `novelaiRememberToken`, `panel-manager-area`, `resizable-container`, `simulator-chat-area`, `svg-container-template`, `toggleAiPanelButton`, `view_controls_checkbox`
-- js/ui/bottom-bar.js : `btm-dialog-cancel`, `btm-dialog-submit`, `btm-drawer`, `btm-drawer-handle`, `btm-image-container`, `btm-scroll-left`, `btm-scroll-right`
-- js/ui/canvas-object-menu.js : `com-fill`, `com-lineWidth`, `com-opacity`, `com-strokeColor`, `cutout-area`, `edit`, `fabricjs-delete-btn`, `fabricjs-language-selector`, `fontSelectorMenu`, `intro_content`
+- js/ui/bottom-bar.js : `btm-dialog-cancel`, `btm-dialog-submit`, `btm-drawer`, `btm-drawer-handle`, `btm-image-container`, `btm-scroll-left`, `btm-scroll-right`, `btmPageRestoreBar`
+- js/ui/canvas-object-menu.js : `com-fill`, `com-lineWidth`, `com-opacity`, `com-strokeColor`, `cutout-area`, `edit`, `fabricjs-delete-btn`, `fontSelectorMenu`, `intro_content`
 - js/ui/control/common-control-management.js : `angle-control`, `left-control`, `opacity-control`, `scale-control`, `skewX-control`, `skewY-control`, `top-control`
 - js/ui/control/glfx-control.js : `glfxApplyButton`, `glfxBlurAngle`, `glfxBlurBrightness`, `glfxBlurRadius`, `glfxBrightness`, `glfxBulgeCenterX`, `glfxBulgeCenterY`, `glfxBulgeRadius`, `glfxBulgeStrength`, `glfxContrast`, `glfxDotAngle`, `glfxDotSize`, `glfxEdgeRadius`, `glfxEndX`, `glfxEndY`, `glfxFilter`, `glfxGradientRadius`, `glfxHalftoneAngle`, `glfxHalftoneSize`, `glfxHexScale`, `glfxHue`, `glfxInkStrength`, `glfxResetButton`, `glfxSaturation`, `glfxSepiaAmount`, `glfxStartX`, `glfxStartY`, `glfxSwirlAngle`, `glfxSwirlCenterX`, `glfxSwirlCenterY`, `glfxSwirlRadius`, `glfxTiltBlurRadius`, `glfxTriangleRadius`, `glfxUnsharpRadius`, `glfxUnsharpStrength`, `glfxVibranceAmount`, `glfxVignetteAmount`, `glfxVignetteSize`, `glfxZoomCenterX`, `glfxZoomCenterY`, `glfxZoomStrength`
 - js/ui/control/information-control.js : `InformationCoordinate`, `InformationFPS`
@@ -988,7 +997,7 @@
 - scripts/beginner-ux-guards-test.cjs : `imageDownload`, `projectLoad`, `projectSave`, `settingsReset`, `settingsSave`
 - scripts/full-feature-e2e.cjs : `edit`, `manga-tone-area`, `mangaGptApply`, `mangaGptGenerate`, `mangaGptPanel`, `mangaGptPrompt`, `mangaGptReferenceList`, `mangaGptStatus`, `mangaLamaConfirm`, `mangaLamaGenerate`, `mangaLamaMaskCanvas`, `mangaLamaStatus`, `mangaSmartStatus`, `projectLoad`, `projectSave`, `shape-area`, `speech-bubble-area`, `svgDownload`, `text-area`
 - scripts/gen-project-index.cjs : `id`
-- scripts/gpt-browser-acceptance.cjs : `edit`, `mangaGptApply`, `mangaGptGenerate`, `mangaGptMode`, `mangaGptOpen`, `mangaGptPanel`, `mangaGptPreview`, `mangaGptPrompt`, `mangaGptReferenceList`, `mangaGptReplaceText`, `mangaGptStatus`, `mangaGptSubtitle`, `mangaLamaConfirm`, `mangaLamaGenerate`, `mangaLamaMaskCanvas`, `mangaLamaPreviewImg`, `mangaLamaPreviewPanel`, `mangaLamaStatus`, `mangaPageOverlay .manga-page-bubble-outline`, `mangaPageOverlay .manga-page-outline`, `mangaPagePanel`, `mangaPlannerPreview`, `mangaSmartTextPanel`
+- scripts/gpt-browser-acceptance.cjs : `edit`, `mangaGptApply`, `mangaGptGenerate`, `mangaGptMode`, `mangaGptModel`, `mangaGptModelPreset`, `mangaGptOpen`, `mangaGptPanel`, `mangaGptPreview`, `mangaGptPrompt`, `mangaGptReferenceList`, `mangaGptReplaceText`, `mangaGptStatus`, `mangaGptSubtitle`, `mangaLamaConfirm`, `mangaLamaGenerate`, `mangaLamaMaskCanvas`, `mangaLamaPreviewImg`, `mangaLamaPreviewPanel`, `mangaLamaStatus`, `mangaPageOverlay .manga-page-bubble-outline`, `mangaPageOverlay .manga-page-outline`, `mangaPagePanel`, `mangaPlannerPreview`, `mangaSmartTextPanel`
 - scripts/gpt-real-api-acceptance.cjs : `edit`, `mangaGptGenerate`, `mangaGptStatus`
 - scripts/gpt-region-editor-smoke-test.cjs : `edit`
 - scripts/image-export-smoke-test.cjs : `outputBitDepth`, `outputBitDepthHint`, `outputDpi`
@@ -999,5 +1008,7 @@
 - scripts/manga-real-ui-acceptance.cjs : `mangaLamaConfirm`, `mangaLamaGenerate`, `mangaLamaMaskCanvas`, `mangaLamaStatus`, `mangaSmartStatus`
 - scripts/nai-real-acceptance.cjs : `naiHealthCheck`, `novelaiApiKey`, `novelaiSteps`, `novelaiUseLocalProxy`, `sp-manga-toastContainer`
 - scripts/novelai-readable-error-test.cjs : `a`
+- scripts/novice-task-e2e.cjs : `align-center`, `align-left`, `align-right`, `bold-toggle-btn`, `btm-drawer`, `btm-image-container`, `btm-image-container > *`, `btm-image-container button`, `canvas-area`, `desu-nav`, `edit`, `imageInput`, `mangaGptApply`, `mangaGptCancel`, `mangaGptCompare`, `mangaGptGenerate`, `mangaGptOpen`, `mangaGptPanel`, `mangaGptPreview`, `mangaGptStatus`, `mangaLamaConfirm`, `mangaLamaGenerate`, `mangaLamaMaskCanvas`, `mangaLamaStatus`, `mangaSmartStatus`, `navbarDropdownFile`, `settingsResetDialog`, `sidebar [data-action="toggleVisibility"]`, `sp-manga-toastContainer`, `speech-bubble-preview > *`, `toggleGridButton`
 - scripts/simulator-timeline-smoke-test.cjs : `a`
+- scripts/tone-target-apply-test.cjs : `add`
 - scripts/ux-screenshots.cjs : `shape-area`

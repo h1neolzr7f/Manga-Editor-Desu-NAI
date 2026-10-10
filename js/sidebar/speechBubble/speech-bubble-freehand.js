@@ -1,4 +1,4 @@
-/* exported activePoint, clearJSTSGeometry, createJSTSPolygon, repairFreehandPolygon, createSpeechBubble, deletePoint, freehandBubbleTextChanged, isDrawing, isNearStartPoint, lastRenderTime, mergeOverlappingShapes, processPoints, sbFreehandTextChange, scaleX, scaleY, selectedObject, updateFreehandBubblePositions, updateJSTSGeometry, updateShape, updateTemporaryShapes */
+/* exported activePoint, clearJSTSGeometry, createJSTSPolygon, createSpeechBubble, deletePoint, freehandBubbleTextChanged, isDrawing, isNearStartPoint, lastRenderTime, mergeOverlappingShapes, processPoints, sbFreehandTextChange, selectedObject, updateFreehandBubblePositions, updateJSTSGeometry, updateShape, updateTemporaryShapes */
 function sbFreehandTextChange(alignment,button) {
 changeSelected(button);
 }
@@ -760,8 +760,6 @@ const textbox=getFreehandBubbleTextByPath(pathObj);
 if(!rect||!textbox) return;
 if(pathObj.freehandBubbleRectX===undefined) return;
 const boundingRect=pathObj.getBoundingRect(true,true);
-const scaleX=pathObj.scaleX||1;
-const scaleY=pathObj.scaleY||1;
 const viewBoxW=pathObj.freehandBubbleViewBoxWidth||boundingRect.width;
 const viewBoxH=pathObj.freehandBubbleViewBoxHeight||boundingRect.height;
 const scaleW=boundingRect.width/viewBoxW;

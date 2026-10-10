@@ -1,4 +1,4 @@
-/* exported avtive, canvas, copy, createGUIDMap, deepCopy, fitImageToCanvas, getCanvasGUID, getCenterXByFabricObject, getCenterYByFabricObject, getImageObjectList, getLastObject, getObjectCount, getObjectList, getPointAtDistance, getRandomPanel, haveClipPath, initMessage, initMessageText, isGroup, isHorizontalText, isLayerPreview, isLine, isPanelType, isPath, isShapes, isSpeechBubbleSVG, isSpeechBubbleText, isText, isVerticalText, removeClipPath, removeGUID, replaceGuids, setGUID, tolerance */
+/* exported avtive, copy, createGUIDMap, deepCopy, fitImageToCanvas, getCanvasGUID, getCenterXByFabricObject, getCenterYByFabricObject, getImageObjectList, getLastObject, getObjectCount, getObjectList, getPointAtDistance, getRandomPanel, haveClipPath, initMessage, initMessageText, isGroup, isHorizontalText, isLayerPreview, isLine, isPanelType, isPath, isShapes, isSpeechBubbleSVG, isSpeechBubbleText, isText, isVerticalText, removeClipPath, removeGUID, replaceGuids, setGUID */
 function avtive(object) {
 canvas.setActiveObject(object).requestRenderAll();
 }
@@ -362,7 +362,6 @@ const hullCoordinates=convexHull.getCoordinates();
 
 logger.trace("INFO",`Left edge X: ${leftMost}, Right edge X: ${rightMost} for shape "${activeObject.name}"`);
 
-const tolerance=1;
 
 const topEdgePoints=[];
 const bottomEdgePoints=[];
@@ -622,7 +621,6 @@ NewLeft: newLeft,
 NewTop: newTop
 });
 
-let canvas=activeObject.canvas;
 newLeft=newLeft!==undefined ?
 newLeft+activeObject.strokeWidth-(activeObject.strokeWidth*0.5) :
 oldClipPath.left;
@@ -693,38 +691,6 @@ ScaleY: newClipPath.scaleY
 
 
 
-function calculateTransformedPath(originalPoints,transform) {
-const angleRad=transform.angle*Math.PI/180;
-const sin=Math.sin(angleRad);
-const cos=Math.cos(angleRad);
-
-const matrix=[
-transform.scaleX*cos,-transform.scaleY*sin,
-transform.scaleX*sin,transform.scaleY*cos,
-0,0
-];
-
-var top=0;
-var left=0;
-if(transform.left!=transform.initLeft){
-left=transform.left;
-}
-if(transform.top!=transform.initTop){
-top=transform.top;
-}
-canvasLogger.debug("calculateTransformedPath transform.initLeft, transform.initTop",transform.initLeft,transform.initTop);
-canvasLogger.debug("calculateTransformedPath transform.left, transform.top",transform.left,transform.top);
-canvasLogger.debug("calculateTransformedPath left, top",left,top);
-
-return {
-fullTransformMatrix: transform.calcTransformMatrix(),
-transformedPoints: originalPoints.map(point=>({
-x: point.x*matrix[0]+point.y*matrix[2]+left,
-y: point.x*matrix[1]+point.y*matrix[3]+top
-})),
-transformMatrix: matrix
-};
-}
 
 function getObjectCount() {
 var objescts=canvas.getObjects();

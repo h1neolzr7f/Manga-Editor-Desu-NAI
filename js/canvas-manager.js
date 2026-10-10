@@ -3,7 +3,6 @@ var initialCanvasWidth=0;
 var initialCanvasHeight=0;
 var aspectRatio=0;
 var viewUserScale=1;
-var resizableContainer=0;
 
 let resizeTimer;
 function initResizeCanvas(event) {
@@ -207,10 +206,6 @@ var color=event.target.value;
 canvas.setBackgroundColor(color,canvas.renderAll.bind(canvas));
 syncExportBackgroundLabel();
 });
-$('bg-color').addEventListener('input',function (event) {
-resizableContainer=getCanvasViewParent();
-});
-resizableContainer=getCanvasViewParent();
 bindExportBackgroundButton();
 syncExportBackgroundLabel();
 syncExportBitDepthState();

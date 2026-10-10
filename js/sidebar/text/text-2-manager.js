@@ -206,7 +206,6 @@ setupSlider(slider,'.input-container-leftSpace')
 }
 
 function clearT2Settings() {
-// document.removeEventListener("fontT2Selector", handleFont);
 
 elementsT2.forEach(element=>{
 if (element) {
@@ -234,12 +233,8 @@ const debouncedUpdate=debounceCustomText(()=>{
 updateText2();
 },50);
 
-const handleFont=(e)=>{
-updateText2();
-};
 
 function addT2EventListener(){
-// document.addEventListener("fontT2Selector", handleFont);
 
 
 
@@ -310,7 +305,6 @@ break;
 
 
 function createText2(type){
-let nowImageTextObject=null;
 switch (type) {
 case MODE_T2_aurora:
 t2_aurora_createSvg();
@@ -347,7 +341,6 @@ t2_zebra_createSvg();
 break;
 case MODE_T2_SHADOW:
 t2_shadow_createSvg();
-nowImageTextObject=nowT2ShadowStr;
 break;
 default:
 textLogger.error("unknown type",type);

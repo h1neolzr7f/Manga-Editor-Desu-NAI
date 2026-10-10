@@ -1,3 +1,4 @@
+/* exported markPanelAutoOk */
 /**
  * 分镜流水线状态 + 生图后人工审阅
  */

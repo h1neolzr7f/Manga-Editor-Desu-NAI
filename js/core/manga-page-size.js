@@ -1,4 +1,3 @@
-/* exported base */
 (function(root){
 "use strict";
 
@@ -205,7 +204,6 @@ var width=Math.max(1,parseFloat(baseWidth)||1);
 var height=Math.max(1,parseFloat(baseHeight)||1);
 var baseLong=Math.max(width,height);
 var baseShort=Math.min(width,height);
-var base=useShortEdge?baseShort:baseLong;
 var target=Math.round(parseFloat(pixels));
 if(!isFinite(target)||target<=0)return null;
 var capLong=exportMaxLongEdge(baseLong,baseShort);

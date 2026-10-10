@@ -74,7 +74,6 @@ var tint=parseColor(preset.tint);
 var i,x,y;
 ctx.fillStyle='rgb('+tint.r+','+tint.g+','+tint.b+')';
 ctx.fillRect(0,0,width,height);
-var i;
 if(preset.id==='aged'||preset.id==='kraft'){
 for(i=0;i<Math.floor(width*height/90);i++){
 var n=hash(i*17.13);

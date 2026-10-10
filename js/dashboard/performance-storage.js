@@ -1,4 +1,3 @@
-/* exported keys */
 // パフォーマンス統計のlocalforage永続化
 var PerformanceStorage=(function(){
 var store=localforage.createInstance({
@@ -293,7 +292,6 @@ return date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+Stri
 async function getStreak(){
 try{
 var dailyData=await getDailyStats();
-var keys=Object.keys(dailyData).sort().reverse();
 var currentStreak=0;
 var today=new Date();
 today.setHours(0,0,0,0);

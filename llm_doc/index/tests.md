@@ -15,7 +15,7 @@
 | `npm run test:character-bible` | scripts/manga-character-bible-test.cjs |  |
 | `npm run test:cutout` | scripts/cutout-presets-smoke-test.cjs |  |
 | `npm run test:edit-planner` | scripts/manga-edit-planner-test.cjs |  |
-| `npm run test:editor-regressions` | scripts/project-load-open-page-test.cjs | Regression: "Load project" only added page thumbnails; when the canvas was empty |
+| `npm run test:editor-regressions` | scripts/history-panel-regression-test.cjs |  |
 | `npm run test:fabric-text-focus` | scripts/fabric-text-focus-smoke-test.cjs | fabric の編集用 textarea がスクロールを起こさないことを検証する。 |
 | `npm run test:gpt-browser` | scripts/gpt-browser-acceptance.cjs | Real headless Chromium acceptance test against the actual HTML/Fabric runtime. |
 | `npm run test:gpt-http` | scripts/run-python.cjs | !/usr/bin/env node |
@@ -37,6 +37,7 @@
 | `npm run test:nai-pipeline` | scripts/nai-pipeline-smoke-test.mjs | NAI-only pipeline smoke test (NovelAI + Director proxy). |
 | `npm run test:nai-status` | scripts/nai-status-format-test.cjs | Regression: "检查 NAI" must not show the misleading "无限生图：否" for Opus users. |
 | `npm run test:no-third-party-director` | scripts/run-python.cjs | !/usr/bin/env node |
+| `npm run test:novice` | scripts/novice-task-e2e.cjs | Novice full-task acceptance (docs/GROK_BOT_FINAL_DELIVERY.md §4): a new user, no docs, real Chromium, |
 | `npm run test:page-size` | scripts/manga-page-size-smoke-test.cjs |  |
 | `npm run test:page-structure` | scripts/manga-page-structure-test.cjs | Red/green contract: inspect page pixels, split only credible gutters and |
 | `npm run test:page-studio` | scripts/page-studio-smoke-test.cjs |  |
@@ -64,14 +65,15 @@
 | `npm run test:assets` | `js/assets/asset-manifest.js`, `js/assets/asset-pack.js`, `js/assets/asset-scanner.js`, `js/assets/asset-store.js`, `js/assets/github-free-pack.js`, `js/assets/original-starter-pack.js`, `js/assets/site-ui-pack.js`, `js/simulator/site-ui-parts.js` |
 | `npm run test:brushes` | `js/sidebar/pen/brush-presets.js`, `js/sidebar/pen/custom-brush.js` |
 | `npm run test:cutout` | `js/local-tools/cutout-presets.js`, `js/local-tools/local-tools-client.js` |
-| `npm run test:editor-regressions` | `js/core/compression/project-compression.js`, `js/project-management.js` |
+| `npm run test:editor-regressions` | `js/ai/prompt/auto/auto-generation.js`, `js/core/compression/project-compression.js`, `js/layer/image-history-management.js`, `js/sidebar/panel/panel-manager.js`, `js/sidebar/panel/panel-template.js`, `js/ui/bottom-bar.js` |
 | `npm run test:fabric-text-focus` | `js/core/util/fabric-text-focus.js` |
 | `npm run test:gpt-i18n` | `js/ai/gpt-region-editor.js`, `js/ui/third/i18next.js` |
 | `npm run test:image-export` | `js/canvas-manager.js`, `js/core/compression/project-compression.js`, `js/core/manga-page-size.js`, `js/core/util/image-util.js`, `js/project-management.js` |
 | `npm run test:image-export-integration` | `js/core/manga-page-size.js`, `js/core/util/image-util.js`, `js/core/util/png-bit-depth.js` |
-| `npm run test:image2` | `js/assets/image2-client.js`, `js/assets/image2-job-store.js` |
+| `npm run test:image2` | `js/assets/asset-manifest.js`, `js/assets/asset-store.js`, `js/assets/image2-client.js`, `js/assets/image2-job-store.js` |
 | `npm run test:layout` | `css/common.css`, `css/core/main-component.css`, `css/icon.css`, `css/layout-layer.css`, `css/layout.css`, `css/simulator-chat.css`, `js/ai/director/scene-plan-controller.js`, `js/assets/asset-library-controller.js`, `js/assets/asset-store.js`, `js/assets/boot-guard.js`, `js/assets/github-free-pack.js`, `js/assets/image2-controller.js`, `js/canvas-manager.js`, `js/core/font/font-manager-core.js`, `js/core/manga-page-size.js`, `js/core/settings.js`, `js/layer/layer-management.js`, `js/local-tools/background-removal-client.js`, `js/panel/random-cut.js`, `js/project-management.js`, `js/sidebar/panel/panel-template.js`, `js/sidebar/sidebar.js`, `js/simulator/extra-renderer-factory.js`, `js/simulator/page-edit-controller.js`, `js/simulator/playback-controller.js`, `js/simulator/simulator-controller.js`, `js/simulator/simulator-studio.js`, `js/simulator/site-ui-parts.js`, `js/simulator/story-composer-controller.js`, `js/ui/beginner-guide.js`, `js/ui/bottom-bar.js`, `js/ui/canvas-object-menu.js`, `js/ui/tutorial.js`, `js/ui/visual-ps-tools.js`, `js/ui/visual-studio.js`, `scripts/make-one-click-zip.ps1` |
 | `npm run test:manga-import` | `js/ai/manga-importer.js`, `js/ai/provider/novelai-provider.js` |
+| `npm run test:novice` | `js/ui/third/i18next.js` |
 | `npm run test:page-size` | `js/core/manga-page-size.js` |
 | `npm run test:page-studio` | `js/panel/layout-templates.js`, `js/sidebar/page/page-studio.js`, `js/sidebar/pen/brush-presets.js`, `js/sidebar/text/sfx-palette.js` |
 | `npm run test:png-bit-depth` | `js/core/util/png-bit-depth.js` |
@@ -132,8 +134,11 @@
 
 ### `npm run test:editor-regressions`
 
-- lz4 load opens page
-- zip load opens page
+- next
+- archives cannot leak into an unrelated legacy file
+- file saves cannot erase redo
+- metadata hydration cannot create a fake undo edit
+- original
 
 ### `npm run test:fabric-text-focus`
 
@@ -148,7 +153,7 @@
 
 ### `npm run test:gpt-browser`
 
-- jpn+eng
+- auto
 - should be able to set a safe mock edit region
 
 ### `npm run test:gpt-i18n`
@@ -292,7 +297,9 @@
 - do not wipe transparent bubble art
 - shrinks to fit:
 - vertical fits height
-- MangaSmartTextCore must be exposed
+- erase box stays the tight text box
+- no bubble -> no text area
+- uncapped grows to the bubble
 
 ### `npm run test:story-engine`
 

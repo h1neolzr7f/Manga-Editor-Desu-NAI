@@ -619,7 +619,7 @@ y: fabricObject.points[anchorIndex].y-fabricObject.pathOffset.y,
 fabricObject.calcTransformMatrix()
 ),
 actionPerformed=fn(eventData,transform,x,y),
-newDim=fabricObject._setPositionDimensions({}),
+_setDims=fabricObject._setPositionDimensions({}), // eslint-disable-line no-unused-vars -- called for its side effect (recomputes the polygon box)
 polygonBaseSize=getObjectSizeWithStroke(fabricObject),
 newX=
 (fabricObject.points[anchorIndex].x-fabricObject.pathOffset.x)/

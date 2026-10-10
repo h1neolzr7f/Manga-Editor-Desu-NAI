@@ -172,12 +172,12 @@ var numA=a.name.match(/(\d+)/)?parseInt(a.name.match(/(\d+)/)[0]):-1;
 var numB=b.name.match(/(\d+)/)?parseInt(b.name.match(/(\d+)/)[0]):-1;
 return numA===numB?a.name.localeCompare(b.name):numA-numB;
 });
-for(var file of sortedFiles){
+for(const file of sortedFiles){
 if(file.name.endsWith(".img")){
 localImageMap.set(file.name.split('.')[0],ArrayBufferUtils.fromArrayBufferToString(file.data));
 }
 }
-for(var file of sortedFiles){
+for(const file of sortedFiles){
 if(file.name.endsWith(".json")&&file.name!=="text2img_basePrompt.json"&&file.name!=="canvas_info.json"){
 localStateStack.push(JSON.parse(ArrayBufferUtils.fromArrayBufferToString(file.data)));
 }

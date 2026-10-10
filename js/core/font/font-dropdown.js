@@ -212,8 +212,6 @@ dropdown.style.visibility = '';
  
     const fmDropdown = $(`fm-fontDropdown-${this.targetId}`);
     const fmTrigger = container.querySelector(".fm-dropdown-trigger");
-    const fmSelectedFont = $(`fm-selected-font-${this.targetId}`);
- 
     Object.entries(fmFontData).forEach(([category, data]) => {
       const categoryDiv = document.createElement("div");
       categoryDiv.className = "fm-font-category";
