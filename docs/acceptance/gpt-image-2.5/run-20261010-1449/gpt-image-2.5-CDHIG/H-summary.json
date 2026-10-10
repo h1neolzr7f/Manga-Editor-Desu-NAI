@@ -1,0 +1,78 @@
+{
+  "id": "H",
+  "title": "选区切到人物上半身 → 警告 + 一键扩展到完整人物，再改色",
+  "region": [
+    1280,
+    1280
+  ],
+  "selStatus": "选区已扩展到完整对象：1280 × 1280 像素。",
+  "size": "auto",
+  "ref": false,
+  "cutWarning": {
+    "status": "已选中原始画布区域：800 × 580 像素。注意：选区只框到了 1 个对象的一部分（如“pose”），模型只看到半个人物时容易接不上身体。可点“扩展到完整对象”。",
+    "button": true
+  },
+  "httpStatus": 200,
+  "elapsedS": 32.7,
+  "resultFile": "/workspace/mnai-repo/artifacts/gpt-real/H-result.png",
+  "uiStatus": "图像已生成，请检查预览后点击“作为新图层应用”。",
+  "requests": 1,
+  "request": {
+    "operation": "edit",
+    "model": "gpt-image-2.5",
+    "size": "1024x1024",
+    "baseUrl": "https://litangking.12gg.workers.dev/v1",
+    "references": 0,
+    "authorizationHeader": false
+  },
+  "resultSize": [
+    1254,
+    1254
+  ],
+  "applyStatus": "已添加独立图层：取回选区对应部分并等比例缩放（不拉伸、不裁头）。原图和画布尺寸未改变，可撤销。已保留选区内原有的分格线/边框。",
+  "patch": {
+    "index": 4,
+    "vtextIndex": 5,
+    "left": 190,
+    "top": 300,
+    "w": 1280,
+    "h": 1280,
+    "scaleX": 1.0207336523125996,
+    "scaleY": 1.0207336523125996,
+    "srcW": 1254,
+    "srcH": 1254,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1254,
+      "h": 1254,
+      "resultWidth": 1254,
+      "resultHeight": 1254,
+      "feather": 32,
+      "toneOffset": [
+        0,
+        0,
+        0
+      ],
+      "keepAlpha": false,
+      "keepLines": true
+    }
+  },
+  "metrics": {
+    "outsideChanged": 0,
+    "seamBefore": 74.94,
+    "seamAfter": 75.67,
+    "insideMeanDiff": 26.91
+  },
+  "saveReload": {
+    "objects": [
+      6,
+      6
+    ],
+    "name": "GPT 局部改图",
+    "source": "openai-compatible-image",
+    "bytes": 3212869,
+    "pixelsEqual": true
+  },
+  "pageErrors": []
+}

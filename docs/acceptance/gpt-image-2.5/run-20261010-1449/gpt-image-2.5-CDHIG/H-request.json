@@ -1,0 +1,8 @@
+{
+  "operation": "edit",
+  "model": "gpt-image-2.5",
+  "size": "1024x1024",
+  "baseUrl": "https://litangking.12gg.workers.dev/v1",
+  "references": 0,
+  "authorizationHeader": false
+}
