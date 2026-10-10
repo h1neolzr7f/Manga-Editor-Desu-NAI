@@ -1,3 +1,4 @@
+/* exported addAlignTypeButton, addCheckBox, addColor, addDropDownByDot, addDropDownByGrad, addDropDownBySpeedLine, addDropDownByStyle, addOrientationButton, addSimpleSubmitButton, addSlider, addTextArea, saveEffectValueMap, saveValueMap */
 Map.prototype.getOrDefault=function (key,defaultValue) {
 return this.has(key) ? this.get(key) : defaultValue;
 };

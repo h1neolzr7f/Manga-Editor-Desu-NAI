@@ -1,3 +1,4 @@
+/* exported debounceSnapToGrid */
 
 var gridSize=10;
 var snapTimeout;

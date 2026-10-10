@@ -1,3 +1,4 @@
+/* exported createImagePromptHelperFlotingWindow */
 let flowWindowCount=0;
 
 function createImagePromptHelperFlotingWindow(){

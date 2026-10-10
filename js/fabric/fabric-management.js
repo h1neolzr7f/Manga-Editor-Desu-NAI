@@ -1,3 +1,4 @@
+/* exported lastActiveObjectState, moveSettings */
 var perfCounters={forcedAdjust:0,highlight:0,coords:0,updateTemp:0,objectAdded:0,objectRemoved:0};
 var skipForcedAdjust=false;
 setInterval(function(){

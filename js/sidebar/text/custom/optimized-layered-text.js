@@ -1,3 +1,4 @@
+/* exported t2_layered_updateAll */
 let t2_layered_textSvg,nowT2LayeredStr=null;
 function t2_layered_deleteSvg(){
 [t2_layered_textSvg,nowT2LayeredStr]=[null,null];

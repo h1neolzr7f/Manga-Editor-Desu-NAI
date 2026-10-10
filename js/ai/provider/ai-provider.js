@@ -1,3 +1,4 @@
+/* exported AIProvider */
 // AIプロバイダー基底クラス
 class AIProvider{
 constructor(id,name){

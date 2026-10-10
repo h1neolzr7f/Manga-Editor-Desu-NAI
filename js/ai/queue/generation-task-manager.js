@@ -1,3 +1,4 @@
+/* exported applyGeneratedImageToOriginalPage, getAiTask, getAiTasksForLayer, isPageChanged, registerAiTask, registerGenerationTask, removeAiTask, updateAiTaskCancelInfo, updateAiTaskStatus */
 var generationTaskMap=new Map();
 
 var aiTaskMap=new Map();

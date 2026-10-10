@@ -1,3 +1,4 @@
+/* exported switchText2 */
 const MODE_T2_SHADOW="shadow";
 const MODE_T2_aurora="aurora";
 const MODE_T2_broken="broken";

@@ -1,3 +1,4 @@
+/* exported keys */
 // パフォーマンス統計のlocalforage永続化
 var PerformanceStorage=(function(){
 var store=localforage.createInstance({

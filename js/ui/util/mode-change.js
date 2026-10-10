@@ -1,3 +1,4 @@
+/* exported MODE_PEN_CIRCLE, MODE_PEN_CRAYON, MODE_PEN_CUSTOM, MODE_PEN_ERASER, MODE_PEN_HLINE, MODE_PEN_INK, MODE_PEN_MARKER, MODE_PEN_MOSAIC, MODE_PEN_OUTLINE, MODE_PEN_PENCIL, MODE_PEN_TEXTURE, MODE_PEN_VLINE, completeCrop, getCssValue, hideCanvasHelpText, isKnifeDrawing, isKnifeMode, isMosaicBrushActive, nowPencil, startCutoutRegionMode */
 // mode-change.js - グローバル変数、ダークモード切替、cropモードUI
 
 

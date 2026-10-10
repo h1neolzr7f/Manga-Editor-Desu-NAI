@@ -1,3 +1,4 @@
+/* exported fontClassName, fontInit */
 
 const CJK_CHAR_RE = /[\u3400-\u9FFF\u3040-\u30FF\uAC00-\uD7AF]/;
 const LATIN_ONLY_TOAST_COOLDOWN_MS = 4000;

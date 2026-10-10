@@ -1,3 +1,4 @@
+/* exported base_zh */
 const base_zh = {
 "side-label-template":"模板",
 "panelsTemplate":"分镜模板",

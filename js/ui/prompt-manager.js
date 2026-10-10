@@ -1,3 +1,4 @@
+/* exported openPromptChangeFloatingWindow */
 function openPromptChangeFloatingWindow() {
 const floatingWindow=document.createElement("div");
 floatingWindow.className="floating-windowPromptClass";

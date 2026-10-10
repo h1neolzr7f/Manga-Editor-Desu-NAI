@@ -1,3 +1,4 @@
+/* exported findCanvasGuid, getDataByName, localSettingsData, resetAllSettings */
 // Runtime image generation is NovelAI-only. Legacy provider modules may still
 // exist in the repository, but they are not exposed or selected by this build.
 const apis={

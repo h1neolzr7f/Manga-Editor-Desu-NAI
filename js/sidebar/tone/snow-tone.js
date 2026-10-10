@@ -1,3 +1,4 @@
+/* exported addSnowToneEventListener, snowToneEnd, snowToneStart */
 var tmpCanvasSnowTone=null;
 var tmpCtxSnowTone=null;
 var isDrawingSnowTone=false;

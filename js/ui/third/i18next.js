@@ -1,3 +1,4 @@
+/* exported changeLanguage, getText, getTranslation */
 // "yyyyMMddHHmmss_SSS": {
 //   ja: { "keyname":"翻訳文" },
 //   en: {},

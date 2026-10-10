@@ -1,3 +1,4 @@
+/* exported _dbgFabric, _dbgLogger, autoSaveLogger, canvasLogger, compressionLogger, dashboardLogger, dashboardPerfLogger, dashboardTagLogger, dbLogger, delegatorLogger, effectLogger, errorHandlerLogger, eventLogger, focusTrapLogger, fontLogger, freehandBubbleLogger, generationTaskLogger, imageLogger, layerLogger, logger, panelLogger, perfLogger, projectLogger, raLogger, registryLogger, serviceLogger, simulatorStudioLogger, spinnerLogger, textLogger, tutorialLogger, uiLogger, workflowLogger */
 // ログ出力ユーティリティ（SimpleLogger）
 const LogLevel={
 TRACE:0,

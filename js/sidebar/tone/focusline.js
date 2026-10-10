@@ -1,3 +1,4 @@
+/* exported addFCEventListener, focusLineEnd, focusLineStart, lines */
 var tmpCanvasFL=null;
 var tmpCtxFL=null;
 var isDrawingFL=false;

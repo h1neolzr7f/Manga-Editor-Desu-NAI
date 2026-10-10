@@ -1,3 +1,4 @@
+/* exported addFillLayer, addGradientLayer, handleBlend */
 // ブレンドモードUI - カテゴリ分類・プレビュー・適用処理
 const allBlendModes=['normal','add','screen','darken','lighten','color-dodge','color-burn','linear-burn','linear-dodge','linear-light','hard-light','soft-light','pin-light','difference','exclusion','overlay','saturation','color','luminosity','add-npm','subtract','divide','vivid-light','hard-mix','negation'];
 

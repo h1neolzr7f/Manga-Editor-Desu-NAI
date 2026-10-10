@@ -1,3 +1,4 @@
+/* exported currentKnifeLine, currentKnifeObject, knifeAssistAngle, knifeLineAnimationId, knifeLineDashOffset, startKnifeX, startKnifeY */
 /**
  * knife-state.js
  * ナイフツールの状態管理

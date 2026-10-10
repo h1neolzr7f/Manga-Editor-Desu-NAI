@@ -1,3 +1,4 @@
+/* exported DEBUG_FLAGS */
 var DEBUG_FLAGS={
 settingsHighlight:false
 };

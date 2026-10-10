@@ -1,3 +1,4 @@
+/* exported putActionBarSeparator, putActionButton, putDeleteButton, putMoveLockButton, putRembgButton, putViewButton */
 
 function putActionButton(container,icon,labelKey,onclick,requiredRole){
 if(requiredRole&&hasNotRole(requiredRole)){return;}

@@ -1,3 +1,4 @@
+/* exported filterElements, t2_shadow_updateAll */
 let t2_shadow_textSvg,t2_shadow_defs,t2_shadow_filter,t2_shadow_primaryShadowFlood,
 t2_shadow_secondaryShadowFlood,t2_shadow_mainText,nowT2ShadowStr=null;
 

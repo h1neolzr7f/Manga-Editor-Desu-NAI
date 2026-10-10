@@ -1,3 +1,4 @@
+/* exported addSppedLineEventListener, speedLineEnd, speedLineStart */
 var tempCanvasSpeedLine=null;
 var tempCtxSpeedLine=null;
 var isDrawingSpeedLine=false;

@@ -1,3 +1,4 @@
+/* exported getSpeechBubbleTextFill, lazyLoadSvgData */
 function changeSpeechBubble() {
 // console.log("-------------");
 var bubbleStrokewidht=parseFloat($("bubbleStrokewidht").value);

@@ -1,3 +1,4 @@
+/* exported unifiedSettingsWindow */
 var unifiedSettingsWindow=(function(){
 var overlayEl=null;
 function open(){

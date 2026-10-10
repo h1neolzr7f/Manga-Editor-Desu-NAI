@@ -1,3 +1,4 @@
+/* exported btmSaveProjectFile, loadLz4BlobProjectFile, multiLoadLz4, multiLoadZip, openFirstLoadedPageIfCanvasEmpty, processZip */
 
 async function generateProjectFileBufferListCore(stateStackParam,imageMapParam,canvasInfoParam,basePromptParam,previewDataUrl){
 var fileBufferList=[];

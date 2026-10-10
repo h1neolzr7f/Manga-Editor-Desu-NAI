@@ -21,14 +21,14 @@
 | 種別 | 件数 |
 |------|------|
 | .bat | 9 |
-| .cjs | 51 |
+| .cjs | 52 |
 | .css | 41 |
 | .html | 9 |
 | .js | 215 |
 | .mjs | 2 |
 | .ps1 | 3 |
 | .py | 32 |
-| シンボル | 10086 |
+| シンボル | 10097 |
 | DOM id 定義 | 634 |
 | script 読み込み | 230 |
 | stylesheet 読み込み | 43 |
@@ -59,7 +59,7 @@
 | `NaiBackgroundRemovalClient` | js/local-tools/background-removal-client.js:531 |
 | `NaiBeginnerGuide` | js/ui/beginner-guide.js:504 |
 | `NaiBrushPresets` | js/sidebar/pen/brush-presets.js:127 |
-| `NaiCanvasView` | js/canvas-manager.js:956 |
+| `NaiCanvasView` | js/canvas-manager.js:957 |
 | `NaiCharacterCards` | js/ai/prompt/auto/character-card-manager.js:535 |
 | `NaiComicAssetBlobStore` | js/assets/asset-blob-store.js:69 |
 | `NaiComicAssetLibraryController` | js/assets/asset-library-controller.js:293 |
@@ -102,7 +102,7 @@
 | `NaiImage2UniqueName` | js/assets/image2-client.js:39 |
 | `NaiLocalToolsClient` | js/local-tools/local-tools-client.js:96 |
 | `NaiLocalToolsDefaultUrl` | js/local-tools/local-tools-client.js:97 |
-| `NaiMangaPageSize` | js/core/manga-page-size.js:230 |
+| `NaiMangaPageSize` | js/core/manga-page-size.js:231 |
 | `NaiPageStudio` | js/sidebar/page/page-studio.js:606 |
 | `NaiPanelPipelineReview` | js/ai/panel-pipeline-review.js:211 |
 | `NaiPngBitDepth` | js/core/util/png-bit-depth.js:563 |
@@ -115,13 +115,13 @@
 | `NaiVisualStudio` | js/ui/visual-studio.js:485 |
 | `NovelAICompositionDirector` | js/ai/prompt/novelai-composition-director.js:1213 |
 | `PANEL_LAYOUT_TEMPLATES` | js/panel/layout-templates.js:385 |
-| `TestRunner` | js/core/debug.js:402 |
+| `TestRunner` | js/core/debug.js:403 |
 | `__naiBrushEvt` | js/ui/visual-studio.js:142 |
 | `__naiBrushRaf` | js/ui/visual-studio.js:144, js/ui/visual-studio.js:145 |
 | `_clipboard` | js/shortcut.js:102 |
 | `appendNaiTagExampleFromPanel` | js/ai/prompt/auto/character-card-manager.js:543 |
 | `appendNaiTagExampleToCard` | js/ai/prompt/auto/character-card-manager.js:542 |
-| `applyFlexGenSizeToPanels` | js/sidebar/panel/panel-template.js:240 |
+| `applyFlexGenSizeToPanels` | js/sidebar/panel/panel-template.js:241 |
 | `applyPanelLayoutForCurrentPage` | js/panel/layout-templates.js:383 |
 | `applyPanelLayoutTemplate` | js/panel/layout-templates.js:382 |
 | `autoMultiGenerate` | js/ai/prompt/auto/auto-generation.js:104 |
@@ -159,8 +159,8 @@
 | `onerror` | js/core/global-error-handler.js:3 |
 | `recommendPanelLayouts` | js/panel/layout-templates.js:386 |
 | `renderPanelLayoutRecommendations` | js/panel/layout-templates.js:387 |
-| `resetFlexGenSizeForPanels` | js/sidebar/panel/panel-template.js:241 |
-| `runAllTests` | js/core/debug.js:401 |
+| `resetFlexGenSizeForPanels` | js/sidebar/panel/panel-template.js:242 |
+| `runAllTests` | js/core/debug.js:402 |
 | `setPanelPipelineStatus` | js/ai/prompt/auto/auto-prompt-util.js:816 |
 | `showI2IPrompts` | js/ui/ai/auto-prompt-ui.js:168 |
 | `showT2IPrompts` | js/ui/ai/auto-prompt-ui.js:167 |
@@ -169,7 +169,7 @@
 
 | ファイル | 行数 | 用途 |
 |---------|------|------|
-| js/ui/third/i18next.js | 5750 | "yyyyMMddHHmmss_SSS": { |
+| js/ui/third/i18next.js | 5751 | exported changeLanguage, getText, getTranslation |
 | index.html | 3079 |  |
 | js/ai/manga-importer.js | 2524 |  |
 | js/ai/prompt/novelai-composition-director.js | 1214 |  |
@@ -177,23 +177,23 @@
 | 99_server.py | 1161 |  |
 | js/ai/gpt-region-editor.js | 1156 | Manga-NAI-GPT: isolated, non-destructive image editing surface. |
 | js/simulator/simulator-studio.js | 1110 | 模拟器启动页与各类型单开工作区 |
-| js/dashboard/dashboard-ui.js | 1057 | ダッシュボードUIコンポーネント（モーダル表示） |
-| js/canvas-manager.js | 1015 |  |
-| js/sidebar/speechBubble/speech-bubble-freehand.js | 868 |  |
-| js/core/util/fabric-util.js | 865 |  |
-| js/sidebar/pen/pen-tools.js | 855 |  |
+| js/dashboard/dashboard-ui.js | 1058 | exported openDashboardModal |
+| js/canvas-manager.js | 1016 | exported aspectRatio, changeView, forcedAdjustCanvasSize, initResizeCanvas, inputImageFile, resizeCanvas, resizeCanvasToObject |
+| js/sidebar/speechBubble/speech-bubble-freehand.js | 869 | exported activePoint, clearJSTSGeometry, createJSTSPolygon, createSpeechBubble, deletePoint, freehandBubbleTextChanged, isDrawing, isNearStartPoint, lastRenderTime, mergeOverlappingShapes, processPoints, sbFreehandTextChange, scaleX, scaleY, selectedObject, updateFreehandBubblePositions, updateJSTSGeometry, updateShape, updateTemporaryShapes |
+| js/core/util/fabric-util.js | 866 | exported avtive, canvas, copy, createGUIDMap, deepCopy, fitImageToCanvas, getCanvasGUID, getCenterXByFabricObject, getCenterYByFabricObject, getImageObjectList, getLastObject, getObjectCount, getObjectList, getPointAtDistance, getRandomPanel, haveClipPath, initMessage, initMessageText, isGroup, isHorizontalText, isLayerPreview, isLine, isPanelType, isPath, isShapes, isSpeechBubbleSVG, isSpeechBubbleText, isText, isVerticalText, removeClipPath, removeGUID, replaceGuids, setGUID, tolerance |
+| js/sidebar/pen/pen-tools.js | 856 | exported finalizeGroup, selectEraserTool, selectMarqueeTool |
 | css/ui/dashboard.css | 853 | Dashboard Modal Overlay |
-| js/core/util/image-util.js | 846 | image-util.js - Fabric.js画像オブジェクトの処理（変換、WebP、クロップ、反転、色変換など） |
+| js/core/util/image-util.js | 847 | exported blobUrlToDataUrl, clipCopy, createCanvasFromFabricImage, cropAndDownload, cropImage, enhanceDarkImage, estimateExportSize, exportCanvasDataURL, exportDataUrlByteLength, flipHorizontally, flipVertically, formatByteSize, getCropAndDownloadLink, getCropAndDownloadLinkByMultiplier, getHeight, getLink, getWidth, hexToRgba, imageObject2Base64ImageEffectKeep, imageObject2DataURL, imageObject2DataURLByCrop, imgFile2webpFile, normalizeExportQuality, resolveExportBackground, resolveExportBitDepth, resolveExportFormat, resolveExportMultiplier, resolveExportMultiplierForDpi, rgbToHex, rgbaToHex, sendHtmlCanvas2FabricCanvas |
 | js/ai/prompt/auto/auto-prompt-util.js | 817 | generatePageList(btmGetGuidsSize()); |
 | css/simulator-chat.css | 790 | simulator-chat-area .simulator-chat-panel{ |
-| js/core/font/font-manager-core.js | 750 |  |
-| js/sidebar/panel/panel-manager.js | 745 | function handleSelection(e) { |
-| js/ui/imagePromptHelper/image-prompt-helper.js | 730 |  |
+| js/core/font/font-manager-core.js | 751 | exported fontClassName, fontInit |
+| js/sidebar/panel/panel-manager.js | 746 | exported Edit, changePanelFillColor, changePanelOpacity, changePanelStrokeColor, changePanelStrokeWidth, initialPutImage, isWithin, loadSVGPlusReset, panelAllChange, replaceImageObject, setPanelValue |
+| js/ui/imagePromptHelper/image-prompt-helper.js | 731 | exported iphGetSelectedTagsText, iphInitializeUI |
 | scripts/gen-project-index.cjs | 722 | プロジェクト索引の自動生成。 |
-| js/ui/canvas-object-menu.js | 714 | Canvas object right-click context menu |
-| js/project-management.js | 712 | Runtime image generation is NovelAI-only. Legacy provider modules may still |
-| js/layer/blend/blend.js | 697 | ブレンドモードUI - カテゴリ分類・プレビュー・適用処理 |
-| js/fabric/fabric-management.js | 694 |  |
+| js/ui/canvas-object-menu.js | 715 | exported pointer |
+| js/project-management.js | 713 | exported findCanvasGuid, getDataByName, localSettingsData, resetAllSettings |
+| js/layer/blend/blend.js | 698 | exported addFillLayer, addGradientLayer, handleBlend |
+| js/fabric/fabric-management.js | 695 | exported lastActiveObjectState, moveSettings |
 
 ## 再生成
 

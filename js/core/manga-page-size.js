@@ -1,3 +1,4 @@
+/* exported base */
 (function(root){
 "use strict";
 

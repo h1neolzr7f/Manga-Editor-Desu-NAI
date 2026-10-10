@@ -1,3 +1,4 @@
+/* exported createSpeechBubbleMetrics, customSpeechBubbleAllRelocation, fontSize, parseSvg, sbTextChange, textFrameScaling, updateObjectPositions */
 function sbTextChange(alignment,button) {
 changeSelected(button);
 }

@@ -1,3 +1,4 @@
+/* exported aspectRatio, changeView, forcedAdjustCanvasSize, initResizeCanvas, inputImageFile, resizeCanvas, resizeCanvasToObject */
 var initialCanvasWidth=0;
 var initialCanvasHeight=0;
 var aspectRatio=0;

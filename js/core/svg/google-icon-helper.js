@@ -1,3 +1,4 @@
+/* exported searchIcon, updateSVGStyles */
 
 function getIconURL(iconName,style) {
 switch (style) {

@@ -1,3 +1,4 @@
+/* exported fmFontRepository */
 // font-repository.js
 const fmFontRepository={
 store: null,

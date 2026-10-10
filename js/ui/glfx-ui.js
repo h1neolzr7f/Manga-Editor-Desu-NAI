@@ -1,3 +1,4 @@
+/* exported gpifHTML, setGlfxI18NextLabel */
 let gpifHTML=`
 <div class="control-content glfxControls">
     <select id="glfxFilter">

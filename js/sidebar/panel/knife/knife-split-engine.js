@@ -1,3 +1,4 @@
+/* exported blindSplitPanel, guidedSplitPanel, strokeWidthScale */
 /**
  * knife-split-engine.js
  * パネル分割ロジック

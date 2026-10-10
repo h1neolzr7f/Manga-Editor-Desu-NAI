@@ -1,3 +1,4 @@
+/* exported t2_zebra_updateAll */
 let t2_zebra_textSvg,t2_zebra_defs,t2_zebra_filter,t2_zebra_mainText,nowT2ZebraStr=null;
 function t2_zebra_deleteSvg(){
 [t2_zebra_textSvg,t2_zebra_defs,t2_zebra_filter,t2_zebra_mainText,nowT2ZebraStr]=[null,null,null,null,null];

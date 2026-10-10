@@ -1,3 +1,4 @@
+/* exported openDashboardModal */
 // ダッシュボードUIコンポーネント（モーダル表示）
 var DashboardUI=(function(){
 var isInitialized=false;

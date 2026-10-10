@@ -1,3 +1,4 @@
+/* exported switchMangaEffect */
 const effectMap=new Map();
 
 const MODE_EFFECT_C2BW_LIGHT="Color2BlackWhiteLight";

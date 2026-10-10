@@ -1,3 +1,4 @@
+/* exported activeClearButton, changeCursor, changeDefaultCursor, changeObjectCursor, cropModeClear, knifeModeClear, nonActiveClearButton, operationModeClear, pencilModeClear */
 // mode-manager.js - モード管理の統合（ナイフ、ペン、吹き出し、クロップ等）
 
 var ModeManager={

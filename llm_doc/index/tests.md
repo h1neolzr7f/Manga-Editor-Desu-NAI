@@ -7,6 +7,7 @@
 | npm script | テストファイル | 検証内容（先頭コメント） |
 |-----------|---------------|--------------------|
 | `npm run check-translations` | scripts/check-translations.cjs | Translation key validation script - compares keys across all languages in i18next resources |
+| `npm run lint:sync-exported` | scripts/sync-eslint-exported.cjs | !/usr/bin/env node |
 | `npm run test` | scripts/layout-smoke-test.cjs |  |
 | `npm run test:assets` | scripts/asset-library-smoke-test.cjs |  |
 | `npm run test:brushes` | scripts/custom-brush-smoke-test.cjs |  |

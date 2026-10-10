@@ -1,3 +1,4 @@
+/* exported PromptFrequencyStorage */
 // プロンプトタグ頻度のlocalforage永続化
 var PromptFrequencyStorage=(function(){
 var store=localforage.createInstance({

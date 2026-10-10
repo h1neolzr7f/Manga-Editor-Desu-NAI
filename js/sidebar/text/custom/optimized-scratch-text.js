@@ -1,3 +1,4 @@
+/* exported t2_scratch_updateAll */
 let t2_scratch_textSvg,t2_scratch_defs,t2_scratch_filter,t2_scratch_mainText,nowT2ScratchStr=null;
 function t2_scratch_deleteSvg(){
 [t2_scratch_textSvg,t2_scratch_defs,t2_scratch_filter,t2_scratch_mainText,nowT2ScratchStr]=[null,null,null,null,null];

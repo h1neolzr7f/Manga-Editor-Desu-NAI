@@ -1,3 +1,4 @@
+/* exported pointer */
 // Canvas object right-click context menu
 const languageSelector=$('fabricjs-language-selector');
 let lastClickType=null;

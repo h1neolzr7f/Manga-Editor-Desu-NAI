@@ -1,3 +1,4 @@
+/* exported changeHiddenById, changeSelected, getSelectedValueByButton, getSelectedValueByGroup, hideById, selectedById, showById, unSelectedById */
 function hideById(id) {
 const el=$(id);
 if (el) {

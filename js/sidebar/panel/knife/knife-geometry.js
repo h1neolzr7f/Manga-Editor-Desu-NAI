@@ -1,3 +1,4 @@
+/* exported calculateIntersection, calculatePolygonCentroid, getIntersectionByDistance, getPolygonAtPoint, isHorizontal, isSplitPoint, removeDuplicates */
 /**
  * knife-geometry.js
  * ナイフツールの幾何計算ユーティリティ

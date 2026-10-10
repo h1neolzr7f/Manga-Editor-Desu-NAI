@@ -1,3 +1,4 @@
+/* exported convertToSVG, mangaToneRequireTarget, parseColor, switchMangaTone */
 function parseColor(color) {
 var m=color.match(/rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([0-9.]+)/);
 if(m)return{r:parseInt(m[1]),g:parseInt(m[2]),b:parseInt(m[3]),a:parseFloat(m[4])};

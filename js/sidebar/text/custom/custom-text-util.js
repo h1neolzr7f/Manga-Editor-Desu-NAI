@@ -1,3 +1,4 @@
+/* exported baseStylesDefault, createFilterElement, getFirstNCharsDefault */
 let svgHttp="http://www.w3.org/2000/svg";
 const baseStylesDefault="";
 

@@ -1,3 +1,4 @@
+/* exported iphGetSelectedTagsText, iphInitializeUI */
 let iphData={};
 let iphSelected=[];
 let iphImageCache=new Map();

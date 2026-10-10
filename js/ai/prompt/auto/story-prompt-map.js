@@ -1,3 +1,4 @@
+/* exported getEarlyForeplayScenarioPromptNumbers, getEjaculationScenarioPromptNumbers, getLateForeplayScenarioPromptNumbers, getLateSexScenarioPromptNumbers, getOpeningScenarioPromptNumbers, getSexAfterScenarioPromptNumbers, getSexScenarioPromptNumbers, getSoloScenarioPromptNumbers */
 
 class ScenarioPromptMap {
 constructor() {

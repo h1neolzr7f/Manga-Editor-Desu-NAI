@@ -1,3 +1,4 @@
+/* exported updateWorkflowType */
 function updateWorkflowType() {
 showById("prompt-A");
 showById("prompt-E");

@@ -1,3 +1,4 @@
+/* exported loadImage, loadJS, loadVideo */
 // ユーティリティ関数：エラーハンドリングとログ出力を行う
 async function safeLoad(loadFunction,...args) {
 try {

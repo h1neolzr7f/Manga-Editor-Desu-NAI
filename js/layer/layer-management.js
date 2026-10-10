@@ -1,3 +1,4 @@
+/* exported LayersDown, LayersUp, calculateCenter, highlightClear, removeLayer */
 let finalLayerOrder=[];
 let lastHighlightGuid=null;
 var naiLayerPageFold=Object.create(null);

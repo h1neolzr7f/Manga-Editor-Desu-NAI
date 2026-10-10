@@ -1,3 +1,4 @@
+/* exported alignText, changeFontSize, changeOutlineTextColor, changeStrokeWidthSize, changeTextBgColor, changeTextColor, createTextbox, toggleBoldWithUI, updateTextControls */
 var neonIntensity=2;
 var isNeonEnabled=false;
 var textControlsSyncing=false;

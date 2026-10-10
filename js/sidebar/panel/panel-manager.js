@@ -1,3 +1,4 @@
+/* exported Edit, changePanelFillColor, changePanelOpacity, changePanelStrokeColor, changePanelStrokeWidth, initialPutImage, isWithin, loadSVGPlusReset, panelAllChange, replaceImageObject, setPanelValue */
 // function handleSelection(e) {
 //   var selectedObject = e.target;
 //   updateControls(selectedObject);

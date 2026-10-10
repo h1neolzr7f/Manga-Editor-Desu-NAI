@@ -1,3 +1,4 @@
+/* exported hasNotRole, roles */
 // NovelAI-only role definitions.
 const AI_ROLES={
 Text2Image: "Text2Image",

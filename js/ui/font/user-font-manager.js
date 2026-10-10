@@ -1,3 +1,4 @@
+/* exported fmUserFontManager */
 //User Font Manager
 const fmUserFontManager = {
   tagify: null,

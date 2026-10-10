@@ -1,3 +1,4 @@
+/* exported basePrompt, commonProperties, i2iInit, jsColorSetById, minCanvasSizeHeight, minCanvasSizeWidth, svgPagging, syncJsColorFromInputs, t2iInit, webpQuality */
 //FabricCanvas2HtmlCanvas Scale
 var webpQuality=0.98;
 

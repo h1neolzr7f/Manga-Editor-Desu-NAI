@@ -1,3 +1,4 @@
+/* exported I2I, T2I, apiHeartbeat, clearAllQueues, existsWaitQueue */
 // AI機能の中央ルーター: プロバイダーレジストリ経由でディスパッチ
 const novelaiQueue=new TaskQueue(1);
 

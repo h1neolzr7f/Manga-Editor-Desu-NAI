@@ -1,3 +1,4 @@
+/* exported gradients, rects, t2_aurora_updateAll */
 let t2_aurora_textSvg,t2_aurora_defs,t2_aurora_mainText,t2_aurora_symbol,t2_aurora_mask,nowT2AuroraStr=null;
 function t2_aurora_deleteSvg(){
 [t2_aurora_textSvg,t2_aurora_defs,t2_aurora_mainText,t2_aurora_symbol,t2_aurora_mask,nowT2AuroraStr]=

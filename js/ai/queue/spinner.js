@@ -1,3 +1,4 @@
+/* exported createSpinner, removeSpinner, renderAiTaskIndicators, setCurrentAiTask */
 // AI進捗表示（レイヤー上インジケータ、キャンセル）
 
 var aiProgressState={

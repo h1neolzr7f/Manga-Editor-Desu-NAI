@@ -1,3 +1,4 @@
+/* exported addHeart, addHexagon, addPentagon, addSquare, addStar, addTallRect, addTriangle, addWideRect, ensurePanelForKnife */
 
 async function loadBookSize(width,height,addPanel,newPage=false) {
 panelLogger.info("[loadBookSize] START w="+width+" h="+height+" addPanel="+addPanel+" newPage="+newPage);

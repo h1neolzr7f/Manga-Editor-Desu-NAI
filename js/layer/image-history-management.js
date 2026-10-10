@@ -1,3 +1,4 @@
+/* exported confirmAllRemove, convertImageMapBlobUrls, initImageHistory, jumpToHistoryIndex, lastRedo, redo, removeByNotSave, saveStateByListener, setNotSave, undo */
 const imageMap=new Map();
 var stateStack=[];
 var currentStateIndex=-1;
