@@ -96,3 +96,15 @@ body.ui-beginner #mangaPageOpen, body.ui-beginner #mangaCharacterOpen { display:
 /* narrow screens: quick actions keep icons only, labels in tooltip */
 @media (max-width: 1360px) { .task-quick:not(.ui-btn-primary) .task-quick-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } .task-quick:not(.ui-btn-primary) { padding: 4px 6px !important; } }
 .task-bar .ui-btn.task-quick { height: 34px; min-height: 34px; box-sizing: border-box; }
+
+/* 智能点选 (SAM) overlay */
+.sam-select { z-index: 3000; cursor: crosshair; }
+.sam-select .sam-view { position: absolute; inset: 0; width: 100%; height: 100%; }
+.sam-select.is-busy .sam-view { cursor: progress; }
+.sam-bar { position: absolute; top: var(--ui-space-2, 8px); right: var(--ui-space-2, 8px); width: 300px; max-width: calc(100% - 16px);
+  padding: var(--ui-space-2, 8px) var(--ui-space-3, 12px); cursor: default; display: flex; flex-direction: column; gap: 6px; }
+.sam-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.sam-row .ui-btn { flex: 1 1 auto; min-height: 32px; }
+.sam-bar .is-on { outline: 2px solid var(--ui-accent, #2563eb); outline-offset: -2px; font-weight: 600; }
+.sam-status { margin: 0; font-size: 13px; line-height: 1.45; }
+.sam-status.is-error { color: var(--ui-danger, #dc2626); }

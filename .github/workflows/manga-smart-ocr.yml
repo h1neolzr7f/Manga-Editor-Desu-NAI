@@ -14,6 +14,8 @@ on:
       - "manga_ocr_refiner.py"
       - "manga_lama_inpaint.py"
       - "manga_text_detector.py"
+      - "manga_sam_select.py"
+      - "scripts/manga-sam-select-test.py"
       - "scripts/manga-text-detector-test.py"
       - "scripts/fixtures/ctd/**"
       - "scripts/manga-lama-inpaint-test.py"
@@ -53,3 +55,4 @@ jobs:
           python scripts/manga-bubble-ocr-test.py
           python scripts/manga-model-guard-test.py
           python scripts/manga-text-detector-test.py
+          python scripts/manga-sam-select-test.py

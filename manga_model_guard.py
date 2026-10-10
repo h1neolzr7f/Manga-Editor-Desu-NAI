@@ -56,6 +56,7 @@ MODELS = {
     "lama": {"label": "LaMa", "size": "约 200MB", "cached": lama_cached},
     "manga-ocr": {"label": "Manga OCR", "size": "约 450–900MB", "cached": manga_ocr_cached},
     "ctd": {"label": "漫画文字检测（comic-text-detector）", "size": "约 91MB", "cached": lambda: __import__("manga_text_detector").cached()},
+    "sam2": {"label": "智能点选（SAM 2.1 tiny）", "size": "约 149MB", "cached": lambda: __import__("manga_sam_select").cached()},
 }
 _busy = {name: threading.Semaphore(1) for name in MODELS}
 

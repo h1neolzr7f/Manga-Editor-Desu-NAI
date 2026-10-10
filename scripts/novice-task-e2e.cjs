@@ -1438,6 +1438,79 @@ async function main() {
     } finally { await ctx.close(); }
   });
 
+  await flow('34 智能点选（SAM 2.1 tiny）：分层向导点猫 → 3 个候选挑一个 → －去掉一点 → 抠成新图层（可撤销）；换角色向导点选当选区', async () => {
+    const st = await (await fetch(SERVER + '/manga-smart/status', { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: SERVER }, body: '{}' })).json().catch(() => ({}));
+    if (!(st.samSelect && st.samSelect.ready && st.samSelect.cached)) return { pass: true, detail: { skipped: 'SAM 2.1 tiny / torch not installed (CI): 智能点选 button stays hidden, box select unchanged' } };
+    // a plain page with page-4 imported (pro mode keeps the import unclipped), then switch to 新手模式 from the ⋯ menu
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'zh-CN' });
+    const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort()); p.on('dialog', d => d.dismiss());
+    const errors = []; p.on('pageerror', e => errors.push(e.message));
+    try {
+      await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
+      await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0 && !!document.getElementById('taskBar'), null, { timeout: 60000 });
+      await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {}); await p.keyboard.press('Escape');
+      await p.locator('#imageInput').setInputFiles(path.join(__dirname, 'fixtures', 'ctd', 'page-4.png'));
+      await p.waitForFunction(() => canvas.getObjects().some(o => o.type === 'image'), null, { timeout: 30000 }); await p.waitForTimeout(800);
+      await p.locator('#taskMore').click(); await p.locator('#uiModeToggle').click();
+      await p.locator('#taskBtn-layer').waitFor({ state: 'visible', timeout: 10000 });
+      const at = async (fx, fy) => p.evaluate(([x, y]) => { const img = canvas.getObjects().filter(o => o.type === 'image').pop(); const k = img.scaleX; const u = canvas.upperCanvasEl.getBoundingClientRect();
+        return { x: u.left + (img.left + x * k) * u.width / canvas.getWidth(), y: u.top + (img.top + y * k) * u.height / canvas.getHeight() }; }, [fx, fy]);
+      const clicks = { layer: 0, swap: 0 };
+      const click = async (sel, key) => { await p.locator(sel).click(); clicks[key]++; };
+      const tap = async (fx, fy, key) => { const q = await at(fx, fy); await p.mouse.click(q.x, q.y); clicks[key]++; };
+      // 分层
+      await click('#taskBtn-layer', 'layer');
+      await p.locator('#taskSmartPick').waitFor({ state: 'visible', timeout: 15000 });
+      await click('#taskSmartPick', 'layer');
+      await p.locator('#samView').waitFor({ state: 'visible' });
+      const before = await p.evaluate(() => canvas.getObjects().length);
+      const t0 = Date.now();
+      await tap(600, 1510, 'layer');
+      await p.waitForFunction(() => SamClickSelect.state() && SamClickSelect.state().candidates.length === 3, null, { timeout: 120000 });
+      const firstMs = Date.now() - t0;
+      const s1 = await p.evaluate(() => SamClickSelect.state());
+      await p.waitForTimeout(400); await p.screenshot({ path: path.join(OUT, 'sam-1-candidates.png') });
+      const tinted = await p.evaluate(() => { const v = document.getElementById('samView'); const d = v.getContext('2d').getImageData(0, 0, v.width, v.height).data;
+        let n = 0; for (let k = 3; k < d.length; k += 4) if (d[k] > 0) n++; return +(n / (d.length / 4)).toFixed(3); });
+      await click('#samPick1', 'layer');
+      await click('#samSub', 'layer');
+      const t1 = Date.now();
+      await tap(250, 1640, 'layer');
+      await p.waitForFunction(() => SamClickSelect.state() && SamClickSelect.state().points === 2 && !document.getElementById('samSelect').classList.contains('is-busy'), null, { timeout: 30000 });
+      await p.waitForTimeout(300);
+      const againMs = Date.now() - t1;
+      const s2 = await p.evaluate(() => SamClickSelect.state());
+      await p.screenshot({ path: path.join(OUT, 'sam-2-refined.png') });
+      await click('#samUse', 'layer');
+      await p.waitForFunction(() => canvas.getObjects().some(x => x.name === '点选抠图'), null, { timeout: 15000 }).catch(() => {});
+      const added = await p.evaluate(n => canvas.getObjects().length - n, before);
+      const layer = await p.evaluate(() => { const o = canvas.getObjects().find(x => x.name === '点选抠图'); if (!o) return null;
+        const e = o.getElement(); const c = document.createElement('canvas'); c.width = e.width; c.height = e.height; const g = c.getContext('2d'); g.drawImage(e, 0, 0);
+        const d = g.getImageData(0, 0, c.width, c.height).data; let clear = 0; for (let i = 3; i < d.length; i += 4) if (d[i] < 10) clear++;
+        return { left: Math.round(o.left), top: Math.round(o.top), w: e.width, h: e.height, transparentShare: +(clear / (d.length / 4)).toFixed(3), status: (document.getElementById('taskLayerStatus') || {}).textContent }; });
+      cur.ops.push('分层：点猫 → 候选 1 → －去掉 → 抠成新图层');
+      await p.keyboard.press('Control+z'); await p.waitForTimeout(800);
+      const undone = await p.evaluate(() => !canvas.getObjects().some(x => x.name === '点选抠图'));
+      // 换角色: smart pick → lasso selection in the GPT panel (no request sent)
+      await p.locator('#taskBack').click().catch(() => {});
+      await click('#taskBtn-swap', 'swap');
+      await p.locator('#taskSmartPick').waitFor({ state: 'visible', timeout: 15000 });
+      await click('#taskSmartPick', 'swap');
+      await tap(600, 1510, 'swap');
+      await p.waitForFunction(() => SamClickSelect.state() && SamClickSelect.state().candidates.length === 3, null, { timeout: 30000 });
+      await p.keyboard.press('Enter'); clicks.swap++;
+      await p.waitForFunction(() => MangaGPTRegionEditor.wizardState().region, null, { timeout: 10000 });
+      const swap = await p.evaluate(() => ({ ws: MangaGPTRegionEditor.wizardState(), status: document.getElementById('mangaGptStatus').textContent.slice(0, 50), overlayGone: !document.getElementById('samSelect') }));
+      cur.ops.push('换角色：点猫 → Enter 当选区');
+      await p.screenshot({ path: path.join(OUT, 'sam-3-swap-selection.png') });
+      const catLayer = layer && layer.top > 1300 * 0 && layer.w < 600 && layer.transparentShare > 0.05;
+      return { pass: s1.candidates.length === 3 && s1.candidates[0].area <= s1.candidates[2].area && s2.points === 2 && !!layer && catLayer && undone &&
+          swap.ws.region && /智能点选/.test(swap.status) && swap.overlayGone && !errors.length,
+        detail: { clicks, firstMs, againMs, tinted, added, s1: s1.candidates.map(c => c.area), s2: s2.candidates.map(c => c.area), layer, undone, swap, errors } };
+    } catch (e) { await p.screenshot({ path: path.join(OUT, 'flow34-fail.png') }).catch(() => {}); throw e;
+    } finally { await ctx.close(); }
+  });
+
   await endSession('final');
   const summary = { when: new Date().toISOString(), gpt: REAL_GPT ? 'REAL' : 'MOCK', flows, pageErrors, consoleErrors: consoleErrors.slice(0, 20), dialogs };
   fs.writeFileSync(path.join(OUT, 'report.json'), JSON.stringify(summary, null, 2));

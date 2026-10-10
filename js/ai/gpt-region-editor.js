@@ -717,6 +717,38 @@
     return true;
   }
 
+  // Smart click-select (SAM) bridge: a page-pixel outline becomes a lasso selection. Never starts a request.
+  function selectPolygon(points, message) {
+    const c = pageCanvas();
+    if (!c || !Array.isArray(points) || points.length < 3) return false;
+    const xs = points.map(p => +p[0]), ys = points.map(p => +p[1]);
+    if (!xs.concat(ys).every(Number.isFinite)) return false;
+    const left = Math.max(0, Math.floor(Math.min(...xs))), top = Math.max(0, Math.floor(Math.min(...ys)));
+    const right = Math.min(c.getWidth(), Math.ceil(Math.max(...xs)) + 1), bottom = Math.min(c.getHeight(), Math.ceil(Math.max(...ys)) + 1);
+    if (right - left < 8 || bottom - top < 8) {
+      feedback(tr('mgpt_region_too_small', '框选区域太小，请至少选择 8 × 8 像素。'), true);
+      return false;
+    }
+    const panel = $g('mangaGptPanel');
+    if (!panel) return false;
+    cancelSelection();
+    panel.hidden = false;
+    $g('mangaGptMode').value = 'edit';
+    $g('mangaGptSelect').disabled = false;
+    const region = { left, top, width: right - left, height: bottom - top };
+    setRegion(c, region, message || tr('mgpt_smart_selected', '已用智能点选选中（外框 {w} × {h} 像素）；只有选中的形状会被修改。', { w: region.width, h: region.height }));
+    if (state.region) state.region.lasso = points.map(p => [+(p[0] - left).toFixed(1), +(p[1] - top).toFixed(1)]);
+    return true;
+  }
+
+  // Whole page as the region editor sees it (same pixel grid as selections), lettering hidden by default.
+  function pageImage(includeLettering) {
+    const c = pageCanvas();
+    if (!c) return null;
+    return { image: cropCanvas(c, { left: 0, top: 0, width: c.getWidth(), height: c.getHeight() }, !includeLettering),
+      width: c.getWidth(), height: c.getHeight() };
+  }
+
   // Page inspector bridge: stage a complete panel; never start an API request.
   function selectRegionForPanel(box, instruction) {
     const c=pageCanvas();
@@ -1047,6 +1079,11 @@
       return;
     }
     cancelSelection();
+    if ($g('mangaGptShape') && $g('mangaGptShape').value === 'smart' && window.SamClickSelect) {
+      if (window.SamClickSelect.begin({ target: 'gpt' })) return;
+      feedback(tr('mgpt_smart_unavailable', '智能点选打不开，请改用矩形或套索。'), true);
+      return;
+    }
     const rect = c.upperCanvasEl.getBoundingClientRect();
     if (!rect.width || !rect.height) {
       feedback(tr('mgpt_canvas_hidden', '画布不可见，无法框选。'), true);
@@ -1471,7 +1508,7 @@
         '</option><option value="generate">' + t('mgpt_mode_generate', '文字生图 / 新图层') + '</option></select></label>',
       '<select id="mangaGptShape" aria-label="' + t('mgpt_shape_label', '选区形状') + '" title="' + t('mgpt_shape_tip', '矩形：拖出方框；套索：按住鼠标沿人物轮廓画一圈，只有圈内会被修改') + '">' +
         '<option value="rect">' + t('mgpt_shape_rect', '矩形') + '</option><option value="lasso">' + t('mgpt_shape_lasso', '套索') + '</option>' +
-        '<option value="brush">' + t('mgpt_shape_brush', '笔刷') + '</option></select>',
+        '<option value="brush">' + t('mgpt_shape_brush', '笔刷') + '</option><option value="smart">' + t('mgpt_shape_smart', '智能点选') + '</option></select>',
       '<button type="button" id="mangaGptSelect">' + t('mgpt_select_btn', '框选区域') + '</button>',
       '<button type="button" id="mangaGptExpand" hidden>' + t('mgpt_expand_btn', '扩展到完整对象') + '</button></div>',
       '<label>' + t('mgpt_api_url', '兼容 API 地址') + '<input id="mangaGptUrl" type="url" placeholder="https://api.openai.com/v1" value="https://api.openai.com/v1" autocomplete="off"></label>',
@@ -1635,7 +1672,7 @@
       open: !!($g('mangaGptPanel') && !$g('mangaGptPanel').hidden) };
   }
 
-  window.MangaGPTRegionEditor = { openTask, exitTask, setSimple, wizardState, normalizeRegion, startSelection, cancelSelection, selectRegionForTextRemoval, selectRegionForPanel, prepareManualEdit, useCharacterCard, referenceSummary,
+  window.MangaGPTRegionEditor = { openTask, exitTask, setSimple, wizardState, normalizeRegion, startSelection, cancelSelection, selectRegionForTextRemoval, selectRegionForPanel, selectPolygon, pageImage, prepareManualEdit, useCharacterCard, referenceSummary,
     letterboxPlan, resultCropRect, letteringInsertIndex, isLettering, contextRect, featherPlan, featherAlpha, seamDiffs, applySeamMatch, globalShift, ringConfirmed, changeMask, estimateDrift, aspectMismatch,
     findCutBoxes, expandRegion, effectiveSize, bakePatch, panelLineAlpha, combineAlpha, tr,
     GPT_MODEL_PRESETS, GPT_DEFAULT_MODEL, modelPresetFor };

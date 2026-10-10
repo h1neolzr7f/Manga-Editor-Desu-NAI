@@ -249,6 +249,14 @@ def _run_tesseract(executable, image, language, psm):
     return stdout
 
 
+def _sam_cached():
+    try:
+        from manga_sam_select import cached
+        return cached()
+    except Exception:
+        return False
+
+
 def _ctd_cached():
     try:
         from manga_text_detector import cached
@@ -279,12 +287,13 @@ def local_model_status():
                     "languages": [x for x in langs if x in ("jpn", "jpn_vert", "eng", "chi_sim", "chi_tra")]},
             "lama": {"ready": lama},
             "mangaOcr": {"ready": has("manga_ocr")},
-            "textDetector": {"ready": has("onnxruntime") and has("cv2"), "cached": _ctd_cached()}}
+            "textDetector": {"ready": has("onnxruntime") and has("cv2"), "cached": _ctd_cached()},
+            "samSelect": {"ready": has("torch") and has("sam2") and has("cv2"), "cached": _sam_cached()}}
 
 
 def handle_smart_ocr_post(handler):
     route = handler.path.split("?", 1)[0]
-    if route not in ("/manga-smart/ocr", "/manga-smart/manga-ocr", "/manga-smart/lama-inpaint", "/manga-smart/status", "/manga-smart/text-mask"):
+    if route not in ("/manga-smart/ocr", "/manga-smart/manga-ocr", "/manga-smart/lama-inpaint", "/manga-smart/status", "/manga-smart/text-mask", "/manga-smart/sam-click"):
         return False
     if not _authorized_local_request(handler):
         handler.close_connection = True
@@ -302,6 +311,9 @@ def handle_smart_ocr_post(handler):
         allow_download = data.get("allow_download") is True
         if route == "/manga-smart/status":
             result = local_model_status()
+        elif route == "/manga-smart/sam-click":
+            from manga_sam_select import select
+            result = select(data)
         elif route == "/manga-smart/text-mask":
             from manga_text_detector import detect
             result = detect(data.get("image"), allow_download)

@@ -170,6 +170,13 @@ h.appendChild(ol);
 var row=el('div',{class:'task-head-row'});
 var adv=el('label',{class:'task-adv'},'<input type="checkbox" id="taskAdvanced"> 高级（显示全部参数）');
 row.appendChild(adv);
+if((t.kind==='gpt'||t.kind==='layer')&&window.SamClickSelect){
+// 智能点选: only shown when the local model runtime is installed; otherwise the box/lasso select stays the way
+var smart=el('button',{type:'button',class:'ui-btn',id:'taskSmartPick',hidden:'',title:'在人物或物体上点一下，自动选出轮廓（本机模型，不花钱）'},'<i class="material-icons" aria-hidden="true">ads_click</i>智能点选');
+row.appendChild(smart);
+SamClickSelect.available().then(function(ok){smart.hidden=!ok;});
+smart.addEventListener('click',function(){smartPick(t);});
+}
 var back=el('button',{type:'button',class:'ui-btn ui-btn-ghost',id:'taskBack'},'换个任务');
 row.appendChild(back);
 h.appendChild(row);
@@ -180,6 +187,16 @@ if(t.kind==='caption'&&window.MangaSmartTextEditor)MangaSmartTextEditor.setSimpl
 });
 back.addEventListener('click',function(){stop(true);});
 return h;
+}
+function smartPick(t){
+var layer=t.kind==='layer';
+if(layer)cancelPick();
+var ok=SamClickSelect.begin({target:layer?'layer':'gpt',onDone:function(done,cand,cancelled){
+if(cancelled||!done){if(!layer&&!cancelled)toast('智能点选','没能用这个形状做选区，请改用框选。',true);return;}
+if(layer){markStep(2,true);setLayerStatus('完成：已放到新图层，原图不变（Ctrl+Z 可撤销）。可以再点选一个。');}
+else markStep(1);
+}});
+if(!ok)toast('智能点选','画布还没准备好，请先打开一页漫画。',true);
 }
 function markStep(n,doneAll){
 var h=$('mangaGptTaskHead');if(!h)return;
