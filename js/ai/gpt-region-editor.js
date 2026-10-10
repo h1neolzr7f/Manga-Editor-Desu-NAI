@@ -420,7 +420,11 @@
       if (n && !transparent) {
         const mean = (Math.abs(mo[0] - mp[0]) + Math.abs(mo[1] - mp[1]) + Math.abs(mo[2] - mp[2])) / 3 / n;
         const sdO = Math.sqrt(Math.max(0, so2 / n - (so / n) ** 2)), sdP = Math.sqrt(Math.max(0, sp2 / n - (sp / n) ** 2));
-        d = Math.max(mean, 0.5 * Math.abs(sdO - sdP));
+        // chroma: a faint pastel rainbow on a grey sky moves channels in opposite directions (+15/-5/-15)
+        // so the channel average barely registers; resampling noise never adds colour, so weight it up.
+        const chroma = v => Math.max(v[0], v[1], v[2]) - Math.min(v[0], v[1], v[2]);
+        const dChroma = Math.abs(chroma(mo) - chroma(mp)) / n;
+        d = Math.max(mean, 0.5 * Math.abs(sdO - sdP), 1.5 * dChroma);
       }
       g[gy * gw + gx] = Math.max(0, Math.min(1, (d - CHANGE_LO) / (CHANGE_HI - CHANGE_LO)));
     }

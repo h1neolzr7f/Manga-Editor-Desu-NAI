@@ -319,6 +319,15 @@ elements.mangaGptStatus.textContent = savedRegionStatus;
       // half content / half shift: no consensus → no global shift
       const hh = new Uint8ClampedArray(w * h * 4); for (let k = 0; k < w * h; k++) hh.set(k < w * h / 2 ? [20, 200, 20, 255] : [160, 170, 185, 255], k * 4);
       assert.equal(api.globalShift(hh, o, w, h), null, '50/50 mix is not a global shift');
+      // real gpt-image-2.5 case R: a faint pastel rainbow (+15/-5/-15 on grey) is a change, not noise
+      {
+        const go = new Uint8ClampedArray(w * h * 4), gq = new Uint8ClampedArray(w * h * 4);
+        for (let k = 0; k < w * h; k++) { const y = Math.floor(k / w), x = k % w; go.set([150, 150, 150, 255], k * 4);
+          gq.set(y >= 40 && y < 56 && x >= 30 && x < 130 ? [165, 145, 135, 255] : [151, 149, 150, 255], k * 4); }
+        const gm = api.changeMask(gq, go, w, h);
+        assert(gm && gm[48 * w + 80] > 200, 'faint pastel arc kept: ' + (gm && gm[48 * w + 80]));
+        assert.equal(gm[5 * w + 5], 0, 'grey sky with ±1 noise still shows the original');
+      }
       // drift vs. intent: only a shift the context ring confirmed is undone
       assert.deepEqual(Array.from(api.ringConfirmed([-8, -8, -8], [-48, -48, -48])), [-8, -8, -8], 'haze beyond the ±48 ring clamp: residual removed');
       assert.equal(api.ringConfirmed([-40, -40, -40], [0, 0, 0]), null, '"make it redder" inside the selection only (ring unchanged) is kept');
