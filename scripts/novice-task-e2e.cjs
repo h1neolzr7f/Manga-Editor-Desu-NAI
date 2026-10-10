@@ -408,9 +408,10 @@ async function main() {
           generateReachable: gen ? (() => { gen.scrollIntoView({ block: 'nearest' }); const r = gen.getBoundingClientRect(); return r.bottom <= innerHeight + 1 && r.top >= 0; })() : 'n/a' };
       });
       await p.screenshot({ path: path.join(OUT, 'layout-' + w + 'x' + h + '@' + dpr + '.png') });
-      out[w + 'x' + h + '@' + dpr] = { ...m, open, collapsed }; await ctx.close();
+      const hasImage = await p.evaluate(() => canvas.getObjects().some(o => o.type === 'image'));
+      out[w + 'x' + h + '@' + dpr] = { ...m, hasImage, open, collapsed }; await ctx.close();
     }
-    return { pass: Object.values(out).every(m => !m.hScroll && m.gptOpen !== false && m.file && m.generateReachable !== false &&
+    return { pass: Object.values(out).every(m => m.hasImage !== false && !m.hScroll && m.gptOpen !== false && m.file && m.generateReachable !== false &&
       (!m.open || [m.open, m.collapsed].every(c => c.overlapPx === 0 && c.visibleRatio >= 0.9 && c.centerOnCanvas && c.canvasW >= 200) && m.collapsed.canvasW >= m.open.canvasW - 2)), detail: out };
   });
 
