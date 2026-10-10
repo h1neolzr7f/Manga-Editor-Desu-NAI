@@ -1,0 +1,194 @@
+{
+  "when": "2026-10-10T02:46:12.830Z",
+  "gpt": "MOCK",
+  "flows": [
+    {
+      "name": "1 首次启动并导入 2 页漫画",
+      "pass": true,
+      "keyOps": 4,
+      "ops": [
+        "skip tutorial",
+        "File menu",
+        "Import image",
+        "page 1"
+      ],
+      "seconds": 17.7,
+      "screenshot": "artifacts/novice/01-1_首次启动并导入_2_页漫画.png",
+      "notes": [],
+      "detail": {
+        "tutorialShown": true,
+        "pages": 2,
+        "size1": [
+          1200,
+          1700
+        ],
+        "size2": [
+          1200,
+          1700
+        ],
+        "page1VsFile": 0,
+        "page2VsFile": 0
+      }
+    },
+    {
+      "name": "2 框选人物+参考图+描述→生成→预览→应用",
+      "pass": true,
+      "keyOps": 4,
+      "ops": [
+        "GPT 改图",
+        "drag selection",
+        "生成",
+        "应用为图层"
+      ],
+      "seconds": 2.9,
+      "screenshot": "artifacts/novice/03-2_框选人物_参考图_描述_生成_预览_应用.png",
+      "notes": [],
+      "detail": {
+        "selection": "已选中原始画布区域：580 × 941 像素。",
+        "preview": false,
+        "status": "图像已生成，请检查预览后点击“作为新图层应用”。",
+        "rect": {
+          "left": 200,
+          "top": 59,
+          "width": 580,
+          "height": 941
+        },
+        "size": [
+          1200,
+          1700
+        ],
+        "changed": 293555,
+        "outside": 0,
+        "calls": 1,
+        "model": "gpt-image-2.5"
+      }
+    },
+    {
+      "name": "3 识别日文气泡→修正→去字→替换中文字幕",
+      "pass": true,
+      "keyOps": 3,
+      "ops": [
+        "智能字幕",
+        "识别",
+        "应用字幕"
+      ],
+      "seconds": 2.3,
+      "screenshot": "artifacts/novice/04-3_识别日文气泡_修正_去字_替换中文字幕.png",
+      "notes": [
+        "OCR: [\"ありがとう\"]"
+      ],
+      "detail": {
+        "ocr": [
+          "ありがとう"
+        ],
+        "text": "谢谢你",
+        "type": "vertical-textbox",
+        "fontSize": 45,
+        "rect": {
+          "x": 1000,
+          "y": 232,
+          "w": 60,
+          "h": 136
+        },
+        "box": {
+          "x": 902,
+          "y": 157,
+          "w": 157,
+          "h": 286
+        },
+        "erase": true
+      }
+    },
+    {
+      "name": "4 撤销/重做/切页/保存/关闭/重开",
+      "pass": true,
+      "keyOps": 12,
+      "ops": [
+        "Ctrl+Z",
+        "Ctrl+Y",
+        "展开页面",
+        "page 2",
+        "page 1",
+        "File menu",
+        "保存项目",
+        "File menu",
+        "打开项目",
+        "page 2",
+        "page 1",
+        "Ctrl+Z after reopen"
+      ],
+      "seconds": 16,
+      "screenshot": "artifacts/novice/05-4_撤销_重做_切页_保存_关闭_重开.png",
+      "notes": [],
+      "detail": {
+        "undoChanged": 6216,
+        "redoChanged": 0,
+        "page2Intact": 0,
+        "backToPage1": 0,
+        "reopenPage1": 0,
+        "reopenPage2": 0,
+        "editable": {
+          "type": "vertical-textbox",
+          "editable": true,
+          "text": "谢谢你"
+        },
+        "undoAfterReopen": 6216,
+        "project": "artifacts/novice/project-DESU-nai学长魔改.lz4"
+      }
+    },
+    {
+      "name": "5 错误 API/失败后再试/超长提示词/空选区",
+      "pass": true,
+      "keyOps": 6,
+      "ops": [
+        "GPT 改图",
+        "生成（未框选）",
+        "框选区域",
+        "drag selection",
+        "生成（失败）",
+        "再试一次"
+      ],
+      "seconds": 10.8,
+      "screenshot": "artifacts/novice/06-5_错误_API_失败后再试_超长提示词_空选区.png",
+      "notes": [
+        "生成（未框选）: physical click through selection overlay"
+      ],
+      "detail": {
+        "noRegion": "请先在当前画布框选需要修改的区域。",
+        "failMsg": "上游 HTTP 530：图像服务（或其网关）暂时不可用，本次没有生成图片，请稍后重试。",
+        "silentRetries": 0,
+        "okAfterRetry": true,
+        "longPromptChars": 3300,
+        "lastPromptLen": 3300
+      }
+    },
+    {
+      "name": "6 小窗口 1024×700 与 1.5x 缩放下的布局",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 7.4,
+      "screenshot": "artifacts/novice/07-6_小窗口_1024_700_与_1_5x_缩放下的布局.png",
+      "notes": [],
+      "detail": {
+        "1024x700@1": {
+          "hScroll": false,
+          "gptOpen": true,
+          "file": true,
+          "generateReachable": true
+        },
+        "1280x800@1.5": {
+          "hScroll": false,
+          "gptOpen": true,
+          "file": true,
+          "generateReachable": true
+        }
+      }
+    }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+  ],
+  "dialogs": []
+}

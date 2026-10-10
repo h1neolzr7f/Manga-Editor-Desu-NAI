@@ -14,11 +14,15 @@ const { chromium } = require('playwright');
 
 const ROOT = path.resolve(__dirname, '..');
 const SERVER = 'http://127.0.0.1:8000';
-const OUT = path.join(ROOT, 'artifacts', 'novice');
+const OUT = path.join(ROOT, 'artifacts', process.env.NOVICE_BASELINE === '1' ? 'novice-baseline' : 'novice');
 const FIX = path.join(__dirname, 'fixtures', 'novice');
 const PAGES = [path.join(FIX, 'page1.png'), path.join(FIX, 'page2.png')];
 const REFERENCE = path.join(FIX, 'reference.png');
 const REAL_GPT = process.env.NOVICE_REAL_GPT === '1';
+// NOVICE_BASELINE=1 + NOVICE_APP_ROOT=<checkout of the original app>: same tasks on the original version
+// for the before/after comparison; features that do not exist there are recorded as unavailable.
+const BASELINE = process.env.NOVICE_BASELINE === '1';
+const APP_ROOT = process.env.NOVICE_APP_ROOT ? path.resolve(process.env.NOVICE_APP_ROOT) : null;
 const BASE_URL = process.env.GPT_REAL_BASE_URL || 'https://api.openai.com/v1';
 const python = process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3');
 fs.rmSync(OUT, { recursive: true, force: true });
@@ -124,7 +128,7 @@ async function openPage(index) { // like a user: open the page drawer if closed,
 async function startServer() {
   const busy = await new Promise(r => { const s = net.connect(8000, '127.0.0.1'); s.once('connect', () => { s.destroy(); r(true); }); s.once('error', () => r(false)); });
   if (busy) throw new Error('port 8000 busy');
-  server = spawn(python, ['99_server.py'], { cwd: ROOT, stdio: ['ignore', 'ignore', 'pipe'],
+  server = spawn(python, ['99_server.py'], { cwd: APP_ROOT || ROOT, stdio: ['ignore', 'ignore', 'pipe'],
     env: { ...process.env, NAI_QUIET: '1', GPT_IMAGE_API_KEY: readKey(), GPT_IMAGE_TRUSTED_BASE_URL: REAL_GPT ? BASE_URL : '',
       NOVELAI_API_KEY: '', DIRECTOR_API_KEY: '' } });
   for (let i = 0; ; i++) {
@@ -155,8 +159,8 @@ async function newSession(viewport) {
     });
   }
   await page.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0 && typeof saveStateByManual === 'function'
-    && document.getElementById('mangaGptOpen'), null, { timeout: 60000 });
+  await page.waitForFunction(baseline => typeof canvas !== 'undefined' && canvas.getWidth() > 0 && typeof saveStateByManual === 'function'
+    && (baseline || !!document.getElementById('mangaGptOpen')), BASELINE, { timeout: 60000 });
   await page.waitForTimeout(1500);
 }
 async function endSession(name) {
@@ -195,7 +199,9 @@ async function main() {
   });
 
   // 2. GPT character swap on page 1
+  const has = id => page.locator('#' + id).count().then(n => n > 0);
   await flow('2 框选人物+参考图+描述→生成→预览→应用', async () => {
+    if (!(await has('mangaGptOpen'))) return { pass: false, detail: { unavailable: 'no GPT region edit in this version' } };
     const before = await pageImage(); const size0 = await canvasSize();
     await op.click(page.locator('#mangaGptOpen'), 'GPT 改图');
     if (REAL_GPT) { await page.locator('#mangaGptUrl').fill(BASE_URL); }
@@ -229,6 +235,7 @@ async function main() {
 
   // 3. captions: detect -> fix OCR -> erase -> replace -> fit
   await flow('3 识别日文气泡→修正→去字→替换中文字幕', async () => {
+    if (!(await has('mangaSmartOpen'))) return { pass: false, detail: { unavailable: 'no OCR / smart captions in this version' } };
     await op.click(page.locator('#mangaSmartOpen'), '智能字幕');
     await op.click(page.locator('#mangaSmartDetect'), '识别');
     await page.waitForFunction(() => document.querySelector('.manga-smart-item textarea') || /失败|错误|未安装|0 条|没有/.test(document.getElementById('mangaSmartStatus').textContent), null, { timeout: 120000 });
@@ -290,14 +297,16 @@ async function main() {
     await page.locator('#canvas-area').click({ position: { x: 5, y: 5 } }).catch(() => {});
     await op.key('Control+z', 'Ctrl+Z after reopen'); await waitIdle();
     const undoAfterReopen = await diff(p1, await pageImage());
+    const captionsDone = flows.some(f => f.name.startsWith('3') && f.pass);
     return { pass: dUndo.changed > 0 && dRedo.changed === 0 && dP2.changed === 0 && dBack.changed === 0 && r1.changed === 0 && r2.changed === 0 &&
-      !!editable && undoAfterReopen.changed > 0,
+      (!captionsDone || !!editable) && undoAfterReopen.changed > 0,
       detail: { undoChanged: dUndo.changed, redoChanged: dRedo.changed, page2Intact: dP2.changed, backToPage1: dBack.changed,
         reopenPage1: r1.changed, reopenPage2: r2.changed, editable, undoAfterReopen: undoAfterReopen.changed, project: path.relative(ROOT, projectFile) } };
   });
 
   // 5. robustness: wrong API -> readable error, no silent retry -> retry works; long prompt; empty selection
   await flow('5 错误 API/失败后再试/超长提示词/空选区', async () => {
+    if (!(await has('mangaGptOpen'))) return { pass: false, detail: { unavailable: 'no GPT image API in this version' } };
     await op.click(page.locator('#mangaGptOpen'), 'GPT 改图');
     await op.click(page.locator('#mangaGptGenerate'), '生成（未框选）');
     const noRegion = (await page.locator('#mangaGptStatus').textContent()).trim();
@@ -330,20 +339,21 @@ async function main() {
       const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: dpr });
       const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort());
       await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
-      await p.waitForFunction(() => document.getElementById('mangaGptOpen'), null, { timeout: 60000 });
+      await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 });
       await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {});
       await p.keyboard.press('Escape');
-      await p.locator('#mangaGptOpen').click();
+      if (await p.locator('#mangaGptOpen').count()) await p.locator('#mangaGptOpen').click();
       const m = await p.evaluate(() => {
         const vis = id => { const e = document.getElementById(id); if (!e) return null; const r = e.getBoundingClientRect();
           return r.width > 0 && r.left >= 0 && r.right <= innerWidth + 1 && r.top >= 0 && r.top < innerHeight; };
-        return { hScroll: document.documentElement.scrollWidth > innerWidth + 1, gptOpen: vis('mangaGptOpen'), file: vis('navbarDropdownFile'),
-          generateReachable: (() => { const e = document.getElementById('mangaGptGenerate'); e.scrollIntoView({ block: 'nearest' }); const r = e.getBoundingClientRect(); return r.bottom <= innerHeight + 1 && r.top >= 0; })() };
+        const gen = document.getElementById('mangaGptGenerate');
+        return { hScroll: document.documentElement.scrollWidth > innerWidth + 1, gptOpen: gen ? vis('mangaGptOpen') : 'n/a', file: vis('navbarDropdownFile'),
+          generateReachable: gen ? (() => { gen.scrollIntoView({ block: 'nearest' }); const r = gen.getBoundingClientRect(); return r.bottom <= innerHeight + 1 && r.top >= 0; })() : 'n/a' };
       });
       await p.screenshot({ path: path.join(OUT, 'layout-' + w + 'x' + h + '@' + dpr + '.png') });
       out[w + 'x' + h + '@' + dpr] = m; await ctx.close();
     }
-    return { pass: Object.values(out).every(m => !m.hScroll && m.gptOpen && m.file && m.generateReachable), detail: out };
+    return { pass: Object.values(out).every(m => !m.hScroll && m.gptOpen !== false && m.file && m.generateReachable !== false), detail: out };
   });
 
   await endSession('final');
