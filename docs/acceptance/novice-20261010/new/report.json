@@ -1,5 +1,5 @@
 {
-  "when": "2026-10-10T03:27:39.661Z",
+  "when": "2026-10-10T03:30:18.565Z",
   "gpt": "MOCK",
   "flows": [
     {
@@ -12,7 +12,7 @@
         "Import image",
         "page 1"
       ],
-      "seconds": 17.9,
+      "seconds": 17.7,
       "screenshot": "artifacts/novice/01-1_首次启动并导入_2_页漫画.png",
       "notes": [],
       "detail": {
@@ -40,7 +40,7 @@
         "生成",
         "应用为图层"
       ],
-      "seconds": 3.4,
+      "seconds": 3,
       "screenshot": "artifacts/novice/03-2_框选人物_参考图_描述_生成_预览_应用.png",
       "notes": [],
       "detail": {
@@ -72,7 +72,7 @@
         "识别",
         "应用字幕"
       ],
-      "seconds": 2.5,
+      "seconds": 2.4,
       "screenshot": "artifacts/novice/04-3_识别日文气泡_修正_去字_替换中文字幕.png",
       "notes": [
         "OCR: [\"ありがとう\"]"
@@ -117,7 +117,7 @@
         "page 1",
         "Ctrl+Z after reopen"
       ],
-      "seconds": 16.7,
+      "seconds": 16.2,
       "screenshot": "artifacts/novice/05-4_撤销_重做_切页_保存_关闭_重开.png",
       "notes": [],
       "detail": {
@@ -179,7 +179,7 @@
         "page 1",
         "应用（回到第 1 页）"
       ],
-      "seconds": 41.3,
+      "seconds": 41.5,
       "screenshot": "artifacts/novice/07-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
       "notes": [],
       "detail": {
@@ -195,7 +195,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 15.9,
+      "seconds": 16.9,
       "screenshot": "artifacts/novice/08-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
       "notes": [],
       "detail": {
@@ -219,7 +219,8 @@
             "canvasH": 747,
             "visibleRatio": 1,
             "centerOnCanvas": true,
-            "centerHit": "upper-canvas "
+            "centerHit": "upper-canvas ",
+            "reopenExpanded": true
           }
         },
         "1280x800@1.5": {
@@ -242,7 +243,8 @@
             "canvasH": 599,
             "visibleRatio": 1,
             "centerOnCanvas": true,
-            "centerHit": "upper-canvas "
+            "centerHit": "upper-canvas ",
+            "reopenExpanded": true
           }
         },
         "1024x700@1": {
@@ -265,7 +267,8 @@
             "canvasH": 499,
             "visibleRatio": 1,
             "centerOnCanvas": true,
-            "centerHit": "upper-canvas "
+            "centerHit": "upper-canvas ",
+            "reopenExpanded": true
           }
         }
       }

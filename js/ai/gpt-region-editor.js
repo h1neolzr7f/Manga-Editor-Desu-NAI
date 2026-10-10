@@ -1246,6 +1246,12 @@
     document.body.appendChild(panel);
     button.addEventListener('click', () => {
       panel.hidden = !panel.hidden;
+      if (!panel.hidden && panel.classList.contains('is-collapsed')) {
+        // reopening from the toolbar always shows the full panel (a bare header looks empty to a beginner)
+        panel.classList.remove('is-collapsed');
+        const cb = $g('mangaGptCollapse');
+        if (cb) { cb.textContent = '–'; cb.setAttribute('aria-expanded', 'true'); }
+      }
       dock();
       if (panel.hidden) { cancelSelection(); return; }
       // Fewest clicks: opening the panel for an edit with nothing selected goes straight into

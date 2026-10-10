@@ -399,7 +399,11 @@ async function main() {
         return { overlapPx: Math.round(ix * iy), ...base }; });
       const open = hasGpt ? await cover() : null;
       let collapsed = null;
-      if (hasGpt) { await p.locator('#mangaGptCollapse').click(); await p.waitForTimeout(400); collapsed = await cover(); await p.locator('#mangaGptCollapse').click(); await p.waitForTimeout(300); }
+      if (hasGpt) { await p.locator('#mangaGptCollapse').click(); await p.waitForTimeout(400); collapsed = await cover();
+        // collapse -> close -> reopen from the toolbar: the full panel comes back and the canvas is re-docked
+        await p.locator('#mangaGptClose').click(); await p.locator('#mangaGptOpen').click(); await p.keyboard.press('Escape'); await p.waitForTimeout(400);
+        collapsed.reopenExpanded = await p.evaluate(() => !document.getElementById('mangaGptPanel').classList.contains('is-collapsed') && !!document.getElementById('canvas-area').style.marginRight);
+      }
       const m = await p.evaluate(() => {
         const vis = id => { const e = document.getElementById(id); if (!e) return null; const r = e.getBoundingClientRect();
           return r.width > 0 && r.left >= 0 && r.right <= innerWidth + 1 && r.top >= 0 && r.top < innerHeight; };
@@ -412,7 +416,7 @@ async function main() {
       out[w + 'x' + h + '@' + dpr] = { ...m, hasImage, open, collapsed }; await ctx.close();
     }
     return { pass: Object.values(out).every(m => m.hasImage !== false && !m.hScroll && m.gptOpen !== false && m.file && m.generateReachable !== false &&
-      (!m.open || [m.open, m.collapsed].every(c => c.overlapPx === 0 && c.visibleRatio >= 0.9 && c.centerOnCanvas && c.canvasW >= 200) && m.collapsed.canvasW >= m.open.canvasW - 2)), detail: out };
+      (!m.open || [m.open, m.collapsed].every(c => c.overlapPx === 0 && c.visibleRatio >= 0.9 && c.centerOnCanvas && c.canvasW >= 200) && m.collapsed.canvasW >= m.open.canvasW - 2 && m.collapsed.reopenExpanded)), detail: out };
   });
 
   await endSession('final');
