@@ -400,7 +400,9 @@
         }
         const vertical = candidate.vertical && typeof fabric.VerticalTextbox === 'function';
         const area = (candidate.textArea && core.normalizeBox(candidate.textArea, c.getWidth(), c.getHeight())) || box;
-        const fit = core.fitText(candidate.text, area, vertical, measureText);
+        // original glyph size = the tight text box's cross dimension (one column / one line)
+        const glyph = area === box ? 0 : (vertical ? box.width : box.height) * 1.1;
+        const fit = core.fitText(candidate.text, area, vertical, measureText, glyph);
         const TextClass = vertical ? fabric.VerticalTextbox : fabric.Textbox;
         const lineHeight = 1.16;
         const blockHeight = vertical ? area.height : fit.lines * fit.fontSize * lineHeight;
@@ -410,6 +412,16 @@
           fontFamily: 'Arial', fontSize: fit.fontSize, lineHeight,
           fill: '#151515', textAlign: 'center', breakWords: false
         });
+        // centre the lettering in its area (bubble interior), like hand lettering
+        if (typeof textbox.getBoundingRect === 'function') {
+          textbox.setCoords();
+          const r = textbox.getBoundingRect(true, true);
+          if (r && r.width > 0 && r.height > 0) {
+            textbox.set({ left: textbox.left + (area.x + area.width / 2) - (r.left + r.width / 2),
+              top: textbox.top + (area.y + area.height / 2) - (r.top + r.height / 2) });
+            textbox.setCoords();
+          }
+        }
         textbox.set('mangaSmartFit', { fontSize: fit.fontSize, wrapped: fit.wrapped, box: area, textBox: box });
         textbox.set('name', '智能字幕 · 可编辑文字');
         textbox.set('mangaSmartText', 'editable-subtitle');

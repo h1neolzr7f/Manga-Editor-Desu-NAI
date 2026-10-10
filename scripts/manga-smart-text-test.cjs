@@ -73,3 +73,12 @@ console.log('PASS smart text geometry, OCR drafts and safe erase color guards');
   assert.ok(wide.textArea.x <= 0 && wide.textArea.x + wide.textArea.width >= 90);
   console.log('PASS bubble text area for replacement captions');
 }
+
+{
+  const measure = (t, size) => Array.from(t).length * size;
+  const big = core.fitText('谢谢你', { x: 0, y: 0, width: 157, height: 286 }, true, measure);
+  const capped = core.fitText('谢谢你', { x: 0, y: 0, width: 157, height: 286 }, true, measure, 45);
+  assert.ok(big.fontSize > 80, 'uncapped grows to the bubble');
+  assert.equal(capped.fontSize, 45, 'capped at the original glyph size');
+  console.log('PASS fitText maxSize keeps replacement near the original lettering size');
+}

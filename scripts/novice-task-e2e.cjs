@@ -40,11 +40,21 @@ async function snap(name) {
 // ---- counted user operations ----
 const op = {
   async click(locator, label) {
-    try { await locator.click({ timeout: 20000 }); }
+    // Playwright refuses to click an element covered by another one; a person's mouse just clicks
+    // there. If the cover is our own selection overlay, click physically at the element's centre.
+    const covered = await locator.evaluate(el => { const r = el.getBoundingClientRect(); const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      return top && top !== el && !el.contains(top) && top.classList.contains('manga-gpt-selection') ? [r.left + r.width / 2, r.top + r.height / 2] : null; },
+      null, { timeout: 5000 }).catch(e => { cur.notes.push('cover-check error: ' + String(e.message).slice(0, 160)); return null; });
+    if (covered) { await page.mouse.click(covered[0], covered[1]); cur.ops.push(label); cur.notes.push(label + ': physical click through selection overlay'); return; }
+    try { await locator.click({ timeout: 8000 }); }
     catch (e) { // say what a user would see instead of a bare timeout
       const info = await locator.evaluate(el => { const r = el.getBoundingClientRect(); const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
         return { rect: [r.left, r.top, r.width, r.height].map(Math.round), visible: !!(r.width && r.height), covering: top && top !== el && !el.contains(top) ? (top.id || top.className || top.tagName) : null }; },
         null, { timeout: 2000 }).catch(() => ({ missing: true }));
+      if (info && info.covering && /manga-gpt-selection/.test(String(info.covering))) {
+        await page.mouse.click(info.rect[0] + info.rect[2] / 2, info.rect[1] + info.rect[3] / 2);
+        cur.ops.push(label); cur.notes.push(label + ': physical click through selection overlay'); return;
+      }
       throw new Error('cannot click "' + label + '": ' + JSON.stringify(info));
     }
     cur.ops.push(label);
@@ -189,7 +199,7 @@ async function main() {
     const before = await pageImage(); const size0 = await canvasSize();
     await op.click(page.locator('#mangaGptOpen'), 'GPT 改图');
     if (REAL_GPT) { await page.locator('#mangaGptUrl').fill(BASE_URL); }
-    const selecting = await page.evaluate(() => !!document.querySelector('.manga-gpt-selection-overlay, #mangaGptSelectionOverlay'));
+    const selecting = await page.evaluate(() => !!document.querySelector('.manga-gpt-selection'));
     if (!selecting) await op.click(page.locator('#mangaGptSelect'), '框选区域');
     await op.drag(await toScreen([200, 60]), await toScreen([780, 1000]), 'drag selection');
     const sel = await page.locator('#mangaGptStatus').textContent();
@@ -291,7 +301,7 @@ async function main() {
     await op.click(page.locator('#mangaGptOpen'), 'GPT 改图');
     await op.click(page.locator('#mangaGptGenerate'), '生成（未框选）');
     const noRegion = (await page.locator('#mangaGptStatus').textContent()).trim();
-    const selecting = await page.evaluate(() => !!document.querySelector('.manga-gpt-selection-overlay, #mangaGptSelectionOverlay'));
+    const selecting = await page.evaluate(() => !!document.querySelector('.manga-gpt-selection'));
     if (!selecting) await op.click(page.locator('#mangaGptSelect'), '框选区域');
     await op.drag(await toScreen([100, 1100]), await toScreen([600, 1500]), 'drag selection');
     await page.locator('#mangaGptPrompt').fill('让背景变成夜晚的城市，'.repeat(300));

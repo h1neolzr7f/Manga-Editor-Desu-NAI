@@ -76,11 +76,14 @@
   // Pick a font size so the new caption fits the original text area (a longer replacement no
   // longer spills out of the bubble). measure(text, size) -> horizontal pixel width.
   // Shrinks down to 55% of the natural size (min 10px), then wraps by character.
-  function fitText(text, box, vertical, measure) {
+  // maxSize (optional): cap at about the original lettering size, so text fitted into a whole
+  // bubble interior is not blown up far beyond the glyphs it replaces.
+  function fitText(text, box, vertical, measure, maxSize) {
     const clean = String(text || '').replace(/\r/g, '');
     const along = vertical ? box.height : box.width;      // reading direction
     const across = vertical ? box.width : box.height;
-    const natural = Math.max(10, Math.min(128, Math.round(across * 0.85)));
+    const cap = Number(maxSize) > 0 ? Math.max(10, Math.round(maxSize)) : 128;
+    const natural = Math.max(10, Math.min(128, cap, Math.round(across * 0.85)));
     const minimum = Math.max(10, Math.floor(natural * 0.55));
     const length = (line, size) => vertical ? Array.from(line).length * size * 1.02 : measure(line, size);
     const lines = clean.split('\n');

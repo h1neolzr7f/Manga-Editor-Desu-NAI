@@ -37,10 +37,9 @@ var drawing=!!(current&&current.isDrawingMode);
 var pencil=root.nowPencil||(typeof nowPencil!=='undefined'?nowPencil:'');
 var cropping=typeof cropFrame!=='undefined'&&!!cropFrame;
 var name=cropping?(cropThenCutout?'框选抠图':'框选'):(drawing?(BRUSH_NAMES[pencil]||pencil||'画笔'):'移动');
+// Page size is shown by #naiPageSizeBadge (kept current on every resize); repeating it here went
+// stale after imports/page switches ("底图 1654×2339" next to a 1200×1700 page).
 var page='';
-if(current&&typeof current.getWidth==='function'){
-page=' · 底图 '+Math.round(current.getWidth())+'\u00d7'+Math.round(current.getHeight());
-}
 el.textContent=cropping
 ?('当前：'+name+page+' · Enter确认 · Esc取消')
 :(drawing

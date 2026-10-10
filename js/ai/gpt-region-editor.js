@@ -735,7 +735,8 @@
     return ['left', 'top', 'width', 'height'].some(k => Math.abs(before[k] - now[k]) > 0.5);
   }
 
-  function startSelection() {
+  function startSelection(options) {
+    const auto = !!(options && options.auto === true); // opened by the panel itself, not by 框选区域
     const c = pageCanvas();
     if (!c || !c.upperCanvasEl) {
       feedback(tr('mgpt_canvas_not_ready', '画布还没有初始化。'), true);
@@ -778,6 +779,21 @@
     overlay.addEventListener('pointerdown', event => {
       if (event.button !== 0 && event.button !== 2) return;
       event.preventDefault();
+      // Auto-started selection must not swallow clicks meant for the GPT panel floating over the
+      // canvas (e.g. 生成 / 模式 / 关闭): leave selection mode and hand the click to the panel.
+      const panelEl = $g('mangaGptPanel');
+      if (auto && panelEl && !panelEl.hidden) {
+        const p = panelEl.getBoundingClientRect();
+        if (event.clientX >= p.left && event.clientX <= p.right && event.clientY >= p.top && event.clientY <= p.bottom) {
+          cancelSelection();
+          const target = document.elementFromPoint(event.clientX, event.clientY);
+          if (target && panelEl.contains(target)) {
+            if (typeof target.focus === 'function') target.focus();
+            if (typeof target.click === 'function') target.click();
+          }
+          return;
+        }
+      }
       start = { x: event.clientX - rect.left, y: event.clientY - rect.top };
       overlay.setPointerCapture(event.pointerId);
     });
@@ -1114,7 +1130,16 @@
       '<div id="mangaGptStatus" class="manga-gpt-status" role="status">' + t('mgpt_status_initial', '先框选，再输入修改描述。不会覆盖原图。') + '</div>'
     ].join('');
     document.body.appendChild(panel);
-    button.addEventListener('click', () => { panel.hidden = !panel.hidden; });
+    button.addEventListener('click', () => {
+      panel.hidden = !panel.hidden;
+      if (panel.hidden) { cancelSelection(); return; }
+      // Fewest clicks: opening the panel for an edit with nothing selected goes straight into
+      // selection mode (one drag on the page), instead of needing a separate "框选区域" click.
+      if ($g('mangaGptMode').value === 'edit' && !state.region && !state.pending) {
+        startSelection({ auto: true });
+        feedback(tr('mgpt_drag_now', '直接在画布上拖动鼠标，框出要修改的区域（Esc 取消）。'));
+      }
+    });
     $g('mangaGptClose').addEventListener('click', () => { panel.hidden = true; cancelSelection(); });
     $g('mangaGptSelect').addEventListener('click', startSelection);
     if ($g('mangaGptExpand')) $g('mangaGptExpand').addEventListener('click', expandSelection);
@@ -1133,6 +1158,7 @@
       $g('mangaGptModelPreset').value = modelPresetFor(event.target.value.trim());
     });
     $g('mangaGptMode').addEventListener('change', () => {
+      if ($g('mangaGptMode').value !== 'edit') cancelSelection();
       state.result = '';
       $g('mangaGptApply').disabled = true;
       $g('mangaGptSelect').disabled = currentOperation() !== 'edit';
