@@ -1358,6 +1358,34 @@ async function main() {
     } finally { await ctx.close(); }
   });
 
+  await flow('32 导出全部页面：做 2 页后一键导出（zip 内每页 PNG + 项目文件，导出后回到原页）；气泡标点不在行首', async () => {
+    const { ctx, p, errors } = await beginnerEditor({ noImport: true });
+    try {
+      await op.click(p.locator('#taskBtn-page'), '画一页漫画');
+      const pages = [[['放学的走廊', '这是……小猫？'], ['窗外下雨', ''], ['少女笑了', '你说什么？！真的假的……']], [['雨停了', '一起回家吧！'], ['夕阳', ''], ['挥手', '明天见。']]];
+      const kinsoku = [];
+      for (const pg of pages) {
+        await op.click(p.locator('#taskPage3'), '3 格');
+        if (await p.locator('[data-scene="0"]').isHidden()) await op.click(p.locator('#taskPageEdit'), '展开每格内容');
+        for (let k = 0; k < 3; k++) { await p.locator(`[data-scene="${k}"]`).fill(pg[k][0]); await p.locator(`[data-line="${k}"]`).fill(pg[k][1]); cur.ops.push('格' + (k + 1)); }
+        await op.click(p.locator('#taskPageGo'), '生成整页');
+        await p.waitForFunction(() => /整页完成|没成功/.test(document.getElementById('taskPageStatus').textContent) && !document.getElementById('taskPageGo').disabled, null, { timeout: 60000 });
+        kinsoku.push(...await p.evaluate(() => canvas.getObjects().filter(x => x.type === 'textbox').map(t => t.text)));
+      }
+      const badStart = kinsoku.some(t => t.split('\n').slice(1).some(l => /^[，。！？…、」）]/.test(l)));
+      const here = await p.evaluate(() => getCanvasGUID());
+      const pageCount = await p.evaluate(() => btmProjectsMap.size);
+      const dl = p.waitForEvent('download', { timeout: 60000 });
+      await op.click(p.locator('#taskExportAll'), '导出全部');
+      const d = await dl; const file = path.join(OUT, 'export-all.zip'); await d.saveAs(file);
+      const list = require('child_process').execFileSync('unzip', ['-Z1', file], { encoding: 'utf8' }).trim().split('\n');
+      const png = require('child_process').execFileSync('unzip', ['-p', file, 'page-01.png']).subarray(0, 8).toString('hex');
+      const back = await p.evaluate(() => getCanvasGUID());
+      return { pass: pageCount >= 2 && list.filter(n => /^page-\d+\.png$/.test(n)).length === pageCount && list.includes('漫画项目.lz4') && png === '89504e470d0a1a0a' && back === here && kinsoku.length >= 4 && kinsoku.some(t => t.includes('\n')) && !badStart && !errors.length,
+        detail: { pageCount, list, back: back === here, kinsoku, badStart, name: d.suggestedFilename(), errors } };
+    } finally { await ctx.close(); }
+  });
+
   await endSession('final');
   const summary = { when: new Date().toISOString(), gpt: REAL_GPT ? 'REAL' : 'MOCK', flows, pageErrors, consoleErrors: consoleErrors.slice(0, 20), dialogs };
   fs.writeFileSync(path.join(OUT, 'report.json'), JSON.stringify(summary, null, 2));

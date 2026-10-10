@@ -73,6 +73,9 @@ gear.addEventListener('click',function(){if(window.ServiceSettings)ServiceSettin
 bar.appendChild(gear);
 var theme=el('button',{type:'button',class:'ui-btn ui-btn-ghost task-util',id:'themeToggle',title:'切换浅色 / 深色界面','aria-label':'切换浅色 / 深色界面'},'<i class="material-icons" aria-hidden="true">contrast</i>');
 theme.addEventListener('click',function(){var box=$('mode-toggle');if(!box)return;box.checked=!box.checked;box.dispatchEvent(new Event('change'));});
+var expAll=el('button',{type:'button',class:'ui-btn ui-btn-ghost task-util',id:'taskExportAll',title:'把所有页面导出为 PNG，并附上项目文件，打包成一个 zip'},'<i class="material-icons" aria-hidden="true">download</i>导出全部');
+expAll.addEventListener('click',function(){exportAll();});
+bar.appendChild(expAll);
 bar.appendChild(theme);
 var toggle=el('button',{type:'button',class:'ui-btn ui-btn-ghost task-util',id:'uiModeToggle'},'专业模式');
 toggle.addEventListener('click',function(){setMode(mode()==='beginner'?'pro':'beginner');});
@@ -140,7 +143,9 @@ li.classList.toggle('is-current',!doneAll&&i===n);
 function card(t){
 var old=$('taskWizardCard');if(old)old.remove();
 var c=el('section',{id:'taskWizardCard',class:'ui-card task-card',role:'dialog','aria-labelledby':'taskWizardTitle'});
-c.innerHTML='<header><strong id="taskWizardTitle">'+t.title+'</strong><button type="button" class="ui-btn ui-btn-ghost" id="taskWizardClose" aria-label="关闭">×</button></header>';
+// the step head right below already shows the task title; the header only carries the close button
+c.setAttribute('aria-label',t.title);c.removeAttribute('aria-labelledby');
+c.innerHTML='<header class="task-card-close"><button type="button" class="ui-btn ui-btn-ghost" id="taskWizardClose" aria-label="关闭">×</button></header>';
 document.body.appendChild(c);
 head(t,c,c.querySelector('header').nextSibling);
 $('taskWizardClose').addEventListener('click',function(){stop(true);});
@@ -351,9 +356,13 @@ var w=Math.max(150,Math.min(rect.width*.6,460));
 var fontSize=Math.max(20,Math.round(Math.min(rect.width,rect.height)*.06));
 // splitByGrapheme: Chinese has no spaces, so wrap per character; .66 keeps lines inside the ellipse
 // balance lines: about sqrt(1.6*chars) glyphs per line, so punctuation does not end up alone
-var perLine=text.length<=9?text.length:Math.ceil(Math.sqrt(text.length*1.6));
-w=Math.min(Math.max(w,0),Math.max(perLine*fontSize*1.08/.66,fontSize*4));
-var tb=new fabric.Textbox(text,{width:w*.66,fontSize:fontSize,textAlign:'center',fill:'#111',splitByGrapheme:true,
+var n=Array.from(text).length;
+var perLine=n<=9?n:Math.ceil(Math.sqrt(n*1.6));
+// explicit kinsoku lines (…… ？ ！ never start a line); the box is as wide as the longest line so Fabric never re-wraps
+var lines=window.CjkBreak?CjkBreak.breakLines(text,perLine):[text];
+var longest=Math.max.apply(null,lines.map(function(l){return Array.from(l).length;}));
+w=Math.max(longest*fontSize*1.08/.66,fontSize*4);
+var tb=new fabric.Textbox(lines.join('\n'),{width:longest*fontSize*1.06,fontSize:fontSize,textAlign:'center',fill:'#111',splitByGrapheme:true,
 fontFamily:'"Noto Sans SC","Microsoft YaHei",sans-serif',name:'对白 '+index});
 var bh=Math.max(tb.height*1.75,fontSize*2.6);
 var left=rect.left+rect.width-w-rect.width*.04,top=rect.top+rect.height*.05;
@@ -442,6 +451,43 @@ if(p.applied>active.startApplied)markStep(0,true);else markStep(p.drafts?1:0);
 }
 }
 
+// Dogfood: exporting 4 pages took 18 clicks (展开页面→选页→文件→下载图片 per page, then 保存项目).
+// One button: every page as PNG (page-bar order) + the merged project, in one zip; then back to the page you were on.
+function pageOrder(){
+var ids=Array.from(document.querySelectorAll('#btm-image-container .btm-image')).map(function(i){return i.dataset.index;}).filter(function(g){return btmProjectsMap.has(g);});
+btmProjectsMap.forEach(function(v,k){if(ids.indexOf(k)<0)ids.push(k);});
+return ids;
+}
+function dataUrlBytes(u){var b=atob(String(u).split(',')[1]||'');var a=new Uint8Array(b.length);for(var i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a;}
+var exporting=false;
+async function exportAll(){
+if(exporting)return null;
+if(typeof btmProjectsMap==='undefined'||typeof JSZip==='undefined'){toast('导出全部','页面还没加载完，请稍等再试。',true);return null;}
+if(!hasPage()&&!btmProjectsMap.size){toast('没有可导出的页面','先导入图片或用「画一页漫画」做一页。',true);return null;}
+exporting=true;var btn=$('taskExportAll');if(btn)btn.disabled=true;
+var back=typeof getCanvasGUID==='function'?getCanvasGUID():null;
+try{
+if(hasPage())await btmSaveProjectFile(null,false);
+var ids=pageOrder(),zip=new JSZip(),n=0;
+for(var i=0;i<ids.length;i++){
+if(ids.length>1||ids[i]!==back)await chengeCanvasByGuid(ids[i],false);
+if(typeof removeGrid==='function')removeGrid();
+var link=await ImageUtil.getCropAndDownloadLink('png');
+if(typeof restoreGridAfterExport==='function')restoreGridAfterExport();
+zip.file('page-'+String(i+1).padStart(2,'0')+'.png',dataUrlBytes(link.href));n++;
+}
+var lz4=await lz4Compressor.mergeLz4Blobs(Array.from(btmProjectsMap.values()).map(function(d){return d.blob;}));
+zip.file('漫画项目.lz4',lz4);
+var blob=await zip.generateAsync({type:'blob'});
+if(back&&btmProjectsMap.has(back))await chengeCanvasByGuid(back,false);
+var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='漫画-全部页面.zip';document.body.appendChild(a);a.click();a.remove();
+setTimeout(function(){URL.revokeObjectURL(a.href);},5000);
+toast('已导出 '+n+' 页','zip 里是每页 PNG 和项目文件（用「文件 › 打开项目」可继续编辑）。');
+return {pages:n,bytes:blob.size};
+}catch(e){toast('导出失败',(e&&e.message)||'生成导出文件时出错，请重试。',true);return null;}
+finally{exporting=false;if(btn)btn.disabled=false;}
+}
+
 function init(){
 buildBar();
 buildHome();
@@ -451,6 +497,6 @@ setInterval(updateHome,1000);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(init,0);});
 else setTimeout(init,0);
 
-return {start:start,stop:stop,setMode:setMode,mode:mode,TASKS:TASKS,active:function(){return active&&active.id;}};
+return {exportAll:exportAll,start:start,stop:stop,setMode:setMode,mode:mode,TASKS:TASKS,active:function(){return active&&active.id;}};
 })();
 if(typeof window!=='undefined')window.TaskLauncher=TaskLauncher;
