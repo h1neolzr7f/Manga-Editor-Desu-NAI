@@ -821,11 +821,13 @@ async function run() {
   const appliedLama=await page.evaluate(()=>({
     objects:canvas.getObjects().length,
     layer:canvas.getObjects().find(o=>o.mangaSmartText==='lama-erase-patch')?.type,
-    erase:window.MangaSmartTextEditor.getDrafts()[0]?.erase
+    erase:window.MangaSmartTextEditor.getDrafts()[0]?.erase,
+    lamaApplied:window.MangaSmartTextEditor.getDrafts()[0]?.lamaApplied
   }));
   record('confirmed LaMa result is an independent erasable Fabric layer with no GPT charges',
     appliedLama.objects===beforeLama+1 && appliedLama.layer==='image' &&
-    appliedLama.erase===false && mock.calls.length===paidCallsBeforeLama,appliedLama);
+    appliedLama.erase===true && appliedLama.lamaApplied===true && // fill stays on to cover LaMa residue
+    mock.calls.length===paidCallsBeforeLama,appliedLama);
   await page.evaluate(()=>undo());
   await page.waitForFunction(n=>canvas.getObjects().length===n,beforeLama,{timeout:20000});
   await page.evaluate(()=>redo());
