@@ -1626,7 +1626,7 @@
   // ---- Beginner task wizard hooks. The task launcher owns all wizard text; this only switches modes.
   const KEEP_IDS = ['mangaGptPrompt', 'mangaGptReferences', 'mangaGptGenerate', 'mangaGptCancel', 'mangaGptApply',
     'mangaGptPreview', 'mangaGptCompare', 'mangaGptStatus', 'mangaGptExpand', 'mangaGptClose', 'mangaGptCollapse',
-    'mangaGptServiceSummary', 'mangaGptTaskHead'];
+    'mangaGptServiceSummary', 'mangaGptTaskHead', 'mangaGptReferencesPickRow'];
   function tagAdvanced(el) {
     const keeps = KEEP_IDS.some(id => el.id === id || el.querySelector('#' + id));
     if (!keeps) { el.classList.add('mgpt-adv'); return; }
