@@ -1,5 +1,5 @@
 {
-  "when": "2026-10-10T03:16:06.066Z",
+  "when": "2026-10-10T03:22:19.062Z",
   "gpt": "MOCK",
   "flows": [
     {
@@ -40,7 +40,7 @@
         "生成",
         "应用为图层"
       ],
-      "seconds": 3.1,
+      "seconds": 2.7,
       "screenshot": "artifacts/novice/03-2_框选人物_参考图_描述_生成_预览_应用.png",
       "notes": [],
       "detail": {
@@ -72,7 +72,7 @@
         "识别",
         "应用字幕"
       ],
-      "seconds": 2.4,
+      "seconds": 2.3,
       "screenshot": "artifacts/novice/04-3_识别日文气泡_修正_去字_替换中文字幕.png",
       "notes": [
         "OCR: [\"ありがとう\"]"
@@ -117,7 +117,7 @@
         "page 1",
         "Ctrl+Z after reopen"
       ],
-      "seconds": 16.4,
+      "seconds": 16,
       "screenshot": "artifacts/novice/05-4_撤销_重做_切页_保存_关闭_重开.png",
       "notes": [],
       "detail": {
@@ -147,7 +147,7 @@
         "生成（失败）",
         "再试一次"
       ],
-      "seconds": 3,
+      "seconds": 2.9,
       "screenshot": "artifacts/novice/06-5_错误_API_失败后再试_超长提示词_空选区.png",
       "notes": [],
       "detail": {
@@ -179,7 +179,7 @@
         "page 1",
         "应用（回到第 1 页）"
       ],
-      "seconds": 41.7,
+      "seconds": 41.3,
       "screenshot": "artifacts/novice/07-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
       "notes": [],
       "detail": {
@@ -195,7 +195,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 14.1,
+      "seconds": 15.8,
       "screenshot": "artifacts/novice/08-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
       "notes": [],
       "detail": {
@@ -206,11 +206,19 @@
           "generateReachable": true,
           "open": {
             "overlapPx": 0,
-            "canvasW": 497
+            "canvasW": 496,
+            "canvasH": 703,
+            "visibleRatio": 1,
+            "centerOnCanvas": true,
+            "centerHit": "upper-canvas "
           },
           "collapsed": {
             "overlapPx": 0,
-            "canvasW": 528
+            "canvasW": 527,
+            "canvasH": 747,
+            "visibleRatio": 1,
+            "centerOnCanvas": true,
+            "centerHit": "upper-canvas "
           }
         },
         "1280x800@1.5": {
@@ -220,11 +228,19 @@
           "generateReachable": true,
           "open": {
             "overlapPx": 0,
-            "canvasW": 424
+            "canvasW": 423,
+            "canvasH": 599,
+            "visibleRatio": 1,
+            "centerOnCanvas": true,
+            "centerHit": "upper-canvas "
           },
           "collapsed": {
             "overlapPx": 0,
-            "canvasW": 424
+            "canvasW": 423,
+            "canvasH": 599,
+            "visibleRatio": 1,
+            "centerOnCanvas": true,
+            "centerHit": "upper-canvas "
           }
         },
         "1024x700@1": {
@@ -234,11 +250,19 @@
           "generateReachable": true,
           "open": {
             "overlapPx": 0,
-            "canvasW": 304
+            "canvasW": 304,
+            "canvasH": 431,
+            "visibleRatio": 1,
+            "centerOnCanvas": true,
+            "centerHit": "upper-canvas "
           },
           "collapsed": {
             "overlapPx": 0,
-            "canvasW": 353
+            "canvasW": 352,
+            "canvasH": 499,
+            "visibleRatio": 1,
+            "centerOnCanvas": true,
+            "centerHit": "upper-canvas "
           }
         }
       }

@@ -380,12 +380,23 @@ async function main() {
       await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 });
       await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {});
       await p.keyboard.press('Escape');
+      // real page content so the screenshot shows the page, not an empty dark canvas (setup, not a counted op)
+      if (await p.locator('#imageInput').count()) {
+        await p.locator('#imageInput').setInputFiles(PAGES[0]);
+        await p.waitForFunction(() => canvas.getObjects().some(o => o.type === 'image'), null, { timeout: 30000 }).catch(() => {});
+        await p.keyboard.press('Escape'); await p.waitForTimeout(500);
+      }
       const hasGpt = await p.locator('#mangaGptOpen').count();
       if (hasGpt) { await p.locator('#mangaGptOpen').click(); await p.keyboard.press('Escape'); await p.waitForTimeout(400); }
       const cover = () => p.evaluate(() => { const a = canvas.upperCanvasEl.getBoundingClientRect(); const pn = document.getElementById('mangaGptPanel');
-        if (!pn || pn.hidden) return { overlapPx: 0, canvasW: Math.round(a.width) };
+        const vx = Math.max(0, Math.min(a.right, innerWidth) - Math.max(a.left, 0)); const vy = Math.max(0, Math.min(a.bottom, innerHeight) - Math.max(a.top, 0));
+        const visibleRatio = +(vx * vy / Math.max(1, a.width * a.height)).toFixed(2);
+        const hit = document.elementFromPoint(Math.min(innerWidth - 1, Math.max(0, (a.left + a.right) / 2)), Math.min(innerHeight - 1, Math.max(0, (a.top + a.bottom) / 2)));
+        const centerOnCanvas = !!hit && (hit === canvas.upperCanvasEl || hit === canvas.lowerCanvasEl);
+        const base = { canvasW: Math.round(a.width), canvasH: Math.round(a.height), visibleRatio, centerOnCanvas, centerHit: hit ? (hit.id || hit.className || hit.tagName) + '' : null };
+        if (!pn || pn.hidden) return { overlapPx: 0, ...base };
         const b = pn.getBoundingClientRect(); const ix = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)); const iy = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
-        return { overlapPx: Math.round(ix * iy), canvasW: Math.round(a.width) }; });
+        return { overlapPx: Math.round(ix * iy), ...base }; });
       const open = hasGpt ? await cover() : null;
       let collapsed = null;
       if (hasGpt) { await p.locator('#mangaGptCollapse').click(); await p.waitForTimeout(400); collapsed = await cover(); await p.locator('#mangaGptCollapse').click(); await p.waitForTimeout(300); }
@@ -400,7 +411,7 @@ async function main() {
       out[w + 'x' + h + '@' + dpr] = { ...m, open, collapsed }; await ctx.close();
     }
     return { pass: Object.values(out).every(m => !m.hScroll && m.gptOpen !== false && m.file && m.generateReachable !== false &&
-      (!m.open || (m.open.overlapPx === 0 && m.collapsed.overlapPx === 0 && m.collapsed.canvasW >= m.open.canvasW))), detail: out };
+      (!m.open || [m.open, m.collapsed].every(c => c.overlapPx === 0 && c.visibleRatio >= 0.9 && c.centerOnCanvas && c.canvasW >= 200) && m.collapsed.canvasW >= m.open.canvasW - 2)), detail: out };
   });
 
   await endSession('final');
