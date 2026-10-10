@@ -65,3 +65,8 @@
   font-size: 12px;
 }
 .manga-gpt-compare[aria-pressed="true"] { background: #2c6a8f; }
+
+/* "操作 [模式]" label must not collapse to 0 px next to the shape select (text broke one character per line) */
+.manga-gpt-row > label { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.manga-gpt-row > label > select { flex: 1 1 auto; min-width: 0; }
+.manga-gpt-row > #mangaGptShape { flex: 0 0 auto; width: auto; }

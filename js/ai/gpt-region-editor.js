@@ -1502,7 +1502,7 @@
     // grouped short options; the full explanation is the tooltip (and stays translatable)
     const opt = (id, key, zh, tipKey, tipZh, checked) => '<label class="manga-gpt-opt" title="' + t(tipKey, tipZh).replace(/"/g, '&quot;') + '"><input id="' + id + '" type="checkbox"' +
       (checked ? ' checked' : '') + '> ' + t(key, zh) + '</label>';
-    const group = (key, zh, items) => '<fieldset class="manga-gpt-group"><legend>' + t(key, zh) + '</legend>' + items.join('') + '</fieldset>';
+    const group = (key, zh, items) => '<fieldset class="manga-gpt-group"><legend>' + t(key, zh) + '</legend><div class="manga-gpt-group-items">' + items.join('') + '</div></fieldset>';
     panel.innerHTML = [
       '<div class="manga-gpt-head"><strong>' + t('mgpt_title', 'AI 改图') + '</strong><span class="manga-gpt-head-buttons"><button type="button" id="mangaGptCollapse" aria-expanded="true" title="' + t('mgpt_collapse', '收起面板（让出画布）') + '" aria-label="' + t('mgpt_collapse', '收起面板（让出画布）') + '">–</button>' +
         '<button type="button" id="mangaGptClose" aria-label="' + t('mgpt_close', '关闭') + '">×</button></span></div>',
