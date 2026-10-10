@@ -106,6 +106,11 @@ NAI_REAL_API=1 NAI_TEST_ENV_FILE=<仓库外> NAI_REAL_MAX_CALLS=1 node scripts/n
 | 47e62c4 | 证据图片和真实 E2E 结果 |
 | 4060e37 | GPT 框选不再被无关容器的滚动打断（二分定位到 2c50ba2 引入）；自动保存恢复弹窗加无障碍属性，Esc = 稍后决定 |
 | 21d2425 | 中转站返回 HTML 错误页（例如 Cloudflare 530）时，显示可读的中文提示，不再显示 HTML 源码 |
+| 1f10627 | CI：OCR 工作流增加 fonts-noto-cjk 和预清理 / 模型守卫测试；全量验收的触发路径扩大到 js/css/index.html 等（已用新 Token 推送，CI 7/7 绿） |
+| 2d4386f | 颜色色块只显示颜色，不再显示被截断的「rgba(25」 |
+| 8f8ad95 | 中转站恢复后，在 2d4386f 上重跑真实 E2E（25/25） |
+| 3d17d53 | 修复网点设置不保存：tone.js 的同名全局函数覆盖了 tone-manager.js 的函数。新增全局函数冲突测试 `no-duplicate-globals-test`；删除 43 个只有声明、没有任何引用的顶层声明 |
+| 4d4d326 | 去掉 64 处重复的 `var` 声明（行为不变） |
 
 ### 7.2 功能矩阵
 
@@ -155,9 +160,9 @@ NAI_REAL_API=1 NAI_TEST_ENV_FILE=<仓库外> NAI_REAL_MAX_CALLS=1 node scripts/n
 
 1. 智能字幕会保留单个 kana 碎片（例如「の」）。这是有意的：日文单字也可能是真对白。
 2. GPT 替换后，人物可能越过下方分格线：原画本来就跨格，选区外像素不会被改动。
-3. 形状面板的颜色输入框里文字被截断（显示为 `rgba(25`）。
-4. 还有 703 个 ESLint 警告（0 个错误）。
+3. 【已修复 2d4386f】形状面板颜色框文字被截断。
+4. ESLint（`npm run lint`）：0 个错误，警告从 703 降到 480。剩下的大多是跨文件使用的全局函数（经典 script 共享全局作用域，ESLint 看不到跨文件引用），属于误报。
 5. 其他语言的翻译文件在运行时不加载（应用只显示中文），只给 check-translations 用。暂时保留。
-6. **CI 工作流改动仍未推送**（manga-smart-ocr.yml 和 full-acceptance 的触发路径）。提供的 fine-grained PAT 推送时返回 403：它需要对本仓库有 **Contents: Read and write** 和 **Workflows: Read and write** 两项权限。提交已备好：本地分支 `ci-workflow-pending`（6114e98）。
+6. 【已完成 1f10627】CI 工作流改动已推送，ocr-native 的日志确认新测试实际运行了。
 7. 智能字幕替换：新文字「どうもありがとう」比气泡宽，气泡里还能看到原文字的淡淡残影（见 e2e-real-final-page-2d4386f.jpg）。建议换字时自动缩小字号以适配气泡，并默认先擦除原文字。
 8. **请轮换 NovelAI Token**（旧 Token 曾泄露给第三方 Director）。
