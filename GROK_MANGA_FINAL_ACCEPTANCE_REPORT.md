@@ -208,3 +208,19 @@ NAI_REAL_API=1 NAI_TEST_ENV_FILE=<仓库外> NAI_REAL_MAX_CALLS=1 node scripts/n
 
 - 推送前密钥扫描：重建 `/home/box/mnai_keyscan.sh`（仓库外）：sk-/ghp_/github_pat_/pst- 通用模式 + 600 权限文件中的 3 个已知密钥的精确匹配；自测植入已知密钥时返回 1（命中）。
 - image-2.5 模型：GPT 中继 /v1/models 返回 HTTP 530（Cloudflare Origin DNS error），按用户指示跳过，未做任何改动，NOT TESTED。
+
+### 8.y gpt-image-2.5（2026-10-10 10:00 前后）
+
+- 中继 `/v1/models`（HTTP 200，09:57）里的图像模型：`gpt-image-2`、`gpt-image-2.5`、`gpt-image-2.5-flare`、`gpt-image-2.5-sunburst`（`docs/acceptance/gpt-image-2.5/relay-image-models-20261010.json`）。准确 ID：**`gpt-image-2.5`**。
+- 0cea29e：GPT 面板“图像模型”改为下拉（`gpt-image-2.5` 默认推荐 / -flare / -sunburst / `gpt-image-2` / `gpt-image-1` / 自定义…）+ 仍可自由输入的 ID 文本框，两者双向同步；不保存到 localStorage。回归：gpt-browser 新增 2 项（下拉默认值/可选 gpt-image-2/自定义同步；请求体 model = gpt-image-2.5），76/76 PASS；smoke 测试同步。
+- 真实调用（REAL，中继）：
+
+| 用例 | 模型 | 结果 |
+|---|---|---|
+| A 角色替换 + 参考图，选区 802×1240 | gpt-image-2.5 | PASS，HTTP 200，35 s；选区外 0 像素变化；接缝 0.24→1.09；保留分格线 |
+| A 同一用例（10-09 存档） | gpt-image-2 | 48 s；接缝 0.24→1.17 |
+| B 仅文字 | gpt-image-2.5 | 上游 530（中继隧道掉线），界面显示可读中文错误，未生成 |
+| A 对照重跑 | gpt-image-2 | 上游 530 |
+| full-feature E2E 真实角色替换 / 文字生图 | gpt-image-2.5 | NOT TESTED（10:02–10:07 中继持续 530） |
+
+- 质量对比（`docs/acceptance/gpt-image-2.5/caseA-compare.png`）：gpt-image-2.5 保留了原图的回头姿势、手臂位置和百褶裙构图，只把发色/发卡/雨衣换成参考角色；gpt-image-2 改了姿势、把裙子换成牛仔裤，下边缘可见一条接缝。2.5 的选区内平均差值 29.8（gpt-image-2 为 43.4），即改动更克制。只有 1 个用例对比，结论是初步的。
