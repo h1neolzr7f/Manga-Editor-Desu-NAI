@@ -1347,9 +1347,14 @@ async function main() {
       await op.key('Control+z', '撤销');
       await p.waitForTimeout(1200);
       const afterUndo = await p.evaluate(() => canvas.getObjects().filter(x => x.type === 'image').length);
+      // regression: when every frame failed the page holds only panel frames; its error says "用「自定义修改」重画那一格", so that wizard must open
+      await p.evaluate(() => { canvas.getObjects().filter(x => x.type === 'image').forEach(x => canvas.remove(x)); const f = new fabric.Polygon([{ x: 60, y: 60 }, { x: 600, y: 60 }, { x: 600, y: 500 }, { x: 60, y: 500 }], { fill: 'transparent', stroke: '#000', strokeWidth: 3, isPanel: true }); canvas.add(f); canvas.renderAll(); });
+      await op.click(p.locator('#taskBtn-custom'), '自定义修改（重画失败格）');
+      await p.waitForTimeout(500);
+      const retry = await p.evaluate(() => ({ task: document.getElementById('mangaGptPanel').dataset.task, visible: !document.getElementById('mangaGptPanel').hidden && document.getElementById('mangaGptPrompt').getBoundingClientRect().height > 0 }));
       return { pass: /3 次/.test(cost) && /第 1 格还没写画面/.test(emptyMsg) && /整页完成/.test(status) && st.panels === 3 && st.images === 3 && st.clipped === 3 &&
-        st.bubbles === 2 && st.texts.join('|') === '今天也要加油！|再见啦，明天见！' && inside && st.thumbs >= 1 && calls.length === 3 && calls.every(c => c.op === 'generate' && /单幅画面/.test(c.prompt) && /不要再分格/.test(c.prompt)) && afterUndo === 0 && !errors.length,
-        detail: { cost, emptyMsg, status, st, inside, calls: calls.map(c => c.op + ':' + c.prompt.slice(0, 30)), afterUndo, errors } };
+        st.bubbles === 2 && st.texts.join('|') === '今天也要加油！|再见啦，明天见！' && inside && st.thumbs >= 1 && calls.length === 3 && calls.every(c => c.op === 'generate' && /单幅画面/.test(c.prompt) && /不要再分格/.test(c.prompt)) && afterUndo === 0 && retry.task === 'custom' && retry.visible && !errors.length,
+        detail: { retry, cost, emptyMsg, status, st, inside, calls: calls.map(c => c.op + ':' + c.prompt.slice(0, 30)), afterUndo, errors } };
     } finally { await ctx.close(); }
   });
 

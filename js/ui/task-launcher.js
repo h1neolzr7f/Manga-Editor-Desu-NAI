@@ -14,7 +14,7 @@ if(isError&&typeof createToastError==='function')return createToastError(title,m
 if(typeof createToast==='function')createToast(title,msg,3200);
 }
 function hasPage(){
-try{return typeof canvas!=='undefined'&&canvas&&canvas.getObjects().some(function(o){return o.type==='image';});}catch(e){return false;}
+try{return typeof canvas!=='undefined'&&canvas&&canvas.getObjects().some(function(o){return o.type==='image'||o.isPanel;});}catch(e){return false;}
 }
 
 var GPT_PRESETS={

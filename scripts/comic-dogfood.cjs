@@ -38,6 +38,7 @@ async function startServer() {
 async function mockGpt(p) {
   await p.route('**/gpt-image-proxy', async route => {
     const b = route.request().postDataJSON(); log.calls++;
+    if (process.env.DOGFOOD_MOCK_FAIL === '1' && b.operation === 'generate') return route.fulfill({ status: 502, contentType: 'application/json', body: JSON.stringify({ error: '上游 HTTP 401: invalid key' }) });
     const image = await p.evaluate(async ({ size, prompt, src }) => {
       const [w, h] = (size && size !== 'auto' ? size : '1024x1024').split('x').map(Number); const c = document.createElement('canvas'); c.width = w; c.height = h;
       const g = c.getContext('2d'); g.fillStyle = '#eee'; g.fillRect(0, 0, w, h);
@@ -76,7 +77,8 @@ async function before(browser) {
     await click(p, '#mangaGptOpen', 'GPT 改图');
     await p.keyboard.press('Escape'); op('Esc 取消自动框选（要的是文字生图）'); notes.push('打开 GPT 面板会直接进入框选，画新格子还得先取消');
     await p.locator('#mangaGptMode').selectOption('generate'); op('操作改成「文字生图」');
-    await type(p, '#mangaGptPrompt', PAGES[0][0][0], '写画面');
+    if (process.env.DOGFOOD_DEBUG) console.log('gptpanel', JSON.stringify(await p.evaluate(() => { const g = document.getElementById('mangaGptPanel'), t = document.getElementById('mangaGptPrompt'); return { hidden: g.hidden, cls: g.className, task: g.dataset.task, promptCls: t.className, parentHidden: t.parentElement.className, rect: t.getBoundingClientRect().height, card: !!document.getElementById('taskWizardCard') }; })));
+        await type(p, '#mangaGptPrompt', PAGES[0][0][0], '写画面');
     await click(p, '#mangaGptGenerate', '生成');
     await p.waitForFunction(() => !document.getElementById('mangaGptApply').disabled, null, { timeout: 60000 });
     await click(p, '#mangaGptApply', '应用');
