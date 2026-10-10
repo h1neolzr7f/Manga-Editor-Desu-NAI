@@ -1652,6 +1652,34 @@ async function main() {
     } finally { await ctx.close(); }
   });
 
+  await flow('36 分层：按格子拆成图层（自动找格子 → 点一格取消 → 拆成图层，一步撤销/重做）', async () => {
+    const { ctx, p, errors } = await beginnerEditor({ noImport: true });
+    try {
+      await p.locator('#imageInput').setInputFiles(path.join(__dirname, 'fixtures', 'ctd', 'page-4.png'));
+      await p.waitForFunction(() => canvas.getObjects().some(o => o.type === 'image'), null, { timeout: 30000 }); await p.waitForTimeout(800);
+      await op.click(p.locator('#taskBtn-layer'), '分层');
+      await op.click(p.locator('#taskLayerPanels'), '按格子拆成图层');
+      await p.waitForSelector('#panelAutoOverlay .panel-auto-cell', { timeout: 15000 });
+      const found = await p.locator('#panelAutoOverlay .panel-auto-cell').count();
+      await op.click(p.locator('#panelAutoOverlay .panel-auto-cell[data-panel="2"]'), '取消第 2 格');
+      const label = await p.locator('#panelAutoApply').textContent();
+      await snap('panel-split-overlay');
+      const n0 = await p.evaluate(() => canvas.getObjects().filter(o => o.panelLayer).length);
+      await op.click(p.locator('#panelAutoApply'), '拆成图层');
+      await p.waitForFunction(() => canvas.getObjects().filter(o => o.panelLayer).length >= 3, null, { timeout: 15000 });
+      const layers = await p.evaluate(() => canvas.getObjects().filter(o => o.panelLayer).map(o => o.name));
+      await p.locator('.canvas-container').first().click({ position: { x: 5, y: 5 } }).catch(() => {});
+      await op.key('Control+z', '撤销'); await p.waitForTimeout(800);
+      const undone = await p.evaluate(() => canvas.getObjects().filter(o => o.panelLayer).length);
+      await op.key('Control+y', '重做'); await p.waitForTimeout(800);
+      const redone = await p.evaluate(() => canvas.getObjects().filter(o => o.panelLayer).length);
+      const status = await p.locator('#taskLayerStatus').textContent();
+      return { pass: found === 4 && /拆成 3 个图层/.test(label) && n0 === 0 && layers.length === 3 && !layers.includes('第2格') && undone === 0 && redone === 3 && /已拆成 3 个图层/.test(status) && !errors.length,
+        detail: { found, label, layers, undone, redone, status, errors } };
+    } finally { await ctx.close(); }
+  });
+
+
   await endSession('final');
   const summary = { when: new Date().toISOString(), gpt: REAL_GPT ? 'REAL' : 'MOCK', flows, pageErrors, consoleErrors: consoleErrors.slice(0, 20), dialogs };
   fs.writeFileSync(path.join(OUT, 'report.json'), JSON.stringify(summary, null, 2));

@@ -247,6 +247,7 @@ else startNai(t);
 timer=setInterval(tick,400);
 }
 function stop(showHome){
+if(window.PanelAuto)PanelAuto.close();
 if(timer){clearInterval(timer);timer=null;}
 var was=active;active=null;
 document.querySelectorAll('.task-btn').forEach(function(b){b.classList.remove('is-active');});
@@ -324,8 +325,16 @@ var body=card(t);
 markStep(0);
 var go=el('button',{type:'button',class:'ui-btn ui-btn-primary',id:'taskLayerPick'},'开始框选');
 body.appendChild(go);
+// whole panels: detected automatically (white gutters), each one toggleable before splitting
+var byPanel=el('button',{type:'button',class:'ui-btn',id:'taskLayerPanels'},'按格子拆成图层');
+body.appendChild(byPanel);
 body.appendChild(el('p',{class:'ui-muted',id:'taskLayerStatus'},'白底或纯色背景效果最好；本机抠图服务开着时会用神经网络抠图。'));
 go.addEventListener('click',beginPick);
+byPanel.addEventListener('click',function(){
+if(!window.PanelAuto)return;
+var st=$('taskLayerStatus');
+PanelAuto.splitToLayers({status:function(t){if(st)st.textContent=t;}}).then(function(n){if(n){active.applied=(active.applied||0)+1;markStep(2);}});
+});
 }
 function beginPick(){
 cancelPick();
@@ -587,7 +596,7 @@ setInterval(function(){
 if(typeof canvas==='undefined'||!window.AutoSwap||!AutoSwap.prefetch||mode()!=='beginner')return;
 var img=canvas.getObjects().filter(function(o){return o.type==='image'&&!o.autoSwap;})[0];
 var sig=img?(img.width+'x'+img.height+':'+((img._element&&img._element.src)||'').length):'';
-if(sig&&sig!==lastPageSig){lastPageSig=sig;AutoSwap.prefetch();}
+if(sig&&sig!==lastPageSig){lastPageSig=sig;AutoSwap.prefetch();if(window.PanelAuto)setTimeout(function(){PanelAuto.get().catch(function(){});},1500);}
 },2000);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(init,0);});

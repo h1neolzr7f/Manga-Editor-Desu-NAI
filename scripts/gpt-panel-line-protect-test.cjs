@@ -54,5 +54,5 @@ assert.deepEqual(Array.from(m), [0, 0, 128]);
 assert.equal(combineAlpha(null, null), null);
 console.log('PASS line mask combines with the transparency mask (minimum)');
 
-assert(source.includes("mangaGptKeepLines") && /hint\('mangaGptKeepLines'[^)]*true\)/.test(source), 'option exists and defaults ON');
+assert(source.includes("mangaGptKeepLines") && /opt\('mangaGptKeepLines'[^)]*true\)/.test(source), 'option exists and defaults ON');
 console.log('PASS keep-lines option present and on by default');

@@ -48,6 +48,6 @@ for (const lang of ['ja', 'en', 'ko', 'fr', 'zh', 'ru', 'es', 'de']) {
 for (const key of keys) assert.equal(merged.zh[key], used[key], `zh.${key} must equal the in-code fallback`);
 // No hard-coded Chinese UI text left outside tr() except layer names saved in projects.
 const stray = editor.split('\n').filter(line => /[\u4e00-\u9fff]/.test(line) && !/^\s*(\/\/|\*|\/\*)/.test(line) &&
-  !/tr\('mgpt_|t\('mgpt_|hint\('mangaGpt|^\s*'[^']*[\u4e00-\u9fff]/.test(line) && !/GPT 局部改图|GPT 生图/.test(line));
+  !/tr\('mgpt_|t\('mgpt_|hint\('mangaGpt|opt\('mangaGpt|group\('mgpt_|^\s*'[^']*[\u4e00-\u9fff]/.test(line) && !/GPT 局部改图|GPT 生图/.test(line));
 assert.deepEqual(stray, [], 'untranslated UI strings');
 console.log('PASS GPT panel i18n: ' + keys.length + ' keys x 8 languages, zh identical, placeholders consistent');
