@@ -19,7 +19,7 @@ from gpt_image_proxy import _authorized_local_request
 MAX_IMAGE_BYTES = 12 * 1024 * 1024
 MAX_HTTP_BYTES = 17 * 1024 * 1024
 MAX_PIXELS = 25 * 1024 * 1024
-LANGUAGES = frozenset(("jpn+eng", "jpn_vert+eng", "eng", "chi_sim+eng", "chi_tra+eng", "kor+eng"))
+LANGUAGES = frozenset(("auto", "jpn+eng", "jpn_vert+eng", "eng", "chi_sim+eng", "chi_tra+eng", "kor+eng"))
 MAX_REGIONS = 120
 # At most two Tesseract processes at once (each may use several cores / ~1GB on big pages).
 _TESSERACT_SLOTS = threading.BoundedSemaphore(2)
@@ -147,7 +147,7 @@ def find_tesseract():
     return None
 
 
-def ocr_image(data_url, language="jpn+eng"):
+def ocr_image(data_url, language="auto"):
     if language not in LANGUAGES:
         raise SmartOcrError("OCR 语言不受支持。")
     image, width, height = read_image(data_url)
@@ -159,6 +159,11 @@ def ocr_image(data_url, language="jpn+eng"):
     if not _TESSERACT_SLOTS.acquire(blocking=False):
         raise SmartOcrError("已有 OCR 任务在运行，请等待完成后再试。", 429)
     psm = "5" if language.startswith("jpn_vert") else "11"
+    if language == "auto":
+        try:
+            return _ocr_auto(executable, image, width, height)
+        finally:
+            _TESSERACT_SLOTS.release()
     try:
         # Tesseract ignores text enclosed by a closed bubble outline; OCR a copy with
         # outlines/borders whitened as well (same coordinates), then the original.
@@ -177,6 +182,33 @@ def ocr_image(data_url, language="jpn+eng"):
         _TESSERACT_SLOTS.release()
     return {"ok": True, "width": width, "height": height, "regions": regions,
             "engine": "tesseract-local", "preclean": bool(cleaned)}
+
+
+def _ocr_auto(executable, image, width, height):
+    """Default for beginners: bubble-first (vertical+horizontal per bubble), then a vertical
+    whole-page pass for text outside bubbles that clearly reads as Japanese."""
+    from manga_bubble_ocr import find_bubbles, read_bubble, japanese_score
+    run = lambda png, lang, psm: _run_tesseract(executable, png, lang, psm)
+    regions = []
+    try:
+        bubbles = find_bubbles(image)
+    except Exception:
+        bubbles = []
+    for bubble in bubbles:
+        region = read_bubble(run, parse_tsv, bubble)
+        if region:
+            regions.append(region)
+    cleaned = None
+    try:
+        from manga_ocr_preclean import strip_frames
+        cleaned = strip_frames(image, width, height)
+    except Exception:
+        cleaned = None
+    loose = parse_tsv(_run_tesseract(executable, cleaned or image, "jpn_vert", "5"), width, height, "jpn_vert")
+    loose = [r for r in loose if japanese_score(r["text"], r["confidence"]) >= 2.0]
+    regions = merge_regions(regions, loose)
+    return {"ok": True, "width": width, "height": height, "regions": regions,
+            "engine": "tesseract-local", "mode": "auto", "bubbles": len(bubbles), "preclean": bool(cleaned)}
 
 
 def _overlap(a, b):

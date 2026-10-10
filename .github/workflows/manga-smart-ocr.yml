@@ -5,9 +5,12 @@ on:
     paths:
       - "manga_smart_ocr.py"
       - "manga_ocr_preclean.py"
+      - "manga_bubble_ocr.py"
+      - "scripts/fixtures/novice/**"
       - "manga_model_guard.py"
       - "scripts/manga-model-guard-test.py"
       - "scripts/manga-ocr-preclean-test.py"
+      - "scripts/manga-bubble-ocr-test.py"
       - "manga_ocr_refiner.py"
       - "manga_lama_inpaint.py"
       - "scripts/manga-lama-inpaint-test.py"
@@ -44,4 +47,5 @@ jobs:
           python scripts/manga-lama-pixel-test.py
           python scripts/manga-smart-ocr-runtime-test.py
           python scripts/manga-ocr-preclean-test.py
+          python scripts/manga-bubble-ocr-test.py
           python scripts/manga-model-guard-test.py

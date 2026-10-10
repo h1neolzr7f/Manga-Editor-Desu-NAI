@@ -303,7 +303,8 @@
       state.canvas = c;
       state.sourceImage = image;
       state.drafts.push({ ...box, text: '新字幕', erase: true,
-        vertical: $('mangaSmartLanguage').value.startsWith('jpn_vert'), confidence: 100, active: true });
+        vertical: $('mangaSmartLanguage').value.startsWith('jpn_vert') ||
+          ($('mangaSmartLanguage').value === 'auto' && box.height > box.width * 1.3), confidence: 100, active: true });
       renderDrafts();
       if (window.MangaPageStructureUI) window.MangaPageStructureUI.refreshFromOCR();
       message('已添加手动字幕区。修改文字后点击「应用」。');
@@ -398,17 +399,18 @@
           }
         }
         const vertical = candidate.vertical && typeof fabric.VerticalTextbox === 'function';
-        const fit = core.fitText(candidate.text, box, vertical, measureText);
+        const area = (candidate.textArea && core.normalizeBox(candidate.textArea, c.getWidth(), c.getHeight())) || box;
+        const fit = core.fitText(candidate.text, area, vertical, measureText);
         const TextClass = vertical ? fabric.VerticalTextbox : fabric.Textbox;
         const lineHeight = 1.16;
-        const blockHeight = vertical ? box.height : fit.lines * fit.fontSize * lineHeight;
+        const blockHeight = vertical ? area.height : fit.lines * fit.fontSize * lineHeight;
         const textbox = new TextClass(fit.text, {
-          left: box.x, top: vertical ? box.y : box.y + Math.max(0, (box.height - blockHeight) / 2),
-          width: Math.max(32, box.width),
+          left: area.x, top: vertical ? area.y : area.y + Math.max(0, (area.height - blockHeight) / 2),
+          width: Math.max(32, area.width),
           fontFamily: 'Arial', fontSize: fit.fontSize, lineHeight,
           fill: '#151515', textAlign: 'center', breakWords: false
         });
-        textbox.set('mangaSmartFit', { fontSize: fit.fontSize, wrapped: fit.wrapped, box });
+        textbox.set('mangaSmartFit', { fontSize: fit.fontSize, wrapped: fit.wrapped, box: area, textBox: box });
         textbox.set('name', '智能字幕 · 可编辑文字');
         textbox.set('mangaSmartText', 'editable-subtitle');
         prepared.push({ eraseLayer, textbox });
@@ -459,7 +461,7 @@
     panel.innerHTML = [
       '<header><strong>智能漫画字幕</strong><button id="mangaSmartClose" type="button">×</button></header>',
       '<p>本地 OCR → 文字修改 → 原生图层。不会消耗 GPT 生图额度。</p>',
-      '<label>识别语言 <select id="mangaSmartLanguage"><option value="jpn+eng">日语＋英语</option>',
+      '<label>识别语言 <select id="mangaSmartLanguage" title="自动：先找白色对话气泡，竖排和横排都试一遍，取更可信的结果。识别不准时再换成具体语言。"><option value="auto" selected>自动（推荐：日漫气泡，竖排/横排）</option><option value="jpn+eng">日语＋英语（横排）</option>',
       '<option value="jpn_vert+eng">日语竖排＋英语</option><option value="eng">英语</option>',
       '<option value="chi_sim+eng">简体中文＋英语</option><option value="chi_tra+eng">繁体中文＋英语</option>',
       '<option value="kor+eng">韩语＋英语</option></select></label>',

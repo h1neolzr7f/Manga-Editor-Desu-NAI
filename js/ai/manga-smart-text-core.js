@@ -23,6 +23,18 @@
     }, pageWidth, pageHeight);
   }
 
+  // Where replacement text may go: the bubble interior (≈ the rectangle inside an elliptical
+  // bubble, 15% inset per side), never smaller than the original text box. Erasing still uses the
+  // tight text box; only placement/fitting use this, so a short Chinese line is not squeezed
+  // into the narrow column of the old vertical Japanese text.
+  function bubbleTextArea(bubble, box, pageWidth, pageHeight) {
+    const b = bubble && normalizeBox(bubble, pageWidth, pageHeight);
+    if (!b) return null;
+    const x0 = Math.min(box.x, b.x + b.width * 0.15), y0 = Math.min(box.y, b.y + b.height * 0.15);
+    const x1 = Math.max(box.x + box.width, b.x + b.width * 0.85), y1 = Math.max(box.y + box.height, b.y + b.height * 0.85);
+    return { x: Math.round(x0), y: Math.round(y0), width: Math.round(x1 - x0), height: Math.round(y1 - y0) };
+  }
+
   function mapDetections(items, pageWidth, pageHeight) {
     if (!Array.isArray(items)) return [];
     const drafts = [];
@@ -30,8 +42,11 @@
       const box = normalizeBox(item, pageWidth, pageHeight);
       const text = typeof item.text === 'string' ? item.text.trim().slice(0, 500) : '';
       if (!box || !text) continue;
-      drafts.push({ ...box, text, erase: true, vertical: !!item.vertical,
-        confidence: Math.max(0, Math.min(100, Number(item.confidence) || 0)) });
+      const draft = { ...box, text, erase: true, vertical: !!item.vertical,
+        confidence: Math.max(0, Math.min(100, Number(item.confidence) || 0)) };
+      const area = bubbleTextArea(item.bubble, box, pageWidth, pageHeight);
+      if (area) draft.textArea = area;
+      drafts.push(draft);
     }
     return drafts;
   }

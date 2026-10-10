@@ -59,3 +59,17 @@ console.log('PASS smart text geometry, OCR drafts and safe erase color guards');
   assert.ok(8 * v.fontSize * 1.02 <= 200 && !v.wrapped, 'vertical fits height');
   console.log('PASS fitText shrinks / wraps replacement captions to the original text area');
 }
+
+{
+  // Bubble-first OCR (manga_bubble_ocr.py) sends the bubble; replacement text may use its interior.
+  const [d] = core.mapDetections([{ text: 'ありがとう', x: 960, y: 176, width: 41, height: 255, vertical: true,
+    bubble: { x: 868, y: 96, width: 224, height: 408 } }], 1200, 1700);
+  assert.deepEqual(JSON.parse(JSON.stringify(d.textArea)), { x: 902, y: 157, width: 157, height: 286 });
+  assert.equal(d.width, 41, 'erase box stays the tight text box');
+  const [plain] = core.mapDetections([{ text: 'x', x: 10, y: 10, width: 20, height: 20 }], 100, 100);
+  assert.equal(plain.textArea, undefined, 'no bubble -> no text area');
+  // area always contains the original text box
+  const [wide] = core.mapDetections([{ text: 'x', x: 0, y: 0, width: 90, height: 10, bubble: { x: 10, y: 0, width: 50, height: 50 } }], 100, 100);
+  assert.ok(wide.textArea.x <= 0 && wide.textArea.x + wide.textArea.width >= 90);
+  console.log('PASS bubble text area for replacement captions');
+}

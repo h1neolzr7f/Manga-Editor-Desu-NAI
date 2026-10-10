@@ -649,7 +649,7 @@ async function run() {
     smartOcrCalls++;
     const payload = route.request().postDataJSON();
     assert(/^data:image\/png;base64,/.test(payload.image));
-    assert.equal(payload.language, 'jpn+eng');
+    assert.equal(payload.language, 'auto'); // default: bubble-first vertical+horizontal OCR
     return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
       ok: true, width: 2000, height: 2000,
       regions: [{ text: '旧对白', x: 140, y: 220, width: 180, height: 65, confidence: 95 }]
