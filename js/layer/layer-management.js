@@ -14,7 +14,15 @@ if(layer.isPanel&&layer.name&&!isGenericLayerName(layer.name))return layer.name;
 if(layer.isPanel)return '画面格';
 if(layer.text)return String(layer.text).replace(/\s+/g,' ').slice(0,18);
 if(layer.name&&!isGenericLayerName(layer.name))return layer.name;
-return '图层 '+(Number(index)+1);
+// Fallback names are written back onto the object, so they must be unique on the canvas: the row
+// index alone gave an imported image and a bubble added later the same '图层 1'.
+var base=layer.type==='image'?'图片':(layer.type==='group'?'组合':(/^(rect|path|polygon|circle|ellipse)$/.test(layer.type)?'图形':'图层'));
+var taken={};
+if(typeof canvas!=='undefined'&&canvas&&canvas.getObjects)canvas.getObjects().forEach(function(o){if(o!==layer&&o.name)taken[o.name]=1;});
+var n=Number(index)+1;
+if(!(n>0))n=1;
+while(taken[base+' '+n])n++;
+return base+' '+n;
 }
 
 function pageLayerTitle(pageId,items){

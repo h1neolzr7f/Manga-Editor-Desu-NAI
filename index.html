@@ -1610,7 +1610,7 @@ const b = `<svg viewBox="0 0 100 100" width="100%" height="100%" style="position
                             <div id="fontSelector"></div>
                         </div>
                         <div class="input-group-multi" data-group="bold_group">
-                            <button id="bold-toggle-btn" onclick="toggleBoldWithUI(this)">
+                            <button type="button" id="bold-toggle-btn" title="加粗 / 取消加粗" aria-label="加粗 / 取消加粗" onclick="toggleBoldWithUI(this)">
                                 <i class="material-icons">format_bold</i>
                                 <span data-i18n="bold">加粗</span>
                             </button>
@@ -1634,13 +1634,13 @@ const b = `<svg viewBox="0 0 100 100" width="100%" height="100%" style="position
                             <input type="range" id="fontStrokeWidthSlider" min="0" max="5" step="1" value="0" oninput="changeStrokeWidthSize(this.value)">
                         </div>
                         <div class="input-group-multi" data-group="align_group">
-                            <button id="align-left" data-value="left" class="selected" onclick="alignText('left', this)">
+                            <button type="button" id="align-left" title="左对齐" aria-label="左对齐" data-value="left" class="selected" onclick="alignText('left', this)">
                                 <i class="material-icons">format_align_left</i>
                             </button>
-                            <button id="align-center" data-value="center" onclick="alignText('center', this)">
+                            <button type="button" id="align-center" title="居中对齐" aria-label="居中对齐" data-value="center" onclick="alignText('center', this)">
                                 <i class="material-icons">format_align_center</i>
                             </button>
-                            <button id="align-right" data-value="right" onclick="alignText('right', this)">
+                            <button type="button" id="align-right" title="右对齐" aria-label="右对齐" data-value="right" onclick="alignText('right', this)">
                                 <i class="material-icons">format_align_right</i>
                             </button>
                         </div>
@@ -2590,7 +2590,7 @@ const b = `<svg viewBox="0 0 100 100" width="100%" height="100%" style="position
     <script src="js/ai/prompt/base-event-listener.js?v=7.5" defer></script>
     <script src="js/layer/floating-window-management.js?v=7.2" defer></script>
     <script src="js/layer/layer-button.js?v=7.7" defer></script>
-    <script src="js/layer/layer-management.js?v=9.4" defer></script>
+    <script src="js/layer/layer-management.js?v=9.5" defer></script>
      <script src="js/layer/image-history-management.js?v=7.6" defer></script>
      <script src="js/assets/asset-manifest.js?v=1.0" defer></script>
      <script src="js/assets/asset-scanner.js?v=1.0" defer></script>

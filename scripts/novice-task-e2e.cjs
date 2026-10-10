@@ -555,6 +555,43 @@ async function main() {
       detail: { untitled, order: g1.map(g => g0.indexOf(g)), st, origMarkers, copyMarkers, moved: g2[1] === g0[0], errors } };
   });
 
+  await flow('15 气泡模板 + 横排字 + 加粗/居中 → 菜单「文件 › 下载图片」导出真实 PNG', async () => {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
+    const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort());
+    const errors = []; p.on('pageerror', e => errors.push(e.message));
+    await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
+    await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 });
+    await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {}); await p.keyboard.press('Escape');
+    await p.locator('#imageInput').setInputFiles(PAGES[0]);
+    await p.waitForFunction(() => canvas.getObjects().some(o => o.type === 'image'), null, { timeout: 60000 });
+    await p.locator('[data-target="speech-bubble-area"]').click();
+    await p.waitForFunction(() => document.querySelectorAll('#speech-bubble-preview > *').length > 0, null, { timeout: 20000 });
+    await p.locator('#speech-bubble-preview > *').first().click();
+    await p.waitForFunction(() => canvas.getObjects().some(o => o.type === 'group'), null, { timeout: 15000 }).catch(() => {});
+    const bubble = await p.evaluate(() => { const g = canvas.getObjects().find(o => o.type === 'group'); const img = canvas.getObjects().find(o => o.type === 'image'); return g ? { name: g.name, imgName: img && img.name } : null; });
+    await p.locator('[data-target="text-area"]').click();
+    await p.locator('#text-area .visual-preset-card').first().click();
+    await p.waitForTimeout(800);
+    const icons = await p.evaluate(() => ['bold-toggle-btn', 'align-left', 'align-center', 'align-right'].map(id => { const b = document.getElementById(id); return b ? (b.title || b.getAttribute('aria-label') || '') : 'missing'; }));
+    await p.locator('#bold-toggle-btn').click();
+    await p.locator('#align-center').click();
+    await p.waitForTimeout(400);
+    const text = await p.evaluate(() => { const a = canvas.getActiveObject(); return a ? { type: a.type, fw: a.fontWeight, align: a.textAlign } : null; });
+    await p.locator('#navbarDropdownFile').click();
+    const dlP = p.waitForEvent('download', { timeout: 60000 });
+    await p.locator('#imageDownload').click();
+    const dl = await dlP;
+    const file = path.join(OUT, 'flow15-menu-export' + path.extname(dl.suggestedFilename() || '.png'));
+    await dl.saveAs(file);
+    const head = fs.readFileSync(file).subarray(0, 24);
+    const png = head.toString('latin1', 1, 4) === 'PNG';
+    const w = png ? head.readUInt32BE(16) : 0, h = png ? head.readUInt32BE(20) : 0;
+    await ctx.close();
+    return { pass: !!bubble && bubble.name !== bubble.imgName && icons.every(t => t && t !== 'missing') && !!text && /bold|700/.test(String(text.fw)) &&
+      text.align === 'center' && png && w >= 1000 && h >= 1000 && errors.length === 0,
+      detail: { bubble, icons, text, file: path.relative(process.cwd(), file), png, w, h, errors } };
+  });
+
   await flow('7 生成中切页→结果不得贴到别的页→切回后再应用', async () => {
     if (!(await has('mangaGptOpen'))) return { pass: false, detail: { unavailable: 'no GPT region edit in this version' } };
     if (REAL_GPT) return { pass: true, detail: { skipped: 'mock-only timing test' } };
