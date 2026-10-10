@@ -129,13 +129,13 @@ updateAllPageNumbers();
 const deleteBtn=document.createElement("button");
 deleteBtn.textContent="🗑";
 deleteBtn.className="btm-delete-btn";
-deleteBtn.title="删除这一页（会先确认）";
+deleteBtn.title="删除这一页（删除后 20 秒内可撤销）";
 deleteBtn.addEventListener("click",async (e)=>{
 e.stopPropagation();
 if(window.NaiPageLoading||window.NaiHistoryLoading)return;
-// One misclick on 🗑 used to drop a whole page with no undo: ask first.
-var pageNo=btmGetGuidIndex(guid)+1;
-if(typeof confirm==="function"&&!confirm("删除第 "+pageNo+" 页？页面上的所有内容会一起删除，删除后无法撤销。"))return;
+// One misclick on 🗑 used to drop a whole page for good: keep its saved data so it can be restored.
+if(getCanvasGUID()===guid)await btmSaveProjectFile(null,false);
+var removedPage={guid:guid,index:btmGetGuidIndex(guid),data:btmProjectsMap.get(guid)};
 if(btmGetGuidsSize()>1){
 var isCurrentPage=(getCanvasGUID()===guid);
 var deletedIndex=btmGetGuidIndex(guid);
@@ -159,6 +159,7 @@ await btmSaveProjectFile();
 btmUpdateScrollButtons();
 updateAllPageNumbers();
 btmUpdateHandleText();
+btmOfferPageRestore(removedPage);
 });
 
 var addBtn=document.createElement("button");
@@ -414,6 +415,40 @@ return guids[index];
 }
 
 // Create an empty w x h page right after `guid` and switch to it. Caller holds window.NaiPageLoading.
+// "Undo delete" bar for a page removed from the page bar (20 s). Restores thumbnail, saved
+// content and position, then opens the page.
+function btmOfferPageRestore(removed){
+if(!removed||!removed.data)return;
+var old=document.getElementById('btmPageRestoreBar');
+if(old)old.remove();
+var bar=document.createElement('div');
+bar.id='btmPageRestoreBar';
+bar.setAttribute('role','status');
+bar.style.cssText='position:fixed;left:50%;bottom:72px;transform:translateX(-50%);z-index:12000;background:#1d2b38;color:#eef6fb;border:1px solid #4f7590;border-radius:8px;padding:8px 12px;font:13px/1.4 sans-serif;box-shadow:0 6px 20px #0008;display:flex;gap:10px;align-items:center';
+var text=document.createElement('span');
+text.textContent='已删除第 '+(removed.index+1)+' 页。';
+var btn=document.createElement('button');
+btn.type='button';
+btn.id='btmPageRestoreButton';
+btn.textContent='撤销删除';
+btn.style.cssText='cursor:pointer;background:#2c6a8f;color:#fff;border:1px solid #5aa0c8;border-radius:6px;padding:4px 10px';
+var timer=setTimeout(function(){bar.remove();},20000);
+btn.addEventListener('click',async function(){
+clearTimeout(timer);
+bar.remove();
+if(btmProjectsMap.has(removed.guid))return;
+btmAddImage(removed.data.imageLink,removed.data.blob,removed.guid,true);
+if(removed.index<btmGetGuidsSize()-1)reorderImages(removed.index,removed.guid);
+updateAllPageNumbers();
+btmUpdateScrollButtons();
+btmUpdateHandleText();
+if(typeof chengeCanvasByGuid==='function')await chengeCanvasByGuid(removed.guid);
+});
+bar.appendChild(text);
+bar.appendChild(btn);
+document.body.appendChild(bar);
+}
+
 async function btmCreatePageAfter(guid,w,h){
 // Save the current page first: on a fresh project it has no page-bar entry yet, and an index
 // of -1 would insert the new page BEFORE it (imported pages came out in reverse order).

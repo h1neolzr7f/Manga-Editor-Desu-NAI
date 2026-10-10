@@ -484,7 +484,7 @@ async function main() {
       detail: { items, status: box.slice(0, 40), lama } };
   });
 
-  await flow('13 误点页面缩略图的 🗑 → 先确认；取消则页还在，确认才删除', async () => {
+  await flow('13 误点页面缩略图的 🗑 → 「撤销删除」一键找回（位置和内容不变）', async () => {
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort());
     await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
@@ -492,23 +492,28 @@ async function main() {
     await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {}); await p.keyboard.press('Escape');
     await p.locator('#imageInput').setInputFiles(PAGES);
     await p.waitForFunction(() => document.querySelectorAll('#btm-image-container > *').length === 2, null, { timeout: 60000 });
-    const pages = () => p.evaluate(() => document.querySelectorAll('#btm-image-container > *').length);
+    const order = () => p.evaluate(() => btmGetGuids());
+    const before = await order();
     if (await p.locator('#btm-drawer-handle').count()) {
       const closed = await p.evaluate(() => { const c = document.getElementById('btm-image-container'); return !c || !c.offsetParent || c.getBoundingClientRect().height < 10; });
       if (closed) await p.locator('#btm-drawer-handle').click();
     }
-    const dialogs = [];
-    p.once('dialog', d => { dialogs.push(d.message()); d.dismiss(); });
-    await p.locator('#btm-image-container > *').nth(1).hover();
-    await p.locator('#btm-image-container > *').nth(1).locator('.btm-delete-btn').click({ force: true });
-    await p.waitForTimeout(800); const afterCancel = await pages();
-    p.once('dialog', d => { dialogs.push(d.message()); d.accept(); });
-    await p.locator('#btm-image-container > *').nth(1).hover();
-    await p.locator('#btm-image-container > *').nth(1).locator('.btm-delete-btn').click({ force: true });
-    await p.waitForTimeout(1200); const afterAccept = await pages();
+    // delete page 1 (not the last one: restore must put it back in front)
+    await p.locator('#btm-image-container > *').nth(0).hover();
+    await p.locator('#btm-image-container > *').nth(0).locator('.btm-delete-btn').click({ force: true });
+    await p.waitForSelector('#btmPageRestoreButton', { timeout: 10000 }).catch(() => {});
+    const afterDelete = (await order()).length;
+    const barText = await p.locator('#btmPageRestoreBar').textContent().catch(() => '');
+    await p.locator('#btmPageRestoreButton').click();
+    await p.waitForFunction(n => btmGetGuids().length === n, before.length, { timeout: 15000 }).catch(() => {});
+    await p.waitForTimeout(1500);
+    const after = await order();
+    // the restored page is open again and still holds page1.png's pixels
+    const content = await p.evaluate(() => ({ guid: getCanvasGUID(), images: canvas.getObjects().filter(o => o.type === 'image').length, w: canvas.getWidth(), h: canvas.getHeight() }));
     await ctx.close();
-    return { pass: dialogs.length === 2 && /删除第 2 页/.test(dialogs[0]) && afterCancel === 2 && afterAccept === 1,
-      detail: { dialogs, afterCancel, afterAccept } };
+    return { pass: afterDelete === 1 && /已删除第 1 页/.test(barText) && JSON.stringify(after) === JSON.stringify(before) &&
+      content.guid === before[0] && content.images >= 1 && content.w === 1200,
+      detail: { afterDelete, barText, restoredOrder: JSON.stringify(after) === JSON.stringify(before), content } };
   });
 
   await flow('7 生成中切页→结果不得贴到别的页→切回后再应用', async () => {
