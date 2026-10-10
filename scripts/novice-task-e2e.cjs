@@ -1143,9 +1143,10 @@ async function main() {
   const shown = (p, sel) => p.locator(sel).isVisible().catch(() => false);
   // the ⋯ menu toggles; under load a click can land while it is closing — make sure it ends up open
   const openMore = async p => {
-    for (let k = 0; k < 3; k++) {
+    for (let k = 0; k < 4; k++) {
       if (await p.locator('#taskMoreMenu').isVisible().catch(() => false)) return;
-      await p.locator('#taskMore').click();
+      // a toast / tutorial bubble can cover the button for a moment on slow CI runners: Esc and retry
+      if (!(await p.locator('#taskMore').click({ timeout: 5000 }).then(() => true, () => false))) { await p.keyboard.press('Escape'); await p.waitForTimeout(500); continue; }
       if (await p.locator('#taskMoreMenu').waitFor({ state: 'visible', timeout: 3000 }).then(() => true, () => false)) return;
     }
   };
