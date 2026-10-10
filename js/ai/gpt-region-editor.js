@@ -368,6 +368,70 @@
     return out;
   }
 
+  // Whole-region tone consensus: the model often repaints the entire selection a few dozen levels lighter or
+  // darker (real dogfood sky: +56). If most pixels agree on one per-channel shift it is drift, not content:
+  // return it (orig - patch) so the caller can remove it before anything else. null when content dominates.
+  function globalShift(patch, orig, w, h) {
+    const ds = [[], [], []];
+    const step = Math.max(1, Math.floor(Math.sqrt(w * h / 40000)));
+    for (let y = 0; y < h; y += step) for (let x = 0; x < w; x += step) {
+      const i = (y * w + x) * 4;
+      if (orig[i + 3] < 250 || patch[i + 3] < 8) continue;
+      for (let c = 0; c < 3; c++) ds[c].push(orig[i + c] - patch[i + c]);
+    }
+    const n = ds[0].length;
+    if (n < 16) return null;
+    const med = ds.map(a => a.slice().sort((p, q) => p - q)[a.length >> 1]);
+    if (Math.abs(med[0] + med[1] + med[2]) / 3 > SEAM_SHIFT_MAX) return null;
+    let agree = 0;
+    for (let j = 0; j < n; j++) if ((Math.abs(ds[0][j] - med[0]) + Math.abs(ds[1][j] - med[1]) + Math.abs(ds[2][j] - med[2])) / 3 <= SEAM_MAX) agree++;
+    if (agree < n * 0.6) return null;
+    return (Math.abs(med[0]) + Math.abs(med[1]) + Math.abs(med[2])) / 3 >= 2 ? med : null;
+  }
+
+  // Change-only compositing: where the (tone-corrected) result matches the original, the original pixels are
+  // kept exactly (alpha 0 → the page shows through), so untouched sky/background can never seam or drift. The
+  // changed area is grown and softened so new content blends in. null when nearly everything changed (a full
+  // character swap) — then the whole patch is used as before.
+  const CHANGE_LO = 10, CHANGE_HI = 26;
+  function changeMask(patch, orig, w, h) {
+    const cell = Math.max(2, Math.round(Math.min(w, h) / 160));
+    const gw = Math.ceil(w / cell), gh = Math.ceil(h / cell);
+    const g = new Float32Array(gw * gh);
+    for (let gy = 0; gy < gh; gy++) for (let gx = 0; gx < gw; gx++) {
+      let s = 0, n = 0;
+      for (let y = gy * cell; y < Math.min(h, gy * cell + cell); y++) for (let x = gx * cell; x < Math.min(w, gx * cell + cell); x++) {
+        const i = (y * w + x) * 4;
+        if (orig[i + 3] < 250) { s += 255; n++; continue; } // transparent original: whatever is new counts as change
+        s += (Math.abs(orig[i] - patch[i]) + Math.abs(orig[i + 1] - patch[i + 1]) + Math.abs(orig[i + 2] - patch[i + 2])) / 3; n++;
+      }
+      const d = n ? s / n : 0;
+      g[gy * gw + gx] = Math.max(0, Math.min(1, (d - CHANGE_LO) / (CHANGE_HI - CHANGE_LO)));
+    }
+    let changed = 0; for (let k = 0; k < g.length; k++) changed += g[k];
+    const frac = changed / g.length;
+    if (frac > 0.85) return null;
+    // grow 3 cells (max filter) then soften 3 cells (box blur), separable
+    const pass = (src, horiz, fn, rad) => { const out = new Float32Array(src.length);
+      for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) { let acc = fn === 'max' ? 0 : 0, n = 0;
+        for (let k = -rad; k <= rad; k++) { const xx = horiz ? x + k : x, yy = horiz ? y : y + k; if (xx < 0 || yy < 0 || xx >= gw || yy >= gh) continue;
+          const v = src[yy * gw + xx]; if (fn === 'max') acc = Math.max(acc, v); else { acc += v; n++; } }
+        out[y * gw + x] = fn === 'max' ? acc : acc / n; } return out; };
+    let m = pass(pass(g, true, 'max', 3), false, 'max', 3);
+    m = pass(pass(m, true, 'avg', 3), false, 'avg', 3);
+    const out = new Uint8ClampedArray(w * h);
+    for (let y = 0; y < h; y++) {
+      const fy = Math.min(gh - 1, Math.max(0, (y + 0.5) / cell - 0.5)), y0 = Math.floor(fy), y1 = Math.min(gh - 1, y0 + 1), ty = fy - y0;
+      for (let x = 0; x < w; x++) {
+        const fx = Math.min(gw - 1, Math.max(0, (x + 0.5) / cell - 0.5)), x0 = Math.floor(fx), x1 = Math.min(gw - 1, x0 + 1), tx = fx - x0;
+        const v = (m[y0 * gw + x0] * (1 - tx) + m[y0 * gw + x1] * tx) * (1 - ty) + (m[y1 * gw + x0] * (1 - tx) + m[y1 * gw + x1] * tx) * ty;
+        out[y * w + x] = Math.round(255 * v);
+      }
+    }
+    out.changedFraction = frac;
+    return out;
+  }
+
   function applySeamMatch(patch, w, h, diffs, band) {
     const sides = Object.keys(diffs);
     if (!sides.length) return 0;
@@ -440,8 +504,12 @@
       }
       ctx.putImageData(data, 0, 0);
     }
+    let changeOnly = null;
     if (seam && seam.orig && seam.orig.length === w * h * 4) {
       const data = ctx.getImageData(0, 0, w, h);
+      const shift = globalShift(data.data, seam.orig, w, h);
+      if (shift) { for (let i = 0; i < data.data.length; i += 4) { data.data[i] += shift[0]; data.data[i + 1] += shift[1]; data.data[i + 2] += shift[2]; } seam.shift = shift; }
+      if (seam.changeOnly) { changeOnly = changeMask(data.data, seam.orig, w, h); seam.changedFraction = changeOnly ? +changeOnly.changedFraction.toFixed(3) : 1; }
       const diffs = seamDiffs(data.data, seam.orig, w, h, seam.sides);
       seam.diffs = diffs;
       if (applySeamMatch(data.data, w, h, diffs)) ctx.putImageData(data, 0, 0);
@@ -457,6 +525,11 @@
           data.data[i] = Math.round(data.data[i] * featherAlpha(x, y, w, h, fw, feather));
         }
       }
+      ctx.putImageData(data, 0, 0);
+    }
+    if (changeOnly) {
+      const data = ctx.getImageData(0, 0, w, h);
+      for (let k = 0; k < changeOnly.length; k++) data.data[k * 4 + 3] = Math.round(data.data[k * 4 + 3] * changeOnly[k] / 255);
       ctx.putImageData(data, 0, 0);
     }
     if (alphaMask && alphaMask.length === w * h) {
@@ -1247,11 +1320,12 @@
         const mask = combineAlpha(combineAlpha(alphaMask, lineMask), lassoMask);
         // seam match on every interior side (page edges have nothing to match against)
         const seamSides = featherPlan(region, c.getWidth(), c.getHeight());
-        const seam = matchOn ? { orig: await loadRegionPixels(region.image, cw, ch), sides: seamSides } : null;
+        const changeOn = !$g('mangaGptChangeOnly') || $g('mangaGptChangeOnly').checked;
+        const seam = (matchOn || changeOn) ? { orig: await loadRegionPixels(region.image, cw, ch), sides: matchOn ? seamSides : {}, changeOnly: changeOn } : null;
         const baked = bakePatch(image.getElement(), crop, scale, feather, offset, mask, seam);
         const sourceCrop = { x: +crop.x.toFixed(2), y: +crop.y.toFixed(2), w: +crop.w.toFixed(2), h: +crop.h.toFixed(2),
           resultWidth: image.width, resultHeight: image.height, feather: feather ? feather.width : 0,
-          toneOffset: offset || [0, 0, 0], keepAlpha: alphaRestored, keepLines: linesKept,
+          toneOffset: offset || [0, 0, 0], globalShift: seam && seam.shift ? seam.shift.map(Math.round) : null, changedFraction: seam ? seam.changedFraction : null, keepAlpha: alphaRestored, keepLines: linesKept,
           seamMatch: seam && seam.diffs ? Object.fromEntries(Object.entries(seam.diffs).map(([k, v]) => {
             let m = 0; for (let q = 0; q < v.length; q++) m = Math.max(m, Math.abs(v[q])); return [k, Math.round(m)]; })) : null };
         image = await new Promise((resolve, reject) => {
@@ -1393,6 +1467,7 @@
       hint('mangaGptContext', 'mgpt_context', '附带选区周围画面作为上下文（接缝更自然；会多上传选区外的少量画面）', true),
       hint('mangaGptMatchTone', 'mgpt_match_tone', '按周围画面校正模型整体偏色（用上下文边带测量，最多 ±48）', true),
       hint('mangaGptFeather', 'mgpt_feather', '选区边缘柔化（只在选区内侧过渡，选区外像素不变）', true),
+      hint('mangaGptChangeOnly', 'mgpt_change_only', '只替换模型真正改动的部分（没改的地方保留原图像素，不会出现浅色方块或接缝）', true),
       hint('mangaGptKeepAlpha', 'mgpt_keep_alpha', '保留原选区的透明区域（透明背景/镂空处不被模型画成实色）', true),
       hint('mangaGptKeepLines', 'mgpt_keep_lines', '保留选区内的分格线/边框直线（模型常把它们抹掉；想改线条时取消勾选）', true),
       hint('mangaGptAspectGuard', 'mgpt_aspect_guard', '所选尺寸与选区比例相差过大时自动改用最接近的比例', true),
@@ -1538,7 +1613,7 @@
   }
 
   window.MangaGPTRegionEditor = { openTask, exitTask, setSimple, wizardState, normalizeRegion, startSelection, cancelSelection, selectRegionForTextRemoval, selectRegionForPanel, prepareManualEdit, useCharacterCard, referenceSummary,
-    letterboxPlan, resultCropRect, letteringInsertIndex, isLettering, contextRect, featherPlan, featherAlpha, seamDiffs, applySeamMatch, estimateDrift, aspectMismatch,
+    letterboxPlan, resultCropRect, letteringInsertIndex, isLettering, contextRect, featherPlan, featherAlpha, seamDiffs, applySeamMatch, globalShift, changeMask, estimateDrift, aspectMismatch,
     findCutBoxes, expandRegion, effectiveSize, bakePatch, panelLineAlpha, combineAlpha, tr,
     GPT_MODEL_PRESETS, GPT_DEFAULT_MODEL, modelPresetFor };
 })();

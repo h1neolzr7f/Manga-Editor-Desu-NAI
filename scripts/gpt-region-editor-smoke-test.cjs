@@ -298,6 +298,28 @@ elements.mangaGptStatus.textContent = savedRegionStatus;
     assert(Math.abs(d4.left[2 * 3]) < 0.5, 'the 30% that is new dark content is still not tinted');
     api.applySeamMatch(p4, W, H3, d4, 10);
     assert(Math.abs(p4[(150 * W) * 4] - 145) < 0.5, 'sky edge meets the page tone');
+    // change-only compositing: a sky repainted +56 lighter with a rainbow band in the middle
+    {
+      const w = 160, h = 100, o = new Uint8ClampedArray(w * h * 4), q = new Uint8ClampedArray(w * h * 4);
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const k = (y * w + x) * 4; o.set([140, 150, 165, 255], k);
+        const rainbow = y >= 40 && y < 56 && x >= 30 && x < 130; q.set(rainbow ? [230, 120, 60, 255] : [196, 206, 221, 255], k); }
+      const sh = api.globalShift(q, o, w, h);
+      assert(sh && Math.abs(sh[0] + 56) <= 1 && Math.abs(sh[2] + 56) <= 1, 'whole-region +56 haze measured: ' + sh);
+      const f = new Float32Array(q); for (let i = 0; i < f.length; i += 4) { f[i] += sh[0]; f[i + 1] += sh[1]; f[i + 2] += sh[2]; }
+      const m = api.changeMask(f, o, w, h);
+      assert(m, 'mask built when only part changed');
+      assert.equal(m[(5 * w + 5)], 0, 'untouched sky corner keeps the original (alpha 0)');
+      assert.equal(m[(48 * w + 80)], 255, 'rainbow centre fully replaced');
+      assert(m[(30 * w + 80)] > 0 && m[(30 * w + 80)] < 255, 'grown + softened edge around the change');
+      assert(m.changedFraction < 0.2);
+      // full character swap: nearly everything differs → no mask (use the whole patch)
+      const z = new Float32Array(w * h * 4); for (let k = 0; k < w * h; k++) z.set([(k * 37) % 255, (k * 91) % 255, 20, 255], k * 4);
+      assert.equal(api.changeMask(z, o, w, h), null, 'whole region changed → no change mask');
+      assert.equal(api.globalShift(z, o, w, h), null, 'no global shift when content dominates');
+      // half content / half shift: no consensus → no global shift
+      const hh = new Uint8ClampedArray(w * h * 4); for (let k = 0; k < w * h; k++) hh.set(k < w * h / 2 ? [20, 200, 20, 255] : [160, 170, 185, 255], k * 4);
+      assert.equal(api.globalShift(hh, o, w, h), null, '50/50 mix is not a global shift');
+    }
   }
   // Context around a corner selection is clipped to the page; the inner mapping is unchanged.
   const cplan = api.letterboxPlan(400, 100, '1024x1024');

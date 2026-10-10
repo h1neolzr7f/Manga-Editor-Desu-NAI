@@ -15,7 +15,7 @@ const { chromium } = require('playwright');
 
 // GPT URL / Key / Model live in 服务设置 (one place for every service): set them the way a user does.
 async function setGptService(pg, cfg) {
-  await pg.locator('#taskServiceSettings').click();
+  await pg.locator('#taskMore').click(); await pg.locator('#taskServiceSettings').click();
   if (cfg.url !== undefined) await pg.locator('#mangaGptUrl').fill(cfg.url);
   if (cfg.model !== undefined) await pg.locator('#mangaGptModel').fill(cfg.model);
   if (cfg.key !== undefined) await pg.locator('#mangaGptKey').fill(cfg.key);
@@ -69,6 +69,8 @@ const CASES = {
        expand: true, prompt: TEXT_ONLY },
   I: { title: '透明页面：选区一半是透明页边（保留透明）', from: [1300, 1650], to: [1654, 2339], size: 'auto', ref: false,
        transparentPage: true, prompt: 'Add light rain streaks over this picture. Keep everything else the same. No text.' },
+  R: { title: '天空加彩虹（dogfood 第 4 页那种浅色矩形；底图为真实生成的漫画页）', from: [860, 90], to: [1600, 400], size: 'auto', ref: false,
+       base: process.env.GPT_REAL_SKY_BASE || '/workspace/shots-20261010/comic/page-1.png', prompt: '在天空加一道淡淡的彩虹，其余保持不变。不要加文字。' },
   G: { title: '页角选区含可编辑竖排字（默认排除文字）', from: [1150, 1300], to: [1654, 2339], size: 'auto', ref: false,
        prompt: 'Add light rain streaks and small puddles on the ground in this picture. Keep everything else the same. No text.' }
 };
@@ -130,7 +132,17 @@ async function openEditor(context) {
   return { page, errors };
 }
 
-async function buildScene(page) {
+async function buildScene(page, spec = {}) {
+  if (spec.base) { // a real page as the whole canvas (sky / gradient seams)
+    const src = 'data:image/png;base64,' + fs.readFileSync(spec.base).toString('base64');
+    await page.evaluate(async src => {
+      canvas.getObjects().filter(o => o.text === '拖放或生成图片').forEach(o => canvas.remove(o));
+      const img = await new Promise(res => fabric.Image.fromURL(src, res));
+      const k = canvas.getWidth() / img.width; img.set({ left: 0, top: 0, scaleX: k, scaleY: k, name: 'page' });
+      canvas.add(img); canvas.discardActiveObject(); canvas.renderAll(); saveStateByManual();
+    }, src);
+    return;
+  }
   const pose = 'data:image/png;base64,' + fs.readFileSync(POSE).toString('base64');
   await page.evaluate(async pose => {
     canvas.getObjects().filter(o => o.text === '拖放或生成图片').forEach(o => canvas.remove(o));
@@ -188,7 +200,19 @@ async function metrics(page, before, after, rect) {
     let inside = 0, n = 0;
     for (let y = rect.top; y < rect.top + rect.height; y += 2) for (let x = rect.left; x < rect.left + rect.width; x += 2) {
       inside += d(px(A, x, y), px(B, x, y)); n++; }
-    return { outsideChanged, seamBefore: seam(A), seamAfter: seam(B), insideMeanDiff: +(inside / n).toFixed(2) };
+    // Band seam: |mean tone 3..10 px inside - 3..10 px outside| per 24 px edge segment, averaged. A whole patch
+    // repainted lighter/darker (pale rectangle) shows here even when single pixels look continuous.
+    const band = D => { let s = 0, n = 0; const R = rect.left + rect.width, Bm = rect.top + rect.height, seg = 24;
+      const lum = (x, y) => { const p = px(D, x, y); return (p[0] + p[1] + p[2]) / 3; };
+      const side = (inside, outside, along0, along1, ok) => { if (!ok) return; for (let a = along0; a + seg <= along1; a += seg) { let si = 0, so = 0, c = 0;
+        for (let t = a; t < a + seg; t += 2) for (let k = 3; k <= 10; k++) { si += inside(t, k); so += outside(t, k); c++; }
+        s += Math.abs(si - so) / c; n++; } };
+      side((t, k) => lum(rect.left + k, t), (t, k) => lum(rect.left - 1 - k, t), rect.top, Bm, rect.left > 12);
+      side((t, k) => lum(R - 1 - k, t), (t, k) => lum(R + k, t), rect.top, Bm, R + 12 < D.width);
+      side((t, k) => lum(t, rect.top + k), (t, k) => lum(t, rect.top - 1 - k), rect.left, R, rect.top > 12);
+      side((t, k) => lum(t, Bm - 1 - k), (t, k) => lum(t, Bm + k), rect.left, R, Bm + 12 < D.height);
+      return n ? +(s / n).toFixed(2) : 0; };
+    return { outsideChanged, seamBefore: seam(A), seamAfter: seam(B), bandBefore: band(A), bandAfter: band(B), insideMeanDiff: +(inside / n).toFixed(2) };
   }, { before, after, rect });
 }
 
@@ -223,7 +247,7 @@ async function runCase(context, id) {
         authorizationHeader: Boolean(req.headers().authorization) }, null, 2));
     } catch {}
   });
-  await buildScene(page);
+  await buildScene(page, spec);
   if (spec.transparentPage) await page.evaluate(() => { canvas.backgroundColor = ''; canvas.renderAll(); });
   await page.locator('#mangaGptOpen').click();
   await page.locator('#mangaGptMode').selectOption('edit');
