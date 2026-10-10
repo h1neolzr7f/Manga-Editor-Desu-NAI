@@ -1499,8 +1499,10 @@
     panel.hidden = true;
     panel.setAttribute('aria-label', tr('mgpt_panel_aria', 'GPT 图像编辑'));
     const t = (key, zh) => esc(tr(key, zh));
-    const hint = (id, key, zh, checked) => '<label class="manga-gpt-hint"><input id="' + id + '" type="checkbox"' +
+    // grouped short options; the full explanation is the tooltip (and stays translatable)
+    const opt = (id, key, zh, tipKey, tipZh, checked) => '<label class="manga-gpt-opt" title="' + t(tipKey, tipZh).replace(/"/g, '&quot;') + '"><input id="' + id + '" type="checkbox"' +
       (checked ? ' checked' : '') + '> ' + t(key, zh) + '</label>';
+    const group = (key, zh, items) => '<fieldset class="manga-gpt-group"><legend>' + t(key, zh) + '</legend>' + items.join('') + '</fieldset>';
     panel.innerHTML = [
       '<div class="manga-gpt-head"><strong>' + t('mgpt_title', 'AI 改图') + '</strong><span class="manga-gpt-head-buttons"><button type="button" id="mangaGptCollapse" aria-expanded="true" title="' + t('mgpt_collapse', '收起面板（让出画布）') + '" aria-label="' + t('mgpt_collapse', '收起面板（让出画布）') + '">–</button>' +
         '<button type="button" id="mangaGptClose" aria-label="' + t('mgpt_close', '关闭') + '">×</button></span></div>',
@@ -1523,15 +1525,18 @@
         t('mgpt_prompt_ph', '将框选人物替换为参考图角色，保持动作、画风、构图与未选中部分。') + '"></textarea></label>',
       '<label>' + t('mgpt_refs', '人物 / 风格参考图（最多 3 张）') + '<input id="mangaGptReferences" type="file" multiple accept="image/png,image/jpeg,image/webp"></label>',
       '<div id="mangaGptReferenceList" class="manga-gpt-hint">' + t('mgpt_refs_none', '尚未选择参考图') + '</div>',
-      hint('mangaGptAllowUpscale', 'mgpt_allow_upscale', '允许将低于选区分辨率的生成图放大覆盖（会影响选区清晰度）', false),
-      hint('mangaGptContext', 'mgpt_context', '附带选区周围画面作为上下文（接缝更自然；会多上传选区外的少量画面）', true),
-      hint('mangaGptMatchTone', 'mgpt_match_tone', '按周围画面校正模型整体偏色（用上下文边带测量，最多 ±48）', true),
-      hint('mangaGptFeather', 'mgpt_feather', '选区边缘柔化（只在选区内侧过渡，选区外像素不变）', true),
-      hint('mangaGptChangeOnly', 'mgpt_change_only', '只替换模型真正改动的部分（没改的地方保留原图像素，不会出现浅色方块或接缝）', true),
-      hint('mangaGptKeepAlpha', 'mgpt_keep_alpha', '保留原选区的透明区域（透明背景/镂空处不被模型画成实色）', true),
-      hint('mangaGptKeepLines', 'mgpt_keep_lines', '保留选区内的分格线/边框直线（模型常把它们抹掉；想改线条时取消勾选）', true),
-      hint('mangaGptAspectGuard', 'mgpt_aspect_guard', '所选尺寸与选区比例相差过大时自动改用最接近的比例', true),
-      hint('mangaGptIncludeText', 'mgpt_include_text', '框选时包含文字/气泡（默认不包含：文字保持可编辑并留在新图层上方）', false),
+      group('mgpt_g_blend', '融合效果', [
+        opt('mangaGptContext', 'mgpt_s_context', '带上周围画面', 'mgpt_context', '附带选区周围画面作为上下文（接缝更自然；会多上传选区外的少量画面）', true),
+        opt('mangaGptMatchTone', 'mgpt_s_match_tone', '颜色跟周围对齐', 'mgpt_match_tone', '按周围画面校正模型整体偏色（用上下文边带测量，最多 ±48）', true),
+        opt('mangaGptFeather', 'mgpt_s_feather', '边缘柔化', 'mgpt_feather', '选区边缘柔化（只在选区内侧过渡，选区外像素不变）', true),
+        opt('mangaGptChangeOnly', 'mgpt_s_change_only', '只换改动的部分', 'mgpt_change_only', '只替换模型真正改动的部分（没改的地方保留原图像素，不会出现浅色方块或接缝）', true)]),
+      group('mgpt_g_protect', '保护内容', [
+        opt('mangaGptKeepAlpha', 'mgpt_s_keep_alpha', '保留透明区域', 'mgpt_keep_alpha', '保留原选区的透明区域（透明背景/镂空处不被模型画成实色）', true),
+        opt('mangaGptKeepLines', 'mgpt_s_keep_lines', '保留分格线', 'mgpt_keep_lines', '保留选区内的分格线/边框直线（模型常把它们抹掉；想改线条时取消勾选）', true),
+        opt('mangaGptIncludeText', 'mgpt_s_include_text', '包含文字和气泡', 'mgpt_include_text', '框选时包含文字/气泡（默认不包含：文字保持可编辑并留在新图层上方）', false)]),
+      group('mgpt_g_size', '尺寸', [
+        opt('mangaGptAspectGuard', 'mgpt_s_aspect_guard', '自动调整比例', 'mgpt_aspect_guard', '所选尺寸与选区比例相差过大时自动改用最接近的比例', true),
+        opt('mangaGptAllowUpscale', 'mgpt_s_allow_upscale', '允许放大小图', 'mgpt_allow_upscale', '允许将低于选区分辨率的生成图放大覆盖（会影响选区清晰度）', false)]),
       '<div class="manga-gpt-row"><button type="button" id="mangaGptGenerate">' + t('mgpt_generate', '生成预览') +
         '</button><button type="button" id="mangaGptCancel" disabled>' + t('mgpt_cancel', '取消请求') +
         '</button><button type="button" id="mangaGptApply" disabled>' + t('mgpt_apply', '作为新图层应用') + '</button></div>',

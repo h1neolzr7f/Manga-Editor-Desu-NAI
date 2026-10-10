@@ -1179,9 +1179,12 @@ async function main() {
       const stepEnd = await steps(p);
       await p.locator('#taskAdvanced').check(); await p.waitForTimeout(200);
       const advancedShowsSize = await shown(p, '#mangaGptSize');
+      // 高级: three groups with short labels (explanations in tooltips)
+      const advGroups = await p.evaluate(() => { const g = Array.from(document.querySelectorAll('#mangaGptPanel .manga-gpt-group')).filter(x => x.offsetParent);
+        return { n: g.length, longest: Math.max(0, ...Array.from(document.querySelectorAll('#mangaGptPanel .manga-gpt-opt')).map(l => l.textContent.trim().length)), tips: Array.from(document.querySelectorAll('#mangaGptPanel .manga-gpt-opt')).every(l => l.title.length > 10) }; });
       await snap('wizard-' + taskId);
       const calls = wizCalls.slice(before);
-      return { simple, step0, stepEnd, advancedShowsSize, calls, errors, ...ex };
+      return { simple, step0, stepEnd, advancedShowsSize, advGroups, calls, errors, ...ex };
     } finally { await ctx.close(); }
   };
 
@@ -1240,7 +1243,7 @@ async function main() {
     });
     const call = r.calls.find(c => c.op === 'edit') || {};
     return { pass: r.simple.filePick && r.simple.sizeHidden && r.simple.modeHidden && r.simple.keyHidden && r.step0[0] === 'cur' && r.stepAfterRef[2] === 'cur' &&
-      r.stepEnd.every(x => x === 'done') && r.advancedShowsSize && /^Replace the character/.test(call.prompt || '') && call.refs === 1 && call.model === 'gpt-image-2.5' && !r.errors.length, detail: r };
+      r.stepEnd.every(x => x === 'done') && r.advancedShowsSize && r.advGroups.n === 3 && r.advGroups.longest <= 12 && r.advGroups.tips && /^Replace the character/.test(call.prompt || '') && call.refs === 1 && call.model === 'gpt-image-2.5' && !r.errors.length, detail: r };
   });
 
   await flow('25 修瑕疵/去杂物向导：框选→生成预览→应用（去除预设，无需写字）', async () => {
