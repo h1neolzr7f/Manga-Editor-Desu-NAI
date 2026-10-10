@@ -1502,7 +1502,7 @@
     const hint = (id, key, zh, checked) => '<label class="manga-gpt-hint"><input id="' + id + '" type="checkbox"' +
       (checked ? ' checked' : '') + '> ' + t(key, zh) + '</label>';
     panel.innerHTML = [
-      '<div class="manga-gpt-head"><strong>Manga-NAI-GPT</strong><span class="manga-gpt-head-buttons"><button type="button" id="mangaGptCollapse" aria-expanded="true" title="' + t('mgpt_collapse', '收起面板（让出画布）') + '" aria-label="' + t('mgpt_collapse', '收起面板（让出画布）') + '">–</button>' +
+      '<div class="manga-gpt-head"><strong>' + t('mgpt_title', 'AI 改图') + '</strong><span class="manga-gpt-head-buttons"><button type="button" id="mangaGptCollapse" aria-expanded="true" title="' + t('mgpt_collapse', '收起面板（让出画布）') + '" aria-label="' + t('mgpt_collapse', '收起面板（让出画布）') + '">–</button>' +
         '<button type="button" id="mangaGptClose" aria-label="' + t('mgpt_close', '关闭') + '">×</button></span></div>',
       '<div class="manga-gpt-row"><label>' + t('mgpt_operation', '操作') + '<select id="mangaGptMode"><option value="edit">' + t('mgpt_mode_edit', '局部改图 / 角色替换') +
         '</option><option value="generate">' + t('mgpt_mode_generate', '文字生图 / 新图层') + '</option></select></label>',

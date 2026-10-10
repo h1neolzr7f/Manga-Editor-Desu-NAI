@@ -162,7 +162,7 @@
   function el(tag, attrs, html) { const e = document.createElement(tag); Object.entries(attrs || {}).forEach(([k, v]) => e.setAttribute(k, v)); if (html != null) e.innerHTML = html; return e; }
   function loadImg(src) { return new Promise((ok, bad) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => bad(new Error('图片解码失败。')); i.src = src; }); }
   function cv(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
-  function status(t, err) { const s = $('autoSwapStatus'); if (s) { s.textContent = t; s.classList.toggle('is-error', !!err); } }
+  function status(t, err) { const s = $('autoSwapStatus'); if (s) { s.textContent = t; s.classList.toggle('is-error', !!err); s.classList.toggle('is-busy', !err && /…$/.test(t)); } }
   function post(url, body, signal) { return root.MangaModelRequest.post(url, body, { signal }); }
 
   async function gptEdit(image, prompt, size, references, signal) {

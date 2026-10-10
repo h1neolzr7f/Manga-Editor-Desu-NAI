@@ -124,3 +124,9 @@ body.ui-beginner #mangaPageOpen, body.ui-beginner #mangaCharacterOpen { display:
 .ui-file-hidden { position: absolute !important; width: 1px !important; height: 1px !important; opacity: 0 !important; pointer-events: none; }
 .ui-file-pick { display: flex; align-items: center; gap: var(--ui-space-2, 8px); margin-top: 4px; min-width: 0; }
 .ui-file-pick-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; min-width: 0; }
+
+/* waiting states show motion, not just text */
+.auto-swap-status.is-busy::before { content: ''; display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -2px;
+  border: 2px solid var(--ui-border); border-top-color: var(--ui-accent); border-radius: 50%; animation: ui-spin .8s linear infinite; }
+@keyframes ui-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .auto-swap-status.is-busy::before { animation: none; } }
