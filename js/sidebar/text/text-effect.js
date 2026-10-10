@@ -169,7 +169,7 @@ var fontStrokeWidth=$("fontStrokeWidthSlider").value
 
 textLogger.debug("selectedFont",selectedFont)
 const selectedValue=getSelectedValueByGroup("align_group");
-var textbox=new fabric.Textbox("New",{
+var textbox=new fabric.Textbox("台词",{
 top: 50,
 left: 50,
 fontSize: parseInt(fontsize,10)||32,

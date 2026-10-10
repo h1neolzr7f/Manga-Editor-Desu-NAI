@@ -1,5 +1,5 @@
 {
-  "when": "2026-10-10T05:27:09.408Z",
+  "when": "2026-10-10T05:40:05.840Z",
   "gpt": "MOCK",
   "flows": [
     {
@@ -12,7 +12,7 @@
         "Import image",
         "page 1"
       ],
-      "seconds": 17.8,
+      "seconds": 17.6,
       "screenshot": "artifacts/novice/01-1_首次启动并导入_2_页漫画.png",
       "notes": [],
       "detail": {
@@ -117,7 +117,7 @@
         "page 1",
         "Ctrl+Z after reopen"
       ],
-      "seconds": 16.1,
+      "seconds": 15.6,
       "screenshot": "artifacts/novice/05-4_撤销_重做_切页_保存_关闭_重开.png",
       "notes": [],
       "detail": {
@@ -164,7 +164,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 7.9,
+      "seconds": 7.7,
       "screenshot": "artifacts/novice/07-8_导入含坏文件的一批图_立刻刷新_恢复对话框找回全部页.png",
       "notes": [],
       "detail": {
@@ -220,7 +220,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 10.7,
+      "seconds": 10.5,
       "screenshot": "artifacts/novice/10-11_字幕图层_点眼睛隐藏_导出不含字幕_Ctrl_Z_恢复显示_刷新恢复后字幕.png",
       "notes": [],
       "detail": {
@@ -242,7 +242,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 5.6,
+      "seconds": 5.5,
       "screenshot": "artifacts/novice/11-12_从页面外开始拖_手动框选字幕_贴边框选_贴边气泡用_LaMa_去字不越界.png",
       "notes": [],
       "detail": {
@@ -268,7 +268,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 5.4,
+      "seconds": 5.7,
       "screenshot": "artifacts/novice/12-13_误点页面缩略图的_撤销删除_一键找回_位置和内容不变_.png",
       "notes": [],
       "detail": {
@@ -276,7 +276,7 @@
         "barText": "已删除第 1 页。撤销删除",
         "restoredOrder": true,
         "content": {
-          "guid": "b15b44f4-6dac-4aba-9840-75573be339db",
+          "guid": "19954cb3-3091-4aef-9597-797d9ec5ac12",
           "images": 1,
           "w": 1200,
           "h": 1700
@@ -299,7 +299,7 @@
           1
         ],
         "st": {
-          "cur": "508fcc24-aaca-49c6-93b8-78c608c5de2d",
+          "cur": "07ce86eb-1285-44de-9d89-70478dbfe942",
           "imgs": 1,
           "nums": "1,2,3"
         },
@@ -333,10 +333,43 @@
           "fw": "bold",
           "align": "center"
         },
+        "sizeToast": "已下载图片\n        2476×3508 像素 PNG（300 DPI）。想改大小：菜单「画布 › 下载 DPI」。",
         "file": "artifacts/novice/flow15-menu-export.png",
         "png": true,
         "w": 2476,
         "h": 3508,
+        "errors": []
+      }
+    },
+    {
+      "name": "16 竖排字（默认中文占位）+ 换字体 + 自由气泡手绘",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 8.6,
+      "screenshot": "artifacts/novice/15-16_竖排字_默认中文占位_换字体_自由气泡手绘.png",
+      "notes": [],
+      "detail": {
+        "vert": {
+          "type": "vertical-textbox",
+          "font": "Klee One",
+          "text": "台词"
+        },
+        "optCount": 50,
+        "chosen": "DotGothic16",
+        "afterFont": {
+          "type": "vertical-textbox",
+          "font": "DotGothic16",
+          "text": "台词"
+        },
+        "free": {
+          "delta": 3,
+          "types": [
+            "path",
+            "rect",
+            "textbox"
+          ]
+        },
         "errors": []
       }
     },
@@ -360,8 +393,8 @@
         "page 1",
         "应用（回到第 1 页）"
       ],
-      "seconds": 41.1,
-      "screenshot": "artifacts/novice/15-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
+      "seconds": 41.2,
+      "screenshot": "artifacts/novice/16-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
       "notes": [],
       "detail": {
         "applyEnabledOnPage2": true,
@@ -377,7 +410,7 @@
       "keyOps": 0,
       "ops": [],
       "seconds": 16.2,
-      "screenshot": "artifacts/novice/16-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
+      "screenshot": "artifacts/novice/17-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
       "notes": [],
       "detail": {
         "1440x900@1": {

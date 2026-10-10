@@ -583,13 +583,54 @@ async function main() {
     const dl = await dlP;
     const file = path.join(OUT, 'flow15-menu-export' + path.extname(dl.suggestedFilename() || '.png'));
     await dl.saveAs(file);
+    const sizeToast = await p.waitForFunction(() => [...document.querySelectorAll('[class*=toast]')].map(e => e.textContent).find(t => /已下载图片/.test(t) && /像素/.test(t)), null, { timeout: 15000 }).then(h => h.jsonValue()).catch(() => '');
     const head = fs.readFileSync(file).subarray(0, 24);
     const png = head.toString('latin1', 1, 4) === 'PNG';
     const w = png ? head.readUInt32BE(16) : 0, h = png ? head.readUInt32BE(20) : 0;
     await ctx.close();
     return { pass: !!bubble && bubble.name !== bubble.imgName && icons.every(t => t && t !== 'missing') && !!text && /bold|700/.test(String(text.fw)) &&
-      text.align === 'center' && png && w >= 1000 && h >= 1000 && errors.length === 0,
-      detail: { bubble, icons, text, file: path.relative(process.cwd(), file), png, w, h, errors } };
+      text.align === 'center' && png && w >= 1000 && h >= 1000 && errors.length === 0 &&
+      sizeToast.includes(w + '\u00d7' + h) && sizeToast.includes('下载 DPI'),
+      detail: { bubble, icons, text, sizeToast: sizeToast.trim().slice(0, 90), file: path.relative(process.cwd(), file), png, w, h, errors } };
+  });
+
+  await flow('16 竖排字（默认中文占位）+ 换字体 + 自由气泡手绘', async () => {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort());
+    const errors = []; p.on('pageerror', e => errors.push(e.message));
+    await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
+    await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 });
+    await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {}); await p.keyboard.press('Escape');
+    await p.locator('#imageInput').setInputFiles(PAGES[0]);
+    await p.waitForFunction(() => canvas.getObjects().some(o => o.type === 'image'), null, { timeout: 60000 });
+    const act = () => p.evaluate(() => { const a = canvas.getActiveObject(); return a ? { type: a.type, font: a.fontFamily, text: a.text } : null; });
+    await p.locator('[data-target="text-area"]').click();
+    await p.locator('#verticalText').click();
+    await p.waitForTimeout(800);
+    const vert = await act();
+    await p.locator('#text-area .fm-dropdown-trigger').first().click();
+    const opts = p.locator('#text-area .fm-font-option');
+    await opts.first().waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
+    const optCount = await opts.count();
+    let chosen = null;
+    for (let i = 0; i < optCount; i++) { const f = await opts.nth(i).getAttribute('data-font'); if (f && f !== vert.font && await opts.nth(i).isVisible()) { chosen = f; await opts.nth(i).click(); break; } }
+    await p.waitForTimeout(800);
+    const afterFont = await act();
+    // free-form bubble: 手绘 mode, drag a loop on the page
+    await p.locator('[data-target="speech-bubble-area"]').click();
+    await p.locator('[data-bubble-tab="free"]').click();
+    await p.locator('#sbFreehandButton').click();
+    const before = await p.evaluate(() => canvas.getObjects().length);
+    const box = await p.locator('#canvas-area canvas.upper-canvas, .upper-canvas').first().boundingBox();
+    const cx = box.x + box.width * 0.35, cy = box.y + box.height * 0.3;
+    await p.mouse.move(cx, cy); await p.mouse.down();
+    for (let k = 0; k <= 24; k++) { const t = k / 24 * Math.PI * 2; await p.mouse.move(cx + Math.cos(t) * 70, cy + Math.sin(t) * 45); await p.waitForTimeout(25); }  // human speed: the canvas throttles moves to 1/16ms
+    await p.mouse.up(); await p.waitForTimeout(1200);
+    const free = await p.evaluate(n => ({ delta: canvas.getObjects().length - n, types: canvas.getObjects().slice(n).map(o => o.type) }), before);
+    await p.screenshot({ path: path.join(OUT, 'flow16-free-bubble.png') });
+    await ctx.close();
+    return { pass: !!vert && vert.type === 'vertical-textbox' && vert.text === '台词' && !!chosen && afterFont && afterFont.font === chosen &&
+      free.delta >= 1 && errors.length === 0, detail: { vert, optCount, chosen, afterFont, free, errors } };
   });
 
   await flow('7 生成中切页→结果不得贴到别的页→切回后再应用', async () => {

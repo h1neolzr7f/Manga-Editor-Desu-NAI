@@ -1,4 +1,4 @@
-/* exported activePoint, clearJSTSGeometry, createJSTSPolygon, createSpeechBubble, deletePoint, freehandBubbleTextChanged, isDrawing, isNearStartPoint, lastRenderTime, mergeOverlappingShapes, processPoints, sbFreehandTextChange, scaleX, scaleY, selectedObject, updateFreehandBubblePositions, updateJSTSGeometry, updateShape, updateTemporaryShapes */
+/* exported activePoint, clearJSTSGeometry, createJSTSPolygon, repairFreehandPolygon, createSpeechBubble, deletePoint, freehandBubbleTextChanged, isDrawing, isNearStartPoint, lastRenderTime, mergeOverlappingShapes, processPoints, sbFreehandTextChange, scaleX, scaleY, selectedObject, updateFreehandBubblePositions, updateJSTSGeometry, updateShape, updateTemporaryShapes */
 function sbFreehandTextChange(alignment,button) {
 changeSelected(button);
 }
@@ -204,7 +204,27 @@ coordinates[0].y!==coordinates[coordinates.length-1].y) {
 coordinates.push(new jsts.geom.Coordinate(coordinates[0].x,coordinates[0].y));
 }
 if (coordinates.length<4) return null;
-return geometryFactory.createPolygon(geometryFactory.createLinearRing(coordinates));
+var polygon=geometryFactory.createPolygon(geometryFactory.createLinearRing(coordinates));
+return repairFreehandPolygon(polygon);
+}
+
+// A hand-drawn loop that crosses itself (figure-8, a stroke that starts inside the loop, a wobbly
+// close) is an invalid polygon; it used to be dropped silently ("jsts up error") and nothing appeared.
+// buffer(0) untangles it; keep the largest piece, which is the bubble the user meant.
+function repairFreehandPolygon(polygon){
+if(!polygon||polygon.isValid())return polygon;
+try{
+var fixed=polygon.buffer(0);
+var best=null;
+for(var i=0;i<fixed.getNumGeometries();i++){
+var g=fixed.getGeometryN(i);
+if(g.getGeometryType()==='Polygon'&&(!best||g.getArea()>best.getArea()))best=g;
+}
+if(best&&best.isValid()&&best.getArea()>0)return geometryFactory.createPolygon(best.getExteriorRing().getCoordinates().length?geometryFactory.createLinearRing(best.getExteriorRing().getCoordinates()):null);
+}catch(e){
+freehandBubbleLogger.debug('repairFreehandPolygon failed: '+(e&&e.message));
+}
+return polygon;
 }
 
 function unionGeometries(geometry1,geometry2) {

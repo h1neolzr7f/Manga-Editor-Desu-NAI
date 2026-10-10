@@ -27,7 +27,7 @@ padding: 10,
 
 };
 
-const cjkText=new VerticalTextbox("new",style);
+const cjkText=new VerticalTextbox("台词",style);
 canvas.add(cjkText);
 canvas.setActiveObject(cjkText);
 canvas.renderAll();

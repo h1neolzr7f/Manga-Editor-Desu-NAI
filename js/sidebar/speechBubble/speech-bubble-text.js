@@ -237,7 +237,7 @@ evented: true,
 renderOnAddRemove: true,
 targetObject: svgObj,
 };
-newTextbox=new VerticalTextbox("new",style);
+newTextbox=new VerticalTextbox("台词",style);
 } else {
 newTextbox=new fabric.Textbox(
 `${Math.round(rectWidth * scaleWidth)}x${Math.round(

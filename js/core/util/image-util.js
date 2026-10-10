@@ -712,11 +712,26 @@ removeGrid();
 return ImageUtil.getCropAndDownloadLink().then(function(link){
 link.click();
 ImageUtil.notifyExportLimitReached();
+ImageUtil.notifyExportSize(link);
 restoreGridAfterExport();
 }).catch(function(error){
 restoreGridAfterExport();
 createToastError('导出失败',(error&&error.message)||'无法生成导出图片。',5000);
 });
+},
+
+// Beginners could not tell what resolution 下载图片 produced (a 1200px page comes out ~2480px at
+// 300 DPI). Read the real pixel size of what was downloaded and say where to change it.
+notifyExportSize:function(link){
+if(!link||!link.href||typeof createToast!=='function')return;
+var img=new Image();
+img.onload=function(){
+var dpiInput=document.getElementById('outputDpi');
+var dpi=dpiInput&&dpiInput.value?dpiInput.value:'300';
+var ext=String(link.download||'').split('.').pop().toUpperCase()||'PNG';
+createToast('已下载图片',img.naturalWidth+'\u00d7'+img.naturalHeight+' 像素 '+ext+'（'+dpi+' DPI）。想改大小：菜单「画布 › 下载 DPI」。',5000);
+};
+img.src=link.href;
 },
 
 getLink:function(dataURL){
