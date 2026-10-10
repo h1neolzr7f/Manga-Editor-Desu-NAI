@@ -973,14 +973,26 @@ $('imageInput').click();
 
 document.addEventListener('DOMContentLoaded',function() {
 $('imageInput').addEventListener('change',function(e) {
-var files=e.target.files;
-for (var i=0;i<files.length;i++) {
-(function(file) {
-var reader=new FileReader();
-reader.onload=function(f) {
-var data=f.target.result;
-fabric.Image.fromURL(data,function(img) {
+var files=Array.from(e.target.files||[]);
+e.target.value='';
+importImageFiles(files);
+});
+});
 
+function readImageFile(file){
+return new Promise(function(resolve,reject){
+var reader=new FileReader();
+reader.onerror=function(){reject(reader.error||new Error('读取图片失败：'+file.name));};
+reader.onload=function(f){
+fabric.Image.fromURL(f.target.result,function(img){
+if(!img||!img.width)reject(new Error('无法识别的图片：'+file.name));else resolve(img);
+});
+};
+reader.readAsDataURL(file);
+});
+}
+
+function putImportedImage(img){
 if (pageHasUserContent()) {
 // The page already has panels, art or text: keep the page size and fit the
 // image inside it. (Using the history length here resized an A4 template page
@@ -995,13 +1007,41 @@ canvas.renderAll();
 canvasLogger.debug("imageInput resizeCanvasByNum ");
 addInitialImageToCanvas(img);
 }
-});
-};
-reader.readAsDataURL(file);
-})(files[i]);
 }
-});
-});
+
+// Several pictures at once = several manga pages: the first goes on the current page,
+// every further one gets its own new page at the picture's own resolution (in order).
+async function importImageFiles(files){
+if(!files.length)return;
+var imported=0;
+for(var i=0;i<files.length;i++){
+try{
+var img=await readImageFile(files[i]);
+if(i===0||typeof btmCreatePageAfter!=='function'){
+putImportedImage(img);
+}else{
+if(window.NaiPageLoading||window.NaiHistoryLoading){
+createToastError('导入图片','页面正在切换，剩余 '+(files.length-i)+' 张未导入，请稍后再导入。');
+break;
+}
+window.NaiPageLoading=true;
+try{
+await btmCreatePageAfter(getCanvasGUID(),img.width,img.height);
+}finally{
+window.NaiPageLoading=false;
+}
+addInitialImageToCanvas(img);
+await btmSaveProjectFile(getCanvasGUID(),false);
+}
+imported++;
+}catch(error){
+createToastError('导入图片',(error&&error.message)||String(error));
+}
+}
+if(files.length>1&&typeof createToast==='function'){
+createToast('导入图片','已导入 '+imported+' 页，每张图片一页、保持原分辨率。可在底部页面栏切换。');
+}
+}
 
 
 

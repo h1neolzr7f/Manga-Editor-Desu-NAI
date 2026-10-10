@@ -409,6 +409,33 @@ const guids=Array.from(btmProjectsMap.keys());
 return guids[index];
 }
 
+// Create an empty w x h page right after `guid` and switch to it. Caller holds window.NaiPageLoading.
+async function btmCreatePageAfter(guid,w,h){
+// Save the current page first: on a fresh project it has no page-bar entry yet, and an index
+// of -1 would insert the new page BEFORE it (imported pages came out in reverse order).
+await btmSaveProjectFile(null,false);
+var currentIndex=btmGetGuidIndex(guid);
+var newGuid=generateGUID();
+var pc=document.createElement('canvas');
+pc.width=100;
+pc.height=Math.round(100*h/w);
+var pctx=pc.getContext('2d');
+pctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--color-tertiary').trim()||'#505050';
+pctx.fillRect(0,0,pc.width,pc.height);
+var placeholderUrl=pc.toDataURL('image/jpeg',0.5);
+btmAddImage({href:placeholderUrl},null,newGuid,true);
+reorderImages(currentIndex+1,newGuid);
+changeDoNotSaveHistory();
+resizeCanvasToObject(w,h);
+changeDoSaveHistory();
+initImageHistory();
+setCanvasGUID(newGuid);
+await btmSaveProjectFile(newGuid,false);
+updateAllPageNumbers();
+btmUpdateHandleText();
+return newGuid;
+}
+
 function btmShowAddPageDialog(guid) {
 var dialog=document.createElement("div");
 dialog.className="btm-dialog-overlay";
@@ -439,29 +466,10 @@ window.NaiPageLoading=true;
 try{
 var selectedSize=document.querySelector('input[name="page-size"]:checked').value;
 document.body.removeChild(dialog);
-var currentIndex=btmGetGuidIndex(guid);
-var newGuid=generateGUID();
 var w,h;
 if(selectedSize==="portrait"){w=portrait.width;h=portrait.height;}
 else{w=landscape.width;h=landscape.height;}
-var pc=document.createElement('canvas');
-pc.width=100;
-pc.height=Math.round(100*h/w);
-var pctx=pc.getContext('2d');
-pctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--color-tertiary').trim()||'#505050';
-pctx.fillRect(0,0,pc.width,pc.height);
-var placeholderUrl=pc.toDataURL('image/jpeg',0.5);
-await btmSaveProjectFile(null,false);
-btmAddImage({href:placeholderUrl},null,newGuid,true);
-reorderImages(currentIndex+1,newGuid);
-changeDoNotSaveHistory();
-resizeCanvasToObject(w,h);
-changeDoSaveHistory();
-initImageHistory();
-setCanvasGUID(newGuid);
-await btmSaveProjectFile(newGuid,false);
-updateAllPageNumbers();
-btmUpdateHandleText();
+await btmCreatePageAfter(guid,w,h);
 }finally{
 window.NaiPageLoading=false;
 }
