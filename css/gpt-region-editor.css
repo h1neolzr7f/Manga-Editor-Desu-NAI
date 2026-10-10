@@ -53,3 +53,15 @@
 .manga-gpt-head-buttons { display: flex; gap: 6px; }
 .manga-gpt-panel.is-collapsed { max-height: none; overflow: hidden; width: auto; min-width: 220px; }
 .manga-gpt-panel.is-collapsed > :not(.manga-gpt-head) { display: none !important; }
+
+.manga-gpt-compare {
+  margin-top: 4px;
+  padding: 3px 10px;
+  border: 1px solid #5aa0c8;
+  border-radius: 6px;
+  background: #1d2b38;
+  color: #eef6fb;
+  cursor: pointer;
+  font-size: 12px;
+}
+.manga-gpt-compare[aria-pressed="true"] { background: #2c6a8f; }

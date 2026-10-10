@@ -293,8 +293,113 @@
     return mean.map(v => Math.max(-maxOffset, Math.min(maxOffset, Math.round(v))));
   }
 
-  // Bake crop (+ optional colour offset and feather) into a bitmap at the crop's native resolution.
-  function bakePatch(imageElement, crop, scale, feather, offset, alphaMask) {
+  // Seam colour match. A real model often repaints the background of the selection a few levels
+  // lighter/darker (real gpt-image-2.5 cases C/D: a pale rectangle around the patch), and when it
+  // recomposes the scene estimateDrift() rightly refuses a global offset. Instead compare a thin ring
+  // just inside each interior edge with the original pixels there and fade that per-side difference
+  // out towards the centre: the edges meet the page, the middle keeps the model's colours.
+  const SEAM_RING = 4;
+  const SEAM_MAX = 28;        // a larger per-pixel step is changed content (other hair, new object), not drift
+  const SEAM_SMOOTH = 64;     // correction profile is smoothed along the edge over this many pixels
+  // Per side: a smoothed per-position colour difference (orig - patch) along the edge, measured on a
+  // thin inner ring. Positions where the content itself changed are skipped, so a red-hair-vs-silver-hair
+  // edge does not smear a tint along the whole side (first real retest showed cyan bands with a single
+  // per-side mean).
+  function seamDiffs(patch, orig, w, h, sides, ring) {
+    const rw = Math.max(1, Math.min(ring || SEAM_RING, Math.floor(Math.min(w, h) / 4)));
+    const out = {};
+    for (const side of ['left', 'right', 'top', 'bottom']) {
+      if (!sides || !sides[side]) continue;
+      const vertical = side === 'left' || side === 'right';
+      const len = vertical ? h : w;
+      const sum = new Float32Array(len * 3), cnt = new Float32Array(len);
+      for (let t = 0; t < len; t++) {
+        for (let k = 0; k < rw; k++) {
+          const x = vertical ? (side === 'left' ? k : w - 1 - k) : t;
+          const y = vertical ? t : (side === 'top' ? k : h - 1 - k);
+          const i = (y * w + x) * 4;
+          if (orig[i + 3] < 250 || patch[i + 3] < 8) continue;
+          const dr = orig[i] - patch[i], dg = orig[i + 1] - patch[i + 1], db = orig[i + 2] - patch[i + 2];
+          if ((Math.abs(dr) + Math.abs(dg) + Math.abs(db)) / 3 > SEAM_MAX) continue;
+          sum[t * 3] += dr; sum[t * 3 + 1] += dg; sum[t * 3 + 2] += db; cnt[t]++;
+        }
+      }
+      // box-smooth along the edge (prefix sums), positions with no valid samples nearby get 0
+      const ps = new Float64Array((len + 1) * 4);
+      for (let t = 0; t < len; t++) {
+        for (let c = 0; c < 3; c++) ps[(t + 1) * 4 + c] = ps[t * 4 + c] + sum[t * 3 + c];
+        ps[(t + 1) * 4 + 3] = ps[t * 4 + 3] + cnt[t];
+      }
+      const prof = new Float32Array(len * 3);
+      const half = Math.max(1, Math.round(SEAM_SMOOTH / 2));
+      let valid = 0;
+      for (let t = 0; t < len; t++) {
+        const a = Math.max(0, t - half), b = Math.min(len, t + half + 1);
+        const n = ps[b * 4 + 3] - ps[a * 4 + 3];
+        if (n < rw * 2) continue;
+        for (let c = 0; c < 3; c++) prof[t * 3 + c] = (ps[b * 4 + c] - ps[a * 4 + c]) / n;
+        valid++;
+      }
+      if (valid >= Math.min(len, 8)) out[side] = prof;
+    }
+    return out;
+  }
+
+  function applySeamMatch(patch, w, h, diffs, band) {
+    const sides = Object.keys(diffs);
+    if (!sides.length) return 0;
+    const b = Math.max(2, band || Math.max(12, Math.round(Math.min(w, h) * 0.2)));
+    let touched = 0;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        let tot = 0;
+        const corr = [0, 0, 0];
+        for (const side of sides) {
+          const d = side === 'left' ? x : side === 'right' ? w - 1 - x : side === 'top' ? y : h - 1 - y;
+          if (d >= b) continue;
+          const t = side === 'left' || side === 'right' ? y : x;
+          const prof = diffs[side];
+          const wt = (1 - d / b) * (1 - d / b);
+          tot += wt;
+          corr[0] += wt * prof[t * 3];
+          corr[1] += wt * prof[t * 3 + 1];
+          corr[2] += wt * prof[t * 3 + 2];
+        }
+        if (!tot) continue;
+        const norm = tot > 1 ? tot : 1;
+        const i = (y * w + x) * 4;
+        patch[i] += corr[0] / norm;
+        patch[i + 1] += corr[1] / norm;
+        patch[i + 2] += corr[2] / norm;
+        touched++;
+      }
+    }
+    return touched;
+  }
+
+  function loadRegionPixels(dataUrl, w, h) {
+    return new Promise(resolve => {
+      if (!dataUrl) return resolve(null);
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const cv = document.createElement('canvas');
+          cv.width = w;
+          cv.height = h;
+          const ctx = cv.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(ctx.getImageData(0, 0, w, h).data);
+        } catch (error) {
+          resolve(null);
+        }
+      };
+      img.onerror = () => resolve(null);
+      img.src = dataUrl;
+    });
+  }
+
+  // Bake crop (+ optional colour offset, seam match and feather) into a bitmap at the crop's native resolution.
+  function bakePatch(imageElement, crop, scale, feather, offset, alphaMask, seam) {
     const w = Math.max(1, Math.round(crop.w));
     const h = Math.max(1, Math.round(crop.h));
     const out = document.createElement('canvas');
@@ -311,6 +416,12 @@
         data.data[i + 2] += offset[2];
       }
       ctx.putImageData(data, 0, 0);
+    }
+    if (seam && seam.orig && seam.orig.length === w * h * 4) {
+      const data = ctx.getImageData(0, 0, w, h);
+      const diffs = seamDiffs(data.data, seam.orig, w, h, seam.sides);
+      seam.diffs = diffs;
+      if (applySeamMatch(data.data, w, h, diffs)) ctx.putImageData(data, 0, 0);
     }
     if (feather && feather.width > 0 && (feather.left || feather.right || feather.top || feather.bottom)) {
       const fw = feather.width / scale; // page pixels -> source pixels
@@ -424,6 +535,25 @@
     });
   }
 
+  // Before/after toggle on the preview: once a result exists, 对比原图 flips the preview to the original
+  // selection and back, so a beginner can judge the edit before applying it.
+  function setCompare(available) {
+    const btn = $g('mangaGptCompare');
+    if (!btn) return;
+    btn.hidden = !available;
+    btn.setAttribute('aria-pressed', 'false');
+    btn.textContent = tr('mgpt_compare_show_original', '对比原图');
+  }
+
+  function toggleCompare() {
+    const btn = $g('mangaGptCompare');
+    if (!btn || btn.hidden || !state.result || !state.region) return;
+    const showOriginal = btn.getAttribute('aria-pressed') !== 'true';
+    btn.setAttribute('aria-pressed', showOriginal ? 'true' : 'false');
+    $g('mangaGptPreview').src = showOriginal ? state.region.image : state.result;
+    btn.textContent = showOriginal ? tr('mgpt_compare_show_result', '看生成结果') : tr('mgpt_compare_show_original', '对比原图');
+  }
+
   function setRegion(c, region, message) {
     try {
       const excludeLettering = !$g('mangaGptIncludeText') || !$g('mangaGptIncludeText').checked;
@@ -434,6 +564,7 @@
       state.result = '';
       $g('mangaGptApply').disabled = true;
       $g('mangaGptPreview').src = image;
+      setCompare(false);
       if ($g('mangaGptExpand')) $g('mangaGptExpand').hidden = !cut.length;
       feedback(message + (cut.length ? tr('mgpt_cut_warn',
         '注意：选区只框到了 {count} 个对象的一部分（如“{name}”），模型只看到半个人物时容易接不上身体。可点“扩展到完整对象”。',
@@ -507,6 +638,7 @@
     $g('mangaGptApply').disabled=true;
     if($g('mangaGptExpand')) $g('mangaGptExpand').hidden=true;
     $g('mangaGptPreview').removeAttribute('src');
+    setCompare(false);
     feedback(tr('mgpt_manual_character_region', '人物区域尚未确认。请在画布中手动框选目标角色，确认后再生成。'));
     startSelection();
     return true;
@@ -1004,6 +1136,7 @@
       state.result = json.image;
       $g('mangaGptPreview').src = json.image;
       $g('mangaGptApply').disabled = false;
+      setCompare(true);
       const warnAspect = operation === 'edit' && !sizeChoice.switchedFrom &&
         aspectMismatch(state.region.width, state.region.height, sizeChoice.size);
       let note = '';
@@ -1088,10 +1221,15 @@
         const lassoMask = region.lasso ? lassoAlphaMask(region.lasso, region.width, region.height, cw, ch) :
           region.brush ? lassoAlphaMask(region.brush.points, region.width, region.height, cw, ch, region.brush.width) : null;
         const mask = combineAlpha(combineAlpha(alphaMask, lineMask), lassoMask);
-        const baked = bakePatch(image.getElement(), crop, scale, feather, offset, mask);
+        // seam match on every interior side (page edges have nothing to match against)
+        const seamSides = featherPlan(region, c.getWidth(), c.getHeight());
+        const seam = matchOn ? { orig: await loadRegionPixels(region.image, cw, ch), sides: seamSides } : null;
+        const baked = bakePatch(image.getElement(), crop, scale, feather, offset, mask, seam);
         const sourceCrop = { x: +crop.x.toFixed(2), y: +crop.y.toFixed(2), w: +crop.w.toFixed(2), h: +crop.h.toFixed(2),
           resultWidth: image.width, resultHeight: image.height, feather: feather ? feather.width : 0,
-          toneOffset: offset || [0, 0, 0], keepAlpha: alphaRestored, keepLines: linesKept };
+          toneOffset: offset || [0, 0, 0], keepAlpha: alphaRestored, keepLines: linesKept,
+          seamMatch: seam && seam.diffs ? Object.fromEntries(Object.entries(seam.diffs).map(([k, v]) => {
+            let m = 0; for (let q = 0; q < v.length; q++) m = Math.max(m, Math.abs(v[q])); return [k, Math.round(m)]; })) : null };
         image = await new Promise((resolve, reject) => {
           fabric.Image.fromURL(baked, img => (img && img.width ? resolve(img) : reject(new Error(tr('mgpt_decode_failed', '生成图片解码失败。')))));
         });
@@ -1238,6 +1376,8 @@
         '</button><button type="button" id="mangaGptCancel" disabled>' + t('mgpt_cancel', '取消请求') +
         '</button><button type="button" id="mangaGptApply" disabled>' + t('mgpt_apply', '作为新图层应用') + '</button></div>',
       '<img id="mangaGptPreview" class="manga-gpt-preview" alt="' + t('mgpt_preview_alt', '当前框选或 GPT 生成预览') + '">',
+      '<button type="button" id="mangaGptCompare" class="manga-gpt-compare" hidden aria-pressed="false" title="' +
+        t('mgpt_compare_tip', '在原图和生成结果之间切换，确认后再应用') + '">' + t('mgpt_compare_show_original', '对比原图') + '</button>',
       '<details><summary>' + t('mgpt_subtitle_summary', '原生字幕修改（无需 API）') + '</summary><label>' + t('mgpt_subtitle_label', '替换选中文字图层') +
         '<input id="mangaGptSubtitle" type="text" placeholder="' + t('mgpt_subtitle_ph', '输入新的字幕内容') + '"></label>',
       '<button type="button" id="mangaGptReplaceText">' + t('mgpt_replace_btn', '替换文字并记录撤销') + '</button></details>',
@@ -1277,6 +1417,7 @@
       $g('mangaGptCancel').addEventListener('click', () => { if (state.controller) state.controller.abort(); });
     }
     $g('mangaGptApply').addEventListener('click', apply);
+    if ($g('mangaGptCompare')) $g('mangaGptCompare').addEventListener('click', toggleCompare);
     $g('mangaGptReplaceText').addEventListener('click', changeSelectedText);
     $g('mangaGptModelPreset').addEventListener('change', event => {
       const input = $g('mangaGptModel');
@@ -1322,7 +1463,7 @@
   else render();
 
   window.MangaGPTRegionEditor = { normalizeRegion, startSelection, cancelSelection, selectRegionForTextRemoval, selectRegionForPanel, prepareManualEdit, useCharacterCard, referenceSummary,
-    letterboxPlan, resultCropRect, letteringInsertIndex, isLettering, contextRect, featherPlan, featherAlpha, estimateDrift, aspectMismatch,
+    letterboxPlan, resultCropRect, letteringInsertIndex, isLettering, contextRect, featherPlan, featherAlpha, seamDiffs, applySeamMatch, estimateDrift, aspectMismatch,
     findCutBoxes, expandRegion, effectiveSize, bakePatch, panelLineAlpha, combineAlpha, tr,
     GPT_MODEL_PRESETS, GPT_DEFAULT_MODEL, modelPresetFor };
 })();

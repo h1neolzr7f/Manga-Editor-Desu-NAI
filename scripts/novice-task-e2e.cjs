@@ -220,6 +220,13 @@ async function main() {
       null, { timeout: REAL_GPT ? 400000 : 60000 });
     const preview = await page.locator('#mangaGptPreview img, #mangaGptPreview canvas, .manga-gpt-preview img').first().isVisible().catch(() => false);
     const status = await page.locator('#mangaGptStatus').textContent();
+    // before/after toggle on the preview (not a key op: optional check before applying)
+    const cmp = await page.evaluate(async () => {
+      const b = document.getElementById('mangaGptCompare'), pv = document.getElementById('mangaGptPreview');
+      if (!b || b.hidden) return { visible: false };
+      const result = pv.src; b.click(); const orig = pv.src, pressed = b.getAttribute('aria-pressed'), label = b.textContent;
+      b.click(); return { visible: true, flipped: orig !== result, back: pv.src === result, pressed, label };
+    });
     await op.click(page.locator('#mangaGptApply'), '应用为图层');
     await page.waitForFunction(() => canvas.getObjects().some(o => o.name === 'GPT 局部改图'), null, { timeout: 30000 });
     await waitIdle();
@@ -228,10 +235,12 @@ async function main() {
       return { left: Math.floor(r.left), top: Math.floor(r.top), width: Math.ceil(r.width), height: Math.ceil(r.height) }; });
     const d = await diff(before, after, rect);
     const size1 = await canvasSize();
+    const seamInfo = await page.evaluate(() => { const o = canvas.getObjects().find(o => o.name === 'GPT 局部改图'); const c = o && o.mangaGptCrop; return c ? { seamMatch: c.seamMatch, feather: c.feather } : null; });
     pageShots.p1 = after;
     await snap('gpt-after-apply');
-    return { pass: d.changed > 0 && d.outside === 0 && size0.join() === size1.join() && (REAL_GPT || mock.calls.length === calls0 + 1),
-      detail: { selection: sel.slice(0, 60), preview, status: status.slice(0, 60), rect, ...d, size: size1, calls: REAL_GPT ? 'real' : mock.calls.length - calls0,
+    return { pass: d.changed > 0 && d.outside === 0 && size0.join() === size1.join() && (REAL_GPT || mock.calls.length === calls0 + 1) &&
+      cmp.visible && cmp.flipped && cmp.back && cmp.pressed === 'true' && /看生成结果/.test(cmp.label) && !!seamInfo,
+      detail: { selection: sel.slice(0, 60), preview, compare: cmp, seam: seamInfo, status: status.slice(0, 60), rect, ...d, size: size1, calls: REAL_GPT ? 'real' : mock.calls.length - calls0,
         model: REAL_GPT ? null : (mock.calls[mock.calls.length - 1] || {}).model } };
   });
   await page.locator('#mangaGptClose').click().catch(() => {});

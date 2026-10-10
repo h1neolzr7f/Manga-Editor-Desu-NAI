@@ -263,6 +263,33 @@ elements.mangaGptStatus.textContent = savedRegionStatus;
   const all = { left: true, right: true, top: true, bottom: true };
   assert(api.featherAlpha(0, 50, 100, 100, 10, all) < 0.1 && api.featherAlpha(50, 50, 100, 100, 10, all) === 1);
   assert.equal(api.featherAlpha(0, 50, 100, 100, 10, { left: false, right: true, top: true, bottom: true }), 1);
+  // Seam match: a patch 20 levels lighter than the page meets it at the interior edges, fades to 0 inside.
+  {
+    const W = 40, H = 40, px = (v, a = 255) => [v, v, v, a];
+    const orig = new Uint8ClampedArray(W * H * 4), pat = new Float32Array(W * H * 4);
+    for (let k = 0; k < W * H; k++) { orig.set(px(100), k * 4); pat.set(px(120), k * 4); }
+    const sides = { left: true, right: false, top: true, bottom: false };
+    const d = api.seamDiffs(pat, orig, W, H, sides);
+    assert.deepEqual(Object.keys(d).sort(), ['left', 'top'], 'only interior sides are measured');
+    assert(Math.abs(d.left[0] + 20) < 0.01 && Math.abs(d.top[2] + 20) < 0.01, 'measures -20 per channel');
+    assert(api.applySeamMatch(pat, W, H, d, 10) > 0);
+    assert(Math.abs(pat[(20 * W + 0) * 4] - 100) < 0.5, 'left edge pulled to the page tone');
+    assert(Math.abs(pat[(20 * W + 30) * 4] - 120) < 0.01, 'centre/right keeps model colour');
+    assert(Math.abs(pat[0] - 100) < 0.5, 'corner where two sides meet is not over-corrected');
+    // transparent original (lettering/transparent page) is ignored; huge differences are clamped
+    const o2 = new Uint8ClampedArray(W * H * 4); const p2 = new Float32Array(W * H * 4);
+    for (let k = 0; k < W * H; k++) { o2.set(px(0, 0), k * 4); p2.set(px(200), k * 4); }
+    assert.equal(Object.keys(api.seamDiffs(p2, o2, W, H, sides)).length, 0, 'no opaque original -> no correction');
+    // a big step is changed content, not drift: left alone (no tinted band)
+    for (let k = 0; k < W * H; k++) { o2.set(px(0), k * 4); }
+    assert.equal(Object.keys(api.seamDiffs(p2, o2, W, H, sides)).length, 0, 'content change is not corrected');
+    // half of the left edge is changed content (other colour), half is a -20 drift: only the drift half is corrected
+    const H3 = 200, o3 = new Uint8ClampedArray(W * H3 * 4), p3 = new Float32Array(W * H3 * 4);
+    for (let y = 0; y < H3; y++) for (let x = 0; x < W; x++) { const k = (y * W + x) * 4; o3.set(px(100), k); p3.set(y < 100 ? [220, 40, 40, 255] : px(120), k); }
+    const d3 = api.seamDiffs(p3, o3, W, H3, { left: true });
+    assert(Math.abs(d3.left[190 * 3] + 20) < 0.5, 'drift half measured');
+    assert(Math.abs(d3.left[2 * 3]) < 0.5, 'changed-content half not tinted');
+  }
   // Context around a corner selection is clipped to the page; the inner mapping is unchanged.
   const cplan = api.letterboxPlan(400, 100, '1024x1024');
   const cr = api.contextRect({ left: 0, top: 0, width: 400, height: 100 }, cplan, 1000, 1000);
