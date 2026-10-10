@@ -5,7 +5,7 @@
   "description": "Manga Editor Desu · nai学长魔改版 — unofficial NovelAI one-click fork",
   "type": "module",
   "scripts": {
-    "test": "node scripts/layout-smoke-test.cjs && npm run test:editor-regressions && npm run test:gpt-region && npm run test:gpt-i18n && npm run test:nai-status && npm run test:smart-text && npm run test:page-structure && npm run test:edit-planner && npm run test:bubble && npm run test:character-bible && npm run test:ink-mask && node scripts/manga-model-request-test.cjs && node scripts/tone-target-apply-test.cjs && node scripts/service-request-test.cjs && node scripts/cjk-break-test.cjs",
+    "test": "node scripts/layout-smoke-test.cjs && npm run test:editor-regressions && npm run test:gpt-region && npm run test:gpt-i18n && npm run test:nai-status && npm run test:smart-text && npm run test:page-structure && npm run test:edit-planner && npm run test:bubble && npm run test:character-bible && npm run test:ink-mask && node scripts/manga-model-request-test.cjs && node scripts/tone-target-apply-test.cjs && node scripts/service-request-test.cjs && node scripts/cjk-break-test.cjs && node scripts/auto-swap-test.cjs",
     "lint": "eslint js --max-warnings 0",
     "lint:fix": "eslint js/ --ext .js --fix",
     "format": "node scripts/remove-spaces.cjs",

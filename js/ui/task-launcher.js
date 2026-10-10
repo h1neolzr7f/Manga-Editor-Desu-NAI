@@ -27,8 +27,9 @@ fix:'Remove the unwanted object, mark or blemish inside the selected area and re
 var TASKS=[
 {id:'page',icon:'auto_stories',title:'画一页漫画',desc:'选格子数，写每格画面和对白，一键生成整页',kind:'page',
 steps:['选 3 格或 4 格','写每格的画面（和对白，可不填）','点「生成整页」：AI 画好每一格并放好对白气泡']},
-{id:'swap',icon:'switch_account',title:'换角色',desc:'把画里的人换成你的角色',kind:'gpt',
-steps:['在画布上拖一个框，框住要换的人物','上传新角色的参考图（推荐）','点「生成预览」，可用「对比原图」看前后','满意就点「作为新图层应用」'],
+{id:'swap',icon:'switch_account',title:'换角色',desc:'自动找出人物，点一下换成你的角色',kind:'autoswap',
+steps:['点一下要换掉的人物（已自动找出，橙色虚线）','上传新角色的参考图','点「生成」：自动擦掉原角色、补背景、按原姿势画新角色','满意就点「应用」；其他格里的同一角色可一键换掉'],
+manualSteps:['在画布上拖一个框，框住要换的人物','上传新角色的参考图（推荐）','点「生成预览」，可用「对比原图」看前后','满意就点「作为新图层应用」'],
 placeholder:'补充要求（可不填），例如：表情改成微笑',preset:GPT_PRESETS.swap},
 {id:'caption',icon:'translate',title:'改字幕',desc:'识别气泡里的字，改成新台词',kind:'caption',
 steps:['点「检测本页文字」（识别不到就点「手动框选字幕」）','在每条下面改成新台词','点「应用为可编辑图层」，旧字会自动盖掉']},
@@ -234,6 +235,7 @@ active={id:id,kind:t.kind,startApplied:0};
 updateHome();
 document.querySelectorAll('.task-btn').forEach(function(b){b.classList.toggle('is-active',b.dataset.task===id);});
 if(t.kind==='gpt')startGpt(t);
+else if(t.kind==='autoswap')startAutoSwap(t);
 else if(t.kind==='caption')startCaption(t);
 else if(t.kind==='layer')startLayer(t);
 else if(t.kind==='page')startPage(t);
@@ -247,6 +249,7 @@ document.querySelectorAll('.task-btn').forEach(function(b){b.classList.remove('i
 var h=$('mangaGptTaskHead');if(h)h.remove();
 var c=$('taskWizardCard');if(c)c.remove();
 cancelPick();
+if(window.AutoSwap&&AutoSwap.stop)AutoSwap.stop();
 if(was&&was.kind==='gpt'&&window.MangaGPTRegionEditor){
 MangaGPTRegionEditor.exitTask();
 var p=$('mangaGptPanel');if(p&&showHome!==undefined)p.hidden=true;
@@ -268,6 +271,17 @@ var panel=$('mangaGptPanel');
 var anchor=$('mangaGptServiceSummary')||(panel&&panel.children[1]);
 head(t,panel,anchor);
 markStep(0);
+}
+function startAutoSwap(t){
+if(!window.AutoSwap||!AutoSwap.start){toast('换角色还没准备好','请稍等页面加载完再试。',true);return;}
+var body=card(t);
+AutoSwap.start(body,{markStep:markStep,onApplied:function(){active.applied=(active.applied||0)+1;},
+manual:function(){
+// fall back to the v1 wizard: box select + GPT panel (kept for full manual control)
+var m={id:t.id,kind:'gpt',title:t.title+'（手动）',steps:t.manualSteps,placeholder:'补充要求（可不填），例如：表情改成微笑',preset:GPT_PRESETS.swap};
+var c=$('taskWizardCard');if(c)c.remove();
+active.kind='gpt';startGpt(m);
+}});
 }
 function startCaption(t){
 var api=window.MangaSmartTextEditor;

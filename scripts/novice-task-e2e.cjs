@@ -1141,11 +1141,21 @@ async function main() {
   };
   const steps = p => p.evaluate(() => Array.from(document.querySelectorAll('#mangaGptTaskHead li')).map(li => li.classList.contains('is-done') ? 'done' : li.classList.contains('is-current') ? 'cur' : '-'));
   const shown = (p, sel) => p.locator(sel).isVisible().catch(() => false);
+  // the ⋯ menu toggles; under load a click can land while it is closing — make sure it ends up open
+  const openMore = async p => {
+    for (let k = 0; k < 3; k++) {
+      if (await p.locator('#taskMoreMenu').isVisible().catch(() => false)) return;
+      await p.locator('#taskMore').click();
+      if (await p.locator('#taskMoreMenu').waitFor({ state: 'visible', timeout: 3000 }).then(() => true, () => false)) return;
+    }
+  };
   const gptWizard = async (taskId, extra) => {
     const { ctx, p, errors } = await beginnerEditor();
     try {
       const before = wizCalls.length;
       await op.click(p.locator('#taskBtn-' + taskId), '任务按钮');
+      // 换角色 opens the automatic v2 wizard; the box-select GPT path is one click away
+      if (taskId === 'swap') await op.click(p.locator('#autoSwapManual'), '改用手动框选');
       await p.waitForSelector('#mangaGptTaskHead', { timeout: 5000 });
       const simple = { sizeHidden: !(await shown(p, '#mangaGptSize')), modeHidden: !(await shown(p, '#mangaGptMode')), keyHidden: !(await shown(p, '#mangaGptKey')) };
       const step0 = await steps(p);
@@ -1192,21 +1202,21 @@ async function main() {
       await p.setViewportSize({ width: 1440, height: 900 }); await p.waitForTimeout(400);
       await op.click(p.locator('#taskMore'), '更多菜单'); const menuOpen = await p.locator('#taskMoreMenu').isVisible(); await p.keyboard.press('Escape'); const menuEsc = await p.locator('#taskMoreMenu').isHidden();
       const layoutOk = l => l.quick === 8 && l.tips && l.big && l.menuClosed && !l.sideMain.includes('网点') && !l.sideMain.includes('剧情') && l.inMore.includes('网点') && l.sideMain.includes('气泡') && l.sideMain.includes('文本') && !l.panelOpen && !l.overlap.length && l.barRows <= 2;
-      await p.locator('#taskMore').click(); await op.click(p.locator('#uiModeToggle'), '专业模式');
+      await openMore(p); await op.click(p.locator('#uiModeToggle'), '专业模式');
       const pro = { gptOpen: await shown(p, '#mangaGptOpen'), smartOpen: await shown(p, '#mangaSmartOpen'), tasksHidden: (await p.locator('#taskBar .task-btn:visible').count()) === 0,
         toolsBack: await p.evaluate(() => Array.from(document.querySelectorAll('#sidebar > .icon-wrapper')).some(w => /网点/.test(w.innerText))) };
       await p.reload({ waitUntil: 'domcontentloaded' }); await p.waitForFunction(() => !!document.getElementById('taskBar'), null, { timeout: 60000 });
       await p.keyboard.press('Escape');
       const proAfterReload = await p.evaluate(() => document.body.classList.contains('ui-pro'));
-      await p.locator('#taskMore').click(); await op.click(p.locator('#uiModeToggle'), '新手模式');
+      await openMore(p); await op.click(p.locator('#uiModeToggle'), '新手模式');
       const backToBeginner = (await p.locator('#taskBar .task-btn:visible').count()) === 7;
       const surface = () => p.evaluate(() => getComputedStyle(document.body).getPropertyValue('--ui-surface').trim());
       const darkSurface = await surface();
-      await p.locator('#taskMore').click(); await op.click(p.locator('#themeToggle'), '浅色/深色');
+      await openMore(p); await op.click(p.locator('#themeToggle'), '浅色/深色');
       const light = { cls: await p.evaluate(() => document.documentElement.classList.contains('light-mode') && !document.body.classList.contains('dark-mode')), changed: (await surface()) !== darkSurface };
       await p.reload({ waitUntil: 'domcontentloaded' }); await p.waitForFunction(() => !!document.getElementById('taskBar'), null, { timeout: 60000 });
       light.kept = await p.evaluate(() => document.body.classList.contains('light-mode'));
-      await p.keyboard.press('Escape'); await p.locator('#taskMore').click(); await op.click(p.locator('#themeToggle'), '切回深色');
+      await p.keyboard.press('Escape'); await openMore(p); await op.click(p.locator('#themeToggle'), '切回深色');
       light.back = await p.evaluate(() => document.body.classList.contains('dark-mode') && !document.documentElement.classList.contains('light-mode'));
       return { pass: homeShown && afterImportHidden && tasks === 7 && proEntriesHidden && pro.gptOpen && pro.smartOpen && pro.tasksHidden && pro.toolsBack && layoutOk(lay1440) && layoutOk(lay1280) && menuOpen && menuEsc && proAfterReload && backToBeginner && light.cls && light.changed && light.kept && light.back && !errors.length,
         detail: { lay1440, lay1280, menuOpen, menuEsc, homeShown, afterImportHidden, tasks, proEntriesHidden, pro, proAfterReload, backToBeginner, light, errors } };
@@ -1495,6 +1505,7 @@ async function main() {
       // 换角色: smart pick → lasso selection in the GPT panel (no request sent)
       await p.locator('#taskBack').click().catch(() => {});
       await click('#taskBtn-swap', 'swap');
+      await click('#autoSwapManual', 'manual');
       await p.locator('#taskSmartPick').waitFor({ state: 'visible', timeout: 15000 });
       await click('#taskSmartPick', 'swap');
       await tap(600, 1510, 'swap');
@@ -1509,6 +1520,80 @@ async function main() {
           swap.ws.region && /智能点选/.test(swap.status) && swap.overlayGone && !errors.length,
         detail: { clicks, firstMs, againMs, tinted, added, s1: s1.candidates.map(c => c.area), s2: s2.candidates.map(c => c.area), layer, undone, swap, errors } };
     } catch (e) { await p.screenshot({ path: path.join(OUT, 'flow34-fail.png') }).catch(() => {}); throw e;
+    } finally { await ctx.close(); }
+  });
+
+  await flow('35 换角色 v2（全自动）：自动找人物 → 点一下选目标 → 参考图 → 生成（擦原角色补背景 + 同姿势新角色）→ 对比 → 应用为两个图层（一步撤销）→ 其他格同一角色一键换', async () => {
+    const st = await (await fetch(SERVER + '/manga-smart/status', { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: SERVER }, body: '{}' })).json().catch(() => ({}));
+    if (!(st.samSelect && st.samSelect.ready && st.samSelect.cached && st.characters && st.characters.cached)) return { pass: true, detail: { skipped: 'isnet-anime / SAM not installed (CI): 换角色 falls back to the manual GPT-panel wizard', st: st.characters } };
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'zh-CN' });
+    const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort()); p.on('dialog', d => d.accept());
+    const errors = []; p.on('pageerror', e => errors.push(e.message));
+    const calls = [];
+    await p.route('**/gpt-image-proxy', async route => {
+      const body = route.request().postDataJSON();
+      const kind = /Remove the person/.test(body.prompt) ? 'bg' : /Redraw the main person/.test(body.prompt) ? 'char' : 'other';
+      calls.push({ kind, size: body.size, refs: (body.references || []).length, model: body.model });
+      const image = await p.evaluate(async ({ src, size, kind }) => {
+        const [w, h] = size.split('x').map(Number); const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d');
+        const i = new Image(); i.src = src; await i.decode();
+        if (kind === 'bg') { g.drawImage(i, 0, 0, w, h); g.fillStyle = 'rgba(235,235,235,.85)'; g.fillRect(w * .2, h * .1, w * .6, h * .85); }
+        else { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.fillStyle = '#d0507a'; g.beginPath(); g.ellipse(w / 2, h * .55, w * .22, h * .38, 0, 0, 7); g.fill();
+          g.fillStyle = '#f2d2b6'; g.beginPath(); g.arc(w / 2, h * .2, w * .12, 0, 7); g.fill(); }
+        return c.toDataURL('image/png');
+      }, { src: body.image, size: body.size, kind });
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, image }) });
+    });
+    try {
+      await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
+      await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0 && !!document.getElementById('taskBar'), null, { timeout: 60000 });
+      await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {}); await p.keyboard.press('Escape');
+      await p.locator('#imageInput').setInputFiles(path.join(__dirname, 'fixtures', 'ctd', 'page-4.png'));
+      await p.waitForFunction(() => canvas.getObjects().some(o => o.type === 'image'), null, { timeout: 30000 }); await p.waitForTimeout(800);
+      await p.locator('#taskMore').click(); await p.locator('#uiModeToggle').click();
+      const clicks = { n: 0 }; const click = async sel => { await p.locator(sel).click(); clicks.n++; };
+      const t0 = Date.now();
+      await click('#taskBtn-swap');
+      await p.waitForFunction(() => /找到 \d+ 个人物|没有自动找到/.test((document.getElementById('autoSwapStatus') || {}).textContent || ''), null, { timeout: 180000 });
+      const detectMs = Date.now() - t0;
+      const found = await p.evaluate(() => AutoSwap.state());
+      await p.waitForTimeout(300); await p.screenshot({ path: path.join(OUT, 'swap2-1-detected.png') });
+      const at = async (fx, fy) => p.evaluate(([x, y]) => { const u = canvas.upperCanvasEl.getBoundingClientRect(); return { x: u.left + x * u.width / canvas.getWidth(), y: u.top + y * u.height / canvas.getHeight() }; }, [fx, fy]);
+      const q = await at(150, 660); await p.mouse.click(q.x, q.y); clicks.n++;          // the girl in panel 2
+      await p.waitForFunction(() => AutoSwap.state() && AutoSwap.state().target, null, { timeout: 30000 });
+      await p.locator('#autoSwapRef').setInputFiles(path.join(__dirname, 'fixtures', 'novice', 'reference.png')); clicks.n++;
+      await p.waitForFunction(() => !document.getElementById('autoSwapGo').disabled, null, { timeout: 10000 });
+      await click('#autoSwapGo');
+      await p.waitForFunction(() => /预览好了|生成失败/.test(document.getElementById('autoSwapStatus').textContent), null, { timeout: 180000 });
+      const afterGen = await p.evaluate(() => ({ status: document.getElementById('autoSwapStatus').textContent.slice(0, 60), st: AutoSwap.state() }));
+      await p.screenshot({ path: path.join(OUT, 'swap2-2-preview.png') });
+      await click('#autoSwapCompare'); const showing = await p.locator('#autoSwapPreview').getAttribute('data-showing'); await click('#autoSwapCompare');
+      const before = await p.evaluate(() => canvas.getObjects().length);
+      await click('#autoSwapApply');
+      await p.waitForFunction(() => canvas.getObjects().some(o => o.autoSwap === 'character'), null, { timeout: 15000 });
+      const layers = await p.evaluate(n => ({ added: canvas.getObjects().filter(o => o.autoSwap).length, total: canvas.getObjects().length - n, names: canvas.getObjects().filter(o => o.autoSwap).map(o => o.name),
+        order: canvas.getObjects().map(o => o.autoSwap || (o.customType || o.type)).slice(-6) }), before);
+      await p.screenshot({ path: path.join(OUT, 'swap2-3-applied.png') });
+      cur.ops.push('换角色 v2：点人物 → 参考图 → 生成 → 应用');
+      await p.keyboard.press('Control+z'); await p.waitForTimeout(900);
+      const undone = await p.evaluate(() => !canvas.getObjects().some(o => o.autoSwap));
+      await p.keyboard.press('Control+y'); await p.waitForTimeout(900);
+      const redone = await p.evaluate(() => canvas.getObjects().filter(o => o.autoSwap).length);
+      // propagation: other panels with the same character
+      const matches = (await p.evaluate(() => AutoSwap.state())).matches;
+      let propagated = null;
+      if (matches.length) {
+        const n0 = await p.evaluate(() => canvas.getObjects().filter(o => o.autoSwap).length);
+        await click('#autoSwapAll');
+        await p.waitForFunction(() => /已换好/.test(document.getElementById('autoSwapStatus').textContent), null, { timeout: 300000 });
+        propagated = await p.evaluate(n => ({ layers: canvas.getObjects().filter(o => o.autoSwap).length - n, status: document.getElementById('autoSwapStatus').textContent.slice(0, 50) }), n0);
+        await p.screenshot({ path: path.join(OUT, 'swap2-4-propagated.png') });
+      }
+      return { pass: found.chars >= 3 && afterGen.st.result && showing === 'before' && layers.added === 2 && undone && redone === 2 &&
+          calls.filter(c => c.kind === 'bg').length >= 1 && calls.filter(c => c.kind === 'char' && c.refs === 1).length >= 1 &&
+          (!propagated || propagated.layers === 2 * matches.length) && !errors.length,
+        detail: { clicks: clicks.n, detectMs, found, target: afterGen.st.target, info: afterGen.st.info, layers, undone, redone, matches, propagated, calls: calls.length, errors } };
+    } catch (e) { await p.screenshot({ path: path.join(OUT, 'flow35-fail.png') }).catch(() => {}); throw e;
     } finally { await ctx.close(); }
   });
 

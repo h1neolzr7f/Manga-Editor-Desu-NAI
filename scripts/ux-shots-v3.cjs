@@ -59,7 +59,7 @@ async function main() {
     await shot(s.p, `${TAG}-1-launcher`, '新手首页（1440x900）'); await s.ctx.close();
     s = await open(browser); let p = s.p;
     await shot(p, `${TAG}-2-editor`, '新手模式·已导入一页（1440x900）');
-    await p.locator('#taskBtn-swap').click(); await drag(p, [0.3, 0.1], [0.75, 0.6]); await p.waitForTimeout(500);
+    await p.locator('#taskBtn-swap').click(); await p.locator('#autoSwapManual').click(); await drag(p, [0.3, 0.1], [0.75, 0.6]); await p.waitForTimeout(500);
     await shot(p, `${TAG}-3-wizard`, '换角色向导·已框选（1440x900）'); await s.ctx.close();
     s = await open(browser, { pro: true }); await shot(s.p, `${TAG}-4-pro`, '专业模式·已导入一页（1440x900）'); await s.ctx.close();
     s = await open(browser, { vp: { width: 1280, height: 800 } }); p = s.p;

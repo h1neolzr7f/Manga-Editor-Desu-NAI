@@ -58,7 +58,7 @@ async function shotsMock(browser) {
   await s.ctx.close();
   s = await open(browser); const p = s.p;
   await shot(p, '02-taskbar-page-loaded', '导入后首页让位：画布上方一排任务按钮 + 服务设置 + 专业模式');
-  await p.locator('#taskBtn-swap').click(); await drag(p, [0.3, 0.1], [0.75, 0.6]);
+  await p.locator('#taskBtn-swap').click(); await p.locator('#autoSwapManual').click(); await drag(p, [0.3, 0.1], [0.75, 0.6]);
   const fc = p.waitForEvent('filechooser'); await p.locator('#mangaGptReferences').click(); await (await fc).setFiles(path.join(FIX, 'reference.png'));
   await p.waitForTimeout(600);
   await shot(p, '03-wizard-swap-steps', '换角色向导：已框选人物、已上传参考图，第 3 步高亮；尺寸/模型/Key 等参数都隐藏');
@@ -110,7 +110,7 @@ async function shotsMock(browser) {
 async function realRuns(browser) {
   const s = await open(browser); const p = s.p;
   let t0 = Date.now();
-  await p.locator('#taskBtn-swap').click(); await drag(p, [0.3, 0.1], [0.75, 0.6]);
+  await p.locator('#taskBtn-swap').click(); await p.locator('#autoSwapManual').click(); await drag(p, [0.3, 0.1], [0.75, 0.6]);
   const fc = p.waitForEvent('filechooser'); await p.locator('#mangaGptReferences').click(); await (await fc).setFiles(process.env.REAL_REFERENCE || path.join(FIX, 'reference.png'));
   await p.locator('#mangaGptPrompt').fill('保持原来的姿势和构图');
   await p.locator('#mangaGptGenerate').click(); await gptResult(p, 600000);

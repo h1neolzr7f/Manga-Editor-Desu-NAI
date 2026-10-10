@@ -16,6 +16,8 @@ on:
       - "manga_text_detector.py"
       - "manga_sam_select.py"
       - "scripts/manga-sam-select-test.py"
+      - "scripts/manga-character-detect-test.py"
+      - "manga_character_detect.py"
       - "scripts/manga-text-detector-test.py"
       - "scripts/fixtures/ctd/**"
       - "scripts/manga-lama-inpaint-test.py"
@@ -56,3 +58,4 @@ jobs:
           python scripts/manga-model-guard-test.py
           python scripts/manga-text-detector-test.py
           python scripts/manga-sam-select-test.py
+          python scripts/manga-character-detect-test.py
