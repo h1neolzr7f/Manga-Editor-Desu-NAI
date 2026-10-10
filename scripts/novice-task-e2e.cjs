@@ -1169,7 +1169,8 @@ async function main() {
   await flow('23 新手首页：首次打开就是任务入口；导入后首页让位；专业模式可切换且刷新后保持', async () => {
     const { ctx, p, errors, homeShown } = await beginnerEditor();
     try {
-      const afterImportHidden = !(await shown(p, '#taskHome'));
+      // the helper imported pages; the home card hides asynchronously (slower on CI runners)
+      const afterImportHidden = await p.locator('#taskHome').waitFor({ state: 'hidden', timeout: 10000 }).then(() => true, () => false);
       const tasks = await p.locator('#taskBar .task-btn:visible').count();
       const proEntriesHidden = !(await shown(p, '#mangaGptOpen')) && !(await shown(p, '#mangaSmartOpen'));
       // v3 layout: frequent actions in the bar (shortcut in tooltip), rare ones in ⋯, rare sidebar tools in 更多, canvas not covered
