@@ -224,3 +224,23 @@ NAI_REAL_API=1 NAI_TEST_ENV_FILE=<仓库外> NAI_REAL_MAX_CALLS=1 node scripts/n
 | full-feature E2E 真实角色替换 / 文字生图 | gpt-image-2.5 | NOT TESTED（10:02–10:07 中继持续 530） |
 
 - 质量对比（`docs/acceptance/gpt-image-2.5/caseA-compare.png`）：gpt-image-2.5 保留了原图的回头姿势、手臂位置和百褶裙构图，只把发色/发卡/雨衣换成参考角色；gpt-image-2 改了姿势、把裙子换成牛仔裤，下边缘可见一条接缝。2.5 的选区内平均差值 29.8（gpt-image-2 为 43.4），即改动更克制。只有 1 个用例对比，结论是初步的。
+
+## 8.z 中转站恢复后的真实 GPT 验收（2026-10-10 14:28–14:41 UTC+8）
+
+- 轮询 `/v1/models`：14:28:22 530 → 14:30:22 530 → 14:32:22 502 → **14:34:23 200**（`docs/acceptance/gpt-image-2.5/run-20261010-1436/relay-poll.log`）。
+- 图像模型：`gpt-image-2`、`gpt-image-2.5`、`gpt-image-2.5-flare`、`gpt-image-2.5-sunburst`（`relay-models-1435.json`）。
+- 共 7 次请求：5 次到达模型，2 次中转 502（0.5 s 内返回，未出图）。
+
+| 用例 | 模型 | 结果 | 证据 |
+|---|---|---|---|
+| 同案 B（同 A 选区，仅文字描述） | gpt-image-2.5 | ✅ HTTP 200，32.5 s 出图 | `run-20261010-1436/gpt-image-2.5/` |
+| 同案 B | gpt-image-2 | ❌ 两次中转 HTTP 502（Cloudflare Bad gateway，0.5 s），同时段 2.5 正常 → 判断为中转对 gpt-image-2 的上游路由故障 | `run-20261010-1436/gpt-image-2*/` |
+| 新手真实任务 flow 1+2（框选人物+参考图+描述→生成→预览→应用，默认 gpt-image-2.5） | gpt-image-2.5 | ✅ 4 次关键操作；选区内改变 366 034 像素，选区外 0，页尺寸不变 | `docs/acceptance/novice-20261010/real-gpt-20261010-1437/` |
+| 生成中途点「取消」 | gpt-image-2.5 | ✅「已取消请求。」，可再次生成，应用按钮保持禁用 | `flow22-cancel.*` |
+| 生成中途刷新页面 | gpt-image-2.5 | ✅ 编辑器正常恢复，GPT 面板可打开，无卡死加载 | `flow22-reload.*` |
+| 生成中途断网（浏览器 offline） | gpt-image-2.5 | ✅ 请求经本机代理（127.0.0.1）已在途，仍正常出图；界面可继续用 | `flow22-offline.*` |
+
+说明：
+- gpt-image-2.5 vs gpt-image-2 的同案画质对比仍只有 A 案（`docs/acceptance/gpt-image-2.5/caseA-compare.png`，早前的运行）；本次 B 案 gpt-image-2 两次 502，没有可比的出图。
+- 「断网」用例里，浏览器断网切不断已经发到本机代理的请求。真正的「代理到中转断网」没有测：需要在请求途中断开本机外网，box 上做不到。
+- 新增 `scripts/novice-task-e2e.cjs` flow 22，只在 `NOVICE_REAL_GPT=1` 下运行；mock 模式下跳过。

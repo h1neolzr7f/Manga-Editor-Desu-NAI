@@ -852,6 +852,66 @@ async function main() {
       detail: { project: path.basename(projFile), restored, imported: imgs1 > imgs0, shown, a11y, escClosed, cancelClosed, kept, cleared, errors: errors.slice(0, 4) } };
   });
 
+  await flow('22 真实生成中途：取消 / 刷新页面 / 断网（仅 NOVICE_REAL_GPT=1）', async () => {
+    if (!REAL_GPT) return { pass: true, detail: { skipped: 'real-only: mid-generation interrupts need a slow real request' } };
+    const res = {};
+    for (const mode of ['cancel', 'reload', 'offline']) {
+      const { ctx, p, errors } = await freshEditor();
+      await p.locator('#mangaGptOpen').click();
+      await p.locator('#mangaGptUrl').fill(BASE_URL);
+      const selecting = await p.evaluate(() => !!document.querySelector('.manga-gpt-selection'));
+      if (!selecting) await p.locator('#mangaGptSelect').click();
+      const scr = (x, y) => p.evaluate(([x, y]) => { const v = canvas.viewportTransform, r = canvas.upperCanvasEl.getBoundingClientRect();
+        return [r.left + (x * v[0] + v[4]) * r.width / canvas.getWidth(), r.top + (y * v[3] + v[5]) * r.height / canvas.getHeight()]; }, [x, y]);
+      const [ax, ay] = await scr(200, 60), [bx, by] = await scr(780, 1000);
+      await p.mouse.move(ax, ay); await p.mouse.down(); await p.mouse.move(bx, by, { steps: 8 }); await p.mouse.up();
+      await p.locator('#mangaGptPrompt').fill('把这个女孩的头发改成银色，保持画风');
+      const t0 = Date.now();
+      await p.locator('#mangaGptGenerate').click();
+      await p.waitForTimeout(4000);
+      const busy = await p.evaluate(() => { const c = document.getElementById('mangaGptCancel'); return !!c && !c.disabled; });
+      let out = { busyAt4s: busy };
+      if (mode === 'cancel') {
+        await p.locator('#mangaGptCancel').click();
+        await p.waitForFunction(() => document.getElementById('mangaGptCancel').disabled, null, { timeout: 30000 }).catch(() => {});
+        out.status = (await p.locator('#mangaGptStatus').textContent()).trim().slice(0, 80);
+        out.generateEnabled = await p.evaluate(() => !document.getElementById('mangaGptGenerate').disabled);
+        out.applyEnabled = await p.evaluate(() => !document.getElementById('mangaGptApply').disabled);
+        out.ok = out.generateEnabled && !out.applyEnabled;
+      } else if (mode === 'reload') {
+        await p.reload({ waitUntil: 'domcontentloaded' });
+        await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 });
+        await p.waitForTimeout(1500);
+        if (await p.locator('#autoSaveRecoveryDialog').isVisible().catch(() => false)) await p.keyboard.press('Escape');
+        await p.locator('#tutorialSkipBtn').click({ timeout: 3000 }).catch(() => {});
+        await p.locator('#mangaGptOpen').click();
+        out.panelOpens = await p.locator('#mangaGptPanel').isVisible();
+        out.generateEnabled = await p.evaluate(() => !document.getElementById('mangaGptGenerate').disabled);
+        out.stuckLoading = await p.evaluate(() => !!document.querySelector('.op-loading, .loading-overlay.show'));
+        out.ok = out.panelOpens && !out.stuckLoading;
+      } else {
+        await ctx.setOffline(true);
+        await p.waitForFunction(() => document.getElementById('mangaGptStatus').classList.contains('is-error') || document.getElementById('mangaGptCancel').disabled,
+          null, { timeout: 420000 }).catch(() => {});
+        out.status = (await p.locator('#mangaGptStatus').textContent()).trim().slice(0, 120);
+        out.isError = await p.evaluate(() => document.getElementById('mangaGptStatus').classList.contains('is-error'));
+        out.applyEnabled = await p.evaluate(() => !document.getElementById('mangaGptApply').disabled);
+        await ctx.setOffline(false);
+        out.generateEnabled = await p.evaluate(() => !document.getElementById('mangaGptGenerate').disabled);
+        // either the in-flight request (served by the local proxy) still finished, or a readable Chinese error
+        out.readable = !/<html|<!doctype/i.test(out.status) && /[\u4e00-\u9fff]/.test(out.status);
+        out.ok = out.readable && out.generateEnabled;
+      }
+      out.seconds = Math.round((Date.now() - t0) / 1000);
+      out.errors = errors.slice(0, 3);
+      await p.screenshot({ path: path.join(OUT, `flow22-${mode}.png`) });
+      fs.writeFileSync(path.join(OUT, `flow22-${mode}.json`), JSON.stringify(out, null, 1));
+      res[mode] = out;
+      await ctx.close();
+    }
+    return { pass: Object.values(res).every(r => r.ok && r.errors.length === 0), detail: res };
+  });
+
   await flow('7 生成中切页→结果不得贴到别的页→切回后再应用', async () => {
     if (!(await has('mangaGptOpen'))) return { pass: false, detail: { unavailable: 'no GPT region edit in this version' } };
     if (REAL_GPT) return { pass: true, detail: { skipped: 'mock-only timing test' } };
