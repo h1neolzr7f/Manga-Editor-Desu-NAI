@@ -82,3 +82,22 @@ console.log('PASS smart text geometry, OCR drafts and safe erase color guards');
   assert.equal(capped.fontSize, 45, 'capped at the original glyph size');
   console.log('PASS fitText maxSize keeps replacement near the original lettering size');
 }
+
+// fitText: a whole paragraph pasted into a small vertical bubble must fit BOTH ways
+// (column length and column count), shrinking below the old 55% floor; impossible -> overflow flag.
+{
+  const measure = (t, s) => Array.from(t).length * s;
+  const box = { x: 902, y: 157, width: 157, height: 286 };
+  const para = '这是一个非常非常长的替换文本，用来测试新手把整段翻译粘进一个小气泡时会发生什么。'.repeat(4);
+  const fit = core.fitText(para, box, true, measure, 45);
+  const cols = fit.text.split('\n');
+  assert.ok(Math.max(...cols.map(c => Array.from(c).length)) * fit.fontSize * 1.02 <= box.height + 0.5, 'columns fit the bubble height');
+  assert.ok(cols.length * fit.fontSize * 1.16 <= box.width + 0.5 || fit.overflow, 'column stack fits the width or is flagged');
+  assert.ok(fit.fontSize < 24, 'shrinks below the old 24px floor (was spilling ~3x the bubble width)');
+  const huge = core.fitText(para.repeat(10), { x: 0, y: 0, width: 40, height: 60 }, true, measure, 45);
+  assert.equal(huge.overflow, true, 'impossible fit is reported');
+  assert.equal(huge.fontSize, 10);
+  const easy = core.fitText('谢谢你', box, true, measure, 45);
+  assert.ok(!easy.overflow, 'normal caption not flagged');
+  console.log('PASS fitText long paragraph fits both ways or flags overflow');
+}

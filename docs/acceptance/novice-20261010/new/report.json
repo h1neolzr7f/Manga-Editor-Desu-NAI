@@ -1,5 +1,5 @@
 {
-  "when": "2026-10-10T04:13:39.131Z",
+  "when": "2026-10-10T04:21:53.933Z",
   "gpt": "MOCK",
   "flows": [
     {
@@ -12,7 +12,7 @@
         "Import image",
         "page 1"
       ],
-      "seconds": 17.6,
+      "seconds": 17.7,
       "screenshot": "artifacts/novice/01-1_首次启动并导入_2_页漫画.png",
       "notes": [],
       "detail": {
@@ -40,7 +40,7 @@
         "生成",
         "应用为图层"
       ],
-      "seconds": 2.9,
+      "seconds": 2.7,
       "screenshot": "artifacts/novice/03-2_框选人物_参考图_描述_生成_预览_应用.png",
       "notes": [],
       "detail": {
@@ -72,7 +72,7 @@
         "识别",
         "应用字幕"
       ],
-      "seconds": 2.2,
+      "seconds": 2.4,
       "screenshot": "artifacts/novice/04-3_识别日文气泡_修正_去字_替换中文字幕.png",
       "notes": [
         "OCR: [\"ありがとう\"]"
@@ -117,7 +117,7 @@
         "page 1",
         "Ctrl+Z after reopen"
       ],
-      "seconds": 15.9,
+      "seconds": 16.2,
       "screenshot": "artifacts/novice/05-4_撤销_重做_切页_保存_关闭_重开.png",
       "notes": [],
       "detail": {
@@ -164,7 +164,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 8,
+      "seconds": 8.2,
       "screenshot": "artifacts/novice/07-8_导入含坏文件的一批图_立刻刷新_恢复对话框找回全部页.png",
       "notes": [],
       "detail": {
@@ -184,7 +184,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 6,
+      "seconds": 6.4,
       "screenshot": "artifacts/novice/08-9_导入超大图_提示已自动缩小_中文_8_语言文案_.png",
       "notes": [],
       "detail": {
@@ -207,7 +207,7 @@
         "未填 Token",
         "生成 5 页样稿"
       ],
-      "seconds": 3.3,
+      "seconds": 3.6,
       "screenshot": "artifacts/novice/09-10_没填_NovelAI_Token_就点_生成_5_页样稿_看得懂的提示_不.png",
       "notes": [],
       "detail": {
@@ -235,7 +235,7 @@
         "page 1",
         "应用（回到第 1 页）"
       ],
-      "seconds": 41.7,
+      "seconds": 41.2,
       "screenshot": "artifacts/novice/10-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
       "notes": [],
       "detail": {
@@ -251,7 +251,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 16.5,
+      "seconds": 16.8,
       "screenshot": "artifacts/novice/11-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
       "notes": [],
       "detail": {

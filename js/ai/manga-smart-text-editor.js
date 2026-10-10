@@ -226,7 +226,8 @@
       state.sourceImage = image;
       state.drafts = core.mapDetections(result.regions, c.getWidth(), c.getHeight())
         .map(d => ({ ...d, active: true }));
-      message('识别到 ' + state.drafts.length + ' 条候选文字。可逐条修改后一次应用。');
+      message(state.drafts.length ? '识别到 ' + state.drafts.length + ' 条候选文字。可逐条修改后一次应用。'
+        : '这一页没有识别到文字。如果其实有字，可以点「手动框选字幕」把文字区域框出来再识别。');
       renderDrafts();
       const pageUI = window.MangaPageStructureUI;
       if (pageUI && typeof pageUI.refreshFromOCR === 'function') pageUI.refreshFromOCR();
@@ -374,7 +375,7 @@
     if (!selected.length) return message('没有选中要添加的文字。', true);
     state.busy = true;
     $('mangaSmartApply').disabled = true;
-    let processed = 0, skipped = 0;
+    let processed = 0, skipped = 0, overflow = 0;
     try {
       const original = await loadImage(snapshot(c));
       const pixelCanvas = document.createElement('canvas');
@@ -403,6 +404,7 @@
         // original glyph size = the tight text box's cross dimension (one column / one line)
         const glyph = area === box ? 0 : (vertical ? box.width : box.height) * 1.1;
         const fit = core.fitText(candidate.text, area, vertical, measureText, glyph);
+        if (fit.overflow) overflow++;
         const TextClass = vertical ? fabric.VerticalTextbox : fabric.Textbox;
         const lineHeight = 1.16;
         const blockHeight = vertical ? area.height : fit.lines * fit.fontSize * lineHeight;
@@ -450,7 +452,8 @@
       if (window.MangaPageStructureUI) window.MangaPageStructureUI.invalidate(
         '字幕图层已应用，页面结构可能变化，请重新分析。');
       message('已添加 ' + processed + ' 组可编辑字幕及安全遮盖，跳过复杂背景 ' +
-        skipped + ' 组。保留原画布，支持撤销和保存。');
+        skipped + ' 组。保留原画布，支持撤销和保存。' +
+        (overflow ? ' 有 ' + overflow + ' 组文字太长，缩到最小字号仍放不下气泡，建议精简译文或手动拉大文字框。' : ''));
     } catch (error) {
       message('应用字幕失败：' + (error.message || String(error)), true);
     } finally {

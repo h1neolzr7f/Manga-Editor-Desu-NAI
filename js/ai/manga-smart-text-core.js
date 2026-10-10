@@ -91,15 +91,28 @@
     for (let size = natural; size >= minimum; size--) {
       if (longest(size) <= along) return { fontSize: size, text: clean, lines: lines.length, wrapped: false };
     }
-    const wrapped = [];
-    for (const line of lines) {
-      let current = '';
-      for (const ch of Array.from(line)) {
-        if (current && length(current + ch, minimum) > along) { wrapped.push(current); current = ch; } else current += ch;
+    const wrapAt = size => {
+      const out = [];
+      for (const line of lines) {
+        let current = '';
+        for (const ch of Array.from(line)) {
+          if (current && length(current + ch, size) > along) { out.push(current); current = ch; } else current += ch;
+        }
+        out.push(current);
       }
-      wrapped.push(current);
+      return out;
+    };
+    // Wrapped lines stack across the box (columns for vertical text): keep shrinking until the stack
+    // fits too. A paragraph pasted into a small bubble used to spill far outside it at the minimum size.
+    const lineGap = vertical ? 1.3 : 1.16; // Fabric lineHeight 1.16; vertical columns render ~1.2x + glyph overhang
+    for (let size = minimum; size >= 10; size--) {
+      const wrapped = wrapAt(size);
+      if (wrapped.length * size * lineGap <= across || size === 10) {
+        return { fontSize: size, text: wrapped.join('\n'), lines: wrapped.length, wrapped: true,
+          overflow: wrapped.length * size * lineGap > across };
+      }
     }
-    return { fontSize: minimum, text: wrapped.join('\n'), lines: wrapped.length, wrapped: true };
+    return { fontSize: 10, text: clean, lines: lines.length, wrapped: false, overflow: true };
   }
 
   root.MangaSmartTextCore = Object.freeze({
