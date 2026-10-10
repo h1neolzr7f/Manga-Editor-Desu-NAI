@@ -7,9 +7,14 @@ var tmpCtxTone=null;
 var controlElementsTone=null;
 var isDrawingTone=false;
 
+// The object toneStart() resolved (clicked panel / selection). updatecanvas() used to call
+// getLastObject() again, so the tone landed on whatever was "last" (e.g. after an undo/redo
+// reload changed the stack/selection) instead of the panel the user picked.
+var toneTargetObject=null;
 function toneStart() {
 var activeObject=typeof mangaToneRequireTarget==='function'?mangaToneRequireTarget():canvas.getActiveObject();
 if(!activeObject)return false;
+toneTargetObject=activeObject;
 tmpCanvasTone=document.createElement("canvas");
 
 if (isPanel(activeObject)) {
@@ -41,6 +46,7 @@ return true;
 
 function toneEnd() {
 nowTone=null;
+toneTargetObject=null;
 if(tmpCanvasTone){
 if (tmpCanvasTone.parentNode) {
 tmpCanvasTone.parentNode.removeChild(tmpCanvasTone);
@@ -178,7 +184,7 @@ if (nowTone) {
 canvas.remove(nowTone);
 }
 fabric.Image.fromURL(tmpCanvasTone.toDataURL(),function (img) {
-var activeObject=getLastObject();
+var activeObject=(toneTargetObject&&canvas.getObjects().indexOf(toneTargetObject)>=0)?toneTargetObject:getLastObject();
 
 if(isPanel(activeObject)){
 var canvasX=(activeObject.left+(activeObject.width*activeObject.scaleX/2))  ;

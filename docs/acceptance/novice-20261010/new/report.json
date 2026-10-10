@@ -1,5 +1,5 @@
 {
-  "when": "2026-10-10T04:29:01.817Z",
+  "when": "2026-10-10T04:47:16.539Z",
   "gpt": "MOCK",
   "flows": [
     {
@@ -12,7 +12,7 @@
         "Import image",
         "page 1"
       ],
-      "seconds": 17.6,
+      "seconds": 17.7,
       "screenshot": "artifacts/novice/01-1_首次启动并导入_2_页漫画.png",
       "notes": [],
       "detail": {
@@ -40,7 +40,7 @@
         "生成",
         "应用为图层"
       ],
-      "seconds": 2.9,
+      "seconds": 2.6,
       "screenshot": "artifacts/novice/03-2_框选人物_参考图_描述_生成_预览_应用.png",
       "notes": [],
       "detail": {
@@ -72,7 +72,7 @@
         "识别",
         "应用字幕"
       ],
-      "seconds": 2.3,
+      "seconds": 2.2,
       "screenshot": "artifacts/novice/04-3_识别日文气泡_修正_去字_替换中文字幕.png",
       "notes": [
         "OCR: [\"ありがとう\"]"
@@ -117,7 +117,7 @@
         "page 1",
         "Ctrl+Z after reopen"
       ],
-      "seconds": 15.9,
+      "seconds": 15.6,
       "screenshot": "artifacts/novice/05-4_撤销_重做_切页_保存_关闭_重开.png",
       "notes": [],
       "detail": {
@@ -207,7 +207,7 @@
         "未填 Token",
         "生成 5 页样稿"
       ],
-      "seconds": 3.5,
+      "seconds": 3.4,
       "screenshot": "artifacts/novice/09-10_没填_NovelAI_Token_就点_生成_5_页样稿_看得懂的提示_不.png",
       "notes": [],
       "detail": {
@@ -216,17 +216,18 @@
       }
     },
     {
-      "name": "11 字幕图层：点眼睛隐藏后导出不含字幕；刷新恢复后字幕仍可编辑",
+      "name": "11 字幕图层：点眼睛隐藏→导出不含字幕→Ctrl+Z 恢复显示；刷新恢复后字幕仍可编辑",
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 11.2,
-      "screenshot": "artifacts/novice/10-11_字幕图层_点眼睛隐藏后导出不含字幕_刷新恢复后字幕仍可编辑.png",
+      "seconds": 10.5,
+      "screenshot": "artifacts/novice/10-11_字幕图层_点眼睛隐藏_导出不含字幕_Ctrl_Z_恢复显示_刷新恢复后字幕.png",
       "notes": [],
       "detail": {
         "exportDarkShown": 1663,
         "eyeHid": true,
         "exportDarkHidden": 0,
+        "undoShows": true,
         "dialog": true,
         "after": {
           "type": "vertical-textbox",
@@ -256,7 +257,7 @@
         "page 1",
         "应用（回到第 1 页）"
       ],
-      "seconds": 41.3,
+      "seconds": 41.1,
       "screenshot": "artifacts/novice/11-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
       "notes": [],
       "detail": {
@@ -272,7 +273,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 17.8,
+      "seconds": 15.9,
       "screenshot": "artifacts/novice/12-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
       "notes": [],
       "detail": {
@@ -308,8 +309,8 @@
           "hasImage": true,
           "open": {
             "overlapPx": 0,
-            "canvasW": 423,
-            "canvasH": 599,
+            "canvasW": 424,
+            "canvasH": 600,
             "visibleRatio": 1,
             "centerOnCanvas": true,
             "centerHit": "upper-canvas "

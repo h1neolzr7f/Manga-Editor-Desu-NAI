@@ -38,6 +38,8 @@ function visibleChange(obj){
 obj.visible=!obj.visible;
 updateLayerPanel();
 canvas.requestRenderAll();
+// show/hide is an edit: record it so Ctrl+Z brings a layer back (and auto-save sees the change)
+if(typeof saveStateByManual==='function')saveStateByManual();
 }
 
 function putViewButton(buttonsDiv,layer,index) {

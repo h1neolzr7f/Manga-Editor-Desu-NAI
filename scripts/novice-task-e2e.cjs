@@ -400,7 +400,7 @@ async function main() {
     return { pass: !!found && /未填 token/i.test(toast) && !/MISSING AUTHORIZATION/i.test(toast) && sent.length === 0, detail: { toast: toast.slice(0, 160), requests: sent } };
   });
 
-  await flow('11 字幕图层：点眼睛隐藏后导出不含字幕；刷新恢复后字幕仍可编辑', async () => {
+  await flow('11 字幕图层：点眼睛隐藏→导出不含字幕→Ctrl+Z 恢复显示；刷新恢复后字幕仍可编辑', async () => {
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort());
     const ready = () => p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 });
@@ -425,8 +425,9 @@ async function main() {
     await eye.click(); await p.waitForTimeout(500);
     const hiddenState = await p.evaluate(() => canvas.getObjects().find(o => o.mangaSmartText === 'editable-subtitle').visible);
     const hidden = await exportDark();
-    // after hiding, that row's icon reads 'visibility_off' (the next 'visibility' is a different layer)
-    await p.locator('#layer-panel').getByText('visibility_off', { exact: true }).first().click(); await p.waitForTimeout(500);
+    // a beginner undoes the hide with Ctrl+Z (show/hide is recorded in history)
+    await p.mouse.click(1000, 600); await p.keyboard.press('Control+z');
+    const undoShows = await p.waitForFunction(() => canvas.getObjects().find(o => o.mangaSmartText === 'editable-subtitle').visible !== false, null, { timeout: 10000 }).then(() => true).catch(() => false);
     await p.evaluate(() => AutoSaveManager.save()); await p.waitForTimeout(500);
     await p.reload({ waitUntil: 'domcontentloaded' }); await ready();
     const dialog = await p.locator('#autoSaveRecoverBtn').waitFor({ timeout: 15000 }).then(() => true).catch(() => false);
@@ -435,8 +436,8 @@ async function main() {
     const after = await p.evaluate(() => { const t = canvas.getObjects().find(o => o.mangaSmartText === 'editable-subtitle');
       return t ? { type: t.type, text: t.text, editable: t.editable !== false, visible: t.visible !== false } : null; });
     await ctx.close();
-    return { pass: shown > 200 && hiddenState === false && hidden === 0 && dialog && !!after && after.type === 'vertical-textbox' && after.text === '谢谢你' && after.editable && after.visible,
-      detail: { exportDarkShown: shown, eyeHid: hiddenState === false, exportDarkHidden: hidden, dialog, after } };
+    return { pass: shown > 200 && hiddenState === false && hidden === 0 && undoShows && dialog && !!after && after.type === 'vertical-textbox' && after.text === '谢谢你' && after.editable && after.visible,
+      detail: { exportDarkShown: shown, eyeHid: hiddenState === false, exportDarkHidden: hidden, undoShows, dialog, after } };
   });
 
   await flow('7 生成中切页→结果不得贴到别的页→切回后再应用', async () => {

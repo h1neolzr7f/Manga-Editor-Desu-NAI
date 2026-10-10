@@ -195,10 +195,13 @@ async function main() {
   });
 
   await step('undo / redo toolbar buttons', 'UI', async () => {
-    const n0 = await count();
-    await page.locator('#undo').click(); await page.waitForTimeout(1200); const n1 = await count();
-    await page.locator('#redo').click(); await page.waitForTimeout(1200); const n2 = await count();
-    return { pass: n1 < n0 && n2 === n0, detail: { n0, afterUndo: n1, afterRedo: n2 } };
+    // layer show/hide is an undoable edit too, so the last history entry may be a visibility toggle:
+    // undo must change the page state (objects or visibility) and redo must restore it exactly.
+    const sig = () => page.evaluate(() => canvas.getObjects().length + ':' + canvas.getObjects().map(o => o.visible === false ? 0 : 1).join(''));
+    const n0 = await sig();
+    await page.locator('#undo').click(); await page.waitForTimeout(1200); const n1 = await sig();
+    await page.locator('#redo').click(); await page.waitForTimeout(1200); const n2 = await sig();
+    return { pass: n1 !== n0 && n2 === n0, detail: { n0, afterUndo: n1, afterRedo: n2 } };
   });
 
   let projectFile = null;
