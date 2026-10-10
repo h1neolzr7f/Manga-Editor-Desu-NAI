@@ -1,6 +1,6 @@
 {
-  "when": "2026-10-10T04:13:39.131Z",
-  "gpt": "MOCK",
+  "when": "2026-10-10T04:07:08.730Z",
+  "gpt": "REAL",
   "flows": [
     {
       "name": "1 首次启动并导入 2 页漫画",
@@ -12,7 +12,7 @@
         "Import image",
         "page 1"
       ],
-      "seconds": 17.6,
+      "seconds": 17.8,
       "screenshot": "artifacts/novice/01-1_首次启动并导入_2_页漫画.png",
       "notes": [],
       "detail": {
@@ -32,35 +32,18 @@
     },
     {
       "name": "2 框选人物+参考图+描述→生成→预览→应用",
-      "pass": true,
-      "keyOps": 4,
+      "pass": false,
+      "keyOps": 3,
       "ops": [
         "GPT 改图",
         "drag selection",
-        "生成",
-        "应用为图层"
+        "生成"
       ],
-      "seconds": 2.9,
-      "screenshot": "artifacts/novice/03-2_框选人物_参考图_描述_生成_预览_应用.png",
+      "seconds": 401.1,
+      "screenshot": "artifacts/novice/02-2_框选人物_参考图_描述_生成_预览_应用.png",
       "notes": [],
       "detail": {
-        "selection": "已选中原始画布区域：581 × 941 像素。",
-        "preview": false,
-        "status": "图像已生成，请检查预览后点击“作为新图层应用”。",
-        "rect": {
-          "left": 199,
-          "top": 60,
-          "width": 581,
-          "height": 941
-        },
-        "size": [
-          1200,
-          1700
-        ],
-        "changed": 274511,
-        "outside": 0,
-        "calls": 1,
-        "model": "gpt-image-2.5"
+        "error": "page.waitForFunction: Timeout 400000ms exceeded."
       }
     },
     {
@@ -72,8 +55,8 @@
         "识别",
         "应用字幕"
       ],
-      "seconds": 2.2,
-      "screenshot": "artifacts/novice/04-3_识别日文气泡_修正_去字_替换中文字幕.png",
+      "seconds": 2.4,
+      "screenshot": "artifacts/novice/03-3_识别日文气泡_修正_去字_替换中文字幕.png",
       "notes": [
         "OCR: [\"ありがとう\"]"
       ],
@@ -117,8 +100,8 @@
         "page 1",
         "Ctrl+Z after reopen"
       ],
-      "seconds": 15.9,
-      "screenshot": "artifacts/novice/05-4_撤销_重做_切页_保存_关闭_重开.png",
+      "seconds": 15.2,
+      "screenshot": "artifacts/novice/04-4_撤销_重做_切页_保存_关闭_重开.png",
       "notes": [],
       "detail": {
         "undoChanged": 6216,
@@ -138,25 +121,23 @@
     },
     {
       "name": "5 错误 API/失败后再试/超长提示词/空选区",
-      "pass": true,
-      "keyOps": 5,
+      "pass": false,
+      "keyOps": 4,
       "ops": [
         "GPT 改图",
         "生成（未框选）",
         "drag selection",
-        "生成（失败）",
         "再试一次"
       ],
-      "seconds": 2.9,
-      "screenshot": "artifacts/novice/06-5_错误_API_失败后再试_超长提示词_空选区.png",
+      "seconds": 122.8,
+      "screenshot": "artifacts/novice/05-5_错误_API_失败后再试_超长提示词_空选区.png",
       "notes": [],
       "detail": {
         "noRegion": "请先在当前画布框选需要修改的区域。",
-        "failMsg": "上游 HTTP 530：图像服务（或其网关）暂时不可用，本次没有生成图片，请稍后重试。",
-        "silentRetries": 0,
-        "okAfterRetry": true,
-        "longPromptChars": 3300,
-        "lastPromptLen": 3300
+        "failMsg": "已选中原始画布区域：502 × 402 像素。",
+        "silentRetries": -1,
+        "okAfterRetry": false,
+        "longPromptChars": 3300
       }
     },
     {
@@ -164,8 +145,8 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 8,
-      "screenshot": "artifacts/novice/07-8_导入含坏文件的一批图_立刻刷新_恢复对话框找回全部页.png",
+      "seconds": 8.2,
+      "screenshot": "artifacts/novice/06-8_导入含坏文件的一批图_立刻刷新_恢复对话框找回全部页.png",
       "notes": [],
       "detail": {
         "before": {
@@ -184,8 +165,8 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 6,
-      "screenshot": "artifacts/novice/08-9_导入超大图_提示已自动缩小_中文_8_语言文案_.png",
+      "seconds": 6.2,
+      "screenshot": "artifacts/novice/07-9_导入超大图_提示已自动缩小_中文_8_语言文案_.png",
       "notes": [],
       "detail": {
         "zh": "图片过大，已自动缩小\n原图 5000×3000 → 页面 4096×2458（长边上限 4096 像素）。原文件不受影响。",
@@ -200,50 +181,15 @@
       }
     },
     {
-      "name": "10 没填 NovelAI Token 就点「生成 5 页样稿」→看得懂的提示、不发请求",
-      "pass": true,
-      "keyOps": 2,
-      "ops": [
-        "未填 Token",
-        "生成 5 页样稿"
-      ],
-      "seconds": 3.3,
-      "screenshot": "artifacts/novice/09-10_没填_NovelAI_Token_就点_生成_5_页样稿_看得懂的提示_不.png",
-      "notes": [],
-      "detail": {
-        "toast": "5 页漫画样稿\n还没填 NOVELAI TOKEN：点顶部「未填 TOKEN」按钮，在「访问令牌」里粘贴后再试。没有 TOKEN 时不会发出请求，也不会扣 ANLAS。",
-        "requests": []
-      }
-    },
-    {
       "name": "7 生成中切页→结果不得贴到别的页→切回后再应用",
       "pass": true,
-      "keyOps": 14,
-      "ops": [
-        "展开页面",
-        "page 1",
-        "page 2",
-        "page 1",
-        "GPT 改图",
-        "框选区域",
-        "drag selection",
-        "生成",
-        "展开页面",
-        "page 2",
-        "应用（在第 2 页）",
-        "展开页面",
-        "page 1",
-        "应用（回到第 1 页）"
-      ],
-      "seconds": 41.7,
-      "screenshot": "artifacts/novice/10-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 0.1,
+      "screenshot": "artifacts/novice/08-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
       "notes": [],
       "detail": {
-        "applyEnabledOnPage2": true,
-        "onPage2Status": "这个结果是为第 1 页生成的，当前在第 2 页。请切回第 1 页再点“应用”（不用重新生成）。",
-        "page2Changed": 0,
-        "page1Changed": 51291,
-        "page1Outside": 0
+        "skipped": "mock-only timing test"
       }
     },
     {
@@ -251,8 +197,8 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 16.5,
-      "screenshot": "artifacts/novice/11-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
+      "seconds": 17,
+      "screenshot": "artifacts/novice/09-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
       "notes": [],
       "detail": {
         "1440x900@1": {
@@ -332,7 +278,8 @@
   ],
   "pageErrors": [],
   "consoleErrors": [
-    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 403 (Forbidden)"
   ],
   "dialogs": []
 }

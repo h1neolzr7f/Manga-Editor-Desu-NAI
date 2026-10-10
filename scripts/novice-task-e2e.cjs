@@ -307,6 +307,7 @@ async function main() {
 
   // 5. robustness: wrong API -> readable error, no silent retry -> retry works; long prompt; empty selection
   await flow('5 错误 API/失败后再试/超长提示词/空选区', async () => {
+    if (REAL_GPT) return { pass: true, detail: { skipped: 'mock-only: needs the mock to inject HTTP 530 / retry' } };
     if (!(await has('mangaGptOpen'))) return { pass: false, detail: { unavailable: 'no GPT image API in this version' } };
     await op.click(page.locator('#mangaGptOpen'), 'GPT 改图');
     await op.click(page.locator('#mangaGptGenerate'), '生成（未框选）');
@@ -381,6 +382,22 @@ async function main() {
         await q.waitForFunction(() => typeof i18next !== 'undefined' && i18next.isInitialized, null, { timeout: 60000 });
         const v = await q.evaluate(() => i18next.t('importDownscaled') !== 'importDownscaled'); await c2.close(); return v; })() };
     return { pass: /已自动缩小/.test(zh) && /4096×2458/.test(zh) && en.langs === 8 && en.zhResolved && size[0] === 4096, detail: { zh: zh.slice(0, 120), en, size } };
+  });
+
+  await flow('10 没填 NovelAI Token 就点「生成 5 页样稿」→看得懂的提示、不发请求', async () => {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort());
+    const sent = []; p.on('request', r => { if (/\/nai-tools\/|\/nai-proxy\/|novelai\.net/.test(r.url())) sent.push(r.url().replace(/^https?:\/\/[^/]+/, '')); });
+    await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
+    await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 });
+    await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {}); await p.keyboard.press('Escape');
+    await p.locator('#naiTokenBadge').click(); cur.ops.push('未填 Token');   // the badge opens NovelAI settings
+    const btn = p.locator('#naiGenerateComicDemo:visible');
+    const found = await btn.count();
+    if (found) { await btn.click(); cur.ops.push('生成 5 页样稿'); }
+    const toast = await p.waitForFunction(() => { const t = document.getElementById('sp-manga-toastContainer'); return t && /token/i.test(t.innerText) && t.innerText; }, null, { timeout: 15000 }).then(h => h.jsonValue()).catch(() => '');
+    await ctx.close();
+    return { pass: !!found && /未填 token/i.test(toast) && !/MISSING AUTHORIZATION/i.test(toast) && sent.length === 0, detail: { toast: toast.slice(0, 160), requests: sent } };
   });
 
   await flow('7 生成中切页→结果不得贴到别的页→切回后再应用', async () => {
