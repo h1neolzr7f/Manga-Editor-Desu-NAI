@@ -313,6 +313,7 @@
 | scripts/image2-interface-smoke-test.cjs | 19 |  |
 | scripts/import-image-keeps-page-test.cjs | 25 | Regression: File > Import image on a page that only had a manga template resized the |
 | scripts/layout-smoke-test.cjs | 201 |  |
+| scripts/lib-top-level-functions.cjs | 56 | Dependency-free: names of top-level `function name(` declarations in a classic script. |
 | scripts/local-secret-guard-test.py | 261 |  |
 | scripts/local-tools-origin-test.py | 179 |  |
 | scripts/make-one-click-zip.ps1 | 63 | Build a beginner zip without git history, secrets, or machine caches. |
@@ -338,7 +339,7 @@
 | scripts/nai-pipeline-smoke-test.mjs | 324 | NAI-only pipeline smoke test (NovelAI + Director proxy). |
 | scripts/nai-real-acceptance.cjs | 178 | OPT-IN real NovelAI acceptance (never part of npm test / CI). Stays inside Opus free |
 | scripts/nai-status-format-test.cjs | 18 | Regression: "检查 NAI" must not show the misleading "无限生图：否" for Opus users. |
-| scripts/no-duplicate-globals-test.cjs | 26 | Classic <script> files share one global scope: a top-level function declared in two files is |
+| scripts/no-duplicate-globals-test.cjs | 25 | Classic <script> files share one global scope: a top-level function declared in two files is |
 | scripts/no-third-party-director-test.py | 231 |  |
 | scripts/novelai-batch-tools.mjs | 607 |  |
 | scripts/novelai-readable-error-test.cjs | 39 | Regression: NovelAI errors shown to the user are readable (JSON from the local proxy, |

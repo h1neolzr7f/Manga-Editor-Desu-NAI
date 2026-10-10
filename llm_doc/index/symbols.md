@@ -4,7 +4,7 @@
 
 - 抽出対象: `root.X=` / `window.X=` / `globalThis.X=`、行頭の `function X` / `var X` / `let X` / `const X`
 - 抽出範囲: js / cjs / mjs と、html のインライン `<script>`（行番号は元ファイル基準）
-- 合計 10084 件 / ユニーク名 5433 件
+- 合計 10086 件 / ユニーク名 5435 件
 
 ## シンボル → 定義
 
@@ -118,6 +118,7 @@
 | `KENNEY_PAGES` | var | scripts/vendor-free-public-assets.cjs:17 |
 | `KEY` | var | js/assets/image2-job-store.js:3 |
 | `KNIFE_CONSTANTS` | var | js/sidebar/panel/knife/knife-constants.js:6 |
+| `KW_BEFORE_REGEX` | var | scripts/lib-top-level-functions.cjs:5 |
 | `LATIN_ONLY_TOAST_COOLDOWN_MS` | var | js/core/font/font-manager-core.js:3 |
 | `LICENSE` | var | js/assets/original-starter-pack.js:5 |
 | `LICENSE` | var | js/assets/site-ui-pack.js:5 |
@@ -4204,7 +4205,7 @@
 | `html` | var | scripts/image-export-smoke-test.cjs:147 |
 | `html` | var | scripts/layout-smoke-test.cjs:5 |
 | `html` | var | scripts/nai-status-format-test.cjs:16 |
-| `html` | var | scripts/no-duplicate-globals-test.cjs:7 |
+| `html` | var | scripts/no-duplicate-globals-test.cjs:8 |
 | `htmlPath` | var | scripts/gen-project-index.cjs:650 |
 | `htmlText` | var | scripts/gen-project-index.cjs:651 |
 | `hud` | function | js/ui/beginner-guide.js:20 |
@@ -7621,7 +7622,7 @@
 | `root` | var | scripts/layout-smoke-test.cjs:4 |
 | `root` | var | scripts/manga-import-smoke-test.cjs:5 |
 | `root` | var | scripts/manga-page-size-smoke-test.cjs:6 |
-| `root` | var | scripts/no-duplicate-globals-test.cjs:6 |
+| `root` | var | scripts/no-duplicate-globals-test.cjs:7 |
 | `root` | var | scripts/offline-icon-fonts-test.cjs:5 |
 | `root` | var | scripts/page-studio-smoke-test.cjs:6 |
 | `root` | var | scripts/png-bit-depth-smoke-test.cjs:7 |
@@ -7935,7 +7936,7 @@
 | `scriptLines` | var | scripts/gen-project-index.cjs:123 |
 | `scripts` | var | scripts/gen-project-index.cjs:396 |
 | `scripts` | var | scripts/gen-project-index.cjs:494 |
-| `scripts` | var | scripts/no-duplicate-globals-test.cjs:8 |
+| `scripts` | var | scripts/no-duplicate-globals-test.cjs:9 |
 | `scrollLeft` | var | js/ui/bottom-bar.js:346 |
 | `scrollRoot` | var | scripts/fabric-text-focus-smoke-test.cjs:13 |
 | `scrollWidth` | var | js/ui/bottom-bar.js:275 |
@@ -7973,7 +7974,7 @@
 | `seen` | var | js/ai/prompt/novelai-composition-director.js:160 |
 | `seen` | var | js/panel/layout-templates.js:120 |
 | `seen` | var | js/simulator/story-adapters.js:397 |
-| `seen` | var | scripts/no-duplicate-globals-test.cjs:10 |
+| `seen` | var | scripts/no-duplicate-globals-test.cjs:11 |
 | `sel` | var | js/panel/random-cut.js:106 |
 | `sel` | var | js/simulator/extra-renderer-factory.js:233 |
 | `selCount` | var | js/ui/imagePromptHelper/image-prompt-helper.js:422 |
@@ -9383,6 +9384,7 @@
 | `top` | var | scripts/tone-target-click-test.cjs:11 |
 | `topEdgePoints` | var | js/core/util/fabric-util.js:366 |
 | `topIndices` | var | js/core/util/fabric-util.js:491 |
+| `topLevelFunctions` | function | scripts/lib-top-level-functions.cjs:6 |
 | `topLevelLayers` | var | js/layer/layer-management.js:156 |
 | `topTags` | var | js/dashboard/dashboard-ui.js:516 |
 | `topTags` | var | js/dashboard/dashboard-ui.js:550 |
