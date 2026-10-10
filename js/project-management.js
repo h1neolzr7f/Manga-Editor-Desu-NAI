@@ -76,7 +76,9 @@ try {
 var file=this.files[0];
 if (file) {
 // keep unsaved edits of the visible page before the loaded pages take over
-if(typeof btmSaveProjectFile==='function'&&typeof stateStack!=='undefined'&&stateStack.length>0)await btmSaveProjectFile(null,false);
+// (only when it has user content: saving a fresh blank page would add an extra empty page in front of
+// the opened project and shift its page order)
+if(typeof btmSaveProjectFile==='function'&&typeof countUserObjectsForLoad==='function'&&countUserObjectsForLoad()>0)await btmSaveProjectFile(null,false);
 const fileBuffer=await file.arrayBuffer();
 const fileName=file.name.toLowerCase();
 const isZip=fileName.endsWith('.zip');

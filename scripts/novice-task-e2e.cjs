@@ -712,11 +712,16 @@ async function main() {
     await p.locator('[data-bubble-tab="free"]').click();
     await p.locator('#sbFreehandNothingText').click();
     await p.locator('#sbFreehandButton').click();
+    // CI runners are slower: let the mode switch and the bubble panel settle before the first stroke
+    await p.waitForFunction(() => currentMode === 'freehand', null, { timeout: 10000 }).catch(() => {});
+    await p.waitForTimeout(800);
     const box = await p.locator('.upper-canvas').first().boundingBox();
     const draw = async (fx, fy) => { const cx = box.x + box.width * fx, cy = box.y + box.height * fy;
       await p.mouse.move(cx + 60, cy); await p.mouse.down();
-      for (let k = 1; k <= 24; k++) { const t = k / 24 * Math.PI * 2; await p.mouse.move(cx + Math.cos(t) * 60, cy + Math.sin(t) * 40); await p.waitForTimeout(25); }
-      await p.mouse.up(); await p.waitForTimeout(900); };
+      for (let k = 1; k <= 24; k++) { const t = k / 24 * Math.PI * 2; await p.mouse.move(cx + Math.cos(t) * 60, cy + Math.sin(t) * 40); await p.waitForTimeout(40); }
+      await p.mouse.up();
+      await p.waitForFunction(n => canvas.getObjects().length > n, await p.evaluate(() => canvas.getObjects().length) - 0, { timeout: 8000 }).catch(() => {});
+      await p.waitForTimeout(600); };
     const n0 = await p.evaluate(() => canvas.getObjects().length);
     await draw(0.35, 0.3);
     const noText = await p.evaluate(n => { const added = canvas.getObjects().slice(n); return { types: added.map(o => o.type), bubble: added.some(o => o.isSpeechBubble), text: added.some(o => /text/i.test(o.type)) }; }, n0);
