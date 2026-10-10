@@ -126,8 +126,19 @@
     const payload = { baseUrl: (($('mangaGptUrl') || {}).value || '').trim(), model: (($('mangaGptModel') || {}).value || '').trim() || 'gpt-image-2.5',
       operation: 'edit', prompt, size, image, references: references || [] };
     const base = location.protocol === 'file:' ? 'http://127.0.0.1:8000' : location.origin;
-    const r = await fetch(base + '/gpt-image-proxy', { method: 'POST', signal,
-      headers: Object.assign({ 'Content-Type': 'application/json' }, key ? { Authorization: 'Bearer ' + key } : {}), body: JSON.stringify(payload) });
+    // own deadline on top of the user's 取消: a hung relay must never leave the wizard spinning forever
+    const limit = root.__autoSwapTimeoutMs || 330000;
+    const ctl = new AbortController(); let timedOut = false;
+    const timer = setTimeout(() => { timedOut = true; ctl.abort(); }, limit);
+    if (signal) { if (signal.aborted) ctl.abort(); else signal.addEventListener('abort', () => ctl.abort(), { once: true }); }
+    let r;
+    try {
+      r = await fetch(base + '/gpt-image-proxy', { method: 'POST', signal: ctl.signal,
+        headers: Object.assign({ 'Content-Type': 'application/json' }, key ? { Authorization: 'Bearer ' + key } : {}), body: JSON.stringify(payload) });
+    } catch (e) {
+      if (timedOut) { const t = new Error('图像服务 ' + Math.round(limit / 1000) + ' 秒没有响应（中转站可能卡住了）。画布没有改动，请稍后点「重试」。'); t.name = 'TimeoutError'; throw t; }
+      throw e;
+    } finally { clearTimeout(timer); }
     let j = null; try { j = await r.json(); } catch (_) { /* below */ }
     if (!r.ok || !j || !j.ok || !/^data:image\//.test(j.image || '')) {
       const msg = (j && j.error) || ('图像服务返回 HTTP ' + r.status);
@@ -335,15 +346,21 @@
     if (!S || !S.target || S.busy) return;
     S.busy = true; S.result = null; updateButtons(); step(2);
     S.ctrl = new AbortController();
-    status('正在生成：按参考图在原位置重画这个人物（约 30–60 秒，可点「取消」）…');
+    const t0 = Date.now();
+    const msg = () => '正在生成：按参考图在原位置重画这个人物（通常 30–90 秒，已等 ' + Math.round((Date.now() - t0) / 1000) + ' 秒，可点「取消」）…';
+    status(msg());
+    const tick = setInterval(() => { if (S && S.busy) status(msg()); }, 1000);
     try {
       S.result = await swapOne(S.pg, S.target, { keepOutfit: !!($('autoSwapKeep') || {}).checked, keepExpression: !!($('autoSwapExpr') || {}).checked, changeOnly: !!($('autoSwapChangeOnly') || {}).checked, panel: (S.panels || [])[S.target.panel], references: S.refs, note: ($('autoSwapNote') || {}).value || '' }, S.ctrl.signal);
       await showPreview(S.result);
+      if ($('autoSwapGo')) $('autoSwapGo').textContent = '生成';
       step(3);
       status('预览好了：点「对比原图」看前后；满意就点「应用」（放在一个新图层上，Ctrl+Z 可撤销）。');
     } catch (e) {
-      status(e && e.name === 'AbortError' ? '已取消，没有改动画布。' : '生成失败：' + ((e && e.message) || e), !(e && e.name === 'AbortError'));
-    } finally { S.busy = false; updateButtons(); }
+      const aborted = e && e.name === 'AbortError';
+      status(aborted ? '已取消，没有改动画布。' : (e && e.name === 'TimeoutError' ? '' : '生成失败：') + ((e && e.message) || e), !aborted);
+      if (!aborted && $('autoSwapGo')) $('autoSwapGo').textContent = '重试';
+    } finally { clearInterval(tick); if (S) { S.busy = false; updateButtons(); } }
   }
 
   async function showPreview(res) {

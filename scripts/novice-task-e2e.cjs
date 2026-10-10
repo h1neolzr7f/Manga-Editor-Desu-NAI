@@ -1530,8 +1530,10 @@ async function main() {
     const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort()); p.on('dialog', d => d.accept());
     const errors = []; p.on('pageerror', e => errors.push(e.message));
     const calls = [];
+    let hangOnce = true;   // the first call never answers (hung relay) → timeout message + 重试
     await p.route('**/gpt-image-proxy', async route => {
       const body = route.request().postDataJSON();
+      if (hangOnce) { hangOnce = false; return; }
       const kind = /Replace the main person/.test(body.prompt) ? 'swap' : 'other';
       calls.push({ kind, size: body.size, refs: (body.references || []).length, model: body.model });
       const image = await p.evaluate(async ({ src, size, kind }) => {
@@ -1574,6 +1576,13 @@ async function main() {
       await click('#autoSwapSmaller'); await click('#autoSwapSmaller');
       await p.locator('#autoSwapRef').setInputFiles(path.join(__dirname, 'fixtures', 'novice', 'reference.png')); clicks.n++;
       await p.waitForFunction(() => !document.getElementById('autoSwapGo').disabled, null, { timeout: 10000 });
+      await p.evaluate(() => { window.__autoSwapTimeoutMs = 3000; });
+      const layersBeforeHang = await p.evaluate(() => canvas.getObjects().length);
+      await click('#autoSwapGo');
+      await p.waitForFunction(() => document.getElementById('autoSwapGo').textContent === '重试' && !document.getElementById('autoSwapGo').disabled, null, { timeout: 15000 });
+      const hang = await p.evaluate(n => ({ status: (document.querySelector('.auto-swap-status') || {}).textContent || '', same: canvas.getObjects().length === n }), layersBeforeHang);
+      const hangOk = /没有响应/.test(hang.status) && /重试/.test(hang.status) && hang.same;
+      await p.evaluate(() => { window.__autoSwapTimeoutMs = 0; });
       await click('#autoSwapGo');
       await p.waitForFunction(() => /预览好了|生成失败/.test(document.getElementById('autoSwapStatus').textContent), null, { timeout: 180000 });
       const afterGen = await p.evaluate(() => ({ status: document.getElementById('autoSwapStatus').textContent.slice(0, 60), st: AutoSwap.state() }));
@@ -1622,10 +1631,10 @@ async function main() {
         reloaded = await p2.evaluate(() => canvas.getObjects().filter(o => o.autoSwap).map(o => o.autoSwap + '|' + o.name + '|' + Math.round(o.left) + ',' + Math.round(o.top)).sort());
       } finally { await ctx2.close(); }
       const survived = JSON.stringify(want) === JSON.stringify(reloaded);
-      return { pass: boxGrows && beyond && exprOn && survived && found.chars >= 3 && afterGen.st.result && showing === 'before' && layers.added === 1 && undone && redone === 1 &&
+      return { pass: hangOk && boxGrows && beyond && exprOn && survived && found.chars >= 3 && afterGen.st.result && showing === 'before' && layers.added === 1 && undone && redone === 1 &&
           calls.filter(c => c.kind === 'swap' && c.refs === 1).length >= 1 && calls.every(c => c.kind === 'swap') &&
           (!propagated || propagated.layers === matches.length) && !errors.length,
-        detail: { boxGrows, beyond, exprOn, crop0, crop1, crop2, survived, want, reloaded, clicks: clicks.n, detectMs, found, target: afterGen.st.target, info: afterGen.st.info, layers, undone, redone, matches, propagated, calls: calls.length, errors } };
+        detail: { hangOk, hang, boxGrows, beyond, exprOn, crop0, crop1, crop2, survived, want, reloaded, clicks: clicks.n, detectMs, found, target: afterGen.st.target, info: afterGen.st.info, layers, undone, redone, matches, propagated, calls: calls.length, errors } };
     } catch (e) { await p.screenshot({ path: path.join(OUT, 'flow35-fail.png') }).catch(() => {}); throw e;
     } finally { await ctx.close(); }
   });
