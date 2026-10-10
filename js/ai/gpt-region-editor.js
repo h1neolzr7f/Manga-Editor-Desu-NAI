@@ -736,7 +736,7 @@
   }
 
   function startSelection(options) {
-    const auto = !!(options && options.auto === true); // opened by the panel itself, not by 框选区域
+    const auto = !!(options && options.auto === true); // opened by the panel itself, not by the explicit select button
     const c = pageCanvas();
     if (!c || !c.upperCanvasEl) {
       feedback(tr('mgpt_canvas_not_ready', '画布还没有初始化。'), true);
