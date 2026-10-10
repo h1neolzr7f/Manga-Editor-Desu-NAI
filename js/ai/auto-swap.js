@@ -117,10 +117,20 @@
     return { gain: +gain.toFixed(3), shift: +shift.toFixed(1) };
   }
 
+  /** Zero alpha outside the character's panel (inset past the border line) so panel borders and the
+   * neighbouring panels are never repainted. crop/panel in page pixels. */
+  function clipToPanel(alpha, crop, panel, inset) {
+    if (!panel) return alpha;
+    const k = inset == null ? 3 : inset;
+    const x0 = panel[0] + k - crop.x, y0 = panel[1] + k - crop.y, x1 = panel[2] - k - crop.x, y1 = panel[3] - k - crop.y;
+    for (let y = 0; y < crop.h; y++) for (let x = 0; x < crop.w; x++) if (x < x0 || y < y0 || x >= x1 || y >= y1) alpha[y * crop.w + x] = 0;
+    return alpha;
+  }
+
   const PROMPT_BG = 'Remove the person in the middle of this manga image completely and redraw ONLY the background that was behind them, continuing the surrounding scenery, perspective, line weight, screentone and lighting. Keep everything else unchanged. Do not draw any person, face, body part, text or speech bubble.';
   const PROMPT_CHAR = 'Redraw the main person in this manga image as the character shown in the reference image (same face, hair, outfit and colors as the reference), keeping exactly the same pose, body size, position, camera angle, facing direction and the same manga line art and shading style. Draw ONLY that one character on a plain flat pure white background: no scenery, no other people, no text, no speech bubbles.';
 
-  const api = { fitCrop, placement, descriptor, similarity, growFeather, toneMatch, PROMPT_BG, PROMPT_CHAR };
+  const api = { fitCrop, placement, clipToPanel, descriptor, similarity, growFeather, toneMatch, PROMPT_BG, PROMPT_CHAR };
   if (typeof module !== 'undefined' && module.exports) { module.exports = api; return; }
   if (typeof document === 'undefined') { root.AutoSwap = api; return; }
 
@@ -196,7 +206,8 @@
     const bd = bg.getImageData(0, 0, r.w, r.h);
     const span = Math.max(ch.box[2] - ch.box[0], ch.box[3] - ch.box[1]);
     const growPx = Math.max(4, Math.round(span * 0.025));
-    const alpha = growFeather(Uint8ClampedArray.from(cm, v => v * 255), r.w, r.h, growPx, Math.max(2, Math.round(growPx / 2)));
+    const panel = opts.panel || null;
+    const alpha = clipToPanel(growFeather(Uint8ClampedArray.from(cm, v => v * 255), r.w, r.h, growPx, Math.max(2, Math.round(growPx / 2))), r, panel);
     const ctx = new Uint8ClampedArray(orig.data);              // context only: inside the patch → transparent
     for (let i = 0; i < n; i++) if (alpha[i] > 0) ctx[i * 4 + 3] = 0;
     const shift = gpt().globalShift ? gpt().globalShift(bd.data, ctx, r.w, r.h) : null;
@@ -224,13 +235,13 @@
     const ma = mg.getImageData(0, 0, r.w, r.h).data;
     const nm = new Uint8Array(n); for (let i = 0; i < n; i++) nm[i] = ma[i * 4 + 3] > 127 ? 1 : 0;
     const tone = toneMatch(nd.data, nm, orig.data, cm, n, 0.6);
-    const na = growFeather(Uint8ClampedArray.from(nm, v => v * 255), r.w, r.h, 0, 1);
+    const na = clipToPanel(growFeather(Uint8ClampedArray.from(nm, v => v * 255), r.w, r.h, 0, 1), r, panel);
     for (let i = 0; i < n; i++) nd.data[i * 4 + 3] = na[i];
     ng.setTransform(1, 0, 0, 1, 0, 0);
     ng.clearRect(0, 0, r.w, r.h);
     if (opts.outline) {   // optional line-weight outline under the character
       const lw = Math.max(1, Math.round(span * 0.004));
-      const oa = growFeather(Uint8ClampedArray.from(nm, v => v * 255), r.w, r.h, lw, 0);
+      const oa = clipToPanel(growFeather(Uint8ClampedArray.from(nm, v => v * 255), r.w, r.h, lw, 0), r, panel);
       const od = ng.createImageData(r.w, r.h);
       for (let i = 0; i < n; i++) { od.data[i * 4] = od.data[i * 4 + 1] = od.data[i * 4 + 2] = 24; od.data[i * 4 + 3] = oa[i]; }
       ng.putImageData(od, 0, 0);
@@ -334,7 +345,7 @@
     return i < 0 ? 0 : i;
   }
 
-  const MATCH = 0.8;
+  const MATCH = 0.8, SURE = 0.9;   // listed ≥80 %, pre-checked ≥90 % (grey art: tone histograms are a weak cue)
   function refreshMatches() {
     const list = $('autoSwapMatches'); if (!list) return;
     list.innerHTML = '';
@@ -346,7 +357,7 @@
     $('autoSwapMatchBox').hidden = !others.length;
     others.forEach(({ c, s }) => {
       const row = el('label', { class: 'auto-swap-match', 'data-id': c.id },
-        '<input type="checkbox" checked> 第 ' + (c.panel + 1) + ' 格 · 人物 ' + (S.chars.indexOf(c) + 1) + ' <span class="ui-muted">相似度 ' + Math.round(s * 100) + '%</span>');
+        '<input type="checkbox"' + (s >= SURE ? ' checked' : '') + '> 第 ' + (c.panel + 1) + ' 格 · 人物 ' + (S.chars.indexOf(c) + 1) + ' <span class="ui-muted">相似度 ' + Math.round(s * 100) + '%</span>');
       list.appendChild(row);
     });
   }
@@ -364,7 +375,7 @@
     S.ctrl = new AbortController();
     status('正在生成：① 擦掉原角色补背景 ② 按参考图重画同姿势的新角色（约 30–60 秒，可点「取消」）…');
     try {
-      S.result = await swapOne(S.pg, S.target, { references: S.refs, note: ($('autoSwapNote') || {}).value || '', outline: !!($('autoSwapOutline') || {}).checked }, S.ctrl.signal);
+      S.result = await swapOne(S.pg, S.target, { panel: (S.panels || [])[S.target.panel], references: S.refs, note: ($('autoSwapNote') || {}).value || '', outline: !!($('autoSwapOutline') || {}).checked }, S.ctrl.signal);
       await showPreview(S.result);
       step(3);
       status('预览好了：点「对比原图」看前后；满意就点「应用」（背景补丁和新角色是两个独立图层）。');
@@ -404,7 +415,7 @@
     for (const [i, ch] of todo.entries()) {
       status('正在换第 ' + (i + 1) + ' / ' + todo.length + ' 个（第 ' + (ch.panel + 1) + ' 格）…');
       try {
-        const res = await swapOne(S.pg, ch, { references: S.refs, note: ($('autoSwapNote') || {}).value || '', outline: !!($('autoSwapOutline') || {}).checked }, S.ctrl.signal);
+        const res = await swapOne(S.pg, ch, { panel: (S.panels || [])[ch.panel], references: S.refs, note: ($('autoSwapNote') || {}).value || '', outline: !!($('autoSwapOutline') || {}).checked }, S.ctrl.signal);
         await applyResult(res, ' 第' + (ch.panel + 1) + '格'); S.doneIds.add(ch.id); ok++;
       } catch (e) { if (e && e.name === 'AbortError') break; fail++; }
     }

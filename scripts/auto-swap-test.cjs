@@ -50,3 +50,17 @@ const src = px(200, 200, 200), ref = px(100, 100, 100);
 A.toneMatch(src, all, ref, all, n, 0.6);
 assert(Math.abs(src[0] - 140) <= 1, String(src[0]));
 console.log('PASS auto-swap helpers: crop aspect/inside page, placement (feet aligned, clamped), descriptor similarity, feather, tone match');
+
+// panel clip: nothing outside the panel (inset past its border line) survives
+{
+  const crop = { x: 100, y: 100, w: 10, h: 10 }, al = new Uint8ClampedArray(100).fill(255);
+  A.clipToPanel(al, crop, [104, 0, 107, 1000], 2);       // usable columns: page x 106..104 → crop x 6..(107-2-100=5) → empty
+  assert(al.every(v => v === 0), 'panel narrower than its border inset: nothing left');
+  const b = new Uint8ClampedArray(100).fill(255);
+  A.clipToPanel(b, crop, [103, 102, 1000, 108], 1);      // crop x >= 4, 3 <= y < 7
+  assert.strictEqual(b[5 * 10 + 4], 255);
+  assert.strictEqual(b[5 * 10 + 3], 0, 'left of the panel');
+  assert.strictEqual(b[2 * 10 + 6], 0, 'above the panel');
+  assert.strictEqual(b[7 * 10 + 6], 0, 'below the panel');
+  console.log('PASS auto-swap panel clip');
+}

@@ -1584,6 +1584,7 @@ async function main() {
       let propagated = null;
       if (matches.length) {
         const n0 = await p.evaluate(() => canvas.getObjects().filter(o => o.autoSwap).length);
+        await p.locator('#autoSwapMatches input').evaluateAll(xs => xs.forEach(x => { x.checked = true; }));
         await click('#autoSwapAll');
         await p.waitForFunction(() => /已换好/.test(document.getElementById('autoSwapStatus').textContent), null, { timeout: 300000 });
         propagated = await p.evaluate(n => ({ layers: canvas.getObjects().filter(o => o.autoSwap).length - n, status: document.getElementById('autoSwapStatus').textContent.slice(0, 50) }), n0);

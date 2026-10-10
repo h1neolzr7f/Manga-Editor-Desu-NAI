@@ -50,7 +50,7 @@ function startServer() {
       { url: process.env.GPT_IMAGE_BASE_URL || '' });
     await p.locator('#imageInput').setInputFiles(path.join(ROOT, 'scripts', 'fixtures', 'ctd', 'page-4.png'));
     await p.waitForFunction(() => canvas.getObjects().some(o => o.type === 'image'), null, { timeout: 30000 }); await p.waitForTimeout(800);
-    await p.locator('#taskMore').click(); await p.locator('#uiModeToggle').click();
+    if (!(await p.evaluate(() => document.body.classList.contains('ui-beginner')))) { await p.locator('#taskMore').click(); await p.locator('#uiModeToggle').click(); }
     await p.locator('#taskBtn-swap').click();
     await p.waitForFunction(() => /找到 \d+ 个人物|没有自动找到/.test((document.getElementById('autoSwapStatus') || {}).textContent || ''), null, { timeout: 240000 });
     await p.screenshot({ path: path.join(OUT, '1-detected.png') });
@@ -81,6 +81,7 @@ function startServer() {
       log.layers = parts.map(x => ({ name: x.name, left: x.left, top: x.top }));
       if (process.env.SWAP_PROPAGATE === '1' && log.state.matches.length) {
         const t1 = Date.now();
+        await p.locator('#autoSwapMatches input').evaluateAll(xs => xs.forEach(x => { x.checked = true; }));
         await p.locator('#autoSwapAll').click();
         await p.waitForFunction(() => /已换好/.test(document.getElementById('autoSwapStatus').textContent), null, { timeout: 900000 });
         log.propagate = { seconds: Math.round((Date.now() - t1) / 1000), status: await p.locator('#autoSwapStatus').textContent() };
