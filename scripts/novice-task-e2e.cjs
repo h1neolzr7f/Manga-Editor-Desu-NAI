@@ -334,6 +334,28 @@ async function main() {
   });
 
   // 7. switch pages while a generation is running: the result must never land on the other page
+  await flow('8 导入含坏文件的一批图→立刻刷新→恢复对话框找回全部页', async () => {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort());
+    const ready = async () => { await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 }); };
+    await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' }); await ready();
+    await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {}); await p.keyboard.press('Escape');
+    const broken = path.join(OUT, 'broken-not-an-image.png'); fs.writeFileSync(broken, 'not an image');
+    await p.locator('#imageInput').setInputFiles([broken, ...PAGES]);
+    await p.waitForFunction(() => document.querySelectorAll('#btm-image-container > *').length >= 2, null, { timeout: 60000 }).catch(() => {});
+    await p.waitForTimeout(1500);
+    const before = await p.evaluate(() => ({ pages: document.querySelectorAll('#btm-image-container > *').length,
+      page1HasImage: canvas.getObjects().some(o => o.type === 'image'), toast: /导入图片/.test(document.body.innerText) }));
+    // the user hits F5 within ~2 s of the import finishing
+    await p.reload({ waitUntil: 'domcontentloaded' }); await ready();
+    const dialog = await p.locator('#autoSaveRecoveryDialog').waitFor({ timeout: 15000 }).then(() => true).catch(() => false);
+    if (dialog) await p.locator('#autoSaveRecoverBtn').click();
+    await p.waitForFunction(() => document.querySelectorAll('#btm-image-container > *').length >= 2, null, { timeout: 30000 }).catch(() => {});
+    const after = await p.evaluate(() => ({ pages: document.querySelectorAll('#btm-image-container > *').length }));
+    await ctx.close();
+    return { pass: before.pages === 2 && before.page1HasImage && dialog && after.pages === 2, detail: { before, dialog, after } };
+  });
+
   await flow('7 生成中切页→结果不得贴到别的页→切回后再应用', async () => {
     if (!(await has('mangaGptOpen'))) return { pass: false, detail: { unavailable: 'no GPT region edit in this version' } };
     if (REAL_GPT) return { pass: true, detail: { skipped: 'mock-only timing test' } };

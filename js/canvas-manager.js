@@ -1017,7 +1017,7 @@ var imported=0;
 for(var i=0;i<files.length;i++){
 try{
 var img=await readImageFile(files[i]);
-if(i===0||typeof btmCreatePageAfter!=='function'){
+if(imported===0||typeof btmCreatePageAfter!=='function'){
 putImportedImage(img);
 }else{
 if(window.NaiPageLoading||window.NaiHistoryLoading){
@@ -1040,6 +1040,11 @@ createToastError('导入图片',(error&&error.message)||String(error));
 }
 if(files.length>1&&typeof createToast==='function'){
 createToast('导入图片','已导入 '+imported+' 页，每张图片一页、保持原分辨率。可在底部页面栏切换。');
+}
+// Imported pages lived only in memory until the 60s auto-save tick: a reload right after
+// importing lost them all. Save now so the recovery dialog can bring them back.
+if(imported>0&&typeof AutoSaveManager!=='undefined'&&AutoSaveManager.save){
+try{await AutoSaveManager.save();}catch(e){canvasLogger.warn('auto-save after import failed',e);}
 }
 }
 

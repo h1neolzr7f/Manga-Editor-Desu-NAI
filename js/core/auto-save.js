@@ -226,6 +226,10 @@ await checkRecovery();
 lastSavedHash=computeStateHash();
 lastSavedGuid=(typeof getCanvasGUID==='function')?getCanvasGUID():null;
 start();
+// best effort: the tab being hidden/closed is the last chance to persist unsaved work
+document.addEventListener('visibilitychange',function(){
+if(document.visibilityState==='hidden'&&enabled)save();
+});
 var chk=$('autoSaveCheckbox');
 if(chk){
 chk.addEventListener('change',function(){
