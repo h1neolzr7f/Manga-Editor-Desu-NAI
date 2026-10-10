@@ -79,8 +79,10 @@ self.showQuickStartPrompt();
 }
 },300);
 },
-showQuickStartPrompt:function(){
+showQuickStartPrompt:function(force){
 var self=this;
+// beginner mode opens on the task home card, which already is the guide: no second overlapping welcome
+if(!force){try{if(localStorage.getItem('mnai.uiMode')!=='pro')return;}catch(e){}}
 var overlay=document.createElement('div');
 overlay.className='tutorial-overlay';
 overlay.innerHTML='<div class="tutorial-prompt">'+

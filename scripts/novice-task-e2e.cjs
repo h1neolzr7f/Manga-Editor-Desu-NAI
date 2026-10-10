@@ -90,7 +90,9 @@ const op = {
   },
   async files(trigger, files, label) { // the click that opens the OS dialog counts; choosing files does not
     const chooser = page.waitForEvent('filechooser', { timeout: 15000 });
-    await trigger.click(); cur.ops.push(label);
+    // a file input replaced by the themed picker (js/ui/file-pick.js): a person clicks its button
+    const pick = await trigger.evaluate(e => e.type === 'file' && e.classList.contains('ui-file-hidden') ? e.id + 'Pick' : null).catch(() => null);
+    await (pick ? page.locator('#' + pick) : trigger).click(); cur.ops.push(label);
     await (await chooser).setFiles(files);
   }
 };
@@ -199,8 +201,12 @@ async function main() {
 
   // 1. fresh start -> import a 2-page manga
   await flow('1 首次启动并导入 2 页漫画', async () => {
-    const tutorial = await page.locator('#tutorialSkipBtn').isVisible().catch(() => false);
-    if (tutorial) await op.click(page.locator('#tutorialSkipBtn'), 'skip tutorial');
+    // beginner mode (default): the home card is the guide and no tutorial overlays it; pro mode: the tutorial
+    const isPro = await page.evaluate(() => localStorage.getItem('mnai.uiMode') === 'pro');
+    const tutorialVisible = await page.locator('#tutorialSkipBtn').isVisible().catch(() => false);
+    const homeVisible = await page.locator('#taskHome').isVisible().catch(() => false);
+    const tutorial = isPro ? tutorialVisible : (homeVisible && !tutorialVisible);
+    if (tutorialVisible) await op.click(page.locator('#tutorialSkipBtn'), 'skip tutorial');
     await op.files(page.locator('#navbarDropdownFile'), [], 'File menu').catch(() => {}); // File menu opens no chooser
     cur.ops.pop(); await page.keyboard.press('Escape');
     await op.click(page.locator('#navbarDropdownFile'), 'File menu');
@@ -1158,7 +1164,9 @@ async function main() {
       // 换角色 opens the automatic v2 wizard; the box-select GPT path is one click away
       if (taskId === 'swap') await op.click(p.locator('#autoSwapManual'), '改用手动框选');
       await p.waitForSelector('#mangaGptTaskHead', { timeout: 5000 });
-      const simple = { sizeHidden: !(await shown(p, '#mangaGptSize')), modeHidden: !(await shown(p, '#mangaGptMode')), keyHidden: !(await shown(p, '#mangaGptKey')) };
+      const simple = { sizeHidden: !(await shown(p, '#mangaGptSize')), modeHidden: !(await shown(p, '#mangaGptMode')), keyHidden: !(await shown(p, '#mangaGptKey')),
+        // themed picker instead of the browser's English 'Choose Files / No file chosen'
+        filePick: await p.waitForFunction(() => { const b = document.getElementById('mangaGptReferencesPick'), i = document.getElementById('mangaGptReferences'); return !!(b && b.offsetParent && i && i.classList.contains('ui-file-hidden') && i.getBoundingClientRect().width <= 4); }, null, { timeout: 3000 }).then(() => true, () => false) };
       const step0 = await steps(p);
       await dragBox(p, 0.25, 0.08, 0.7, 0.55, '框选');
       const ex = extra ? await extra(p) : {};
@@ -1231,7 +1239,7 @@ async function main() {
       return { stepAfterRef: await steps(p) };
     });
     const call = r.calls.find(c => c.op === 'edit') || {};
-    return { pass: r.simple.sizeHidden && r.simple.modeHidden && r.simple.keyHidden && r.step0[0] === 'cur' && r.stepAfterRef[2] === 'cur' &&
+    return { pass: r.simple.filePick && r.simple.sizeHidden && r.simple.modeHidden && r.simple.keyHidden && r.step0[0] === 'cur' && r.stepAfterRef[2] === 'cur' &&
       r.stepEnd.every(x => x === 'done') && r.advancedShowsSize && /^Replace the character/.test(call.prompt || '') && call.refs === 1 && call.model === 'gpt-image-2.5' && !r.errors.length, detail: r };
   });
 

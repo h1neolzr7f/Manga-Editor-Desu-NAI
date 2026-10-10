@@ -326,6 +326,14 @@ def handle_smart_ocr_post(handler):
         if not isinstance(data, dict):
             raise SmartOcrError("OCR 请求必须是对象。")
         allow_download = data.get("allow_download") is True
+        _idle_kind = {"/manga-smart/characters": "sam2", "/manga-smart/sam-click": "sam2", "/manga-smart/text-mask": "ctd",
+                      "/manga-smart/lama-inpaint": "lama", "/manga-smart/manga-ocr": "manga-ocr"}.get(route)
+        if _idle_kind:
+            try:
+                from manga_model_guard import touch
+                touch(_idle_kind)
+            except Exception:
+                pass
         if route == "/manga-smart/status":
             result = local_model_status()
         elif route == "/manga-smart/characters":

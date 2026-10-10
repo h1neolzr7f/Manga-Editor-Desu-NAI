@@ -110,6 +110,25 @@ def _models():
 
 
 @unittest.skipUnless(_models() and D.extra_cached(), "isnet-anime / SAM / face+CCIP weights not cached")
+class IdleRelease(unittest.TestCase):
+    def test_idle_models_are_released_only_when_free(self):
+        import manga_model_guard as g
+        import manga_character_detect as mcd
+        mcd._seg = object(); mcd._extra["face"] = object()
+        g._last_use["sam2"] = 1000.0
+        self.assertEqual(g.release_idle(now=1100.0, limit=600), [], "not idle yet")
+        self.assertIsNotNone(mcd._seg)
+        sem = g._busy["sam2"]; sem.acquire()
+        try:
+            self.assertEqual(g.release_idle(now=5000.0, limit=600), [], "never released mid-request")
+        finally:
+            sem.release()
+        self.assertIn("sam2", g.release_idle(now=5000.0, limit=600))
+        self.assertIsNone(mcd._seg); self.assertEqual(mcd._extra, {})
+        self.assertEqual(g.idle_seconds({"MANGA_MODEL_IDLE_SEC": "5"}), 30)
+        self.assertEqual(g.idle_seconds({}), 600)
+
+
 class Page4(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

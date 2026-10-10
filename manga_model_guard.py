@@ -89,3 +89,96 @@ def exclusive(kind, wait=0):
         yield
     finally:
         sem.release()
+
+
+# ---- idle release: big local models are dropped after MANGA_MODEL_IDLE_SEC without use (default 10 min) ----
+# A beginner's laptop should not keep ~3 GB of segmentation/SAM/CCIP/LaMa weights after one 换角色; they reload
+# on the next use (from disk, a few seconds). Only released while the model's lock is free (never mid-request).
+import gc as _gc
+import time as _time
+
+_IDLE_GROUPS = {
+    # lock -> [(module, attributes set to None / cleared)]
+    "sam2": [("manga_sam_select", ("_predictor", "_embeds")), ("manga_character_detect", ("_seg", "_extra"))],
+    "ctd": [("manga_text_detector", ("_session",))],
+    "lama": [("manga_lama_inpaint", ("_model",))],
+    "manga-ocr": [("manga_ocr_refiner", ("_model",))],
+}
+_last_use = {}
+_idle_thread = None
+
+
+def idle_seconds(environ=None):
+    raw = (environ if environ is not None else os.environ).get("MANGA_MODEL_IDLE_SEC", "")
+    try:
+        return max(30, int(float(raw))) if str(raw).strip() else 600
+    except ValueError:
+        return 600
+
+
+def touch(kind):
+    """Mark a model group as used now and make sure the idle watcher runs."""
+    global _idle_thread
+    _last_use[kind] = _time.time()
+    if _idle_thread is None:
+        _idle_thread = threading.Thread(target=_idle_loop, name="model-idle-release", daemon=True)
+        _idle_thread.start()
+
+
+def _loaded(kind):
+    import sys
+    for mod, attrs in _IDLE_GROUPS.get(kind, ()):
+        m = sys.modules.get(mod)
+        if m is None:
+            continue
+        for a in attrs:
+            v = getattr(m, a, None)
+            if v is not None and v != {} and v != []:
+                return True
+    return False
+
+
+def release_idle(now=None, limit=None):
+    """Drop every group idle longer than `limit` seconds whose lock is free. Returns the released kinds."""
+    import sys
+    now = _time.time() if now is None else now
+    limit = idle_seconds() if limit is None else limit
+    released = []
+    for kind, last in list(_last_use.items()):
+        if now - last < limit or not _loaded(kind):
+            continue
+        sem = _busy.get(kind)
+        if sem is not None and not sem.acquire(blocking=False):
+            continue
+        try:
+            for mod, attrs in _IDLE_GROUPS.get(kind, ()):
+                m = sys.modules.get(mod)
+                if m is None:
+                    continue
+                for a in attrs:
+                    v = getattr(m, a, None)
+                    if isinstance(v, dict):
+                        v.clear()
+                    elif v is not None:
+                        setattr(m, a, None)
+            released.append(kind)
+        finally:
+            if sem is not None:
+                sem.release()
+    if released:
+        _gc.collect()
+        try:  # hand freed heap back to the OS (glibc); harmless elsewhere
+            import ctypes
+            ctypes.CDLL("libc.so.6").malloc_trim(0)
+        except Exception:
+            pass
+    return released
+
+
+def _idle_loop():
+    while True:
+        _time.sleep(30)
+        try:
+            release_idle()
+        except Exception:
+            pass

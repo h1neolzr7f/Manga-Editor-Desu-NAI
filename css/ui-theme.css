@@ -61,7 +61,7 @@
 .ui-card { background: var(--ui-surface); color: var(--ui-text); border: 1px solid var(--ui-border); border-radius: var(--ui-radius); box-shadow: var(--ui-shadow); font: var(--ui-font); }
 .ui-modal-backdrop { position: fixed; inset: 0; z-index: 13000; background: var(--ui-overlay); display: flex; align-items: center; justify-content: center; }
 .ui-modal { width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 48px); overflow: auto; padding: var(--ui-space-4); }
-.ui-modal h2 { margin: 0 0 var(--ui-space-3); font: var(--ui-font-title); font-size: 18px; }
+.ui-modal h2 { position: sticky; top: calc(-1 * var(--ui-space-4)); z-index: 2; background: var(--ui-surface); padding: var(--ui-space-2) 0; margin: 0 0 var(--ui-space-3); font: var(--ui-font-title); font-size: 18px; }
 .ui-field { display: grid; gap: 4px; margin: var(--ui-space-2) 0; }
 .ui-field > span { color: var(--ui-text-muted); }
 .ui-field input, .ui-field select, .ui-textarea {

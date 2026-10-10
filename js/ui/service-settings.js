@@ -47,7 +47,10 @@ var box=$('mangaGptServiceSummary');
 if(!box)return;
 var model=($('mangaGptModel')||{}).value||'';
 var key=($('mangaGptKey')||{}).value||'';
-box.querySelector('[data-role="text"]').textContent='GPT 服务：'+model+' · '+hostOf(($('mangaGptUrl')||{}).value)+' · '+(key?'已填 Key':'未填 Key（用本机 .env）');
+var t=box.querySelector('[data-role="text"]');
+// beginner wording; the technical details (host, key source) stay in the tooltip
+t.textContent='AI 改图：'+(model||'gpt-image-2.5')+(key?' · 已设置':' · 用本机默认设置（失败时点「服务设置」）');
+t.title=hostOf(($('mangaGptUrl')||{}).value)+' · '+(key?'已填 Key':'未填 Key（用本机 .env）');
 }
 
 function setStatus(id,kind,text){
@@ -216,9 +219,11 @@ build();
 lastFocus=document.activeElement;
 root.hidden=false;
 var target=$(which==='novelai'?'svcNai':which==='local'?'svcLocal':which==='cutout'?'svcCutout':'svcGpt');
-if(target&&target.scrollIntoView)target.scrollIntoView({block:'start'});
+var modal=root.querySelector('.ui-modal');
+// the first section opens at the very top (title visible); others scroll to their section
+if(target&&target.id!=='svcGpt'&&target.scrollIntoView)target.scrollIntoView({block:'start'});else if(modal)modal.scrollTop=0;
 var first=target&&target.querySelector('input,select,button');
-if(first)first.focus();
+if(first)try{first.focus({preventScroll:true});}catch(e){first.focus();}
 }
 function close(){
 if(!root||root.hidden)return;
