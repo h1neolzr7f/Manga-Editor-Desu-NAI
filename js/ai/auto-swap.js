@@ -555,6 +555,9 @@
     s.onKey = e => { if (e.key === 'Escape' && S === s && s.ov) { s.ov.box.remove(); s.ov = null; status('已关闭选人；重新打开向导可再选。'); } };
     window.addEventListener('keydown', s.onKey, true);
     s.follow = setInterval(() => { if (S === s && s.ov) { const before = s.ov.box.style.left + s.ov.box.style.top; if (placeOverlay() || before !== s.ov.box.style.left + s.ov.box.style.top) drawPick(); } }, 400);
+    // local panel detection (instant, no model): crop/paste stay inside the right panel even without the
+    // character models; the server's detection replaces it when it runs
+    if (root.PanelAuto) root.PanelAuto.get().then(r => { if (S === s && !(s.panels && s.panels.length) && r.panels.length) s.panels = r.panels.map(q => [q.x, q.y, q.x + q.w, q.y + q.h]); }).catch(() => {});
     // Detect right away only when the model is already on this computer; a first download needs a click.
     let st = null;
     try { st = await post('/manga-smart/status', {}); } catch (_) { st = null; }

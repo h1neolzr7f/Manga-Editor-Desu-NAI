@@ -397,7 +397,7 @@ function pagePrompt(style,scene){
 return (style?style+'。':'')+'只画一个完整的单幅画面（这是漫画里的一格，但画面本身不要再分格、不要画边框、不要画对白框或任何文字）。画面内容：'+scene;
 }
 function sizeFor(r){var a=r.width/r.height;return a>1.2?'1536x1024':a<.83?'1024x1536':'1024x1024';}
-var pageJob=null;
+var pageJob=null,pageLayout=null;
 function startPage(t){
 var body=card(t);
 markStep(0);
@@ -410,7 +410,15 @@ body.innerHTML='<div class="svc-row" role="radiogroup" aria-label="格子数">'+
 '<div class="svc-row"><button type="button" class="ui-btn ui-btn-primary" id="taskPageGo" disabled>生成整页</button>'+
 '<button type="button" class="ui-btn" id="taskPageCancel" hidden>停止</button></div>'+
 '<p id="taskPageStatus" role="status" class="ui-muted"></p>';
-body.querySelectorAll('[data-panels]').forEach(function(b){b.addEventListener('click',function(){choosePanels(Number(b.dataset.panels));});});
+body.querySelectorAll('[data-panels]').forEach(function(b){b.addEventListener('click',function(){pageLayout=null;choosePanels(Number(b.dataset.panels));});});
+pageLayout=null;
+// the open page already has panels (white gutters) → offer its layout for the new page
+if(window.PanelAuto&&canvas.getObjects().some(function(o){return o.type==='image';}))PanelAuto.get().then(function(r){
+var n=r.panels.length;if(n<2||n>8||!$('taskPage3'))return;
+var b=el('button',{type:'button',class:'ui-btn',id:'taskPageDetected','data-panels':String(n),title:'新的一页用和当前页一样的分格'},'照本页格子（'+n+' 格）');
+$('taskPage4').parentNode.appendChild(b);
+b.addEventListener('click',function(){pageLayout=r;choosePanels(n);});
+}).catch(function(){});
 $('taskPageGo').addEventListener('click',runPage);
 $('taskPageCancel').addEventListener('click',function(){if(pageJob)pageJob.cancel=true;if(pageJob&&pageJob.ctl)pageJob.ctl.abort();});
 }
@@ -488,7 +496,9 @@ pageStatus('正在新建一页…');
 await loadBookSize(1200,1700,false,true);
 W=1200;H=1700;
 }else if(!canvas.getObjects().length&&typeof resizeCanvasToObject==='function'){W=1200;H=1700;resizeCanvasToObject(W,H);}
-var rects=layoutRects(scenes.length,W,H);
+var rects=pageLayout&&pageLayout.panels.length===scenes.length?
+pageLayout.panels.map(function(q){var kx=W/pageLayout.W,ky=H/pageLayout.H;return {left:Math.round(q.x*kx),top:Math.round(q.y*ky),width:Math.round(q.w*kx),height:Math.round(q.h*ky)};}):
+layoutRects(scenes.length,W,H);
 // the whole generated page is ONE history step: one Ctrl+Z takes it all back
 if(typeof changeDoNotSaveHistory==='function'){changeDoNotSaveHistory();pageJob.historyPaused=true;}
 var panels=rects.map(function(r,i){var p=makePanel(r,i+1);canvas.add(p);return p;});

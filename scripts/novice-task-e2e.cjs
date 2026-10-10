@@ -1652,7 +1652,7 @@ async function main() {
     } finally { await ctx.close(); }
   });
 
-  await flow('36 分层：按格子拆成图层（自动找格子 → 点一格取消 → 拆成图层，一步撤销/重做）', async () => {
+  await flow('36 自动找格子：分层按格子拆成图层（点一格取消，一步撤销/重做）+ 画一页照本页格子', async () => {
     const { ctx, p, errors } = await beginnerEditor({ noImport: true });
     try {
       await p.locator('#imageInput').setInputFiles(path.join(__dirname, 'fixtures', 'ctd', 'page-4.png'));
@@ -1674,8 +1674,14 @@ async function main() {
       await op.key('Control+y', '重做'); await p.waitForTimeout(800);
       const redone = await p.evaluate(() => canvas.getObjects().filter(o => o.panelLayer).length);
       const status = await p.locator('#taskLayerStatus').textContent();
-      return { pass: found === 4 && /拆成 3 个图层/.test(label) && n0 === 0 && layers.length === 3 && !layers.includes('第2格') && undone === 0 && redone === 3 && /已拆成 3 个图层/.test(status) && !errors.length,
-        detail: { found, label, layers, undone, redone, status, errors } };
+      // 画一页 offers the open page's own panel layout
+      await op.click(p.locator('#taskBtn-page'), '画一页漫画');
+      const det = p.locator('#taskPageDetected'); await det.waitFor({ timeout: 10000 });
+      const detLabel = await det.textContent();
+      await op.click(det, '照本页格子');
+      const sceneFields = await p.locator('#taskPagePanels [data-scene]').count();
+      return { pass: found === 4 && /拆成 3 个图层/.test(label) && n0 === 0 && layers.length === 3 && !layers.includes('第2格') && undone === 0 && redone === 3 && /已拆成 3 个图层/.test(status) && /照本页格子（4 格）/.test(detLabel) && sceneFields === 4 && !errors.length,
+        detail: { found, label, layers, undone, redone, status, detLabel, sceneFields, errors } };
     } finally { await ctx.close(); }
   });
 
