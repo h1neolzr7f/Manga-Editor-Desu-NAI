@@ -154,7 +154,7 @@ async function startServer() {
   if (busy) throw new Error('port 8000 busy');
   server = spawn(python, ['99_server.py'], { cwd: APP_ROOT || ROOT, stdio: ['ignore', 'ignore', 'pipe'],
     env: { ...process.env, NAI_QUIET: '1', GPT_IMAGE_API_KEY: readKey(), GPT_IMAGE_TRUSTED_BASE_URL: REAL_GPT ? BASE_URL : '',
-      NOVELAI_API_KEY: '', DIRECTOR_API_KEY: '' } });
+      NOVELAI_API_KEY: '', DIRECTOR_API_KEY: '', MANGA_MODEL_IDLE_SEC: process.env.MANGA_MODEL_IDLE_SEC || '60' } });
   for (let i = 0; ; i++) {
     try { if ((await fetch(SERVER + '/index.html')).ok) return; } catch {}
     if (i > 150) throw new Error('server not ready'); await new Promise(r => setTimeout(r, 200));
@@ -1262,14 +1262,15 @@ async function main() {
     return { pass: r.empty.error === 'true' && /描述/.test(r.empty.status) && r.stepAfterPrompt[2] === 'cur' && r.stepEnd.every(x => x === 'done') && call.prompt === '把背景改成黄昏的天空' && !r.errors.length, detail: r };
   });
 
-  await flow('27 改字幕向导：检测本页文字→改台词→应用（语言/精修等参数隐藏，高级可展开）', async () => {
+  await flow('27 改字幕向导：打开即自动识别→改台词→应用（语言/精修等参数隐藏，高级可展开）', async () => {
     const { ctx, p, errors } = await beginnerEditor();
     try {
       await op.click(p.locator('#taskBtn-caption'), '改字幕');
       await p.waitForSelector('#mangaGptTaskHead', { timeout: 5000 });
       const simple = { langHidden: !(await shown(p, '#mangaSmartLanguage')), detect: await shown(p, '#mangaSmartDetect') };
-      await op.click(p.locator('#mangaSmartDetect'), '检测本页文字');
+      // detection starts by itself when the wizard opens (no click)
       await p.waitForFunction(() => document.querySelectorAll('.manga-smart-item textarea').length > 0, null, { timeout: 60000 });
+      const autoDetected = !cur.ops.includes('检测本页文字');
       await p.waitForTimeout(500);
       const stepDetected = await steps(p);
       const advHidden = !(await p.locator('.manga-smart-item [data-adv]').first().isVisible());
@@ -1283,8 +1284,8 @@ async function main() {
       await p.locator('#taskAdvanced').check(); await p.waitForTimeout(200);
       const advancedShowsLang = await shown(p, '#mangaSmartLanguage');
       await snap('wizard-caption');
-      return { pass: simple.langHidden && simple.detect && stepDetected[1] === 'cur' && advHidden && stepEnd.every(x => x === 'done') && /谢谢你/.test(text) && advancedShowsLang && !errors.length,
-        detail: { simple, stepDetected, advHidden, stepEnd, text, advancedShowsLang, errors } };
+      return { pass: autoDetected && simple.langHidden && simple.detect && stepDetected[1] === 'cur' && advHidden && stepEnd.every(x => x === 'done') && /谢谢你/.test(text) && advancedShowsLang && !errors.length,
+        detail: { autoDetected, simple, stepDetected, advHidden, stepEnd, text, advancedShowsLang, errors } };
     } finally { await ctx.close(); }
   });
 
@@ -1415,9 +1416,9 @@ async function main() {
       const badStart = kinsoku.some(t => t.split('\n').slice(1).some(l => /^[，。！？…、」）]/.test(l)));
       const here = await p.evaluate(() => getCanvasGUID());
       const pageCount = await p.evaluate(() => btmProjectsMap.size);
-      const dl = p.waitForEvent('download', { timeout: 60000 });
+      const dl = p.waitForEvent('download', { timeout: 60000 }).catch(e => e);   // never an unhandled rejection
       await op.click(p.locator('#taskExportAll'), '导出全部');
-      const d = await dl; const file = path.join(OUT, 'export-all.zip'); await d.saveAs(file);
+      const d = await dl; if (d instanceof Error) throw d; const file = path.join(OUT, 'export-all.zip'); await d.saveAs(file);
       const list = require('child_process').execFileSync('unzip', ['-Z1', file], { encoding: 'utf8' }).trim().split('\n');
       const png = require('child_process').execFileSync('unzip', ['-p', file, 'page-01.png']).subarray(0, 8).toString('hex');
       const back = await p.evaluate(() => getCanvasGUID());

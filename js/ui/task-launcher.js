@@ -32,7 +32,7 @@ steps:['点一下要换掉的人物（已自动找出，橙色虚线）','上传
 manualSteps:['在画布上拖一个框，框住要换的人物','上传新角色的参考图（推荐）','点「生成预览」，可用「对比原图」看前后','满意就点「作为新图层应用」'],
 placeholder:'补充要求（可不填），例如：表情改成微笑',preset:GPT_PRESETS.swap},
 {id:'caption',icon:'translate',title:'改字幕',desc:'识别气泡里的字，改成新台词',kind:'caption',
-steps:['点「检测本页文字」（识别不到就点「手动框选字幕」）','在每条下面改成新台词','点「应用为可编辑图层」，旧字会自动盖掉']},
+steps:['自动识别本页文字（打开就开始；识别不到可点「手动框选字幕」）','在每条下面改成新台词','点「应用为可编辑图层」，旧字会自动盖掉']},
 {id:'fix',icon:'healing',title:'修瑕疵 / 去杂物',desc:'框住不想要的东西，AI 补好背景',kind:'gpt',
 steps:['在画布上拖一个框，框住要去掉的东西','点「生成预览」，可用「对比原图」看前后','满意就点「作为新图层应用」'],
 placeholder:'补充说明（可不填），例如：去掉右下角的水印',preset:GPT_PRESETS.fix},
@@ -158,7 +158,11 @@ function updateHome(){
 var home=$('taskHome');
 if(!home)return;
 home.hidden=mode()!=='beginner'||hasPage()||home.dataset.dismissed==='1'||!!active;
+// the first page of a session gets the full width: close the template panel once more if something reopened it
+if(mode()==='beginner'&&hasPage()&&!firstPageSeen){firstPageSeen=true;var tp=$('svg-container-template');
+if(tp&&getComputedStyle(tp).display!=='none'&&typeof toggleVisibility==='function')toggleVisibility('svg-container-template');}
 }
+var firstPageSeen=false;
 
 // ---------- wizard head (inside the driven panel) ----------
 function head(t,container,before){
@@ -291,6 +295,9 @@ active.startApplied=api.progress().applied;
 var panel=$('mangaSmartTextPanel');
 head(t,panel,panel.querySelector('header')?panel.querySelector('header').nextSibling:null);
 markStep(0);
+// no click needed: a page without drafts is read right away (「检测本页文字」 stays for re-reading)
+var pr=api.progress();
+if(!pr.drafts&&!pr.busy&&api.detect&&typeof canvas!=='undefined'&&canvas.getObjects().some(function(o){return o.type==='image';}))api.detect();
 }
 function startNai(t){
 var body=card(t);
