@@ -5678,16 +5678,12 @@ return mergedResources;
 
 const mergedResources = mergeResources(resources);
 const DEFAULT_LANGUAGE = "zh";
-let savedLanguage = DEFAULT_LANGUAGE;
 localStorage.setItem("language", DEFAULT_LANGUAGE);
 document.documentElement.lang = DEFAULT_LANGUAGE;
 
 // 中文单语言：已移除所有其他语言选项和切换UI
 var langFlagMap = { "zh": "cn" };
 
-var langWelcomeMap = {
-  "zh": "欢迎使用 Manga Editor Desu（nai学长魔改版）。"
-};
 
 function updateLanguageFlag(lng) {
 document.documentElement.lang = lng;

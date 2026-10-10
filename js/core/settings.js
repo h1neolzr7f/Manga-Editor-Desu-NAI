@@ -1,5 +1,4 @@
 //FabricCanvas2HtmlCanvas Scale
-const blendScale=3;
 var webpQuality=0.98;
 
 fabric.Object.NUM_FRACTION_DIGITS=100;

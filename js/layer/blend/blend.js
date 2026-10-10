@@ -304,10 +304,6 @@ function createScaledCanvas(sourceCanvas,maxWidth,maxHeight){
 return HtmlCanvasUtil.createScaledCanvas(sourceCanvas,maxWidth,maxHeight);
 }
 
-function isBlendChecked(layer) {
-var id=getGUID(layer);
-return blendCheckedSet.has(id);
-}
 
 var blendDragState=null;
 

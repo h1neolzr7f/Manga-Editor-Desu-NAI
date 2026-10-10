@@ -2,7 +2,6 @@ var tmpCanvasFL=null;
 var tmpCtxFL=null;
 var isDrawingFL=false;
 var nowFocusLine=null;
-var nowFCActiveObject=null;
 var conf=null;
 var lines=null;
 

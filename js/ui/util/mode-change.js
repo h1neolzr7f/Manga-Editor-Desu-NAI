@@ -1,6 +1,5 @@
 // mode-change.js - グローバル変数、ダークモード切替、cropモードUI
 
-var nowMode="";
 
 var isKnifeDrawing=false;
 var isKnifeMode=false;
@@ -8,7 +7,6 @@ var isKnifeMode=false;
 const MODE_PEN_PENCIL='Pencil';
 const MODE_PEN_OUTLINE='OutlinePen';
 const MODE_PEN_CIRCLE='Circle';
-const MODE_PEN_SQUARE='Square';
 const MODE_PEN_TEXTURE='Texture';
 const MODE_PEN_CRAYON='Crayon';
 const MODE_PEN_INK='Ink';

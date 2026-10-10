@@ -43,12 +43,6 @@ return provider.executeI2I(layer,spinner.id);
 }
 
 
-function getDiffusionInformation() {
-var provider=providerRegistry.getActive();
-if(provider){
-provider.fetchDiffusionInformation();
-}
-}
 
 
 function getInUseProviders(){
@@ -113,16 +107,8 @@ announce.style.display='none';
 }
 
 
-function updateUpscalerDropdown(models) {
-}
 
-function updateSamplerDropdown(models) {
-}
 
-function updateModelDropdown(models) {
-}
 
-function updateVaeDropdown(models) {
-}
 
 

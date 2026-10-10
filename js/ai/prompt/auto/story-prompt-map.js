@@ -1,11 +1,3 @@
-let OpeningScenario=100000
-let SoloScenario=200000
-let EarlyForeplayScenario=300000
-let LateForeplayScenario=400000
-let SexScenario=500000
-let LateSexScenario=600000
-let EjaculationScenario=700000
-let SexAfterScenario=800000
 
 class ScenarioPromptMap {
 constructor() {

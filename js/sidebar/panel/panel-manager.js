@@ -418,14 +418,6 @@ false
 });
 
 
-function canvasInScale(originalWidth,originalHeight){
-const canvasWidth=canvas.width;
-const canvasHeight=canvas.height;
-const scaleX=(canvasWidth*0.4)/originalWidth;
-const scaleY=(canvasHeight*0.4)/originalHeight;
-const scale=Math.min(scaleX,scaleY);
-return scale;
-}
 
 
 function Edit() {

@@ -21,10 +21,6 @@ AI_ROLES.Image2Image
 ]
 };
 
-const ROLE_ASSIGNABLE_ROLES=[
-AI_ROLES.Text2Image,
-AI_ROLES.Image2Image
-];
 
 function hasNotRole(role) {
 return!(hasRole(role));

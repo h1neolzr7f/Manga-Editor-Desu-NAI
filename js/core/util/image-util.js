@@ -10,7 +10,6 @@ var EXPORT_MAX_PIXELS=typeof NaiMangaPageSize!=="undefined"&&NaiMangaPageSize.EX
 ?NaiMangaPageSize.EXPORT_MAX_PIXELS
 :40*1000*1000;
 var EXPORT_FORMATS=['png','jpeg','webp'];
-var EXPORT_BIT_DEPTHS=['gray','rgb','argb'];
 var EXPORT_BIT_DEPTH_DEFAULT='argb';
 var EXPORT_QUALITY_MIN=0.5;
 var EXPORT_QUALITY_MAX=0.98;

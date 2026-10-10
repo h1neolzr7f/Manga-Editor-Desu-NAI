@@ -1,11 +1,3 @@
-function getSelectedTagifyValues(id) {
-const tagify=getTagify(id);
-if (tagify) {
-const selectedValues=tagify.value.map(tag=>tag.value);
-return selectedValues;
-}
-return [];
-}
 
 
 function fuzzyTagifySearch(query,text) {

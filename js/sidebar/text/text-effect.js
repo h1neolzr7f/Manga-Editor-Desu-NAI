@@ -135,24 +135,6 @@ FontSelectorManager.syncSelected(textObj.fontFamily);
 updateBoldToggleUI();
 }
 
-function applyInnerShadow() {
-const activeObject=canvas.getActiveObject();
-if (isText(activeObject)) {
-if (!activeObject.shadow) {
-activeObject.set({
-shadow: {
-color: "rgba(0, 0, 0, 0.8)",
-blur: 10,
-offsetX: 5,
-offsetY: 5,
-},
-});
-} else {
-activeObject.set("shadow",null);
-}
-canvas.renderAll();
-}
-}
 
 
 function applyInnerShadow() {
@@ -331,30 +313,6 @@ setJsColorValue("textBgColorPicker",isTransparent?"rgba(0,0,0,0)":next);
 canvas.renderAll();
 }
 
-function updateNeonEffect(activeObject) {
-if (isText(activeObject)) {
-if (!isNeonEnabled) {
-activeObject.set("shadow",null);
-activeObject.set("stroke",null);
-} else {
-var neonColor=$("firstTextEffectColorPicker").value;
-activeObject.set(
-"shadow",
-new fabric.Shadow({
-color: neonColor,
-blur: neonIntensity,
-offsetX: 0,
-offsetY: 0,
-affectStroke: false,
-opacity: neonIntensity,
-})
-);
-activeObject.set("stroke",neonColor);
-activeObject.set("strokeWidth",2);
-}
-canvas.renderAll();
-}
-}
 
 
 

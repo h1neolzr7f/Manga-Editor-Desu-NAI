@@ -113,6 +113,7 @@ nowTone=null;
 if (type===MODE_TONE) {
 if(typeof toneStart==='function'&&toneStart()===false)return;
 addToneEventListener();
+addToneSettingsPersistence();
 debouncedGenerateTone();
 } else if (type===MODE_TONE_NOISE) {
 if(typeof toneNoiseStart==='function'&&toneNoiseStart()===false)return;
@@ -330,7 +331,9 @@ mangaToneMinRadius=null;
 }
 
 
-function addToneEventListener(){
+// Was also named addToneEventListener, so tone.js (loaded later) silently replaced it and
+// manga tone settings were never saved. Bound once per element.
+function addToneSettingsPersistence(){
 
 const elements=[
 mangaToneAngle,
@@ -362,7 +365,8 @@ mangaToneMinRadius
 ];
 
 elements.forEach(element=>{
-if (element) {
+if (element&&!element.dataset.toneSaveBound) {
+element.dataset.toneSaveBound='1';
 element.addEventListener('change',()=>{
 saveValueMap(element);
 });

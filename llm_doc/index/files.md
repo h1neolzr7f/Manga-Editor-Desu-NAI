@@ -65,7 +65,7 @@
 | html/common.css | 343 |  |
 | html/functionList.html | 321 |  |
 | index.html | 3079 |  |
-| js/ai/ai-management.js | 128 | AI機能の中央ルーター: プロバイダーレジストリ経由でディスパッチ |
+| js/ai/ai-management.js | 114 | AI機能の中央ルーター: プロバイダーレジストリ経由でディスパッチ |
 | js/ai/ai-settings.js | 422 |  |
 | js/ai/director/scene-plan-controller.js | 66 |  |
 | js/ai/director/scene-plan-schema.js | 19 |  |
@@ -91,7 +91,7 @@
 | js/ai/prompt/auto/auto-prompt-util.js | 817 | generatePageList(btmGetGuidsSize()); |
 | js/ai/prompt/auto/character-card-manager.js | 544 |  |
 | js/ai/prompt/auto/prompt-map.js | 193 |  |
-| js/ai/prompt/auto/story-prompt-map.js | 114 |  |
+| js/ai/prompt/auto/story-prompt-map.js | 106 |  |
 | js/ai/prompt/base-event-listener.js | 9 |  |
 | js/ai/prompt/director-safety.js | 29 | Director (third-party LLM gateway) credential safety. |
 | js/ai/prompt/novelai-composition-director.js | 1214 |  |
@@ -99,9 +99,9 @@
 | js/ai/provider/novelai-provider.js | 581 | NovelAI provider: direct browser call to the official image API. |
 | js/ai/provider/provider-registry.js | 100 | プロバイダーレジストリ: プロバイダー登録とRole→プロバイダーのルーティング管理 |
 | js/ai/queue/generation-task-manager.js | 302 |  |
-| js/ai/queue/spinner.js | 116 | AI進捗表示（レイヤー上インジケータ、キャンセル） |
+| js/ai/queue/spinner.js | 97 | AI進捗表示（レイヤー上インジケータ、キャンセル） |
 | js/ai/queue/task-queue.js | 89 |  |
-| js/ai/role/ai-roles.js | 38 | NovelAI-only role definitions. |
+| js/ai/role/ai-roles.js | 34 | NovelAI-only role definitions. |
 | js/ai/role/role-assignment-ui.js | 78 | Role Assignment: Role×プロバイダーのマトリクスUI |
 | js/ai/ui/ai-ui-util.js | 8 |  |
 | js/ai/ui/unified-settings-window.js | 38 |  |
@@ -126,10 +126,10 @@
 | js/core/font/font-dropdown.js | 295 |  |
 | js/core/font/font-manager-core.js | 750 |  |
 | js/core/global-error-handler.js | 17 | グローバルエラーハンドラ（未キャッチのエラーとPromise rejectionを検知） |
-| js/core/logger.js | 204 | ログ出力ユーティリティ（SimpleLogger） |
+| js/core/logger.js | 197 | ログ出力ユーティリティ（SimpleLogger） |
 | js/core/manga-page-size.js | 256 |  |
 | js/core/service/worker-register.js | 115 |  |
-| js/core/settings.js | 164 | FabricCanvas2HtmlCanvas Scale |
+| js/core/settings.js | 163 | FabricCanvas2HtmlCanvas Scale |
 | js/core/svg/google-icon-helper.js | 229 |  |
 | js/core/svg/google-icon-names.js | 12 |  |
 | js/core/util/anime-util.js | 11 |  |
@@ -138,18 +138,18 @@
 | js/core/util/fabric-util.js | 865 |  |
 | js/core/util/html-canvas-util.js | 91 | html-canvas-util.js - HTMLキャンバスに対する低レベル操作（境界検出、スケーリング、ピクセル処理） |
 | js/core/util/image-analyzer-util.js | 121 |  |
-| js/core/util/image-util.js | 847 | image-util.js - Fabric.js画像オブジェクトの処理（変換、WebP、クロップ、反転、色変換など） |
+| js/core/util/image-util.js | 846 | image-util.js - Fabric.js画像オブジェクトの処理（変換、WebP、クロップ、反転、色変換など） |
 | js/core/util/js-util.js | 20 |  |
 | js/core/util/load-util.js | 94 | ユーティリティ関数：エラーハンドリングとログ出力を行う |
-| js/core/util/log-util.js | 28 |  |
+| js/core/util/log-util.js | 2 |  |
 | js/core/util/png-bit-depth.js | 583 | png-bit-depth.js - PNG のビット深度変換（グレースケール / 24bit RGB / 32bit ARGB）を行うブラウザ向けエンコーダ |
-| js/core/util/share-util.js | 8 |  |
+| js/core/util/share-util.js | 1 |  |
 | js/dashboard/dashboard-ui.js | 1057 | ダッシュボードUIコンポーネント（モーダル表示） |
 | js/dashboard/performance-storage.js | 609 | パフォーマンス統計のlocalforage永続化 |
 | js/dashboard/prompt-frequency-storage.js | 194 | プロンプトタグ頻度のlocalforage永続化 |
 | js/db/user-font-repository.js | 83 | font-repository.js |
 | js/fabric/fabric-management.js | 694 |  |
-| js/layer/blend/blend.js | 701 | ブレンドモードUI - カテゴリ分類・プレビュー・適用処理 |
+| js/layer/blend/blend.js | 697 | ブレンドモードUI - カテゴリ分類・プレビュー・適用処理 |
 | js/layer/floating-window-management.js | 80 |  |
 | js/layer/image-history-management.js | 358 |  |
 | js/layer/layer-button.js | 94 |  |
@@ -172,8 +172,8 @@
 | js/sidebar/panel/knife/knife-line-renderer.js | 174 | knife-line-renderer.js |
 | js/sidebar/panel/knife/knife-mode.js | 81 | knife-mode.js |
 | js/sidebar/panel/knife/knife-split-engine.js | 519 | knife-split-engine.js |
-| js/sidebar/panel/knife/knife-state.js | 57 | knife-state.js |
-| js/sidebar/panel/panel-manager.js | 753 | function handleSelection(e) { |
+| js/sidebar/panel/knife/knife-state.js | 19 | knife-state.js |
+| js/sidebar/panel/panel-manager.js | 745 | function handleSelection(e) { |
 | js/sidebar/panel/panel-template.js | 404 |  |
 | js/sidebar/pen/brush-presets.js | 138 |  |
 | js/sidebar/pen/custom-brush.js | 274 |  |
@@ -191,7 +191,7 @@
 | js/sidebar/speechBubble/speech-bubble-effect.js | 304 |  |
 | js/sidebar/speechBubble/speech-bubble-freehand.js | 868 |  |
 | js/sidebar/speechBubble/speech-bubble-text.js | 453 |  |
-| js/sidebar/text/custom/custom-text-util.js | 42 |  |
+| js/sidebar/text/custom/custom-text-util.js | 32 |  |
 | js/sidebar/text/custom/optimized-aurora-text.js | 127 |  |
 | js/sidebar/text/custom/optimized-broken-text.js | 137 |  |
 | js/sidebar/text/custom/optimized-cloud-text.js | 141 |  |
@@ -204,14 +204,14 @@
 | js/sidebar/text/custom/optimized-zebra-text.js | 141 |  |
 | js/sidebar/text/sfx-palette.js | 148 |  |
 | js/sidebar/text/text-2-manager.js | 401 |  |
-| js/sidebar/text/text-effect.js | 360 |  |
+| js/sidebar/text/text-effect.js | 318 |  |
 | js/sidebar/text/vertical-text.js | 37 |  |
-| js/sidebar/text/vertical-textbox.js | 589 |  |
-| js/sidebar/tone/focusline.js | 230 |  |
+| js/sidebar/text/vertical-textbox.js | 586 |  |
+| js/sidebar/tone/focusline.js | 229 |  |
 | js/sidebar/tone/rain-tone.js | 106 |  |
 | js/sidebar/tone/snow-tone.js | 181 |  |
 | js/sidebar/tone/speedline.js | 167 |  |
-| js/sidebar/tone/tone-manager.js | 397 |  |
+| js/sidebar/tone/tone-manager.js | 401 |  |
 | js/sidebar/tone/tone-noise.js | 145 |  |
 | js/sidebar/tone/tone.js | 220 |  |
 | js/simulator/chat-controller.js | 367 |  |
@@ -266,16 +266,16 @@
 | js/ui/third/base-translation/base-ko.js | 570 |  |
 | js/ui/third/base-translation/base-ru.js | 556 |  |
 | js/ui/third/base-translation/base-zh.js | 604 |  |
-| js/ui/third/i18next.js | 5754 | "yyyyMMddHHmmss_SSS": { |
-| js/ui/third/intro.js | 18 |  |
+| js/ui/third/i18next.js | 5750 | "yyyyMMddHHmmss_SSS": { |
+| js/ui/third/intro.js | 0 |  |
 | js/ui/third/tippy.js | 94 | Tooltip initialization using Tippy.js |
 | js/ui/toast.js | 119 | createToast(NieR風): success/info, createToastError(DbD風): error/warning |
 | js/ui/tutorial.js | 429 |  |
 | js/ui/util/event-delegator.js | 94 | event-delegator.js - document-level event delegation utility |
 | js/ui/util/focus-trap.js | 85 | focus-trap.js - モーダル用フォーカストラップユーティリティ |
-| js/ui/util/mode-change.js | 173 | mode-change.js - グローバル変数、ダークモード切替、cropモードUI |
+| js/ui/util/mode-change.js | 171 | mode-change.js - グローバル変数、ダークモード切替、cropモードUI |
 | js/ui/util/mode-manager.js | 416 | mode-manager.js - モード管理の統合（ナイフ、ペン、吹き出し、クロップ等） |
-| js/ui/util/tagify-util.js | 103 |  |
+| js/ui/util/tagify-util.js | 95 |  |
 | js/ui/util/ui-util.js | 67 |  |
 | js/ui/visual-ps-tools.js | 630 |  |
 | js/ui/visual-studio.js | 491 |  |
@@ -338,6 +338,7 @@
 | scripts/nai-pipeline-smoke-test.mjs | 324 | NAI-only pipeline smoke test (NovelAI + Director proxy). |
 | scripts/nai-real-acceptance.cjs | 178 | OPT-IN real NovelAI acceptance (never part of npm test / CI). Stays inside Opus free |
 | scripts/nai-status-format-test.cjs | 18 | Regression: "检查 NAI" must not show the misleading "无限生图：否" for Opus users. |
+| scripts/no-duplicate-globals-test.cjs | 26 | Classic <script> files share one global scope: a top-level function declared in two files is |
 | scripts/no-third-party-director-test.py | 231 |  |
 | scripts/novelai-batch-tools.mjs | 607 |  |
 | scripts/novelai-readable-error-test.cjs | 39 | Regression: NovelAI errors shown to the user are readable (JSON from the local proxy, |

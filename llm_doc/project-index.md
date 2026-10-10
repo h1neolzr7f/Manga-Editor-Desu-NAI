@@ -21,14 +21,14 @@
 | 種別 | 件数 |
 |------|------|
 | .bat | 9 |
-| .cjs | 49 |
+| .cjs | 50 |
 | .css | 41 |
 | .html | 9 |
 | .js | 215 |
 | .mjs | 2 |
 | .ps1 | 3 |
 | .py | 32 |
-| シンボル | 10194 |
+| シンボル | 10135 |
 | DOM id 定義 | 634 |
 | script 読み込み | 230 |
 | stylesheet 読み込み | 43 |
@@ -169,7 +169,7 @@
 
 | ファイル | 行数 | 用途 |
 |---------|------|------|
-| js/ui/third/i18next.js | 5754 | "yyyyMMddHHmmss_SSS": { |
+| js/ui/third/i18next.js | 5750 | "yyyyMMddHHmmss_SSS": { |
 | index.html | 3079 |  |
 | js/ai/manga-importer.js | 2524 |  |
 | js/ai/prompt/novelai-composition-director.js | 1214 |  |
@@ -183,16 +183,16 @@
 | js/core/util/fabric-util.js | 865 |  |
 | js/sidebar/pen/pen-tools.js | 855 |  |
 | css/ui/dashboard.css | 853 | Dashboard Modal Overlay |
-| js/core/util/image-util.js | 847 | image-util.js - Fabric.js画像オブジェクトの処理（変換、WebP、クロップ、反転、色変換など） |
+| js/core/util/image-util.js | 846 | image-util.js - Fabric.js画像オブジェクトの処理（変換、WebP、クロップ、反転、色変換など） |
 | js/ai/prompt/auto/auto-prompt-util.js | 817 | generatePageList(btmGetGuidsSize()); |
 | css/simulator-chat.css | 790 | simulator-chat-area .simulator-chat-panel{ |
-| js/sidebar/panel/panel-manager.js | 753 | function handleSelection(e) { |
 | js/core/font/font-manager-core.js | 750 |  |
+| js/sidebar/panel/panel-manager.js | 745 | function handleSelection(e) { |
 | js/ui/imagePromptHelper/image-prompt-helper.js | 730 |  |
 | scripts/gen-project-index.cjs | 722 | プロジェクト索引の自動生成。 |
 | js/ui/canvas-object-menu.js | 714 | Canvas object right-click context menu |
 | js/project-management.js | 712 | Runtime image generation is NovelAI-only. Legacy provider modules may still |
-| js/layer/blend/blend.js | 701 | ブレンドモードUI - カテゴリ分類・プレビュー・適用処理 |
+| js/layer/blend/blend.js | 697 | ブレンドモードUI - カテゴリ分類・プレビュー・適用処理 |
 | js/fabric/fabric-management.js | 694 |  |
 
 ## 再生成

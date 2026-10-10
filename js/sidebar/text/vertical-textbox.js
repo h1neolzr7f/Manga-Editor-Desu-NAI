@@ -1,10 +1,7 @@
-const LATIN_CHARS_REGX=/[a-zA-Z\.\s]+/;
-const NUMBERIC_REGX=/[0-9]+/;
 const ROTATED_BRACKETS_REGX=/[\(\)\]\[\{\}\]]/;
 const SOURCE_BRACKETS_REGEX=/[\\/]/;
 const JP_BRACKETS=/[ー「」『』（）〔〕［］｛｝｟｠〈〉《》【】〖〗〘〙〚〛゛゜。、・゠＝…•‥◦﹅﹆]/;
 const JP_SPECIAL_BRACKETS=/[。、]/;
-const SPECIAL_SYMBOL=/[,@]/;
 const objectControls=fabric.Object.prototype.controls,controlsUtils=fabric.controlsUtils,scaleSkewStyleHandler=controlsUtils.scaleSkewCursorStyleHandler,{wrapWithFireEvent,wrapWithFixedAnchor,getLocalPoint}=controlsUtils;
 class VerticalTextbox extends fabric.IText{constructor(text,options){super(text,options);
 this._dimensionAffectingProps=this._dimensionAffectingProps.concat('height');

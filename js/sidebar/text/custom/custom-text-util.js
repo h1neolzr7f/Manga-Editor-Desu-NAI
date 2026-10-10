@@ -10,16 +10,6 @@ element.setAttribute(key,value)
 );
 }
 
-function createFilterOneElement(type,attrs,child=null){
-const element=createSvgElement(type);
-setAttributes(element,attrs);
-if(child){
-const childElement=createSvgElement(child.type);
-setAttributes(childElement,child.attrs);
-element.appendChild(childElement);
-}
-return element;
-}
 function createFilterElement(type,attrs,children=[]) {
 const element=createSvgElement(type);
 setAttributes(element,attrs);
