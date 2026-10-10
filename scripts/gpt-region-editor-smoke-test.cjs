@@ -319,6 +319,11 @@ elements.mangaGptStatus.textContent = savedRegionStatus;
       // half content / half shift: no consensus → no global shift
       const hh = new Uint8ClampedArray(w * h * 4); for (let k = 0; k < w * h; k++) hh.set(k < w * h / 2 ? [20, 200, 20, 255] : [160, 170, 185, 255], k * 4);
       assert.equal(api.globalShift(hh, o, w, h), null, '50/50 mix is not a global shift');
+      // drift vs. intent: only a shift the context ring confirmed is undone
+      assert.deepEqual(Array.from(api.ringConfirmed([-8, -8, -8], [-48, -48, -48])), [-8, -8, -8], 'haze beyond the ±48 ring clamp: residual removed');
+      assert.equal(api.ringConfirmed([-40, -40, -40], [0, 0, 0]), null, '"make it redder" inside the selection only (ring unchanged) is kept');
+      assert.equal(api.ringConfirmed([-40, -40, -40], null), null, 'no ring measurement → no whole-region shift');
+      assert.equal(api.ringConfirmed([30, 30, 30], [-20, -20, -20]), null, 'opposite direction is not drift');
     }
   }
   // Context around a corner selection is clipped to the page; the inner mapping is unchanged.

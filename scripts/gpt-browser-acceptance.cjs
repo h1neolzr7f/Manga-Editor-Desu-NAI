@@ -319,6 +319,10 @@ async function run() {
     { name: 'tall 300x900', from: [1100, 300], to: [1400, 1200] },
     { name: 'square 500x500', from: [200, 1300], to: [700, 1800] }
   ];
+  // The mock 'edits' are synthetic tints; change-only compositing (default on) would rightly strip
+  // them as non-changes, hiding what these checks measure. Seam/change-only is covered by
+  // gpt-region-editor-smoke-test.cjs and the seam evidence; switch it off here.
+  await page.evaluate(() => { const c = document.getElementById('mangaGptChangeOnly'); if (c) { c.checked = false; c.dispatchEvent(new Event('change')); } });
   for (const c of cases) {
     await dragSelect(page, c.from, c.to);
     const before = await snapshot(page);
@@ -671,9 +675,11 @@ async function run() {
     for (const p of [tri[1], tri[2], tri[0]]) await page.mouse.move(px(p).x, px(p).y, { steps: 20 });
     await page.mouse.up();
     const lassoStatus = await page.locator('#mangaGptStatus').textContent();
+    await page.locator('#mangaGptMatchTone').setChecked(false); // the whole-image tint stands for an edit here, not drift
     mock.tint = 60;
     const res = await generateAndApply(page);
     mock.tint = 0;
+    await page.locator('#mangaGptMatchTone').setChecked(true);
     const after = await snapshot(page);
     const px3 = await page.evaluate(async ({ before, after, pts }) => {
       const load = async src => { const i = new Image(); i.src = src; await i.decode(); const c = document.createElement('canvas');
@@ -713,9 +719,11 @@ async function run() {
     await page.mouse.up();
     const brushStatus = await page.locator('#mangaGptStatus').textContent();
     const width = await page.evaluate(() => Math.max(12, Math.round(Math.min(canvas.getWidth(), canvas.getHeight()) * 0.05)));
+    await page.locator('#mangaGptMatchTone').setChecked(false); // the whole-image tint stands for an edit here, not drift
     mock.tint = 60;
     const res = await generateAndApply(page);
     mock.tint = 0;
+    await page.locator('#mangaGptMatchTone').setChecked(true);
     const after = await snapshot(page);
     const m = await page.evaluate(async ({ before, after, width }) => {
       const load = async src => { const i = new Image(); i.src = src; await i.decode(); const c = document.createElement('canvas');

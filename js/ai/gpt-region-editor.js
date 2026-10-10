@@ -371,6 +371,13 @@
   // Whole-region tone consensus: the model often repaints the entire selection a few dozen levels lighter or
   // darker (real dogfood sky: +56). If most pixels agree on one per-channel shift it is drift, not content:
   // return it (orig - patch) so the caller can remove it before anything else. null when content dominates.
+  // A whole-region shift is drift only when the context ring drifted the same way.
+  function ringConfirmed(shift, ringOffset) {
+    if (!shift || !ringOffset) return null;
+    const ring = (ringOffset[0] + ringOffset[1] + ringOffset[2]) / 3, mean = (shift[0] + shift[1] + shift[2]) / 3;
+    return Math.abs(ring) >= 2 && Math.sign(ring) === Math.sign(mean) ? shift : null;
+  }
+
   function globalShift(patch, orig, w, h) {
     const ds = [[], [], []];
     const step = Math.max(1, Math.floor(Math.sqrt(w * h / 40000)));
@@ -516,7 +523,10 @@
     let changeOnly = null;
     if (seam && seam.orig && seam.orig.length === w * h * 4) {
       const data = ctx.getImageData(0, 0, w, h);
-      const shift = globalShift(data.data, seam.orig, w, h);
+      // Only finish a drift the context ring confirmed (tone matching found the model shifted the
+      // surroundings the same way). A uniform change inside the selection alone is what the user
+      // asked for ("make it redder") and must not be undone.
+      const shift = ringConfirmed(hasOffset ? globalShift(data.data, seam.orig, w, h) : null, hasOffset ? offset : null);
       if (shift) { for (let i = 0; i < data.data.length; i += 4) { data.data[i] += shift[0]; data.data[i + 1] += shift[1]; data.data[i + 2] += shift[2]; } seam.shift = shift; }
       if (seam.changeOnly) { changeOnly = changeMask(data.data, seam.orig, w, h); seam.changedFraction = changeOnly ? +changeOnly.changedFraction.toFixed(3) : 1; }
       const diffs = seamDiffs(data.data, seam.orig, w, h, seam.sides);
@@ -1622,7 +1632,7 @@
   }
 
   window.MangaGPTRegionEditor = { openTask, exitTask, setSimple, wizardState, normalizeRegion, startSelection, cancelSelection, selectRegionForTextRemoval, selectRegionForPanel, prepareManualEdit, useCharacterCard, referenceSummary,
-    letterboxPlan, resultCropRect, letteringInsertIndex, isLettering, contextRect, featherPlan, featherAlpha, seamDiffs, applySeamMatch, globalShift, changeMask, estimateDrift, aspectMismatch,
+    letterboxPlan, resultCropRect, letteringInsertIndex, isLettering, contextRect, featherPlan, featherAlpha, seamDiffs, applySeamMatch, globalShift, ringConfirmed, changeMask, estimateDrift, aspectMismatch,
     findCutBoxes, expandRegion, effectiveSize, bakePatch, panelLineAlpha, combineAlpha, tr,
     GPT_MODEL_PRESETS, GPT_DEFAULT_MODEL, modelPresetFor };
 })();
