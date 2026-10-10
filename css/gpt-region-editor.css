@@ -49,3 +49,4 @@
 .manga-gpt-lasso { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
 .manga-gpt-lasso polygon { fill: #54befe2e; stroke: #62caff; stroke-width: 2; stroke-dasharray: 6 4; }
 #mangaGptShape { min-width: 4.5em; }
+.manga-gpt-lasso.is-brush polyline { fill: none; stroke: #54befe66; stroke-dasharray: none; stroke-linecap: round; stroke-linejoin: round; }

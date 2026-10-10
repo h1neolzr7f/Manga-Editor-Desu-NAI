@@ -705,17 +705,25 @@
 
   // Freehand (lasso) selection: only pixels inside the drawn outline may change. Points are in
   // region pixels; the mask is rendered at the crop size with a 1px soft edge.
-  function lassoAlphaMask(points, regionWidth, regionHeight, w, h) {
-    if (!Array.isArray(points) || points.length < 3) return null;
+  // strokeWidth (region pixels) = brush mode: the painted stroke, not the enclosed area.
+  function lassoAlphaMask(points, regionWidth, regionHeight, w, h, strokeWidth) {
+    if (!Array.isArray(points) || points.length < (strokeWidth ? 1 : 3)) return null;
     const cv = document.createElement('canvas');
     cv.width = w; cv.height = h;
     const g = cv.getContext('2d');
     const sx = w / regionWidth, sy = h / regionHeight;
     g.fillStyle = '#fff';
+    g.strokeStyle = '#fff';
     g.beginPath();
     points.forEach(([x, y], i) => (i ? g.lineTo(x * sx, y * sy) : g.moveTo(x * sx, y * sy)));
-    g.closePath();
-    g.fill();
+    if (strokeWidth) {
+      if (points.length === 1) g.lineTo(points[0][0] * sx + 0.01, points[0][1] * sy);
+      g.lineWidth = strokeWidth * (sx + sy) / 2; g.lineCap = 'round'; g.lineJoin = 'round';
+      g.stroke();
+    } else {
+      g.closePath();
+      g.fill();
+    }
     const data = g.getImageData(0, 0, w, h).data;
     const out = new Uint8ClampedArray(w * h);
     for (let k = 0; k < out.length; k++) out[k] = data[k * 4 + 3];
@@ -776,14 +784,20 @@
     const rectangle = document.createElement('div');
     rectangle.className = 'manga-gpt-selection-rectangle';
     overlay.appendChild(rectangle);
-    const lasso = !!($g('mangaGptShape') && $g('mangaGptShape').value === 'lasso');
+    const shape = $g('mangaGptShape') ? $g('mangaGptShape').value : 'rect';
+    const lasso = shape === 'lasso' || shape === 'brush';
+    const brush = shape === 'brush';
+    // brush width in page pixels (~5% of the short side), drawn at screen scale while painting
+    const brushPage = Math.max(12, Math.round(Math.min(c.getWidth(), c.getHeight()) * 0.05));
+    const brushScreen = brushPage * rect.width / c.getWidth();
     let path = null, pathLine = null;
     if (lasso) {
       rectangle.hidden = true;
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      svg.setAttribute('class', 'manga-gpt-lasso');
+      svg.setAttribute('class', 'manga-gpt-lasso' + (brush ? ' is-brush' : ''));
       svg.setAttribute('width', rect.width); svg.setAttribute('height', rect.height);
-      pathLine = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+      pathLine = document.createElementNS('http://www.w3.org/2000/svg', brush ? 'polyline' : 'polygon');
+      if (brush) pathLine.setAttribute('stroke-width', brushScreen);
       svg.appendChild(pathLine);
       overlay.appendChild(svg);
     }
@@ -853,16 +867,23 @@
         const points = path.concat([{ x, y }]);
         cancelSelection();
         start = null;
+        const pad = brush ? brushScreen / 2 : 0;
         const xs = points.map(p => p.x), ys = points.map(p => p.y);
-        const region = normalizeRegion(Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys), rect, c);
-        if (points.length < 3 || region.width < 8 || region.height < 8) {
+        const region = normalizeRegion(Math.max(0, Math.min(...xs) - pad), Math.max(0, Math.min(...ys) - pad),
+          Math.min(rect.width, Math.max(...xs) + pad), Math.min(rect.height, Math.max(...ys) + pad), rect, c);
+        if ((!brush && points.length < 3) || region.width < 8 || region.height < 8) {
           feedback(tr('mgpt_region_too_small', '框选区域太小，请至少选择 8 × 8 像素。'), true);
           return;
         }
         const fx = c.getWidth() / rect.width, fy = c.getHeight() / rect.height;
         const local = points.map(p => [+(p.x * fx - region.left).toFixed(1), +(p.y * fy - region.top).toFixed(1)]);
-        setRegion(c, region, tr('mgpt_lasso_selected', '已用套索圈选（外框 {w} × {h} 像素）；只有圈内会被修改。', { w: region.width, h: region.height }));
-        if (state.region) state.region.lasso = local;
+        if (brush) {
+          setRegion(c, region, tr('mgpt_brush_selected', '已用笔刷涂抹（外框 {w} × {h} 像素）；只有涂到的地方会被修改。', { w: region.width, h: region.height }));
+          if (state.region) state.region.brush = { points: local, width: brushPage };
+        } else {
+          setRegion(c, region, tr('mgpt_lasso_selected', '已用套索圈选（外框 {w} × {h} 像素）；只有圈内会被修改。', { w: region.width, h: region.height }));
+          if (state.region) state.region.lasso = local;
+        }
         return;
       }
       const region = normalizeRegion(start.x, start.y, x, y, rect, c);
@@ -1032,7 +1053,8 @@
         const keepLines = !$g('mangaGptKeepLines') || $g('mangaGptKeepLines').checked;
         const lineMask = keepLines ? await loadPanelLineMask(region.image, cw, ch) : null;
         linesKept = !!lineMask;
-        const lassoMask = region.lasso ? lassoAlphaMask(region.lasso, region.width, region.height, cw, ch) : null;
+        const lassoMask = region.lasso ? lassoAlphaMask(region.lasso, region.width, region.height, cw, ch) :
+          region.brush ? lassoAlphaMask(region.brush.points, region.width, region.height, cw, ch, region.brush.width) : null;
         const mask = combineAlpha(combineAlpha(alphaMask, lineMask), lassoMask);
         const baked = bakePatch(image.getElement(), crop, scale, feather, offset, mask);
         const sourceCrop = { x: +crop.x.toFixed(2), y: +crop.y.toFixed(2), w: +crop.w.toFixed(2), h: +crop.h.toFixed(2),
@@ -1155,7 +1177,8 @@
       '<div class="manga-gpt-row"><label>' + t('mgpt_operation', '操作') + '<select id="mangaGptMode"><option value="edit">' + t('mgpt_mode_edit', '局部改图 / 角色替换') +
         '</option><option value="generate">' + t('mgpt_mode_generate', '文字生图 / 新图层') + '</option></select></label>',
       '<select id="mangaGptShape" aria-label="' + t('mgpt_shape_label', '选区形状') + '" title="' + t('mgpt_shape_tip', '矩形：拖出方框；套索：按住鼠标沿人物轮廓画一圈，只有圈内会被修改') + '">' +
-        '<option value="rect">' + t('mgpt_shape_rect', '矩形') + '</option><option value="lasso">' + t('mgpt_shape_lasso', '套索') + '</option></select>',
+        '<option value="rect">' + t('mgpt_shape_rect', '矩形') + '</option><option value="lasso">' + t('mgpt_shape_lasso', '套索') + '</option>' +
+        '<option value="brush">' + t('mgpt_shape_brush', '笔刷') + '</option></select>',
       '<button type="button" id="mangaGptSelect">' + t('mgpt_select_btn', '框选区域') + '</button>',
       '<button type="button" id="mangaGptExpand" hidden>' + t('mgpt_expand_btn', '扩展到完整对象') + '</button></div>',
       '<label>' + t('mgpt_api_url', '兼容 API 地址') + '<input id="mangaGptUrl" type="url" placeholder="https://api.openai.com/v1" value="https://api.openai.com/v1" autocomplete="off"></label>',

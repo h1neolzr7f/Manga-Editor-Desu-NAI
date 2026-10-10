@@ -678,6 +678,44 @@ async function run() {
       { lassoStatus: lassoStatus.slice(0, 60), ...px3, applied: res.applied });
   }
 
+  // 9f. Brush: only the painted stroke changes.
+  {
+    await page.locator('#mangaGptShape').selectOption('brush');
+    await page.locator('#mangaGptSelect').click();
+    const b = await canvasBox(page);
+    const px = p => ({ x: b.x + p[0] * b.w / b.cw, y: b.y + p[1] * b.h / b.ch });
+    const before = await snapshot(page);
+    await page.mouse.move(px([300, 300]).x, px([300, 300]).y); await page.mouse.down();
+    await page.mouse.move(px([700, 700]).x, px([700, 700]).y, { steps: 30 });
+    await page.mouse.up();
+    const brushStatus = await page.locator('#mangaGptStatus').textContent();
+    const width = await page.evaluate(() => Math.max(12, Math.round(Math.min(canvas.getWidth(), canvas.getHeight()) * 0.05)));
+    mock.tint = 60;
+    const res = await generateAndApply(page);
+    mock.tint = 0;
+    const after = await snapshot(page);
+    const m = await page.evaluate(async ({ before, after, width }) => {
+      const load = async src => { const i = new Image(); i.src = src; await i.decode(); const c = document.createElement('canvas');
+        c.width = i.width; c.height = i.height; const g = c.getContext('2d'); g.drawImage(i, 0, 0); return g; };
+      const A = await load(before), B = await load(after);
+      const d = (x, y) => { const a = A.getImageData(x, y, 1, 1).data, z = B.getImageData(x, y, 1, 1).data; return Math.abs(a[0] - z[0]) + Math.abs(a[1] - z[1]) + Math.abs(a[2] - z[2]); };
+      // distance from the stroke centre line y = x (between 300 and 700)
+      let farChanged = 0, nearSame = 0;
+      for (let y = 260; y < 740; y += 3) for (let x = 260; x < 740; x += 3) {
+        const dist = Math.abs(x - y) / Math.SQRT2;
+        const ch = d(x, y) > 6;
+        if (dist > width / 2 + 3 && ch) farChanged++;
+        if (dist < width / 2 - 3 && x > 320 && x < 680 && !ch) nearSame++;
+      }
+      return { onStroke: d(500, 500), corner: d(320, 680), farChanged, nearSame };
+    }, { before, after, width });
+    await page.evaluate(() => undo()); await page.waitForTimeout(800);
+    await page.locator('#mangaGptShape').selectOption('rect');
+    record('brush selection: only the painted stroke changes',
+      res.applied && /笔刷/.test(brushStatus) && m.onStroke > 30 && m.corner === 0 && m.farChanged === 0 && m.nearSame === 0,
+      { brushStatus: brushStatus.slice(0, 60), width, ...m });
+  }
+
   // 10. Smart manga text: real Chromium/Fabric UI, fake OCR only, no model charges.
   await page.evaluate(() => {
     canvas.clear();
