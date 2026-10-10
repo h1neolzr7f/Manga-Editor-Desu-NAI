@@ -254,15 +254,23 @@
     const bounds = c.upperCanvasEl.getBoundingClientRect();
     if (!bounds.width || !bounds.height) return message('画布不可见。', true);
     const overlay = make('div', undefined, 'manga-smart-overlay');
-    Object.assign(overlay.style, { left: bounds.left + 'px', top: bounds.top + 'px',
-      width: bounds.width + 'px', height: bounds.height + 'px' });
+    // A margin around the page so a drag that starts just outside it still counts (clamped to the
+    // page edge); beginners aiming at a bubble in the corner rarely start exactly on the page.
+    const vw = window.innerWidth || document.documentElement.clientWidth, vh = window.innerHeight || document.documentElement.clientHeight;
+    const pad = {
+      left: Math.max(0, Math.min(48, bounds.left)), top: Math.max(0, Math.min(48, bounds.top)),
+      right: Math.max(0, Math.min(48, vw - bounds.right)), bottom: Math.max(0, Math.min(48, vh - bounds.bottom))
+    };
+    Object.assign(overlay.style, { left: (bounds.left - pad.left) + 'px', top: (bounds.top - pad.top) + 'px',
+      width: (bounds.width + pad.left + pad.right) + 'px', height: (bounds.height + pad.top + pad.bottom) + 'px' });
     const guide = make('div', undefined, 'manga-smart-rectangle');
     overlay.appendChild(guide);
     document.body.appendChild(overlay);
     let start = null;
+    const clamp = (v, max) => Math.max(0, Math.min(max, v));
     const toPage = e => ({
-      x: (e.clientX - bounds.left) / bounds.width * c.getWidth(),
-      y: (e.clientY - bounds.top) / bounds.height * c.getHeight()
+      x: clamp((e.clientX - bounds.left) / bounds.width * c.getWidth(), c.getWidth()),
+      y: clamp((e.clientY - bounds.top) / bounds.height * c.getHeight(), c.getHeight())
     });
     function dismiss() {
       stopSelection();
@@ -288,8 +296,8 @@
       const end = toPage(e);
       const left = Math.min(start.x, end.x), top = Math.min(start.y, end.y);
       Object.assign(guide.style, {
-        left: left / c.getWidth() * bounds.width + 'px',
-        top: top / c.getHeight() * bounds.height + 'px',
+        left: pad.left + left / c.getWidth() * bounds.width + 'px',
+        top: pad.top + top / c.getHeight() * bounds.height + 'px',
         width: Math.abs(start.x - end.x) / c.getWidth() * bounds.width + 'px',
         height: Math.abs(start.y - end.y) / c.getHeight() * bounds.height + 'px'
       });

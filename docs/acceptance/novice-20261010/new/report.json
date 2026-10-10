@@ -1,5 +1,5 @@
 {
-  "when": "2026-10-10T04:47:16.539Z",
+  "when": "2026-10-10T04:55:42.329Z",
   "gpt": "MOCK",
   "flows": [
     {
@@ -12,7 +12,7 @@
         "Import image",
         "page 1"
       ],
-      "seconds": 17.7,
+      "seconds": 17.6,
       "screenshot": "artifacts/novice/01-1_首次启动并导入_2_页漫画.png",
       "notes": [],
       "detail": {
@@ -40,7 +40,7 @@
         "生成",
         "应用为图层"
       ],
-      "seconds": 2.6,
+      "seconds": 2.8,
       "screenshot": "artifacts/novice/03-2_框选人物_参考图_描述_生成_预览_应用.png",
       "notes": [],
       "detail": {
@@ -117,7 +117,7 @@
         "page 1",
         "Ctrl+Z after reopen"
       ],
-      "seconds": 15.6,
+      "seconds": 15.7,
       "screenshot": "artifacts/novice/05-4_撤销_重做_切页_保存_关闭_重开.png",
       "notes": [],
       "detail": {
@@ -164,7 +164,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 7.7,
+      "seconds": 7.8,
       "screenshot": "artifacts/novice/07-8_导入含坏文件的一批图_立刻刷新_恢复对话框找回全部页.png",
       "notes": [],
       "detail": {
@@ -184,7 +184,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 6,
+      "seconds": 6.2,
       "screenshot": "artifacts/novice/08-9_导入超大图_提示已自动缩小_中文_8_语言文案_.png",
       "notes": [],
       "detail": {
@@ -238,6 +238,32 @@
       }
     },
     {
+      "name": "12 从页面外开始拖「手动框选字幕」→贴边框选；贴边气泡用 LaMa 去字不越界",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 5.5,
+      "screenshot": "artifacts/novice/11-12_从页面外开始拖_手动框选字幕_贴边框选_贴边气泡用_LaMa_去字不越界.png",
+      "notes": [],
+      "detail": {
+        "items": 1,
+        "status": "已添加手动字幕区。修改文字后点击「应用」。",
+        "lama": {
+          "left": 0,
+          "top": 0,
+          "right": 373,
+          "bottom": 338,
+          "W": 1200,
+          "H": 1700,
+          "ink": "无法安全提取深色文字：文字框附近缺少完整的外缘背景采样；请手动编辑蒙版。 原蒙版保持不变。",
+          "sent": {
+            "w": 373,
+            "h": 338
+          }
+        }
+      }
+    },
+    {
       "name": "7 生成中切页→结果不得贴到别的页→切回后再应用",
       "pass": true,
       "keyOps": 14,
@@ -258,7 +284,7 @@
         "应用（回到第 1 页）"
       ],
       "seconds": 41.1,
-      "screenshot": "artifacts/novice/11-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
+      "screenshot": "artifacts/novice/12-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
       "notes": [],
       "detail": {
         "applyEnabledOnPage2": true,
@@ -273,8 +299,8 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 15.9,
-      "screenshot": "artifacts/novice/12-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
+      "seconds": 16.2,
+      "screenshot": "artifacts/novice/13-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
       "notes": [],
       "detail": {
         "1440x900@1": {
@@ -309,8 +335,8 @@
           "hasImage": true,
           "open": {
             "overlapPx": 0,
-            "canvasW": 424,
-            "canvasH": 600,
+            "canvasW": 423,
+            "canvasH": 599,
             "visibleRatio": 1,
             "centerOnCanvas": true,
             "centerHit": "upper-canvas "

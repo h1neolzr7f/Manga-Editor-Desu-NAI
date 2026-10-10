@@ -440,6 +440,50 @@ async function main() {
       detail: { exportDarkShown: shown, eyeHid: hiddenState === false, exportDarkHidden: hidden, undoShows, dialog, after } };
   });
 
+  await flow('12 从页面外开始拖「手动框选字幕」→贴边框选；贴边气泡用 LaMa 去字不越界', async () => {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort());
+    let sent = null;   // identity LaMa mock: real crop, real mask UI, no model needed
+    await p.route('**/manga-smart/lama-inpaint', r => { const d = r.request().postDataJSON(); const buf = Buffer.from(d.image.split(',')[1], 'base64');
+      sent = { w: buf.readUInt32BE(16), h: buf.readUInt32BE(20) };
+      r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, image: d.image, width: sent.w, height: sent.h }) }); });
+    await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
+    await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 });
+    await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {}); await p.keyboard.press('Escape');
+    if (!(await p.locator('#mangaSmartOpen').count())) { await ctx.close(); return { pass: false, detail: { unavailable: 'no smart captions' } }; }
+    await p.locator('#imageInput').setInputFiles(PAGES[0]);
+    await p.waitForFunction(() => canvas.getObjects().some(o => o.type === 'image'), null, { timeout: 30000 });
+    await p.locator('#mangaSmartOpen').click(); await p.locator('#mangaSmartManual').click(); await p.waitForTimeout(300);
+    const r = await p.evaluate(() => { const e = canvas.upperCanvasEl.getBoundingClientRect(); return { x: e.left, y: e.top, w: e.width, h: e.height }; });
+    await p.mouse.move(r.x - 30, r.y - 30); await p.mouse.down();   // 30px outside the page corner
+    await p.mouse.move(r.x + r.w * 0.2, r.y + r.h * 0.12, { steps: 8 }); await p.mouse.up();
+    await p.waitForSelector('.manga-smart-item', { timeout: 15000 }).catch(() => {});
+    const items = await p.locator('.manga-smart-item').count();
+    const box = await p.evaluate(() => { const st = document.getElementById('mangaSmartStatus').textContent; return st; });
+    let lama = null;
+    if (items) {
+      await p.locator('.manga-smart-item').last().locator('button').filter({ hasText: '本地 LaMa 去字' }).click();
+      await p.waitForFunction(() => document.getElementById('mangaLamaMaskCanvas')?.width > 10 && !document.getElementById('mangaLamaGenerate').disabled, null, { timeout: 30000 });
+      await p.locator('#mangaLamaAutoInk').click(); await p.waitForTimeout(600);
+      const ink = await p.locator('#mangaLamaStatus').textContent();
+      // the auto ink proposal may refuse at the page edge; paint the mask by hand like a user would
+      const m = await p.locator('#mangaLamaMaskCanvas').boundingBox();
+      await p.mouse.move(m.x + m.width * 0.3, m.y + m.height * 0.3); await p.mouse.down();
+      await p.mouse.move(m.x + m.width * 0.6, m.y + m.height * 0.6, { steps: 10 }); await p.mouse.up();
+      await p.locator('#mangaLamaGenerate').click();
+      await p.waitForFunction(() => !document.getElementById('mangaLamaConfirm').disabled || /失败|错误|必须/.test(document.getElementById('mangaLamaStatus').textContent), null, { timeout: 30000 }).catch(() => {});
+      const ready = !(await p.locator('#mangaLamaConfirm').isDisabled());
+      if (ready) await p.locator('#mangaLamaConfirm').click();
+      await p.waitForFunction(() => canvas.getObjects().some(o => o.mangaSmartText === 'lama-erase-patch'), null, { timeout: 15000 }).catch(() => {});
+      lama = await p.evaluate(() => { const o = canvas.getObjects().find(o => o.mangaSmartText === 'lama-erase-patch'); if (!o) return null; const b = o.getBoundingRect(true);
+        return { left: Math.round(b.left), top: Math.round(b.top), right: Math.round(b.left + b.width), bottom: Math.round(b.top + b.height), W: canvas.getWidth(), H: canvas.getHeight() }; });
+      lama = lama && { ...lama, ink: ink.slice(0, 60), sent };
+    }
+    await ctx.close();
+    return { pass: items === 1 && !!lama && lama.left === 0 && lama.top === 0 && lama.right <= lama.W && lama.bottom <= lama.H && !!sent,
+      detail: { items, status: box.slice(0, 40), lama } };
+  });
+
   await flow('7 生成中切页→结果不得贴到别的页→切回后再应用', async () => {
     if (!(await has('mangaGptOpen'))) return { pass: false, detail: { unavailable: 'no GPT region edit in this version' } };
     if (REAL_GPT) return { pass: true, detail: { skipped: 'mock-only timing test' } };
