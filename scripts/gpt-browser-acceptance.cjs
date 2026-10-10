@@ -354,10 +354,13 @@ async function run() {
     const load = async src => { const i = new Image(); i.src = src; await i.decode();
       const c = document.createElement('canvas'); c.width = i.width; c.height = i.height;
       const x = c.getContext('2d'); x.drawImage(i, 0, 0); return x.getImageData(0, 0, c.width, c.height); };
-    const B = await load(after);
-    const p = (x, y) => { const i = (y * B.width + x) * 4; return (B.data[i] + B.data[i + 1] + B.data[i + 2]) / 3; };
+    // Seam the patch ADDED: edge strength after minus the edge already in the artwork, so a
+    // 1px-different drag that lands on an existing panel line does not count as a seam.
+    const A = await load(before); const B = await load(after);
+    const p = (D, x, y) => { const i = (y * D.width + x) * 4; return (D.data[i] + D.data[i + 1] + D.data[i + 2]) / 3; };
     let s = 0, n = 0;
-    for (let y = rect.top + 4; y < rect.top + rect.height - 4; y++) { s += Math.abs(p(rect.left, y) - p(rect.left - 1, y)); n++; }
+    for (let y = rect.top + 4; y < rect.top + rect.height - 4; y++) {
+      s += Math.abs((p(B, rect.left, y) - p(B, rect.left - 1, y)) - (p(A, rect.left, y) - p(A, rect.left - 1, y))); n++; }
     return +(s / n).toFixed(2);
   }, { before, after, rect });
   mock.tint = 40;

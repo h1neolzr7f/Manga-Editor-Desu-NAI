@@ -1,5 +1,5 @@
 {
-  "when": "2026-10-10T03:01:22.530Z",
+  "when": "2026-10-10T03:16:06.066Z",
   "gpt": "MOCK",
   "flows": [
     {
@@ -12,7 +12,7 @@
         "Import image",
         "page 1"
       ],
-      "seconds": 17.9,
+      "seconds": 17.7,
       "screenshot": "artifacts/novice/01-1_首次启动并导入_2_页漫画.png",
       "notes": [],
       "detail": {
@@ -44,20 +44,20 @@
       "screenshot": "artifacts/novice/03-2_框选人物_参考图_描述_生成_预览_应用.png",
       "notes": [],
       "detail": {
-        "selection": "已选中原始画布区域：580 × 941 像素。",
+        "selection": "已选中原始画布区域：581 × 941 像素。",
         "preview": false,
         "status": "图像已生成，请检查预览后点击“作为新图层应用”。",
         "rect": {
-          "left": 200,
-          "top": 59,
-          "width": 580,
+          "left": 199,
+          "top": 60,
+          "width": 581,
           "height": 941
         },
         "size": [
           1200,
           1700
         ],
-        "changed": 293555,
+        "changed": 274511,
         "outside": 0,
         "calls": 1,
         "model": "gpt-image-2.5"
@@ -72,7 +72,7 @@
         "识别",
         "应用字幕"
       ],
-      "seconds": 2.3,
+      "seconds": 2.4,
       "screenshot": "artifacts/novice/04-3_识别日文气泡_修正_去字_替换中文字幕.png",
       "notes": [
         "OCR: [\"ありがとう\"]"
@@ -117,7 +117,7 @@
         "page 1",
         "Ctrl+Z after reopen"
       ],
-      "seconds": 16.2,
+      "seconds": 16.4,
       "screenshot": "artifacts/novice/05-4_撤销_重做_切页_保存_关闭_重开.png",
       "notes": [],
       "detail": {
@@ -139,20 +139,17 @@
     {
       "name": "5 错误 API/失败后再试/超长提示词/空选区",
       "pass": true,
-      "keyOps": 6,
+      "keyOps": 5,
       "ops": [
         "GPT 改图",
         "生成（未框选）",
-        "框选区域",
         "drag selection",
         "生成（失败）",
         "再试一次"
       ],
-      "seconds": 11.1,
+      "seconds": 3,
       "screenshot": "artifacts/novice/06-5_错误_API_失败后再试_超长提示词_空选区.png",
-      "notes": [
-        "生成（未框选）: physical click through selection overlay"
-      ],
+      "notes": [],
       "detail": {
         "noRegion": "请先在当前画布框选需要修改的区域。",
         "failMsg": "上游 HTTP 530：图像服务（或其网关）暂时不可用，本次没有生成图片，请稍后重试。",
@@ -189,30 +186,60 @@
         "applyEnabledOnPage2": true,
         "onPage2Status": "这个结果是为第 1 页生成的，当前在第 2 页。请切回第 1 页再点“应用”（不用重新生成）。",
         "page2Changed": 0,
-        "page1Changed": 51289,
+        "page1Changed": 51291,
         "page1Outside": 0
       }
     },
     {
-      "name": "6 小窗口 1024×700 与 1.5x 缩放下的布局",
+      "name": "6 1440/1280/1024 宽与 1.5x 缩放：面板不遮画布、可收起",
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 7,
-      "screenshot": "artifacts/novice/08-6_小窗口_1024_700_与_1_5x_缩放下的布局.png",
+      "seconds": 14.1,
+      "screenshot": "artifacts/novice/08-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
       "notes": [],
       "detail": {
-        "1024x700@1": {
+        "1440x900@1": {
           "hScroll": false,
           "gptOpen": true,
           "file": true,
-          "generateReachable": true
+          "generateReachable": true,
+          "open": {
+            "overlapPx": 0,
+            "canvasW": 497
+          },
+          "collapsed": {
+            "overlapPx": 0,
+            "canvasW": 528
+          }
         },
         "1280x800@1.5": {
           "hScroll": false,
           "gptOpen": true,
           "file": true,
-          "generateReachable": true
+          "generateReachable": true,
+          "open": {
+            "overlapPx": 0,
+            "canvasW": 424
+          },
+          "collapsed": {
+            "overlapPx": 0,
+            "canvasW": 424
+          }
+        },
+        "1024x700@1": {
+          "hScroll": false,
+          "gptOpen": true,
+          "file": true,
+          "generateReachable": true,
+          "open": {
+            "overlapPx": 0,
+            "canvasW": 304
+          },
+          "collapsed": {
+            "overlapPx": 0,
+            "canvasW": 353
+          }
         }
       }
     }

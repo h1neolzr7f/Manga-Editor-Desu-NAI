@@ -730,6 +730,24 @@
     return out;
   }
 
+  // Dock: the open panel takes a column on the right; the canvas area gives up exactly the
+  // overlapped width and the page is refitted, so the panel never hides part of the page.
+  function dock() {
+    const panel = $g('mangaGptPanel');
+    const area = document.getElementById('canvas-area');
+    if (!panel || !area) return;
+    area.style.marginRight = '';
+    if (!panel.hidden && !panel.classList.contains('is-collapsed')) {
+      const p = panel.getBoundingClientRect();
+      const a = area.getBoundingClientRect();
+      const overlap = Math.ceil(a.right - p.left + 8);
+      if (overlap > 0 && overlap < a.width - 240) area.style.marginRight = overlap + 'px';
+    }
+    if (typeof fitCanvasViewToContainer === 'function') {
+      try { fitCanvasViewToContainer(true); } catch (error) { /* layout not ready */ }
+    }
+  }
+
   function currentPageGuid() {
     try { return typeof getCanvasGUID === 'function' ? getCanvasGUID() || null : null; } catch (error) { return null; }
   }
@@ -1187,7 +1205,8 @@
     const hint = (id, key, zh, checked) => '<label class="manga-gpt-hint"><input id="' + id + '" type="checkbox"' +
       (checked ? ' checked' : '') + '> ' + t(key, zh) + '</label>';
     panel.innerHTML = [
-      '<div class="manga-gpt-head"><strong>Manga-NAI-GPT</strong><button type="button" id="mangaGptClose" aria-label="' + t('mgpt_close', '关闭') + '">×</button></div>',
+      '<div class="manga-gpt-head"><strong>Manga-NAI-GPT</strong><span class="manga-gpt-head-buttons"><button type="button" id="mangaGptCollapse" aria-expanded="true" title="' + t('mgpt_collapse', '收起面板（让出画布）') + '" aria-label="' + t('mgpt_collapse', '收起面板（让出画布）') + '">–</button>' +
+        '<button type="button" id="mangaGptClose" aria-label="' + t('mgpt_close', '关闭') + '">×</button></span></div>',
       '<div class="manga-gpt-row"><label>' + t('mgpt_operation', '操作') + '<select id="mangaGptMode"><option value="edit">' + t('mgpt_mode_edit', '局部改图 / 角色替换') +
         '</option><option value="generate">' + t('mgpt_mode_generate', '文字生图 / 新图层') + '</option></select></label>',
       '<select id="mangaGptShape" aria-label="' + t('mgpt_shape_label', '选区形状') + '" title="' + t('mgpt_shape_tip', '矩形：拖出方框；套索：按住鼠标沿人物轮廓画一圈，只有圈内会被修改') + '">' +
@@ -1227,6 +1246,7 @@
     document.body.appendChild(panel);
     button.addEventListener('click', () => {
       panel.hidden = !panel.hidden;
+      dock();
       if (panel.hidden) { cancelSelection(); return; }
       // Fewest clicks: opening the panel for an edit with nothing selected goes straight into
       // selection mode (one drag on the page), instead of needing a separate "框选区域" click.
@@ -1235,7 +1255,15 @@
         feedback(tr('mgpt_drag_now', '直接在画布上拖动鼠标，框出要修改的区域（Esc 取消）。'));
       }
     });
-    $g('mangaGptClose').addEventListener('click', () => { panel.hidden = true; cancelSelection(); });
+    $g('mangaGptClose').addEventListener('click', () => { panel.hidden = true; cancelSelection(); dock(); });
+    const collapseBtn = $g('mangaGptCollapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', () => {
+      const collapsed = panel.classList.toggle('is-collapsed');
+      collapseBtn.textContent = collapsed ? '+' : '–';
+      collapseBtn.setAttribute('aria-expanded', String(!collapsed));
+      dock();
+    });
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', () => dock());
     $g('mangaGptSelect').addEventListener('click', startSelection);
     if ($g('mangaGptExpand')) $g('mangaGptExpand').addEventListener('click', expandSelection);
     $g('mangaGptGenerate').addEventListener('click', generate);

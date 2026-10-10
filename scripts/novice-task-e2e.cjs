@@ -371,16 +371,24 @@ async function main() {
   });
 
   // 6. small window / zoom: nothing important is cut off or causes horizontal page scroll
-  await flow('6 小窗口 1024×700 与 1.5x 缩放下的布局', async () => {
+  await flow('6 1440/1280/1024 宽与 1.5x 缩放：面板不遮画布、可收起', async () => {
     const out = {};
-    for (const [w, h, dpr] of [[1024, 700, 1], [1280, 800, 1.5]]) {
+    for (const [w, h, dpr] of [[1440, 900, 1], [1280, 800, 1.5], [1024, 700, 1]]) {
       const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: dpr });
       const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort());
       await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
       await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 });
       await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {});
       await p.keyboard.press('Escape');
-      if (await p.locator('#mangaGptOpen').count()) await p.locator('#mangaGptOpen').click();
+      const hasGpt = await p.locator('#mangaGptOpen').count();
+      if (hasGpt) { await p.locator('#mangaGptOpen').click(); await p.keyboard.press('Escape'); await p.waitForTimeout(400); }
+      const cover = () => p.evaluate(() => { const a = canvas.upperCanvasEl.getBoundingClientRect(); const pn = document.getElementById('mangaGptPanel');
+        if (!pn || pn.hidden) return { overlapPx: 0, canvasW: Math.round(a.width) };
+        const b = pn.getBoundingClientRect(); const ix = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)); const iy = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+        return { overlapPx: Math.round(ix * iy), canvasW: Math.round(a.width) }; });
+      const open = hasGpt ? await cover() : null;
+      let collapsed = null;
+      if (hasGpt) { await p.locator('#mangaGptCollapse').click(); await p.waitForTimeout(400); collapsed = await cover(); await p.locator('#mangaGptCollapse').click(); await p.waitForTimeout(300); }
       const m = await p.evaluate(() => {
         const vis = id => { const e = document.getElementById(id); if (!e) return null; const r = e.getBoundingClientRect();
           return r.width > 0 && r.left >= 0 && r.right <= innerWidth + 1 && r.top >= 0 && r.top < innerHeight; };
@@ -389,9 +397,10 @@ async function main() {
           generateReachable: gen ? (() => { gen.scrollIntoView({ block: 'nearest' }); const r = gen.getBoundingClientRect(); return r.bottom <= innerHeight + 1 && r.top >= 0; })() : 'n/a' };
       });
       await p.screenshot({ path: path.join(OUT, 'layout-' + w + 'x' + h + '@' + dpr + '.png') });
-      out[w + 'x' + h + '@' + dpr] = m; await ctx.close();
+      out[w + 'x' + h + '@' + dpr] = { ...m, open, collapsed }; await ctx.close();
     }
-    return { pass: Object.values(out).every(m => !m.hScroll && m.gptOpen !== false && m.file && m.generateReachable !== false), detail: out };
+    return { pass: Object.values(out).every(m => !m.hScroll && m.gptOpen !== false && m.file && m.generateReachable !== false &&
+      (!m.open || (m.open.overlapPx === 0 && m.collapsed.overlapPx === 0 && m.collapsed.canvasW >= m.open.canvasW))), detail: out };
   });
 
   await endSession('final');

@@ -50,3 +50,6 @@
 .manga-gpt-lasso polygon { fill: #54befe2e; stroke: #62caff; stroke-width: 2; stroke-dasharray: 6 4; }
 #mangaGptShape { min-width: 4.5em; }
 .manga-gpt-lasso.is-brush polyline { fill: none; stroke: #54befe66; stroke-dasharray: none; stroke-linecap: round; stroke-linejoin: round; }
+.manga-gpt-head-buttons { display: flex; gap: 6px; }
+.manga-gpt-panel.is-collapsed { max-height: none; overflow: hidden; width: auto; min-width: 220px; }
+.manga-gpt-panel.is-collapsed > :not(.manga-gpt-head) { display: none !important; }
