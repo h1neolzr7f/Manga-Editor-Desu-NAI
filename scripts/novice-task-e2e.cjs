@@ -136,7 +136,7 @@ async function startServer() {
     if (i > 150) throw new Error('server not ready'); await new Promise(r => setTimeout(r, 200));
   }
 }
-const mock = { calls: [], fail: null };
+const mock = { calls: [], fail: null, delayMs: 0 };
 async function newSession(viewport) {
   context = await browser.newContext({ viewport: viewport || { width: 1440, height: 900 }, acceptDownloads: true });
   await context.tracing.start({ screenshots: true, snapshots: false });
@@ -149,6 +149,7 @@ async function newSession(viewport) {
     await page.route('**/gpt-image-proxy', async route => {
       const p = route.request().postDataJSON();
       mock.calls.push({ op: p.operation, model: p.model, refs: (p.references || []).length, promptLen: (p.prompt || '').length });
+      if (mock.delayMs) await new Promise(res => setTimeout(res, mock.delayMs));
       if (mock.fail) return route.fulfill({ status: mock.fail.status, contentType: 'application/json', body: JSON.stringify({ ok: false, error: mock.fail.error }) });
       const image = await page.evaluate(async ({ src, size }) => {
         const [w, h] = (size === 'auto' ? '1024x1024' : size).split('x').map(Number); const c = document.createElement('canvas'); c.width = w; c.height = h;
@@ -330,6 +331,43 @@ async function main() {
     return { pass: /框选|选区|区域/.test(noRegion) && /不可用|重试|失败/.test(failMsg) && silentRetries === 0 && okAfterRetry,
       detail: { noRegion: noRegion.slice(0, 60), failMsg: failMsg.slice(0, 80), silentRetries, okAfterRetry, longPromptChars: 3300,
         lastPromptLen: (mock.calls[mock.calls.length - 1] || {}).promptLen } };
+  });
+
+  // 7. switch pages while a generation is running: the result must never land on the other page
+  await flow('7 生成中切页→结果不得贴到别的页→切回后再应用', async () => {
+    if (!(await has('mangaGptOpen'))) return { pass: false, detail: { unavailable: 'no GPT region edit in this version' } };
+    if (REAL_GPT) return { pass: true, detail: { skipped: 'mock-only timing test' } };
+    await openPage(0);
+    const p1Before = await pageImage();
+    await openPage(1);
+    const p2Before = await pageImage();
+    await openPage(0);
+    await op.click(page.locator('#mangaGptOpen'), 'GPT 改图');
+    const selecting = await page.evaluate(() => !!document.querySelector('.manga-gpt-selection'));
+    if (!selecting) await op.click(page.locator('#mangaGptSelect'), '框选区域');
+    await op.drag(await toScreen([100, 1100]), await toScreen([500, 1400]), 'drag selection');
+    await page.locator('#mangaGptPrompt').fill('把背景改成雨夜');
+    mock.delayMs = 4000;
+    await op.click(page.locator('#mangaGptGenerate'), '生成');
+    await page.waitForTimeout(500);
+    await openPage(1);                      // user wanders off while it is generating
+    await page.waitForFunction(() => !document.getElementById('mangaGptApply').disabled ||
+      document.getElementById('mangaGptStatus').classList.contains('is-error'), null, { timeout: 30000 }).catch(() => {});
+    mock.delayMs = 0;
+    const applyEnabledOnPage2 = await page.evaluate(() => !document.getElementById('mangaGptApply').disabled);
+    if (applyEnabledOnPage2) await op.click(page.locator('#mangaGptApply'), '应用（在第 2 页）');
+    await page.waitForTimeout(1200);
+    const onPage2Status = (await page.locator('#mangaGptStatus').textContent()).trim();
+    const p2After = await diff(p2Before, await pageImage());
+    await openPage(0);
+    await page.waitForFunction(() => !document.getElementById('mangaGptApply').disabled, null, { timeout: 10000 }).catch(() => {});
+    await op.click(page.locator('#mangaGptApply'), '应用（回到第 1 页）');
+    await page.waitForFunction(() => canvas.getObjects().filter(o => o.name === 'GPT 局部改图').length >= 1, null, { timeout: 20000 }).catch(() => {});
+    await waitIdle();
+    const p1After = await diff(p1Before, await pageImage(), { left: 100, top: 1100, width: 400, height: 300 });
+    await page.locator('#mangaGptClose').click().catch(() => {});
+    return { pass: p2After.changed === 0 && /第 ?1 ?页|另一页|其他页|切回/.test(onPage2Status) && p1After.changed > 0 && p1After.outside === 0,
+      detail: { applyEnabledOnPage2, onPage2Status: onPage2Status.slice(0, 80), page2Changed: p2After.changed, page1Changed: p1After.changed, page1Outside: p1After.outside } };
   });
 
   // 6. small window / zoom: nothing important is cut off or causes horizontal page scroll

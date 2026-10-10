@@ -429,7 +429,7 @@
       const excludeLettering = !$g('mangaGptIncludeText') || !$g('mangaGptIncludeText').checked;
       const image = cropCanvas(c, region, excludeLettering);
       const cut = findCutBoxes(candidateBoxes(c), region, c.getWidth(), c.getHeight());
-      state.region = { canvas: c, ...region, image, excludeLettering, cut,
+      state.region = { canvas: c, ...region, image, excludeLettering, cut, pageGuid: currentPageGuid(),
         canvasWidth: c.getWidth(), canvasHeight: c.getHeight() };
       state.result = '';
       $g('mangaGptApply').disabled = true;
@@ -730,6 +730,14 @@
     return out;
   }
 
+  function currentPageGuid() {
+    try { return typeof getCanvasGUID === 'function' ? getCanvasGUID() || null : null; } catch (error) { return null; }
+  }
+
+  function pageNumber(guid) {
+    try { const i = typeof btmGetGuidIndex === 'function' ? btmGetGuidIndex(guid) : -1; return i >= 0 ? i + 1 : '?'; } catch (error) { return '?'; }
+  }
+
   function combineAlpha(a, b) {
     if (!a) return b;
     if (!b) return a;
@@ -1009,6 +1017,12 @@
     if (!c || !state.result) return feedback(tr('mgpt_nothing_to_apply', '没有可应用的结果。'), true);
     const isEdit = currentOperation() === 'edit';
     const region = state.region;
+    // One Fabric canvas serves every page: a result made for page 1 must never be pasted onto
+    // page 2 because the user switched pages while it was generating. Keep the result.
+    if (isEdit && region && region.pageGuid && currentPageGuid() && currentPageGuid() !== region.pageGuid) {
+      return feedback(tr('mgpt_wrong_page', '这个结果是为第 {from} 页生成的，当前在第 {now} 页。请切回第 {from} 页再点“应用”（不用重新生成）。',
+        { from: pageNumber(region.pageGuid), now: pageNumber(currentPageGuid()) }), true);
+    }
     if (isEdit && !regionUnchanged(c, region)) {
       return feedback(tr('mgpt_region_changed_regen', '画布或选中区域已经改变，请重新框选并生成。'), true);
     }
