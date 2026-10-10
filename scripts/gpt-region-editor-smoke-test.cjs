@@ -289,6 +289,15 @@ elements.mangaGptStatus.textContent = savedRegionStatus;
     const d3 = api.seamDiffs(p3, o3, W, H3, { left: true });
     assert(Math.abs(d3.left[190 * 3] + 20) < 0.5, 'drift half measured');
     assert(Math.abs(d3.left[2 * 3]) < 0.5, 'changed-content half not tinted');
+    // real page-4 rainbow: the sky came back 56 levels lighter (145 → 201) — larger than SEAM_MAX but uniform,
+    // so it is drift and must be pulled back (it used to be skipped → pale rectangle)
+    const o4 = new Uint8ClampedArray(W * H3 * 4), p4 = new Float32Array(W * H3 * 4);
+    for (let y = 0; y < H3; y++) for (let x = 0; x < W; x++) { const k = (y * W + x) * 4; o4.set(px(145), k); p4.set(y < 60 ? [30, 30, 30, 255] : px(201), k); }
+    const d4 = api.seamDiffs(p4, o4, W, H3, { left: true });
+    assert(Math.abs(d4.left[150 * 3] + 56) < 0.5, 'uniform 56-level sky shift is measured');
+    assert(Math.abs(d4.left[2 * 3]) < 0.5, 'the 30% that is new dark content is still not tinted');
+    api.applySeamMatch(p4, W, H3, d4, 10);
+    assert(Math.abs(p4[(150 * W) * 4] - 145) < 0.5, 'sky edge meets the page tone');
   }
   // Context around a corner selection is clipped to the page; the inner mapping is unchanged.
   const cplan = api.letterboxPlan(400, 100, '1024x1024');

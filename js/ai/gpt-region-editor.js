@@ -302,6 +302,7 @@
   // out towards the centre: the edges meet the page, the middle keeps the model's colours.
   const SEAM_RING = 4;
   const SEAM_MAX = 28;        // a larger per-pixel step is changed content (other hair, new object), not drift
+  const SEAM_SHIFT_MAX = 96;  // a whole side shifted uniformly (sky repainted lighter) is still drift, up to this many levels
   const SEAM_SMOOTH = 64;     // correction profile is smoothed along the edge over this many pixels
   // Per side: a smoothed per-position colour difference (orig - patch) along the edge, measured on a
   // thin inner ring. Positions where the content itself changed are skipped, so a red-hair-vs-silver-hair
@@ -315,6 +316,26 @@
       const vertical = side === 'left' || side === 'right';
       const len = vertical ? h : w;
       const sum = new Float32Array(len * 3), cnt = new Float32Array(len);
+      // the side's typical shift (per-channel median): samples are judged against it, not against 0, so a
+      // uniform tonal shift larger than SEAM_MAX (real case: sky 56 levels lighter → pale rectangle) is corrected
+      // while content that really changed still stands out from the median and is skipped
+      const ds = [[], [], []];
+      for (let t = 0; t < len; t += 2) {
+        for (let k = 0; k < rw; k++) {
+          const x = vertical ? (side === 'left' ? k : w - 1 - k) : t;
+          const y = vertical ? t : (side === 'top' ? k : h - 1 - k);
+          const i = (y * w + x) * 4;
+          if (orig[i + 3] < 250 || patch[i + 3] < 8) continue;
+          for (let c = 0; c < 3; c++) ds[c].push(orig[i + c] - patch[i + c]);
+        }
+      }
+      const med = ds.map(a => { if (!a.length) return 0; const b = a.slice().sort((p, q) => p - q); return b[b.length >> 1]; });
+      // trust the median only when most samples agree with it (a 50/50 mix of drift and new content gives a vector
+      // that matches neither); otherwise judge against 0 as before
+      let agree = 0;
+      for (let j = 0; j < ds[0].length; j++) if ((Math.abs(ds[0][j] - med[0]) + Math.abs(ds[1][j] - med[1]) + Math.abs(ds[2][j] - med[2])) / 3 <= SEAM_MAX) agree++;
+      if (agree < ds[0].length * 0.6) med[0] = med[1] = med[2] = 0;
+      if (Math.abs(med[0] + med[1] + med[2]) / 3 > SEAM_SHIFT_MAX) med[0] = med[1] = med[2] = 0;
       for (let t = 0; t < len; t++) {
         for (let k = 0; k < rw; k++) {
           const x = vertical ? (side === 'left' ? k : w - 1 - k) : t;
@@ -322,7 +343,7 @@
           const i = (y * w + x) * 4;
           if (orig[i + 3] < 250 || patch[i + 3] < 8) continue;
           const dr = orig[i] - patch[i], dg = orig[i + 1] - patch[i + 1], db = orig[i + 2] - patch[i + 2];
-          if ((Math.abs(dr) + Math.abs(dg) + Math.abs(db)) / 3 > SEAM_MAX) continue;
+          if ((Math.abs(dr - med[0]) + Math.abs(dg - med[1]) + Math.abs(db - med[2])) / 3 > SEAM_MAX) continue;
           sum[t * 3] += dr; sum[t * 3 + 1] += dg; sum[t * 3 + 2] += db; cnt[t]++;
         }
       }
