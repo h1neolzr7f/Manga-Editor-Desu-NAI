@@ -60,7 +60,7 @@ const elements = Object.fromEntries([
   'mangaGptStatus', 'mangaGptClose', 'mangaGptSelect', 'mangaGptGenerate',
   'mangaGptApply', 'mangaGptReplaceText', 'mangaGptMode',
   'mangaGptReferences', 'mangaGptReferenceList', 'mangaGptPreview',
-  'mangaGptUrl', 'mangaGptModel', 'mangaGptSize', 'mangaGptKey',
+  'mangaGptUrl', 'mangaGptModel', 'mangaGptModelPreset', 'mangaGptSize', 'mangaGptKey',
   'mangaGptPrompt', 'mangaGptSubtitle', 'mangaGptAllowUpscale', 'mangaGptCancel', 'mangaGptIncludeText'
 ].map(id => [id, new MockNode('input')]));
 elements.mangaGptMode.value = 'edit';

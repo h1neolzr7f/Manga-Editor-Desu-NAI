@@ -21,6 +21,11 @@
   const SIZE_ASPECTS = { '1024x1024': [1024, 1024], '1536x1024': [1536, 1024], '1024x1536': [1024, 1536] };
   // Longer than the local relay's upstream timeout (300 s) so its readable 504 arrives first.
   const REQUEST_TIMEOUT_MS = 330000;
+  // Image model presets (ids from the relay's /v1/models, 2026-10-10). First entry is the default.
+  // The text box stays editable, so any other compatible model id can still be typed in.
+  const GPT_MODEL_PRESETS = ['gpt-image-2.5', 'gpt-image-2.5-flare', 'gpt-image-2.5-sunburst', 'gpt-image-2', 'gpt-image-1'];
+  const GPT_DEFAULT_MODEL = GPT_MODEL_PRESETS[0];
+  function modelPresetFor(id) { return GPT_MODEL_PRESETS.includes(id) ? id : 'custom'; }
   // Mean |residual| (0-255) on the context ring above which the model is considered to have
   // recomposed the surroundings; measured on real gpt-image-2 results (drift 2-16, recomposed 33-51).
   const DRIFT_MAX_RESIDUAL = 20;
@@ -1080,7 +1085,10 @@
       '<button type="button" id="mangaGptSelect">' + t('mgpt_select_btn', '框选区域') + '</button>',
       '<button type="button" id="mangaGptExpand" hidden>' + t('mgpt_expand_btn', '扩展到完整对象') + '</button></div>',
       '<label>' + t('mgpt_api_url', '兼容 API 地址') + '<input id="mangaGptUrl" type="url" placeholder="https://api.openai.com/v1" value="https://api.openai.com/v1" autocomplete="off"></label>',
-      '<div class="manga-gpt-row"><label>' + t('mgpt_model', '图像模型') + '<input id="mangaGptModel" type="text" value="gpt-image-1" placeholder="' + t('mgpt_model_ph', '模型 ID') + '"></label>',
+      '<div class="manga-gpt-row"><label>' + t('mgpt_model', '图像模型') + '<select id="mangaGptModelPreset" title="' + t('mgpt_model_tip', 'gpt-image-2.5 效果最好（默认）；选“自定义”可在右侧输入任意兼容模型 ID') + '">' +
+        GPT_MODEL_PRESETS.map((id, i) => '<option value="' + id + '">' + id + (i === 0 ? t('mgpt_model_default', '（默认，推荐）') : '') + '</option>').join('') +
+        '<option value="custom">' + t('mgpt_model_custom', '自定义…') + '</option></select>' +
+        '<input id="mangaGptModel" type="text" value="' + GPT_DEFAULT_MODEL + '" placeholder="' + t('mgpt_model_ph', '模型 ID') + '" aria-label="' + t('mgpt_model_ph', '模型 ID') + '"></label>',
       '<label>' + t('mgpt_size', '尺寸') + '<select id="mangaGptSize"><option value="auto">' + t('mgpt_size_auto', '自动') +
         '</option><option value="1024x1024">1024×1024</option><option value="1536x1024">1536×1024</option><option value="1024x1536">1024×1536</option></select></label></div>',
       '<label>' + t('mgpt_key', 'API Key（可留空读取本地 .env）') + '<input id="mangaGptKey" type="password" placeholder="sk-…" autocomplete="off" spellcheck="false"></label>',
@@ -1116,6 +1124,14 @@
     }
     $g('mangaGptApply').addEventListener('click', apply);
     $g('mangaGptReplaceText').addEventListener('click', changeSelectedText);
+    $g('mangaGptModelPreset').addEventListener('change', event => {
+      const input = $g('mangaGptModel');
+      if (event.target.value === 'custom') { input.focus(); input.select(); return; }
+      input.value = event.target.value;
+    });
+    $g('mangaGptModel').addEventListener('input', event => {
+      $g('mangaGptModelPreset').value = modelPresetFor(event.target.value.trim());
+    });
     $g('mangaGptMode').addEventListener('change', () => {
       state.result = '';
       $g('mangaGptApply').disabled = true;
@@ -1152,5 +1168,6 @@
 
   window.MangaGPTRegionEditor = { normalizeRegion, startSelection, cancelSelection, selectRegionForTextRemoval, selectRegionForPanel, prepareManualEdit, useCharacterCard, referenceSummary,
     letterboxPlan, resultCropRect, letteringInsertIndex, isLettering, contextRect, featherPlan, featherAlpha, estimateDrift, aspectMismatch,
-    findCutBoxes, expandRegion, effectiveSize, bakePatch, panelLineAlpha, combineAlpha, tr };
+    findCutBoxes, expandRegion, effectiveSize, bakePatch, panelLineAlpha, combineAlpha, tr,
+    GPT_MODEL_PRESETS, GPT_DEFAULT_MODEL, modelPresetFor };
 })();

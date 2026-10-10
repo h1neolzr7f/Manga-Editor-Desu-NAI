@@ -84,7 +84,7 @@ async function openEditor(context) {
 async function installMockModel(page, state) {
   await page.route('**/gpt-image-proxy', async route => {
     const payload = route.request().postDataJSON();
-    state.calls.push({ operation: payload.operation, size: payload.size, refs: (payload.references || []).length,
+    state.calls.push({ operation: payload.operation, size: payload.size, refs: (payload.references || []).length, model: payload.model,
       auth: Boolean(route.request().headers().authorization), image: payload.image });
     if (state.fail) {
       return route.fulfill({ status: state.fail.status, contentType: 'application/json',
@@ -244,6 +244,22 @@ async function run() {
   const heap = async () => (await cdp.send('Performance.getMetrics')).metrics.find(m => m.name === 'JSHeapUsedSize').value;
   const base = await page.evaluate(() => ({ w: canvas.getWidth(), h: canvas.getHeight() }));
   record('editor loads with A4 200dpi page', base.w === 1654 && base.h === 2339, base);
+  // Model picker: gpt-image-2.5 is the default, gpt-image-2 stays selectable, free entry still works.
+  const modelUi = await page.evaluate(() => {
+    const sel = document.getElementById('mangaGptModelPreset'), box = document.getElementById('mangaGptModel');
+    const out = { def: box.value, preset: sel.value, options: Array.from(sel.options).map(o => o.value) };
+    sel.value = 'gpt-image-2'; sel.dispatchEvent(new Event('change'));
+    out.afterPick = box.value;
+    box.value = 'my-custom-image-model'; box.dispatchEvent(new Event('input'));
+    out.afterType = sel.value;
+    box.value = 'gpt-image-2.5'; box.dispatchEvent(new Event('input'));
+    out.backToDefault = sel.value;
+    return out;
+  });
+  record('GPT model picker: gpt-image-2.5 default, gpt-image-2 selectable, custom id allowed',
+    modelUi.def === 'gpt-image-2.5' && modelUi.preset === 'gpt-image-2.5' && modelUi.options.includes('gpt-image-2') &&
+    modelUi.options.includes('custom') && modelUi.afterPick === 'gpt-image-2' && modelUi.afterType === 'custom' &&
+    modelUi.backToDefault === 'gpt-image-2.5', modelUi);
 
   const mock = { calls: [] };
   await installMockModel(page, mock);
@@ -1132,6 +1148,8 @@ async function run() {
   await page.waitForFunction(before=>document.getElementById('mangaGptApply').disabled===false &&
     !!document.getElementById('mangaGptPreview').src, null,{timeout:30000});
   const refRequest=mock.calls[mock.calls.length-1];
+  record('GPT request carries the default model id gpt-image-2.5', mock.calls.length>0 && mock.calls.every(c=>c.model==='gpt-image-2.5'),
+    Array.from(new Set(mock.calls.map(c=>c.model))));
   record('saved Character Bible image reaches mocked GPT edit payload only after Generate click',
     mock.calls.length===characterCallsBefore+1 &&
     refRequest.refs===1 && refRequest.operation==='edit' && refRequest.auth,
