@@ -142,12 +142,12 @@ def _clean_points(points, w, h):
 
 def select(payload):
     from manga_model_guard import exclusive
-    import numpy as np
     image_id = str(payload.get("imageId") or "")[:80]
     if not image_id:
         raise SmartOcrError("缺少 imageId。", 400)
     with exclusive("sam2", wait=60):
         pred = _get_predictor(payload.get("allow_download") is True)
+        import numpy as np  # after the runtime check: no torch/numpy -> readable 501, not an ImportError
         t0 = time.time()
         if image_id in _embeds:
             _embeds.move_to_end(image_id)
