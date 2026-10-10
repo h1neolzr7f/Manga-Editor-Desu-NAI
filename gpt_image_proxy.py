@@ -8,6 +8,8 @@ import binascii
 import http.client
 import ipaddress
 import json
+import html
+import re
 import os
 import socket
 import urllib.error
@@ -296,7 +298,7 @@ def request_image_edit(payload, key):
         # Gateways return {"error":{...}}, {"error":"..."}, lists or plain text.
         error = parsed_error.get("error", raw) if isinstance(parsed_error, dict) else raw
         message = error.get("message", raw) if isinstance(error, dict) else str(error)
-        message = str(message).replace(key, "[redacted]")[:300]
+        message = readable_upstream_message(exc.code, str(message)).replace(key, "[redacted]")[:300]
         raise ImageProxyError("上游 HTTP " + str(exc.code) + "：" + message, 502) from exc
     except TimeoutError as exc:
         raise ImageProxyError("上游图像接口超时（" + str(timeout) + " 秒），可稍后重试或调大 GPT_IMAGE_TIMEOUT。", 504) from exc
@@ -304,6 +306,29 @@ def request_image_edit(payload, key):
         if isinstance(exc.reason, TimeoutError):
             raise ImageProxyError("上游图像接口超时（" + str(timeout) + " 秒），可稍后重试或调大 GPT_IMAGE_TIMEOUT。", 504) from exc
         raise ImageProxyError("无法连接图像接口，请检查地址、网络代理与模型支持情况。", 502) from exc
+
+
+def readable_upstream_message(status, message):
+    """Gateway/CDN error pages (Cloudflare 52x/530, nginx 502...) are HTML; never show markup.
+    Return the page title plus a hint that says what the user can do. No image was produced."""
+    text = (message or "").strip()
+    if not re.search(r"<\s*(!doctype|html|head|body|title)\b", text, re.I):
+        return text
+    title = re.search(r"<title[^>]*>(.*?)</title>", text, re.I | re.S)
+    if title:
+        title = title.group(1)
+    else:  # no <title>: keep the visible text (scripts, styles and comments removed)
+        title = re.sub(r"<(script|style)\b.*?</\1\s*>|<!--.*?-->|<[^>]+>", " ", text, flags=re.I | re.S)
+    title = re.sub(r"\s+", " ", html.unescape(title)).strip()[:80]
+    if status in (401, 403):
+        hint = "接口拒绝访问，请检查 API Key 和地址。"
+    elif status == 429:
+        hint = "请求太频繁或额度不足，请稍后再试。"
+    elif status >= 500:
+        hint = "图像服务（或其网关）暂时不可用，本次没有生成图片，请稍后重试。"
+    else:
+        hint = "接口返回了网页而不是 JSON，请检查 API 地址是否以 /v1 结尾。"
+    return hint + ("（" + title + "）" if title else "")
 
 
 def _authorized_local_request(handler):

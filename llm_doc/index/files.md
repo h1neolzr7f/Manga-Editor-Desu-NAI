@@ -51,7 +51,7 @@
 | css/ui/tutorial.css | 372 |  |
 | css/ui/unified-settings.css | 82 |  |
 | css/visual-studio.css | 399 |  |
-| gpt_image_proxy.py | 369 |  |
+| gpt_image_proxy.py | 394 |  |
 | html/Minual/03_xxx2webp.bat | 20 |  |
 | html/Minual/03_xxx2webp_50%.bat | 17 |  |
 | html/Minual/SB/st/03_xxx2webp.bat | 20 |  |
@@ -302,7 +302,7 @@
 | scripts/generate-site-ui-svgs.cjs | 391 |  |
 | scripts/gpt-browser-acceptance.cjs | 1180 | Real headless Chromium acceptance test against the actual HTML/Fabric runtime. |
 | scripts/gpt-http-integration-test.py | 205 |  |
-| scripts/gpt-image-proxy-smoke-test.py | 183 |  |
+| scripts/gpt-image-proxy-smoke-test.py | 204 |  |
 | scripts/gpt-panel-i18n-test.cjs | 53 | Regression: every mgpt_* key used by the GPT region editor exists in all 8 i18next |
 | scripts/gpt-panel-line-protect-test.cjs | 58 | Regression: GPT region edits must not erase panel borders / gutters inside the selection. |
 | scripts/gpt-proxy-network-guard-test.py | 160 |  |

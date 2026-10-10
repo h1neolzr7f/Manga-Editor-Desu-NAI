@@ -179,5 +179,26 @@ class NetworkGuardSuite(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout[-3000:] + result.stderr[-3000:])
 
 
+class UpstreamHtmlErrorSuite(unittest.TestCase):
+    """Cloudflare 530 / nginx 502 pages must never reach the user as raw HTML."""
+
+    CF = ('<!DOCTYPE html>\n<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en-US"> <![endif]-->'
+          '<head><title>Origin DNS error | example.workers.dev | Cloudflare</title></head><body>x</body></html>')
+
+    def test_cloudflare_530_is_readable(self):
+        msg = proxy.readable_upstream_message(530, self.CF)
+        self.assertNotIn("<", msg)
+        self.assertIn("暂时不可用", msg)
+        self.assertIn("Origin DNS error", msg)
+
+    def test_html_401_and_404_hints(self):
+        self.assertIn("API Key", proxy.readable_upstream_message(401, "<html><body>no</body></html>"))
+        self.assertIn("/v1", proxy.readable_upstream_message(404, "<html><title>Not Found</title></html>"))
+
+    def test_plain_and_json_messages_unchanged(self):
+        self.assertEqual(proxy.readable_upstream_message(400, "invalid size"), "invalid size")
+        self.assertEqual(proxy.readable_upstream_message(429, "a < b"), "a < b")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
