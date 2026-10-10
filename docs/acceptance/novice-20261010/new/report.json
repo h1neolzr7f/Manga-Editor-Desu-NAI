@@ -1,5 +1,5 @@
 {
-  "when": "2026-10-10T02:46:12.830Z",
+  "when": "2026-10-10T03:01:22.530Z",
   "gpt": "MOCK",
   "flows": [
     {
@@ -12,7 +12,7 @@
         "Import image",
         "page 1"
       ],
-      "seconds": 17.7,
+      "seconds": 17.9,
       "screenshot": "artifacts/novice/01-1_首次启动并导入_2_页漫画.png",
       "notes": [],
       "detail": {
@@ -40,7 +40,7 @@
         "生成",
         "应用为图层"
       ],
-      "seconds": 2.9,
+      "seconds": 3.1,
       "screenshot": "artifacts/novice/03-2_框选人物_参考图_描述_生成_预览_应用.png",
       "notes": [],
       "detail": {
@@ -117,7 +117,7 @@
         "page 1",
         "Ctrl+Z after reopen"
       ],
-      "seconds": 16,
+      "seconds": 16.2,
       "screenshot": "artifacts/novice/05-4_撤销_重做_切页_保存_关闭_重开.png",
       "notes": [],
       "detail": {
@@ -148,7 +148,7 @@
         "生成（失败）",
         "再试一次"
       ],
-      "seconds": 10.8,
+      "seconds": 11.1,
       "screenshot": "artifacts/novice/06-5_错误_API_失败后再试_超长提示词_空选区.png",
       "notes": [
         "生成（未框选）: physical click through selection overlay"
@@ -163,12 +163,43 @@
       }
     },
     {
+      "name": "7 生成中切页→结果不得贴到别的页→切回后再应用",
+      "pass": true,
+      "keyOps": 14,
+      "ops": [
+        "展开页面",
+        "page 1",
+        "page 2",
+        "page 1",
+        "GPT 改图",
+        "框选区域",
+        "drag selection",
+        "生成",
+        "展开页面",
+        "page 2",
+        "应用（在第 2 页）",
+        "展开页面",
+        "page 1",
+        "应用（回到第 1 页）"
+      ],
+      "seconds": 41.7,
+      "screenshot": "artifacts/novice/07-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
+      "notes": [],
+      "detail": {
+        "applyEnabledOnPage2": true,
+        "onPage2Status": "这个结果是为第 1 页生成的，当前在第 2 页。请切回第 1 页再点“应用”（不用重新生成）。",
+        "page2Changed": 0,
+        "page1Changed": 51289,
+        "page1Outside": 0
+      }
+    },
+    {
       "name": "6 小窗口 1024×700 与 1.5x 缩放下的布局",
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 7.4,
-      "screenshot": "artifacts/novice/07-6_小窗口_1024_700_与_1_5x_缩放下的布局.png",
+      "seconds": 7,
+      "screenshot": "artifacts/novice/08-6_小窗口_1024_700_与_1_5x_缩放下的布局.png",
       "notes": [],
       "detail": {
         "1024x700@1": {
