@@ -64,5 +64,15 @@
     "03_images/**",
     "font/**",
     "node_modules/**"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "js/ui/third/base-translation/*.js"
+      ],
+      "rules": {
+        "no-unused-vars": "off"
+      }
+    }
   ]
 }

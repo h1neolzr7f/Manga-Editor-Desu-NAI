@@ -164,7 +164,7 @@ NAI_REAL_API=1 NAI_TEST_ENV_FILE=<仓库外> NAI_REAL_MAX_CALLS=1 node scripts/n
 1. 智能字幕会保留单个 kana 碎片（例如「の」）。这是有意的：日文单字也可能是真对白。
 2. GPT 替换后，人物可能越过下方分格线：原画本来就跨格，选区外像素不会被改动。
 3. 【已修复 2d4386f】形状面板颜色框文字被截断。
-4. ESLint（`npm run lint`）：0 个错误，71 个警告（最初 703）。剩下的是未使用的局部变量、只在本文件内互相调用的旧辅助函数，以及运行时不加载的其他语言翻译对象。
+4. ESLint（`npm run lint`）：0 个错误，51 个警告（最初 703；6bfc661 删除 13 个全仓库零引用的全局/函数，翻译数据文件 base-*.js 用 overrides 关闭 no-unused-vars）。剩下的是未使用的局部变量、只在本文件内互相调用的旧辅助函数，以及运行时不加载的其他语言翻译对象。
 5. 其他语言的翻译文件在运行时不加载（应用只显示中文），只给 check-translations 用。暂时保留。
 6. 【已完成 1f10627】CI 工作流改动已推送，ocr-native 的日志确认新测试实际运行了。
 7. 【已修复 1d5a1b1】智能字幕替换后文字溢出气泡、留下原字残影：真实 OCR/LaMa 端到端测试中文字宽 239 px，原文字区域宽 245 px，残影像素为 0。
@@ -197,3 +197,14 @@ NAI_REAL_API=1 NAI_TEST_ENV_FILE=<仓库外> NAI_REAL_MAX_CALLS=1 node scripts/n
 - 轮换 NovelAI Token；
 - 决定是否删除运行时不加载的 7 种语言翻译文件；
 - GitHub Token 用完后可以撤销。
+
+### 8.x 2026-10-10 上午追加
+
+| SHA | 内容 | 验证 |
+|---|---|---|
+| eaa9573 | gpt-browser 测试改为期望 LaMa 之后自动去字仍保持开启（与 1d5a1b1 的有意改动一致；修复 CI 红） | 本地 gpt-browser 74/74 PASS |
+| 6bfc661 | 删除 13 个零引用全局/函数（splitUserPrompt、updateAiTaskProgress、applyInnerShadow、knife isHorizontalInt/isVerticalInt/isErrorInt、neonIntensity、isNeonEnabled、IMPORTED_PREFIX、languageSelector、editModeClear、updateClearButton、isDarkMode 变量）；每个名字 `git grep -w` 仓库内只出现在自身声明 | npm test PASS；full-feature-e2e 25/25 PASS（PYTHON=mnai-venv，真实 LaMa）；gpt-browser 74/74 |
+| （本次） | ESLint：translation 数据文件 overrides；报告更新 | lint 0 错误 / 51 警告 |
+
+- 推送前密钥扫描：重建 `/home/box/mnai_keyscan.sh`（仓库外）：sk-/ghp_/github_pat_/pst- 通用模式 + 600 权限文件中的 3 个已知密钥的精确匹配；自测植入已知密钥时返回 1（命中）。
+- image-2.5 模型：GPT 中继 /v1/models 返回 HTTP 530（Cloudflare Origin DNS error），按用户指示跳过，未做任何改动，NOT TESTED。
