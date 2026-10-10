@@ -61,18 +61,18 @@
 
 ## 5. 未解决 / 需要 owner 处理
 
-1. **CI 工作流改动未推送。** 推送令牌没有 `workflow` scope。需要 owner 手动修改 `.github/workflows/manga-smart-ocr.yml`：
+1. **CI 工作流改动未推送（仍待处理，见 §7.6）。** 推送令牌没有 `workflow` scope。需要 owner 手动修改 `.github/workflows/manga-smart-ocr.yml`：
    - 加入 `manga_ocr_preclean.py`、`manga_model_guard.py` 和对应测试的 paths 触发；
    - apt 安装加 `fonts-noto-cjk`；
    - 运行 `python scripts/manga-ocr-preclean-test.py` 和 `python scripts/manga-model-guard-test.py`。
 
    在此之前，`npm run test:smart-ocr` 已包含预清理测试，但 CI 上 REAL 部分会因缺少 CJK 字体而 skip。
-2. **GPT 局部改图会抹掉选区内的分格线/边框。** 真实 A/B 都出现了：选区外像素保持不变，但横跨选区的分格线在选区内消失了。选区如果切过人物，选区下沿会留下旧服装。建议在 UI 中把分格线作为保护蒙版，或在提示里提醒用户框选整个人物、避开分格线。
-3. **LaMa 在白色气泡里留下极淡的矩形边缘**（接近白色，肉眼仔细看才能发现）。CPU 推理可用；GPU 未测。
-4. **OCR 预清理是启发式的。** 超过约 150 px 的细线型手写拟声词可能被当作线条涂白（这类字 Tesseract 本来也读不出）；文字紧贴气泡框时可能连带被清理。原图 OCR 结果会合并作兜底。还需要在真实漫画扫描页上验证。
+2. **【已修复 2c50ba2】GPT 局部改图会抹掉选区内的分格线/边框。** 真实 A/B 都出现了：选区外像素保持不变，但横跨选区的分格线在选区内消失了。选区如果切过人物，选区下沿会留下旧服装。建议在 UI 中把分格线作为保护蒙版，或在提示里提醒用户框选整个人物、避开分格线。
+3. **【已修复 5e45e8d】LaMa 在白色气泡里留下极淡的矩形边缘**（接近白色，肉眼仔细看才能发现）。CPU 推理可用；GPU 未测。
+4. **【已缓解 759292d、6b5833f】OCR 预清理是启发式的。** 超过约 150 px 的细线型手写拟声词可能被当作线条涂白（这类字 Tesseract 本来也读不出）；文字紧贴气泡框时可能连带被清理。原图 OCR 结果会合并作兜底。还需要在真实漫画扫描页上验证。
 5. **Windows 便携包不含 torch / manga-ocr / LaMa**（只打包 Pillow）。Windows 用户需要按文档自行安装，Py3.12+ 还需要 `--no-deps`；真机未测。
-6. 「检查 NAI」中「无限生图：否」直接来自 NovelAI `perks.unlimitedImageGeneration`。Opus 免费额度实际可用（Anlas 未扣），但这个显示可能误导用户，建议改为显示“Opus 免费额度（≤1024²、≤28 步）”。
-7. `gpt-browser-acceptance` 本机第二标签页超时（CI 通过），未深入追查。
+6. 【已修复 51eb889】「检查 NAI」中「无限生图：否」直接来自 NovelAI `perks.unlimitedImageGeneration`。Opus 免费额度实际可用（Anlas 未扣），但这个显示可能误导用户，建议改为显示“Opus 免费额度（≤1024²、≤28 步）”。
+7. 【已修复 4060e37】`gpt-browser-acceptance` 本机第二标签页超时：原因是自动保存恢复弹窗挡住了点击，而且这个弹窗无法用键盘关闭。
 8. **轮换 NovelAI Token（再次提醒）。**
 
 ## 6. 复现命令（Key 从仓库外文件读取，不会打印）
@@ -85,3 +85,78 @@ GPT_REAL_API=1 GPT_TEST_ENV_FILE=<仓库外> GPT_REAL_BASE_URL=<中转>/v1 GPT_R
   GPT_REAL_REFERENCE=<立绘> GPT_REAL_CASES=A,B node scripts/gpt-real-api-acceptance.cjs
 NAI_REAL_API=1 NAI_TEST_ENV_FILE=<仓库外> NAI_REAL_MAX_CALLS=1 node scripts/nai-real-acceptance.cjs
 ```
+
+## 7. 第二轮（2026-10-09 晚 – 10-10）：全功能端到端、UX、清理
+
+仅限 Linux。Windows 真机测试已按用户要求推迟（**NOT TESTED**）。
+
+### 7.1 提交（分支 `fix/grok-manga-final-acceptance`，PR #13 Draft）
+
+| SHA | 内容 |
+|---|---|
+| f108028 | 编辑器：导入图片不再把 A4 页改成 512×512；打开工程后会显示第一页（之前画布空白）；新空白页不再弹确认 |
+| af5983c / dc7ddf9 | 图标字体和默认图标 SVG 打包到本地；启动时的外部请求从 26 次失败降到 0 |
+| c540e10 / d6851d4 | `scripts/full-feature-e2e.cjs` 全功能 Playwright E2E；编辑器回归测试加入 `npm test` |
+| cd09c42 | 页面结构按画布上的分镜格排阅读顺序（之前会把相邻格合并） |
+| 6b5833f | OCR：丢弃 Tesseract 从网点/线稿里读出的碎片 |
+| dadb108 | 清空画布前先确认；文件菜单文案统一（打开项目 / 保存，带快捷键）；改写首次使用引导 |
+| 14f1762 | 网点贴到用户点击的那一格 |
+| 5c1fcd9 | 无障碍：给图标按钮和输入框加名称；图层面板表头保持一行 |
+| 422800b, 32b764b, b007e0d, cc64777, 0c3572f | 清理（见 §7.3） |
+| 47e62c4 | 证据图片和真实 E2E 结果 |
+| 4060e37 | GPT 框选不再被无关容器的滚动打断（二分定位到 2c50ba2 引入）；自动保存恢复弹窗加无障碍属性，Esc = 稍后决定 |
+| 21d2425 | 中转站返回 HTML 错误页（例如 Cloudflare 530）时，显示可读的中文提示，不再显示 HTML 源码 |
+
+### 7.2 功能矩阵
+
+| 功能 | 类型 | 结果 | 证据 |
+|---|---|---|---|
+| 首次运行引导、模板、导入图片、分镜格、文字（横排/竖排）、气泡、图层、撤销/重做 | 真实 Chromium | PASS | `full-feature-e2e`（mock 25/25；真实 25/25 @47e62c4） |
+| 保存 / 打开工程（像素一致）、PNG 导出 2481×3508、SVG 导出 | 真实 Chromium | PASS | 同上 |
+| 网点贴到所点的格、页面结构（编辑器分镜格顺序） | 真实 Chromium | PASS | 同上 |
+| Tesseract OCR / Manga OCR / 智能字幕 | **REAL** 模型 | PASS | 真实 E2E：「ありがとう」 |
+| LaMa 擦除（蒙版外 0 像素变化） | **REAL** 模型 | PASS | 真实 E2E |
+| 角色档案、墨迹蒙版 | 真实 Chromium（本地） | PASS | E2E + `test:ink-mask` |
+| GPT 局部改图 / 角色替换（分格线保留率 1.0，选区外 0 像素变化） | **REAL** @47e62c4；MOCK @HEAD | PASS | `docs/acceptance/2026-10-09b/e2e-real-gpt-region-swap-top-panel.jpg` |
+| GPT 文生图（1254²） | **REAL** @47e62c4 | PASS | `e2e-real-results.json` |
+| GPT 重跑（10-10 早） | REAL | **NOT TESTED** | 中转站 `/v1/models` 返回 HTTP 530（源站宕机），没有生成图片；HTML 错误页问题因此发现，已在 21d2425 修复 |
+| GPT 可读错误（地址无效 / 429 / 取消） | 真实 Chromium + mock | PASS | E2E、`test:gpt-browser` |
+| NovelAI 免费生图 832×1216、28 步、n=1 | **REAL** | 7/7 PASS | **Anlas 7980 → 7980，花费 0**（10-10 早） |
+| 代理 / 安全 / 密钥防护 | REAL HTTP（本机） | PASS | proxy-chain、proxy-guards、secret-guard |
+| `test:gpt-browser`（真实 Chromium，mock API） | MOCK | PASS（CI @4060e37；本机 74 项 @21d2425） | 新增用例：框选不受无关滚动影响；恢复弹窗 Esc 后保留数据 |
+| Windows 真机 | — | **NOT TESTED** | 已推迟 |
+
+真实计费调用：GPT 共 5 次成功（另有 2 次因中转站 530 失败，未出图）；NovelAI 0 Anlas。
+
+本机 @21d2425 完整回归：`npm test`、check-translations、check:index、35 个其他套件和 mock E2E，**共 38/38 PASS**。`test:nai-pipeline` 需要服务器和 Token，已由真实 NovelAI 验收代替。
+
+### 7.3 删除 / 重写及理由
+
+共删除约 5.6 万行（`git diff --shortstat c02fe3b..HEAD`：+7261 / −56491）。
+
+| 提交 | 删除内容 | 证明未使用的方法 |
+|---|---|---|
+| 422800b | 33 个文件中的 86 个函数（−1186 行） | ESLint no-unused-vars，且 `git grep -w` 只找到声明本身；清单见 `docs/acceptance/2026-10-09b/dead-code-removed.tsv` |
+| 32b764b | `test/`：上游的独立实验页（169 个文件，1.7 MB） | 未被引用、未打包 |
+| b007e0d | `roadmap/`、`ロードマップ２/`、`ロードマップ３_複数API対応/`、`99_doc/` | 过时的多 API 规划，与当前仅 NovelAI 的运行时矛盾 |
+| cc64777 | `100_git_push_draft.bat`（`git add .` 可能把密钥提交上去）、`claude --dangerously-skip-permissions.bat`、个人同人漫画预设（含 R18） | 不属于产品，且有安全风险 |
+| 0c3572f | 遗留的 ComfyUI / SD-WebUI / fal / RunPod / 角度生成 / 局部重绘代码（28 个 JS、4 个 CSS、`html/API_Help`），以及永远不显示的菜单项和桩函数 | index.html 不加载；按文件名 `git grep -F` 找不到引用；删除后再扫一遍也没有新的孤立文件 |
+
+每次删除后都跑了 `npm test`、其余 JS/Python 测试、check-translations、check:index 和 mock E2E，全部通过。
+
+### 7.4 UX 前后对比
+
+`docs/acceptance/2026-10-09b/ux-before-after-laptop-{1-first-run,2-template-plus-import,3-shape-panel-icons}.jpg`
+
+- 之前：新页面也弹确认框；导入图片后画布变成 512×512；启动时 26 个外部请求失败。
+- 之后：不再弹框；画布保持 1654×2339；外部请求失败 0 个；1600 / 1280 宽度下都没有横向溢出。
+
+### 7.5 剩余问题
+
+1. 智能字幕会保留单个 kana 碎片（例如「の」）。这是有意的：日文单字也可能是真对白。
+2. GPT 替换后，人物可能越过下方分格线：原画本来就跨格，选区外像素不会被改动。
+3. 形状面板的颜色输入框里文字被截断（显示为 `rgba(25`）。
+4. 还有 703 个 ESLint 警告（0 个错误）。
+5. 其他语言的翻译文件在运行时不加载（应用只显示中文），只给 check-translations 用。暂时保留。
+6. **CI 工作流改动仍未推送**（manga-smart-ocr.yml 和 full-acceptance 的触发路径）。提供的 fine-grained PAT 推送时返回 403：它需要对本仓库有 **Contents: Read and write** 和 **Workflows: Read and write** 两项权限。提交已备好：本地分支 `ci-workflow-pending`（6114e98）。
+7. **请轮换 NovelAI Token**（旧 Token 曾泄露给第三方 Director）。
