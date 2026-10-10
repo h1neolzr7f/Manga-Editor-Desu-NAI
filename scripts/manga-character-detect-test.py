@@ -109,7 +109,6 @@ def _models():
         return False
 
 
-@unittest.skipUnless(_models() and D.extra_cached(), "isnet-anime / SAM / face+CCIP weights not cached")
 class IdleRelease(unittest.TestCase):
     def test_idle_models_are_released_only_when_free(self):
         import manga_model_guard as g
@@ -129,6 +128,7 @@ class IdleRelease(unittest.TestCase):
         self.assertEqual(g.idle_seconds({}), 600)
 
 
+@unittest.skipUnless(_models() and D.extra_cached(), "isnet-anime / SAM / face+CCIP weights not cached")
 class Page4(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
