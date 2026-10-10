@@ -7,6 +7,15 @@
  */
 (function(root){
   'use strict';
+  // Beginner-readable next step for the common local-model failures (raw text kept in brackets).
+  function explain(raw,status){
+    const text=String(raw||'');
+    if(/out of memory|CUDA error|MemoryError|cannot allocate/i.test(text))
+      return '本地模型内存/显存不足：请框选更小的区域，或关闭其他占用显卡的程序后再试。（'+text.slice(0,120)+'）';
+    if(status===502||status===503||status===504)
+      return '本地服务暂时不可用（HTTP '+status+'）：请确认「一键启动」窗口仍在运行，稍等几秒再试。';
+    return text;
+  }
   async function readJson(response){
     try{return await response.json();}
     catch(_){return {ok:false,error:'本地服务未返回 JSON（HTTP '+response.status+'）。'};}
@@ -32,12 +41,12 @@
       const data=result.data||{};
       if(!result.response.ok||!data.ok){
         return Object.assign({},data,{ok:false,status:result.response.status,
-          error:data.error||('本地模型请求失败（HTTP '+result.response.status+'）。')});
+          error:explain(data.error||('本地模型请求失败（HTTP '+result.response.status+'）。'),result.response.status)});
       }
       return data;
     }catch(error){
       if(error&&error.name==='AbortError')return {ok:false,cancelled:true,error:'已取消。'};
-      return {ok:false,error:'无法连接本地服务：'+((error&&error.message)||error)};
+      return {ok:false,error:'连不上本机服务 http://127.0.0.1:8000：请先运行「一键启动」，并用 http://127.0.0.1:8000 打开编辑器，然后再试。（'+((error&&error.message)||error)+'）'};
     }
   }
   root.MangaModelRequest={post};
