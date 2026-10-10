@@ -1,5 +1,5 @@
 {
-  "when": "2026-10-10T03:44:00.219Z",
+  "when": "2026-10-10T03:53:55.200Z",
   "gpt": "MOCK",
   "flows": [
     {
@@ -12,7 +12,7 @@
         "Import image",
         "page 1"
       ],
-      "seconds": 17.8,
+      "seconds": 17.9,
       "screenshot": "artifacts/novice/01-1_首次启动并导入_2_页漫画.png",
       "notes": [],
       "detail": {
@@ -40,7 +40,7 @@
         "生成",
         "应用为图层"
       ],
-      "seconds": 2.9,
+      "seconds": 3,
       "screenshot": "artifacts/novice/03-2_框选人物_参考图_描述_生成_预览_应用.png",
       "notes": [],
       "detail": {
@@ -117,7 +117,7 @@
         "page 1",
         "Ctrl+Z after reopen"
       ],
-      "seconds": 16.3,
+      "seconds": 16.1,
       "screenshot": "artifacts/novice/05-4_撤销_重做_切页_保存_关闭_重开.png",
       "notes": [],
       "detail": {
@@ -147,7 +147,7 @@
         "生成（失败）",
         "再试一次"
       ],
-      "seconds": 2.8,
+      "seconds": 3,
       "screenshot": "artifacts/novice/06-5_错误_API_失败后再试_超长提示词_空选区.png",
       "notes": [],
       "detail": {
@@ -164,7 +164,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 8.1,
+      "seconds": 8,
       "screenshot": "artifacts/novice/07-8_导入含坏文件的一批图_立刻刷新_恢复对话框找回全部页.png",
       "notes": [],
       "detail": {
@@ -177,6 +177,26 @@
         "after": {
           "pages": 2
         }
+      }
+    },
+    {
+      "name": "9 导入超大图→提示已自动缩小（中文/英文）",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 6.6,
+      "screenshot": "artifacts/novice/08-9_导入超大图_提示已自动缩小_中文_英文_.png",
+      "notes": [],
+      "detail": {
+        "zh": "图片过大，已自动缩小\n原图 5000×3000 → 页面 4096×2458（长边上限 4096 像素）。原文件不受影响。",
+        "en": {
+          "langs": 8,
+          "zhResolved": true
+        },
+        "size": [
+          4096,
+          2458
+        ]
       }
     },
     {
@@ -199,8 +219,8 @@
         "page 1",
         "应用（回到第 1 页）"
       ],
-      "seconds": 41.4,
-      "screenshot": "artifacts/novice/08-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
+      "seconds": 43.3,
+      "screenshot": "artifacts/novice/09-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
       "notes": [],
       "detail": {
         "applyEnabledOnPage2": true,
@@ -215,8 +235,8 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 16.7,
-      "screenshot": "artifacts/novice/09-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
+      "seconds": 19.7,
+      "screenshot": "artifacts/novice/10-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
       "notes": [],
       "detail": {
         "1440x900@1": {

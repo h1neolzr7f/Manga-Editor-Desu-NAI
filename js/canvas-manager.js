@@ -172,10 +172,20 @@ return !(typeof isPlaceholderCanvasObject==="function"&&isPlaceholderCanvasObjec
 
 function addInitialImageToCanvas(img) {
 resizeCanvasByNum(img.width,img.height);
+notifyImportDownscaled(img.width,img.height);
 initialPutImage(img);
 fitCanvasViewToContainer(true);
 }
 
+
+// Beginners otherwise never learn their 9000px scan was reduced to the 4096px page limit.
+function notifyImportDownscaled(ow,oh){
+if(Math.max(ow,oh)<=4096||typeof createToast!=='function')return;
+var tr=function(k,f){return (typeof getText==='function'&&getText(k)!==k)?getText(k):f;};
+var msg=tr('importDownscaled','原图 {ow}×{oh} → 页面 {w}×{h}（长边上限 4096 像素）。原文件不受影响。')
+.replace('{ow}',ow).replace('{oh}',oh).replace('{w}',canvas.getWidth()).replace('{h}',canvas.getHeight());
+createToast(tr('importDownscaledTitle','图片过大，已自动缩小'),msg,8000);
+}
 
 function resizeCanvasToObject(objectWidth,objectHeight) {
 var size=resolvePagePixels(objectWidth,objectHeight);

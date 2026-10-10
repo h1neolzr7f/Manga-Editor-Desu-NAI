@@ -356,6 +356,33 @@ async function main() {
     return { pass: before.pages === 2 && before.page1HasImage && dialog && after.pages === 2, detail: { before, dialog, after } };
   });
 
+  await flow('9 导入超大图→提示已自动缩小（中文 + 8 语言文案）', async () => {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort());
+    await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
+    await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 });
+    await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {}); await p.keyboard.press('Escape');
+    const importBig = () => p.evaluate(async () => {
+      const c = document.createElement('canvas'); c.width = 5000; c.height = 3000; const x = c.getContext('2d');
+      x.fillStyle = '#fff'; x.fillRect(0, 0, 5000, 3000); x.fillStyle = '#c33'; x.fillRect(1000, 800, 3000, 1400);
+      const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+      const dt = new DataTransfer(); dt.items.add(new File([blob], 'scan-5000x3000.png', { type: 'image/png' }));
+      const input = document.getElementById('imageInput'); input.files = dt.files; input.dispatchEvent(new Event('change'));
+    });
+    const toastText = () => p.waitForFunction(() => { const t = document.getElementById('sp-manga-toastContainer'); return t && /5000×3000/.test(t.innerText) && t.innerText; }, null, { timeout: 20000 }).then(h => h.jsonValue()).catch(() => '');
+    await importBig(); const zh = await toastText();
+    const size = await p.evaluate(() => [canvas.getWidth(), canvas.getHeight()]);
+    await ctx.close();
+    // UI is Chinese-only at runtime: the zh key must resolve (not the fallback), and all 8 languages carry it in source
+    const src = fs.readFileSync(path.join(__dirname, '..', 'js/ui/third/i18next.js'), 'utf8');
+    const en = { langs: (src.match(/"importDownscaled": "[^"]*\{ow\}[^"]*"/g) || []).length,
+      zhResolved: await (async () => { const c2 = await browser.newContext(); const q = await c2.newPage();
+        await q.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
+        await q.waitForFunction(() => typeof i18next !== 'undefined' && i18next.isInitialized, null, { timeout: 60000 });
+        const v = await q.evaluate(() => i18next.t('importDownscaled') !== 'importDownscaled'); await c2.close(); return v; })() };
+    return { pass: /已自动缩小/.test(zh) && /4096×2458/.test(zh) && en.langs === 8 && en.zhResolved && size[0] === 4096, detail: { zh: zh.slice(0, 120), en, size } };
+  });
+
   await flow('7 生成中切页→结果不得贴到别的页→切回后再应用', async () => {
     if (!(await has('mangaGptOpen'))) return { pass: false, detail: { unavailable: 'no GPT region edit in this version' } };
     if (REAL_GPT) return { pass: true, detail: { skipped: 'mock-only timing test' } };
