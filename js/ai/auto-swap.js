@@ -31,6 +31,18 @@
     return fitCropIn(box, panel, 0.3);
   }
 
+  /** Where the target sits inside the crop, in words GPT follows ("the person whose face is at ..."). */
+  function targetHint(target, others, r) {
+    const pos = b => { const f = b; const cx = ((f[0] + f[2]) / 2 - r.x) / r.w, cy = ((f[1] + f[3]) / 2 - r.y) / r.h;
+      const hx = cx < 0.36 ? 'left' : cx > 0.64 ? 'right' : 'center', vy = cy < 0.36 ? 'upper' : cy > 0.64 ? 'lower' : 'middle';
+      return vy + ' ' + hx + ' (about ' + Math.round(cx * 100) + '% from the left, ' + Math.round(cy * 100) + '% from the top)'; };
+    const tb = target.face || target.box;
+    let t = ' The person to replace is ONLY the one whose ' + (target.face ? 'face' : 'figure') + ' is at the ' + pos(tb) + ' of the image.';
+    const os = (others || []).filter(o => o.id !== target.id).map(o => (o.face ? 'the person whose face is at the ' : 'the figure at the ') + pos(o.face || o.box));
+    if (os.length) t += ' Do NOT change ' + os.join(', ') + ' in any way (not their hair, face or clothes).';
+    return t;
+  }
+
   function dilate(m, w, h, r) {
     const t = new Uint8Array(w * h), o = new Uint8Array(w * h);
     for (let y = 0; y < h; y++) { let last = -1e9; for (let x = 0; x < w; x++) { if (m[y * w + x]) last = x; t[y * w + x] = x - last <= r ? 1 : 0; }
@@ -44,10 +56,11 @@
    * replaced, plus wherever the result changed (new hair reaching further); other characters are protected. */
   function figureMask(change, own, others, w, h, grow) {
     const g = dilate(own, w, h, grow);
-    const o = others ? dilate(others, w, h, 2) : null;
+    const o = others ? dilate(others, w, h, Math.max(2, Math.round(grow / 2))) : null;
+    const near = others ? dilate(own, w, h, grow * 3) : null;   // with other people in the crop, only accept changes near the target
     const out = new Uint8ClampedArray(w * h);
     for (let i = 0; i < out.length; i++) {
-      let v = g[i] ? 255 : (change ? change[i] : 255);
+      let v = g[i] ? 255 : (near && !near[i] ? 0 : (change ? change[i] : 255));
       if (o && o[i] && !own[i]) v = 0;
       out[i] = v;
     }
@@ -116,7 +129,7 @@
     return alpha;
   }
 
-  const PROMPT_SWAP = 'Replace the main person in this manga panel crop with the character shown in the reference image (same face, hairstyle, hair color and eye color as the reference), redrawn IN PLACE: exactly the same pose, body size, position, camera angle and facing direction — the head stays on the same neck and shoulders at exactly the same angle and the body proportions stay identical, so the figure stays one natural continuous body — and the same manga line art, shading and screentone style. Keep everything else in the image unchanged — the background, other people, props, panel borders, speech bubbles and text must stay exactly as they are.';
+  const PROMPT_SWAP = 'Replace the main person (the one specified below) in this manga panel crop with the character shown in the reference image (same face, hairstyle, hair color and eye color as the reference), redrawn IN PLACE: exactly the same pose, body size, position, camera angle and facing direction — the head stays on the same neck and shoulders at exactly the same angle and the body proportions stay identical, so the figure stays one natural continuous body — and the same manga line art, shading and screentone style. Keep everything else in the image unchanged — the background, other people, props, panel borders, speech bubbles and text must stay exactly as they are.';
   const KEEP_OUTFIT = ' Keep the clothing, accessories and props of the person in this image exactly as they are; take ONLY the face, hairstyle, hair color and eye color from the reference character.';
 
   /** Matching from CCIP identity clusters (server): same cluster = sure; an unclustered face that is close =
@@ -136,7 +149,7 @@
   }
 
   const KEEP_EXPRESSION = ' Keep the facial expression (eyes open or closed, mouth shape, smile, tears, blush) and the head tilt and gaze direction exactly as in this image; the reference only defines who the character is, not their expression.';
-  const api = { swapCrop, figureMask, PROMPT_SWAP, KEEP_OUTFIT, KEEP_EXPRESSION, identityMatches, fitCrop, fitCropIn, clipToPanel, descriptor, similarity };
+  const api = { targetHint, swapCrop, figureMask, PROMPT_SWAP, KEEP_OUTFIT, KEEP_EXPRESSION, identityMatches, fitCrop, fitCropIn, clipToPanel, descriptor, similarity };
   if (typeof module !== 'undefined' && module.exports) { module.exports = api; return; }
   if (typeof document === 'undefined') { root.AutoSwap = api; return; }
 
@@ -210,7 +223,8 @@
     const crop = cropData(pg, r);
     const cropUrl = crop.toDataURL('image/png');
     const orig = crop.getContext('2d').getImageData(0, 0, r.w, r.h).data;
-    const prompt = PROMPT_SWAP + (opts.keepExpression !== false ? KEEP_EXPRESSION : '') + (opts.keepOutfit ? KEEP_OUTFIT : '') + (opts.note ? '\n' + opts.note : '');
+    const inCrop = (opts.others || []).filter(o => o.id !== ch.id && o.box[2] > r.x && o.box[0] < r.x + r.w && o.box[3] > r.y && o.box[1] < r.y + r.h);
+    const prompt = PROMPT_SWAP + targetHint(ch, inCrop, r) + (opts.keepExpression !== false ? KEEP_EXPRESSION : '') + (opts.keepOutfit ? KEEP_OUTFIT : '') + (opts.note ? '\n' + opts.note : '');
     const url = await gptEdit(cropUrl, prompt, r.size, opts.references, signal);
     const img = await loadImg(url);
     const c = cv(r.w, r.h), g = c.getContext('2d');

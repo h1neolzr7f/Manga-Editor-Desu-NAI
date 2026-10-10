@@ -33,7 +33,10 @@ assert(c.x >= 55 && c.x + c.w <= 1182 && c.w < 600, 'small ' + JSON.stringify(c)
   const f = A.figureMask(ch0, own, oth, w, h, 3);
   assert(f[10 * w + 10] === 255 && f[10 * w + 3] === 255, 'silhouette + grow kept');
   assert(f[10 * w + 22] === 0, 'unchanged background stays original');
+  { const ch1 = new Uint8ClampedArray(w * h).fill(255); const f2 = A.figureMask(ch1, own, oth, w, h, 2); assert(f2[10 * w + 26] === 0 && f2[10 * w + 18] === 255, 'changes far from the target are dropped when others share the crop'); }
   assert(f[10 * w + 35] === 0, 'other character protected even though it changed'); }
+{ const h = A.targetHint({ id: 'a', face: [100, 300, 200, 400], box: [50, 250, 300, 600] }, [{ id: 'b', face: [600, 100, 700, 200], box: [550, 50, 800, 600] }], { x: 0, y: 0, w: 800, h: 600 });
+  assert(/ONLY the one whose face is at the middle left/.test(h) && /Do NOT change the person whose face is at the upper right/.test(h), h); }
 assert(/same neck and shoulders/.test(A.PROMPT_SWAP));
 assert(/facial expression/.test(A.KEEP_EXPRESSION) && /eyes open or closed/.test(A.KEEP_EXPRESSION));
 assert(/IN PLACE/.test(A.PROMPT_SWAP) && /speech bubbles/.test(A.PROMPT_SWAP));
