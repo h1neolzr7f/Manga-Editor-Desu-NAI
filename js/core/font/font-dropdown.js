@@ -287,6 +287,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       FontSelectorManager.closeAllDropdowns();
     }
   });
+  // Esc closes an open font list (it covers 粗体/对齐/添加字体; a beginner's next click used to pick a random font)
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || !document.querySelector(".fm-dropdown-content.fm-show")) return;
+    FontSelectorManager.closeAllDropdowns();
+    event.preventDefault();
+  });
 });
 
 

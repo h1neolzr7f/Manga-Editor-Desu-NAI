@@ -80,7 +80,7 @@ async function flow(name, fn) {
   cur = { name, ops: [], notes: [] };
   const t = Date.now(); let pass = false, detail = {};
   try { const r = await fn(); pass = !!r.pass; detail = r.detail || {}; }
-  catch (e) { detail = { error: String(e.message || e).split('\n')[0].slice(0, 300) }; }
+  catch (e) { detail = { error: String(e.message || e).split('\n')[0].slice(0, 300), at: global.__novicePage && global.__novicePage.__cur }; }
   const screenshot = await snap(name.replace(/[^\w\u4e00-\u9fff-]+/g, '_').slice(0, 40));
   const rec = { name, pass, keyOps: cur.ops.length, ops: cur.ops, seconds: +((Date.now() - t) / 1000).toFixed(1), screenshot, notes: cur.notes, detail };
   flows.push(rec);
@@ -702,12 +702,19 @@ async function main() {
   const freshEditor = async (ctxOpts = {}) => {
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true, ...ctxOpts });
     const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort());
+    global.__novicePage = p;
     const errors = [];
     p.on('pageerror', e => errors.push((p.__cur || '') + ' :: ' + e.message.slice(0, 160)));
     p.on('console', m => { if (m.type() === 'error' && !/net::ERR_FAILED|Failed to load resource/.test(m.text())) errors.push((p.__cur || '') + ' :: ' + m.text().replace(/\u001b\[[0-9;]*m/g, '').slice(0, 160)); });
     await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
     await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 });
-    await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {}); await p.keyboard.press('Escape');
+    // a beginner's reflex: Esc on the welcome overlay must dismiss it (click 跳过 only as fallback)
+    if (await p.locator('#tutorialSkipBtn').waitFor({ state: 'visible', timeout: 5000 }).then(() => true, () => false)) {
+      await p.keyboard.press('Escape');
+      p.__tutorialEsc = await p.locator('.tutorial-overlay').waitFor({ state: 'detached', timeout: 3000 }).then(() => true, () => false);
+      if (!p.__tutorialEsc) await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {});
+    }
+    await p.keyboard.press('Escape');
     await p.waitForFunction(() => { const n = document.getElementById('desu-nav'); return !!n && getComputedStyle(n).display !== 'none'; }, null, { timeout: 60000 }).catch(() => {});
     await p.locator('#imageInput').setInputFiles(PAGES[0]);
     await p.waitForFunction(() => canvas.getObjects().some(o => o.type === 'image'), null, { timeout: 60000 });
@@ -793,20 +800,44 @@ async function main() {
     p.on('dialog', d => d.dismiss());
     const targets = await p.$$eval('#sidebar [data-action="toggleVisibility"]', es => es.filter(e => e.offsetParent && !e.closest('#sidebarMore')).map(e => e.dataset.target));
     const swept = {};
+    const sweepFails = {};
     for (const t of targets) {
       p.__cur = t;
       await p.evaluate(() => { const img = canvas.getObjects().find(o => o.type === 'image'); if (img) { canvas.setActiveObject(img); canvas.renderAll(); } });
       const open = await p.evaluate(t => { const a = document.getElementById(t); return !!a && getComputedStyle(a).display !== 'none'; }, t);
-      if (!open) await p.locator(`#sidebar [data-target="${t}"]`).first().click({ timeout: 5000 });
+      if (!open) await p.locator(`#sidebar [data-target="${t}"]`).first().click({ timeout: 5000 }).catch(async e => {
+        const cover = await p.evaluate(t => { const ic = document.querySelector(`#sidebar [data-target="${t}"]`); const r = ic.getBoundingClientRect();
+          const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); const box = top && top.closest('[id]');
+          return (top ? top.tagName + '.' + top.className : 'none') + ' in #' + (box ? box.id : '?') + ' prevClicked=' + JSON.stringify(window.__lastSweep || ''); }, t);
+        throw new Error('sidebar icon ' + t + ' blocked by ' + cover);
+      });
       await p.waitForTimeout(500);
-      const n = await p.evaluate(t => { const a = document.getElementById(t); if (!a) return 0;
-        const els = [...a.querySelectorAll('button,[onclick],.visual-preset-card')].filter(e => e.offsetParent && !e.closest('a[target]') && !/delete|clear|删除|清空|reset/i.test(e.id + e.textContent));
+      // (Re)tag the visible buttons before every click: some panels re-render (笔刷) or switch views
+      // (素材/模拟器/气泡) after a click, and buttons inside a closed <details> are not clickable.
+      const tag = t => p.evaluate(t => { const a = document.getElementById(t); if (!a) return 0;
+        a.querySelectorAll('[data-sweep]').forEach(e => e.removeAttribute('data-sweep'));
+        const els = [...a.querySelectorAll('button,[onclick],.visual-preset-card')].filter(e => e.offsetParent && !e.closest('a[target]') &&
+          !(e.closest('details:not([open])') && !e.closest('summary')) && !/delete|clear|删除|清空|reset/i.test(e.id + e.textContent));
         els.forEach((e, i) => e.setAttribute('data-sweep', t + '-' + i)); return els.length; }, t);
+      const n = await tag(t);
       let ok = 0;
       for (let i = 0; i < Math.min(n, 12); i++) {
+        if (!(await p.evaluate(t => { const a = document.getElementById(t); return !!a && getComputedStyle(a).display !== 'none'; }, t)))
+          await p.locator(`#sidebar [data-target="${t}"]`).first().click({ timeout: 5000 }).catch(() => {});
+        if (await tag(t) <= i) break;
         const sel = `[data-sweep="${t}-${i}"]`;
         p.__cur = t + '#' + i;
-        try { await p.locator(sel).click({ timeout: 1000 }); ok++; } catch (e) { /* a previous click switched the panel view: fine */ }
+        await p.evaluate(sel => { const e = document.querySelector(sel); window.__lastSweep = e && (e.id || e.textContent.trim().slice(0, 20)); }, sel);
+        try { await p.locator(sel).click({ timeout: 1000 }); ok++; } catch (e) {
+          // record why: element gone/hidden (panel switched view) vs covered by something (a real bug)
+          const why = await p.evaluate(sel => { const el = document.querySelector(sel); if (!el) return 'gone';
+            if (!el.offsetParent) return 'hidden'; const r = el.getBoundingClientRect();
+            if (r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) return 'offscreen';
+            const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+            if (!top || el.contains(top) || top.contains(el)) return 'other:' + String(e.message).split('\n')[0].slice(0, 60);
+            return 'covered:' + (top.id || top.className || top.tagName).toString().slice(0, 40) + ' over ' + (el.id || el.textContent.trim().slice(0, 12)); }, sel);
+          (sweepFails[t.replace(/-area$/, '')] = sweepFails[t.replace(/-area$/, '')] || []).push(why);
+        }
         await p.waitForTimeout(120); await p.keyboard.press('Escape');
       }
       swept[t.replace(/-area$/, '')] = ok + '/' + Math.min(n, 12);
@@ -823,12 +854,27 @@ async function main() {
       await p.keyboard.press('Escape'); await p.waitForTimeout(300);
       gallery = { opened, afterEsc: await p.locator('.flow-floating-window').count() };
     }
+    // font list: Esc closes it (it covers 粗体/对齐/添加字体 otherwise)
+    p.__cur = 'font list esc';
+    let fontEsc = null;
+    if (!(await p.locator('#text-area').isVisible().catch(() => false))) await p.locator('#sidebar [data-target="text-area"]').first().click().catch(() => {});
+    await p.keyboard.press('Escape');
+    const trig = p.locator('#text-area .fm-dropdown-trigger:visible').first();
+    if (await trig.count() && await trig.click({ timeout: 5000 }).then(() => true, () => false)) {
+      await p.waitForTimeout(300);
+      const opened = await p.locator('.fm-dropdown-content.fm-show').count();
+      await p.keyboard.press('Escape'); await p.waitForTimeout(200);
+      fontEsc = { opened, afterEsc: await p.locator('.fm-dropdown-content.fm-show').count() };
+    }
+    const tutorialEsc = p.__tutorialEsc;
     await ctx.close();
     const unreachable = Object.values(reach).flat();
     const dead = Object.entries(swept).filter(([k, v]) => !/^0\/0$/.test(v) && /^0\//.test(v)).map(([k]) => k);
+    const covered = Object.entries(sweepFails).flatMap(([k, v]) => v.filter(w => /^covered:/.test(w)).map(w => k + ' ' + w));
     return { pass: unreachable.length === 0 && errors.length === 0 && Object.keys(swept).length >= 10 && dead.length === 0 &&
-      !!gallery && gallery.opened >= 1 && gallery.afterEsc === 0,
-      detail: { reach, swept, deadPanels: dead, gallery, errors: errors.slice(0, 5) } };
+      !!gallery && gallery.opened >= 1 && gallery.afterEsc === 0 && covered.length === 0 && fontEsc && fontEsc.opened && !fontEsc.afterEsc &&
+      tutorialEsc !== false,
+      detail: { reach, swept, deadPanels: dead, covered, sweepFails, gallery, fontEsc, tutorialEsc, errors: errors.slice(0, 5) } };
   });
 
   await flow('21 文件菜单：保存项目 → 打开项目（文件选择框）往返；导入图片；重置设置可取消/Esc', async () => {

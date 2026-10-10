@@ -1,5 +1,5 @@
 {
-  "when": "2026-10-10T07:03:03.176Z",
+  "when": "2026-10-10T07:38:15.068Z",
   "gpt": "MOCK",
   "flows": [
     {
@@ -12,7 +12,7 @@
         "Import image",
         "page 1"
       ],
-      "seconds": 17.8,
+      "seconds": 17.7,
       "screenshot": "artifacts/novice/01-1_首次启动并导入_2_页漫画.png",
       "notes": [],
       "detail": {
@@ -46,6 +46,22 @@
       "detail": {
         "selection": "已选中原始画布区域：581 × 941 像素。",
         "preview": false,
+        "compare": {
+          "visible": true,
+          "flipped": true,
+          "back": true,
+          "pressed": "true",
+          "label": "看生成结果"
+        },
+        "seam": {
+          "seamMatch": {
+            "left": 0,
+            "right": 4,
+            "top": 1,
+            "bottom": 1
+          },
+          "feather": 17
+        },
         "status": "图像已生成，请检查预览后点击“作为新图层应用”。",
         "rect": {
           "left": 199,
@@ -57,7 +73,7 @@
           1200,
           1700
         ],
-        "changed": 274511,
+        "changed": 274566,
         "outside": 0,
         "calls": 1,
         "model": "gpt-image-2.5"
@@ -72,7 +88,7 @@
         "识别",
         "应用字幕"
       ],
-      "seconds": 2.6,
+      "seconds": 2.3,
       "screenshot": "artifacts/novice/04-3_识别日文气泡_修正_去字_替换中文字幕.png",
       "notes": [
         "OCR: [\"ありがとう\"]"
@@ -117,7 +133,7 @@
         "page 1",
         "Ctrl+Z after reopen"
       ],
-      "seconds": 16.3,
+      "seconds": 15.4,
       "screenshot": "artifacts/novice/05-4_撤销_重做_切页_保存_关闭_重开.png",
       "notes": [],
       "detail": {
@@ -164,7 +180,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 8.2,
+      "seconds": 7.9,
       "screenshot": "artifacts/novice/07-8_导入含坏文件的一批图_立刻刷新_恢复对话框找回全部页.png",
       "notes": [],
       "detail": {
@@ -184,7 +200,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 6.2,
+      "seconds": 6,
       "screenshot": "artifacts/novice/08-9_导入超大图_提示已自动缩小_中文_8_语言文案_.png",
       "notes": [],
       "detail": {
@@ -207,7 +223,7 @@
         "未填 Token",
         "生成 5 页样稿"
       ],
-      "seconds": 3.3,
+      "seconds": 3.5,
       "screenshot": "artifacts/novice/09-10_没填_NovelAI_Token_就点_生成_5_页样稿_看得懂的提示_不.png",
       "notes": [],
       "detail": {
@@ -220,7 +236,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 10.9,
+      "seconds": 10.4,
       "screenshot": "artifacts/novice/10-11_字幕图层_点眼睛隐藏_导出不含字幕_Ctrl_Z_恢复显示_刷新恢复后字幕.png",
       "notes": [],
       "detail": {
@@ -242,7 +258,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 5.8,
+      "seconds": 5.5,
       "screenshot": "artifacts/novice/11-12_从页面外开始拖_手动框选字幕_贴边框选_贴边气泡用_LaMa_去字不越界.png",
       "notes": [],
       "detail": {
@@ -251,14 +267,14 @@
         "lama": {
           "left": 0,
           "top": 0,
-          "right": 373,
-          "bottom": 338,
+          "right": 372,
+          "bottom": 337,
           "W": 1200,
           "H": 1700,
           "ink": "无法安全提取深色文字：文字框附近缺少完整的外缘背景采样；请手动编辑蒙版。 原蒙版保持不变。",
           "sent": {
-            "w": 373,
-            "h": 338
+            "w": 372,
+            "h": 337
           }
         }
       }
@@ -268,7 +284,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 5.6,
+      "seconds": 5.5,
       "screenshot": "artifacts/novice/12-13_误点页面缩略图的_撤销删除_一键找回_位置和内容不变_.png",
       "notes": [],
       "detail": {
@@ -276,7 +292,7 @@
         "barText": "已删除第 1 页。撤销删除",
         "restoredOrder": true,
         "content": {
-          "guid": "0c6eac20-ab6b-4b7a-9dc8-6b0c50972f3a",
+          "guid": "6a9f49c8-39af-4484-a9a9-47576d090a6f",
           "images": 1,
           "w": 1200,
           "h": 1700
@@ -288,7 +304,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 9,
+      "seconds": 8.7,
       "screenshot": "artifacts/novice/13-14_复制本页_页面左右挪动_副本插在原页后_互不影响_缩略图按钮都有提示.png",
       "notes": [],
       "detail": {
@@ -299,7 +315,7 @@
           1
         ],
         "st": {
-          "cur": "24781197-6b22-4591-a615-fdf7b6bf1b6f",
+          "cur": "675cef92-8c83-430f-888f-63d5a34ed767",
           "imgs": 1,
           "nums": "1,2,3"
         },
@@ -314,7 +330,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 6.6,
+      "seconds": 5.9,
       "screenshot": "artifacts/novice/14-15_气泡模板_横排字_加粗_居中_菜单_文件_下载图片_导出真实_PNG.png",
       "notes": [],
       "detail": {
@@ -346,7 +362,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 9,
+      "seconds": 8.7,
       "screenshot": "artifacts/novice/15-16_竖排字_默认中文占位_换字体_自由气泡手绘.png",
       "notes": [],
       "detail": {
@@ -378,7 +394,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 8.5,
+      "seconds": 8.3,
       "screenshot": "artifacts/novice/16-17_自由气泡_竖排文字_加点画形_移点_删点.png",
       "notes": [],
       "detail": {
@@ -392,7 +408,7 @@
         "deletedN": 21,
         "movedN": 22,
         "warns": [
-          "🟧 14:59:13 WARN [perf] [fabric-management.js:532 r.<anonymous>] [PERF:point mouse:up] processPoints:0ms JSTS:5ms merge:1ms createBubble:103",
+          "🟧 15:35:18 WARN [perf] [fabric-management.js:532 r.<anonymous>] [PERF:point mouse:up] processPoints:0ms JSTS:5ms merge:1ms createBubble:79m",
           "hitCenter=vertical-textbox hitEdge=image"
         ],
         "errors": []
@@ -403,7 +419,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 37,
+      "seconds": 36.3,
       "screenshot": "artifacts/novice/17-18_自由气泡_不显示文字_手绘时按住_Shift_临时变选择.png",
       "notes": [],
       "detail": {
@@ -427,7 +443,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 22.2,
+      "seconds": 22,
       "screenshot": "artifacts/novice/18-19_新手把每个顶部菜单项点一遍_无控制台报错_网格线可开关.png",
       "notes": [],
       "detail": {
@@ -445,7 +461,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 93,
+      "seconds": 42,
       "screenshot": "artifacts/novice/19-20_左侧工具栏_笔记本屏幕上主要工具不用滚动就能点到_逐个面板点一遍无控制台报.png",
       "notes": [],
       "detail": {
@@ -455,22 +471,29 @@
         },
         "swept": {
           "svg-container-template": "0/0",
-          "simulator-chat": "3/12",
-          "asset-library": "1/12",
-          "auto-generate": "6/12",
-          "tool": "1/12",
+          "simulator-chat": "8/12",
+          "asset-library": "12/12",
+          "auto-generate": "12/12",
+          "tool": "12/12",
           "ps-tools": "9/9",
-          "speech-bubble": "2/9",
-          "text": "3/12",
-          "manga-tone": "4/6",
+          "speech-bubble": "9/9",
+          "text": "12/12",
+          "manga-tone": "6/6",
           "shape": "12/12",
           "cutout": "2/2"
         },
         "deadPanels": [],
+        "covered": [],
+        "sweepFails": {},
         "gallery": {
           "opened": 1,
           "afterEsc": 0
         },
+        "fontEsc": {
+          "opened": 1,
+          "afterEsc": 0
+        },
+        "tutorialEsc": true,
         "errors": []
       }
     },
@@ -535,14 +558,14 @@
         "page 1",
         "应用（回到第 1 页）"
       ],
-      "seconds": 41.3,
+      "seconds": 41.1,
       "screenshot": "artifacts/novice/22-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
       "notes": [],
       "detail": {
         "applyEnabledOnPage2": true,
         "onPage2Status": "这个结果是为第 1 页生成的，当前在第 2 页。请切回第 1 页再点“应用”（不用重新生成）。",
         "page2Changed": 0,
-        "page1Changed": 51291,
+        "page1Changed": 51337,
         "page1Outside": 0
       }
     },
@@ -551,7 +574,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 16.8,
+      "seconds": 16.2,
       "screenshot": "artifacts/novice/23-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
       "notes": [],
       "detail": {

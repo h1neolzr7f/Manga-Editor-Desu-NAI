@@ -74,8 +74,13 @@ document.head.appendChild(style);
       },
       userInput: false,
     });
+    // Only a user removing a tag deletes a font. updateFontList() rebuilds the list with removeAllTags(),
+    // which also fires "remove" (without data: it threw on every 添加字体 click; with data it would delete
+    // registered fonts), so those events are ignored.
     this.tagify.on("remove", (event) => {
-      fontManager.unregisterFont(event.detail.data);
+      const data = event.detail && event.detail.data;
+      if (this.refreshingTags || !data || !data.value) return;
+      fontManager.unregisterFont(data);
     });
   },
   renderFallbackFontList(fonts) {
@@ -139,7 +144,12 @@ document.head.appendChild(style);
           : "#FF9800",
     }));
     this.tagify.settings.whitelist = formattedFonts;
-    this.tagify.removeAllTags();
-    this.tagify.addTags(formattedFonts);
+    this.refreshingTags = true;
+    try {
+      this.tagify.removeAllTags();
+      this.tagify.addTags(formattedFonts);
+    } finally {
+      this.refreshingTags = false;
+    }
   },
 };

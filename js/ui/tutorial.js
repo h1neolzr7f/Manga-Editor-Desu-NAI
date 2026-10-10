@@ -107,10 +107,19 @@ self.startQuickStart();
 });
 document.getElementById('tutorialSkipBtn').addEventListener('click',function(){
 overlay.remove();
+document.removeEventListener('keydown',onEsc,true);
 self.state.quickStartCompleted=true;
 self.saveState();
 self.dismissEmptyCanvasHint();
 });
+// Esc = 跳过 (the welcome overlay blocks every click; a beginner's reflex Esc did nothing)
+function onEsc(e){
+if(e.key!=='Escape'||!document.body.contains(overlay))return;
+e.preventDefault();
+e.stopPropagation();
+document.getElementById('tutorialSkipBtn').click();
+}
+document.addEventListener('keydown',onEsc,true);
 },
 startQuickStart:function(){
 var self=this;
