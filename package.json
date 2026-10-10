@@ -57,7 +57,7 @@
     "test:manga-ocr-refinement": "node scripts/run-python.cjs scripts/manga-ocr-refiner-test.py",
     "test:lama-inpaint": "node scripts/run-python.cjs scripts/manga-lama-inpaint-test.py",
     "test:ink-mask": "node scripts/manga-text-ink-mask-test.cjs",
-    "test:editor-regressions": "node scripts/project-load-open-page-test.cjs && node scripts/import-image-keeps-page-test.cjs && node scripts/offline-icon-fonts-test.cjs && node scripts/beginner-ux-guards-test.cjs && node scripts/tone-target-click-test.cjs && node scripts/no-duplicate-globals-test.cjs",
+    "test:editor-regressions": "node scripts/history-panel-regression-test.cjs && node scripts/panel-pipeline-review-smoke-test.cjs && node scripts/image2-persistence-regression-test.cjs && node scripts/novelai-page-result-test.cjs && node scripts/project-load-open-page-test.cjs && node scripts/import-image-keeps-page-test.cjs && node scripts/offline-icon-fonts-test.cjs && node scripts/beginner-ux-guards-test.cjs && node scripts/tone-target-click-test.cjs && node scripts/no-duplicate-globals-test.cjs",
     "lint:sync-exported": "node scripts/sync-eslint-exported.cjs"
   },
   "devDependencies": {

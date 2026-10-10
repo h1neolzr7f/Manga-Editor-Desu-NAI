@@ -53,18 +53,7 @@ test('batch completion never approves generated panels or overwrites review stat
   assert.doesNotMatch(toasts[0][1], /自动审查通过|成品/);
 });
 
-test('project summary includes flagged panels among pending review', () => {
-  const snapshots = ['MANUAL_REVIEW', 'AUTO_FLAGGED', 'MANUAL_OK', 'GEN_OK', 'GEN_FAIL']
-    .map(status => ({ status }));
-  const { context } = load({ snapshots });
-  const summary = context.summarizeProjectPipelineReview();
-  assert.equal(summary.totalPanels, 5);
-  assert.equal(summary.review, 2);
-  assert.equal(summary.flagged, 1);
-  assert.equal(summary.ok, 1);
-  assert.equal(summary.genOk, 1);
-  assert.equal(summary.fail, 1);
-});
+// summarizeProjectPipelineReview() had no caller in the app and was removed in 422800b (dead code); its summary test is dropped.
 
 test('review navigation includes flagged panels and wraps around', () => {
   const panels = ['AUTO_FLAGGED', 'MANUAL_OK', 'MANUAL_REVIEW']
@@ -79,8 +68,6 @@ test('legacy automatic approval is shown and counted as unreviewed generation', 
   const panel = { naiPipelineStatus: 'AUTO_OK' };
   const { context, toasts } = load({ panels: [panel], snapshots: [{ status: 'AUTO_OK' }] });
   assert.match(context.getPanelPipelineStatusLabel(panel), /未审阅/);
-  assert.equal(context.summarizeProjectPipelineReview().genOk, 1);
-  assert.equal(context.summarizeProjectPipelineReview().ok, 0);
   await context.finishBatchGenerationReview();
   assert.match(toasts[0][1], /1 格生图完成，尚未审阅/);
 });

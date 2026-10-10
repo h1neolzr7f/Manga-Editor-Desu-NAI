@@ -1,4 +1,4 @@
-/* exported confirmAllRemove, convertImageMapBlobUrls, initImageHistory, jumpToHistoryIndex, lastRedo, redo, removeByNotSave, saveStateByListener, setNotSave, undo */
+/* exported confirmAllRemove, convertImageMapBlobUrls, initImageHistory, jumpToHistoryIndex, lastRedo, redo, removeByNotSave, saveStateByListener, setNotSave, setSave, undo */
 const imageMap=new Map();
 var stateStack=[];
 var currentStateIndex=-1;
@@ -22,6 +22,10 @@ return!(isSave());
 
 function setNotSave(activeObject){
 activeObject.saveHistory=false;
+return activeObject;
+}
+function setSave(activeObject){
+activeObject.saveHistory=true;
 return activeObject;
 }
 function isSaveObject(activeObject){
