@@ -104,7 +104,8 @@
     return out.sort((a, b) => a.d - b.d);
   }
 
-  const api = { PROMPT_SWAP, KEEP_OUTFIT, identityMatches, fitCrop, fitCropIn, clipToPanel, descriptor, similarity };
+  const KEEP_EXPRESSION = ' Keep the facial expression (eyes open or closed, mouth shape, smile, tears, blush) and the head tilt and gaze direction exactly as in this image; the reference only defines who the character is, not their expression.';
+  const api = { PROMPT_SWAP, KEEP_OUTFIT, KEEP_EXPRESSION, identityMatches, fitCrop, fitCropIn, clipToPanel, descriptor, similarity };
   if (typeof module !== 'undefined' && module.exports) { module.exports = api; return; }
   if (typeof document === 'undefined') { root.AutoSwap = api; return; }
 
@@ -167,7 +168,7 @@
     const crop = cropData(pg, r);
     const cropUrl = crop.toDataURL('image/png');
     const orig = crop.getContext('2d').getImageData(0, 0, r.w, r.h).data;
-    const prompt = PROMPT_SWAP + (opts.keepOutfit ? KEEP_OUTFIT : '') + (opts.note ? '\n' + opts.note : '');
+    const prompt = PROMPT_SWAP + (opts.keepExpression !== false ? KEEP_EXPRESSION : '') + (opts.keepOutfit ? KEEP_OUTFIT : '') + (opts.note ? '\n' + opts.note : '');
     const url = await gptEdit(cropUrl, prompt, r.size, opts.references, signal);
     const img = await loadImg(url);
     const c = cv(r.w, r.h), g = c.getContext('2d');
@@ -252,7 +253,10 @@
   function targetCrop() {
     if (!S || !S.target) return null;
     const panel = (S.panels || [])[S.target.panel] || [0, 0, S.pg.W, S.pg.H];
-    if (!S.target.cropBox) S.target.cropBox = fitCropIn(S.target.userBox || S.target.box, panel, S.pad);
+    const base = S.target.userBox || S.target.box;
+    // up to the default margin the crop stays inside the panel; enlarging beyond that may take context from
+    // across the panel border (the paste is still clipped to the panel)
+    if (!S.target.cropBox) S.target.cropBox = S.pad > 0.18 ? fitCrop(base, S.pg.W, S.pg.H, S.pad) : fitCropIn(base, panel, S.pad);
     return S.target.cropBox;
   }
 
@@ -333,7 +337,7 @@
     S.ctrl = new AbortController();
     status('正在生成：按参考图在原位置重画这个人物（约 30–60 秒，可点「取消」）…');
     try {
-      S.result = await swapOne(S.pg, S.target, { keepOutfit: !!($('autoSwapKeep') || {}).checked, changeOnly: !!($('autoSwapChangeOnly') || {}).checked, panel: (S.panels || [])[S.target.panel], references: S.refs, note: ($('autoSwapNote') || {}).value || '' }, S.ctrl.signal);
+      S.result = await swapOne(S.pg, S.target, { keepOutfit: !!($('autoSwapKeep') || {}).checked, keepExpression: !!($('autoSwapExpr') || {}).checked, changeOnly: !!($('autoSwapChangeOnly') || {}).checked, panel: (S.panels || [])[S.target.panel], references: S.refs, note: ($('autoSwapNote') || {}).value || '' }, S.ctrl.signal);
       await showPreview(S.result);
       step(3);
       status('预览好了：点「对比原图」看前后；满意就点「应用」（放在一个新图层上，Ctrl+Z 可撤销）。');
@@ -373,7 +377,7 @@
     for (const [i, ch] of todo.entries()) {
       status('正在换第 ' + (i + 1) + ' / ' + todo.length + ' 个（第 ' + (ch.panel + 1) + ' 格）…');
       try {
-        const res = await swapOne(S.pg, ch, { keepOutfit: !!($('autoSwapKeepAll') || {}).checked, changeOnly: !!($('autoSwapChangeOnly') || {}).checked, panel: (S.panels || [])[ch.panel], references: S.refs, note: ($('autoSwapNote') || {}).value || '' }, S.ctrl.signal);
+        const res = await swapOne(S.pg, ch, { keepOutfit: !!($('autoSwapKeepAll') || {}).checked, keepExpression: !!($('autoSwapExpr') || {}).checked, changeOnly: !!($('autoSwapChangeOnly') || {}).checked, panel: (S.panels || [])[ch.panel], references: S.refs, note: ($('autoSwapNote') || {}).value || '' }, S.ctrl.signal);
         await applyResult(res, ' 第' + (ch.panel + 1) + '格'); S.doneIds.add(ch.id); ok++;
       } catch (e) { if (e && e.name === 'AbortError') break; fail++; }
     }
@@ -401,6 +405,7 @@
     const refRow = el('label', { class: 'auto-swap-row' }, '新角色参考图 <input type="file" id="autoSwapRef" accept="image/*" multiple>');
     body.appendChild(refRow);
     body.appendChild(el('textarea', { id: 'autoSwapNote', rows: '2', placeholder: '补充要求（可不填），例如：表情改成微笑' }));
+    body.appendChild(el('label', { class: 'auto-swap-row ui-muted' }, '<input type="checkbox" id="autoSwapExpr" checked> 保留原表情和姿势（推荐）'));
     body.appendChild(el('label', { class: 'auto-swap-row ui-muted' }, '<input type="checkbox" id="autoSwapKeep"> 保留原服装（只换脸、发型和发色）'));
     body.appendChild(el('label', { class: 'auto-swap-row ui-muted' }, '<input type="checkbox" id="autoSwapChangeOnly" checked> 只替换变化的部分（背景保持原图像素）'));
     const boxRow = el('div', { class: 'auto-swap-row', id: 'autoSwapBoxRow', hidden: '' });

@@ -21,6 +21,7 @@ assert(c.x >= 0 && c.y >= 0 && c.x + c.w <= 1238 && c.y + c.h <= 1754, JSON.stri
 c = A.fitCropIn([620, 600, 900, 1100], [560, 551, 1182, 1119], 0.18);
 assert(c.x >= 560 && c.y >= 551 && c.x + c.w <= 1182 && c.y + c.h <= 1119, JSON.stringify(c));
 assert(['1024x1024', '1536x1024', '1024x1536'].includes(c.size));
+assert(/facial expression/.test(A.KEEP_EXPRESSION) && /eyes open or closed/.test(A.KEEP_EXPRESSION));
 assert(/IN PLACE/.test(A.PROMPT_SWAP) && /speech bubbles/.test(A.PROMPT_SWAP));
 
 // descriptor: grey art → hue weight ~0; same character in two panels scores higher than a different one

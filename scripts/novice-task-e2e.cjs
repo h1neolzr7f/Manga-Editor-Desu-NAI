@@ -1566,6 +1566,12 @@ async function main() {
       const crop1 = (await p.evaluate(() => AutoSwap.state())).crop;
       const boxGrows = crop1.w * crop1.h < crop0.w * crop0.h && crop1.x >= 55 && crop1.y >= 551 && crop1.x + crop1.w <= 670 && crop1.y + crop1.h <= 1119;
       await click('#autoSwapBigger');   // back to a generous margin around the dragged box
+      // enlarging past the panel cap: the crop may now reach across the panel border (paste is clipped)
+      await click('#autoSwapBigger'); await click('#autoSwapBigger');
+      const crop2 = (await p.evaluate(() => AutoSwap.state())).crop;
+      const beyond = crop2.w * crop2.h > crop1.w * crop1.h;
+      const exprOn = await p.locator('#autoSwapExpr').isChecked();
+      await click('#autoSwapSmaller'); await click('#autoSwapSmaller');
       await p.locator('#autoSwapRef').setInputFiles(path.join(__dirname, 'fixtures', 'novice', 'reference.png')); clicks.n++;
       await p.waitForFunction(() => !document.getElementById('autoSwapGo').disabled, null, { timeout: 10000 });
       await click('#autoSwapGo');
@@ -1616,10 +1622,10 @@ async function main() {
         reloaded = await p2.evaluate(() => canvas.getObjects().filter(o => o.autoSwap).map(o => o.autoSwap + '|' + o.name + '|' + Math.round(o.left) + ',' + Math.round(o.top)).sort());
       } finally { await ctx2.close(); }
       const survived = JSON.stringify(want) === JSON.stringify(reloaded);
-      return { pass: boxGrows && survived && found.chars >= 3 && afterGen.st.result && showing === 'before' && layers.added === 1 && undone && redone === 1 &&
+      return { pass: boxGrows && beyond && exprOn && survived && found.chars >= 3 && afterGen.st.result && showing === 'before' && layers.added === 1 && undone && redone === 1 &&
           calls.filter(c => c.kind === 'swap' && c.refs === 1).length >= 1 && calls.every(c => c.kind === 'swap') &&
           (!propagated || propagated.layers === matches.length) && !errors.length,
-        detail: { boxGrows, crop0, crop1, survived, want, reloaded, clicks: clicks.n, detectMs, found, target: afterGen.st.target, info: afterGen.st.info, layers, undone, redone, matches, propagated, calls: calls.length, errors } };
+        detail: { boxGrows, beyond, exprOn, crop0, crop1, crop2, survived, want, reloaded, clicks: clicks.n, detectMs, found, target: afterGen.st.target, info: afterGen.st.info, layers, undone, redone, matches, propagated, calls: calls.length, errors } };
     } catch (e) { await p.screenshot({ path: path.join(OUT, 'flow35-fail.png') }).catch(() => {}); throw e;
     } finally { await ctx.close(); }
   });
