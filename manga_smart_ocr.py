@@ -249,6 +249,14 @@ def _run_tesseract(executable, image, language, psm):
     return stdout
 
 
+def _ctd_cached():
+    try:
+        from manga_text_detector import cached
+        return cached()
+    except Exception:
+        return False
+
+
 def local_model_status():
     """Cheap readiness check for the settings page: no model is loaded or downloaded."""
     import importlib.util
@@ -270,12 +278,13 @@ def local_model_status():
             "ocr": {"ready": bool(executable) and ("jpn" in langs or "jpn_vert" in langs), "tesseract": bool(executable),
                     "languages": [x for x in langs if x in ("jpn", "jpn_vert", "eng", "chi_sim", "chi_tra")]},
             "lama": {"ready": lama},
-            "mangaOcr": {"ready": has("manga_ocr")}}
+            "mangaOcr": {"ready": has("manga_ocr")},
+            "textDetector": {"ready": has("onnxruntime") and has("cv2"), "cached": _ctd_cached()}}
 
 
 def handle_smart_ocr_post(handler):
     route = handler.path.split("?", 1)[0]
-    if route not in ("/manga-smart/ocr", "/manga-smart/manga-ocr", "/manga-smart/lama-inpaint", "/manga-smart/status"):
+    if route not in ("/manga-smart/ocr", "/manga-smart/manga-ocr", "/manga-smart/lama-inpaint", "/manga-smart/status", "/manga-smart/text-mask"):
         return False
     if not _authorized_local_request(handler):
         handler.close_connection = True
@@ -293,6 +302,9 @@ def handle_smart_ocr_post(handler):
         allow_download = data.get("allow_download") is True
         if route == "/manga-smart/status":
             result = local_model_status()
+        elif route == "/manga-smart/text-mask":
+            from manga_text_detector import detect
+            result = detect(data.get("image"), allow_download)
         elif route == "/manga-smart/lama-inpaint":
             from manga_lama_inpaint import inpaint
             result = inpaint(data.get("image"), data.get("mask"), allow_download)

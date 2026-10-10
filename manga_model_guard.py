@@ -55,6 +55,7 @@ def manga_ocr_cached():
 MODELS = {
     "lama": {"label": "LaMa", "size": "约 200MB", "cached": lama_cached},
     "manga-ocr": {"label": "Manga OCR", "size": "约 450–900MB", "cached": manga_ocr_cached},
+    "ctd": {"label": "漫画文字检测（comic-text-detector）", "size": "约 91MB", "cached": lambda: __import__("manga_text_detector").cached()},
 }
 _busy = {name: threading.Semaphore(1) for name in MODELS}
 
@@ -76,9 +77,10 @@ def require_download_consent(kind, loaded, allow_download):
 
 
 @contextmanager
-def exclusive(kind):
+def exclusive(kind, wait=0):
+    """wait > 0: queue up to that many seconds (short jobs such as text detection) instead of 429 at once."""
     sem = _busy[kind]
-    if not sem.acquire(blocking=False):
+    if not (sem.acquire(timeout=wait) if wait else sem.acquire(blocking=False)):
         raise SmartOcrError("%s 正在处理上一个请求，请等待完成或取消后再试。" % MODELS[kind]["label"], 429)
     try:
         yield

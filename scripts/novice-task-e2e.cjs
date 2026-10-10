@@ -1406,6 +1406,38 @@ async function main() {
     } finally { await ctx.close(); }
   });
 
+  await flow('33 去字蒙版用文字检测模型：第 4 页的猫（规则误判成气泡）不擦，真气泡只擦字；保留拟声词只擦框内', async () => {
+    const st = await (await fetch(SERVER + '/manga-smart/status', { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: SERVER }, body: '{}' })).json().catch(() => ({}));
+    if (!(st.textDetector && st.textDetector.ready && st.textDetector.cached)) return { pass: true, detail: { skipped: 'comic-text-detector not installed (CI): rule mask fallback covered by flow 12' } };
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort()); p.on('dialog', d => d.dismiss());
+    const errors = []; p.on('pageerror', e => errors.push(e.message));
+    try {
+      await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
+      await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 });
+      await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {}); await p.keyboard.press('Escape');
+      await p.locator('#imageInput').setInputFiles(path.join(__dirname, 'fixtures', 'ctd', 'page-4.png'));
+      await p.waitForFunction(() => canvas.getObjects().some(o => o.type === 'image'), null, { timeout: 30000 }); await p.waitForTimeout(800);
+      await p.locator('#mangaSmartOpen').click();
+      const run = async (box, label) => {   // box in fixture pixels (1238x1754)
+        const r = await p.evaluate(b => { const img = canvas.getObjects().find(o => o.type === 'image'); const k = img.scaleX; const u = canvas.upperCanvasEl.getBoundingClientRect(); const sx = u.width / canvas.getWidth(), sy = u.height / canvas.getHeight();
+          return { x0: u.left + (img.left + b[0] * k) * sx, y0: u.top + (img.top + b[1] * k) * sy, x1: u.left + (img.left + (b[0] + b[2]) * k) * sx, y1: u.top + (img.top + (b[1] + b[3]) * k) * sy }; }, box);
+        await p.locator('#mangaSmartManual').click(); await p.waitForTimeout(200);
+        await p.mouse.move(r.x0, r.y0); await p.mouse.down(); await p.mouse.move(r.x1, r.y1, { steps: 8 }); await p.mouse.up();
+        await p.waitForSelector('.manga-smart-item', { timeout: 15000 });
+        await p.locator('.manga-smart-item').last().locator('button').filter({ hasText: '本地 LaMa 去字' }).click();
+        await p.waitForFunction(() => { const s = document.getElementById('mangaLamaStatus'); return s && /文字检测模型|规则蒙版/.test(s.textContent) && !/正在/.test(s.textContent); }, null, { timeout: 90000 }).catch(() => {});
+        const out = await p.evaluate(() => { const c = document.getElementById('mangaLamaMaskCanvas'); const g = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+          let red = 0; for (let i = 0; i < g.length; i += 4) if (g[i] > g[i + 1] + 60 && g[i] > 150) red++;
+          return { source: MangaLamaInpaintUI.maskSource(), redShare: +(red / (c.width * c.height)).toFixed(4), status: document.getElementById('mangaLamaStatus').textContent.slice(0, 60) }; });
+        cur.ops.push(label); await p.locator('#mangaLamaCancel').click(); return out;
+      };
+      const cat = await run([516, 1480, 164, 128], '框住猫 → LaMa 去字');
+      const bubble = await run([280, 584, 360, 84], '框住气泡 → LaMa 去字');
+      return { pass: cat.source === 'detector-empty' && cat.redShare === 0 && bubble.source === 'detector' && bubble.redShare > 0.01 && bubble.redShare < 0.4 && !errors.length, detail: { cat, bubble, errors } };
+    } finally { await ctx.close(); }
+  });
+
   await endSession('final');
   const summary = { when: new Date().toISOString(), gpt: REAL_GPT ? 'REAL' : 'MOCK', flows, pageErrors, consoleErrors: consoleErrors.slice(0, 20), dialogs };
   fs.writeFileSync(path.join(OUT, 'report.json'), JSON.stringify(summary, null, 2));
