@@ -36,7 +36,7 @@
 | css/toast.css | 131 |  |
 | css/ui/blend.css | 430 | blendFloatingWindow { |
 | css/ui/bottom-bar.css | 386 |  |
-| css/ui/custom-html-components.css | 103 | input, select, textarea { |
+| css/ui/custom-html-components.css | 110 | input, select, textarea { |
 | css/ui/dashboard.css | 853 | Dashboard Modal Overlay |
 | css/ui/floating-window.css | 45 |  |
 | css/ui/font-manager.css | 339 | styles.css |
@@ -290,7 +290,7 @@
 | manga_smart_ocr.py | 256 |  |
 | scripts/MangaMakerUI.py | 64 |  |
 | scripts/asset-library-smoke-test.cjs | 113 |  |
-| scripts/beginner-ux-guards-test.cjs | 43 | Beginner UX guards: destructive "clear canvas" asks first, zh menu labels match the |
+| scripts/beginner-ux-guards-test.cjs | 46 | Beginner UX guards: destructive "clear canvas" asks first, zh menu labels match the |
 | scripts/check-translations.cjs | 227 | Translation key validation script - compares keys across all languages in i18next resources |
 | scripts/custom-brush-smoke-test.cjs | 44 |  |
 | scripts/cutout-color-key-smoke-test.py | 36 |  |

@@ -4,7 +4,7 @@
 
 - 抽出対象: `root.X=` / `window.X=` / `globalThis.X=`、行頭の `function X` / `var X` / `let X` / `const X`
 - 抽出範囲: js / cjs / mjs と、html のインライン `<script>`（行番号は元ファイル基準）
-- 合計 10193 件 / ユニーク名 5478 件
+- 合計 10194 件 / ユニーク名 5479 件
 
 ## シンボル → 定義
 
@@ -8836,6 +8836,7 @@
 | `svgText` | var | js/sidebar/panel/panel-manager.js:27 |
 | `sw` | var | js/local-tools/background-removal-client.js:242 |
 | `swapImages` | function | js/ui/bottom-bar.js:206 |
+| `swatch` | var | scripts/beginner-ux-guards-test.cjs:44 |
 | `swirlAngle` | var | js/ui/control/glfx-control.js:353 |
 | `swirlCenterX` | var | js/ui/control/glfx-control.js:344 |
 | `swirlCenterY` | var | js/ui/control/glfx-control.js:347 |

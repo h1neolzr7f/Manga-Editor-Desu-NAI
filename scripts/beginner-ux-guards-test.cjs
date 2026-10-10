@@ -40,4 +40,7 @@ assert.ok(/\.tutorial-beginner-steps\{[^}]*text-align:left/.test(read('css/ui/tu
 // icon-only layer header buttons carry an accessible name; layer names are labelled
 for (const label of ['上移图层', '下移图层', '撤销', '重做']) assert.ok(html.includes('aria-label="' + label + '"'), 'aria-label ' + label);
 assert.ok(read('js/layer/layer-management.js').includes('setAttribute("aria-label","图层名称")'), 'layer name input labelled');
+// 40px colour swatches show the colour only (the rgba(...) text was cut to "rgba(25")
+const swatch = (read('css/ui/custom-html-components.css').match(/\.jscolor-color-picker \{[^}]*\}/g) || []).pop() || '';
+assert.ok(/color:transparent !important/.test(swatch) && /box-shadow:inset/.test(swatch), 'colour swatch hides truncated text and has an outline');
 console.log('beginner-ux-guards-test: ' + (13 + checked) + ' checks PASS');

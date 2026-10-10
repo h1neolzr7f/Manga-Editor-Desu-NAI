@@ -269,7 +269,7 @@ JS/CSS を編集したら `?v=` を上げてキャッシュを更新する。現
 | 24 | cdn-local/flag-icons.min.css |  | 179 |
 | 25 | css/ui/blend.css | v=7.2 | 180 |
 | 26 | css/ui/bottom-bar.css | v=7.4 | 181 |
-| 27 | css/ui/custom-html-components.css | v=7.2 | 182 |
+| 27 | css/ui/custom-html-components.css | v=7.3 | 182 |
 | 28 | css/tagify.css | v=7.2 | 183 |
 | 29 | css/ui/font-manager.css | v=7.9 | 185 |
 | 30 | cdn-local/tagify.min.css |  | 190 |
