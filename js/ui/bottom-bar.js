@@ -129,9 +129,13 @@ updateAllPageNumbers();
 const deleteBtn=document.createElement("button");
 deleteBtn.textContent="🗑";
 deleteBtn.className="btm-delete-btn";
+deleteBtn.title="删除这一页（会先确认）";
 deleteBtn.addEventListener("click",async (e)=>{
 e.stopPropagation();
 if(window.NaiPageLoading||window.NaiHistoryLoading)return;
+// One misclick on 🗑 used to drop a whole page with no undo: ask first.
+var pageNo=btmGetGuidIndex(guid)+1;
+if(typeof confirm==="function"&&!confirm("删除第 "+pageNo+" 页？页面上的所有内容会一起删除，删除后无法撤销。"))return;
 if(btmGetGuidsSize()>1){
 var isCurrentPage=(getCanvasGUID()===guid);
 var deletedIndex=btmGetGuidIndex(guid);

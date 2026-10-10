@@ -484,6 +484,33 @@ async function main() {
       detail: { items, status: box.slice(0, 40), lama } };
   });
 
+  await flow('13 误点页面缩略图的 🗑 → 先确认；取消则页还在，确认才删除', async () => {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort());
+    await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
+    await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 });
+    await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {}); await p.keyboard.press('Escape');
+    await p.locator('#imageInput').setInputFiles(PAGES);
+    await p.waitForFunction(() => document.querySelectorAll('#btm-image-container > *').length === 2, null, { timeout: 60000 });
+    const pages = () => p.evaluate(() => document.querySelectorAll('#btm-image-container > *').length);
+    if (await p.locator('#btm-drawer-handle').count()) {
+      const closed = await p.evaluate(() => { const c = document.getElementById('btm-image-container'); return !c || !c.offsetParent || c.getBoundingClientRect().height < 10; });
+      if (closed) await p.locator('#btm-drawer-handle').click();
+    }
+    const dialogs = [];
+    p.once('dialog', d => { dialogs.push(d.message()); d.dismiss(); });
+    await p.locator('#btm-image-container > *').nth(1).hover();
+    await p.locator('#btm-image-container > *').nth(1).locator('.btm-delete-btn').click({ force: true });
+    await p.waitForTimeout(800); const afterCancel = await pages();
+    p.once('dialog', d => { dialogs.push(d.message()); d.accept(); });
+    await p.locator('#btm-image-container > *').nth(1).hover();
+    await p.locator('#btm-image-container > *').nth(1).locator('.btm-delete-btn').click({ force: true });
+    await p.waitForTimeout(1200); const afterAccept = await pages();
+    await ctx.close();
+    return { pass: dialogs.length === 2 && /删除第 2 页/.test(dialogs[0]) && afterCancel === 2 && afterAccept === 1,
+      detail: { dialogs, afterCancel, afterAccept } };
+  });
+
   await flow('7 生成中切页→结果不得贴到别的页→切回后再应用', async () => {
     if (!(await has('mangaGptOpen'))) return { pass: false, detail: { unavailable: 'no GPT region edit in this version' } };
     if (REAL_GPT) return { pass: true, detail: { skipped: 'mock-only timing test' } };

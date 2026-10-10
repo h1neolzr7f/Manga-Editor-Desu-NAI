@@ -1,5 +1,5 @@
 {
-  "when": "2026-10-10T04:55:42.329Z",
+  "when": "2026-10-10T05:00:54.702Z",
   "gpt": "MOCK",
   "flows": [
     {
@@ -40,7 +40,7 @@
         "生成",
         "应用为图层"
       ],
-      "seconds": 2.8,
+      "seconds": 2.6,
       "screenshot": "artifacts/novice/03-2_框选人物_参考图_描述_生成_预览_应用.png",
       "notes": [],
       "detail": {
@@ -117,7 +117,7 @@
         "page 1",
         "Ctrl+Z after reopen"
       ],
-      "seconds": 15.7,
+      "seconds": 15.4,
       "screenshot": "artifacts/novice/05-4_撤销_重做_切页_保存_关闭_重开.png",
       "notes": [],
       "detail": {
@@ -164,7 +164,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 7.8,
+      "seconds": 7.6,
       "screenshot": "artifacts/novice/07-8_导入含坏文件的一批图_立刻刷新_恢复对话框找回全部页.png",
       "notes": [],
       "detail": {
@@ -207,7 +207,7 @@
         "未填 Token",
         "生成 5 页样稿"
       ],
-      "seconds": 3.4,
+      "seconds": 3.3,
       "screenshot": "artifacts/novice/09-10_没填_NovelAI_Token_就点_生成_5_页样稿_看得懂的提示_不.png",
       "notes": [],
       "detail": {
@@ -220,7 +220,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 10.5,
+      "seconds": 10.7,
       "screenshot": "artifacts/novice/10-11_字幕图层_点眼睛隐藏_导出不含字幕_Ctrl_Z_恢复显示_刷新恢复后字幕.png",
       "notes": [],
       "detail": {
@@ -264,6 +264,23 @@
       }
     },
     {
+      "name": "13 误点页面缩略图的 🗑 → 先确认；取消则页还在，确认才删除",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 5.8,
+      "screenshot": "artifacts/novice/12-13_误点页面缩略图的_先确认_取消则页还在_确认才删除.png",
+      "notes": [],
+      "detail": {
+        "dialogs": [
+          "删除第 2 页？页面上的所有内容会一起删除，删除后无法撤销。",
+          "删除第 2 页？页面上的所有内容会一起删除，删除后无法撤销。"
+        ],
+        "afterCancel": 2,
+        "afterAccept": 1
+      }
+    },
+    {
       "name": "7 生成中切页→结果不得贴到别的页→切回后再应用",
       "pass": true,
       "keyOps": 14,
@@ -284,7 +301,7 @@
         "应用（回到第 1 页）"
       ],
       "seconds": 41.1,
-      "screenshot": "artifacts/novice/12-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
+      "screenshot": "artifacts/novice/13-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
       "notes": [],
       "detail": {
         "applyEnabledOnPage2": true,
@@ -299,8 +316,8 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 16.2,
-      "screenshot": "artifacts/novice/13-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
+      "seconds": 16.3,
+      "screenshot": "artifacts/novice/14-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
       "notes": [],
       "detail": {
         "1440x900@1": {
