@@ -1526,7 +1526,7 @@ async function main() {
   await flow('35 换角色 v2（全自动）：自动找人物 → 点一下选目标 → 参考图 → 生成（擦原角色补背景 + 同姿势新角色）→ 对比 → 应用为两个图层（一步撤销）→ 其他格同一角色一键换', async () => {
     const st = await (await fetch(SERVER + '/manga-smart/status', { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: SERVER }, body: '{}' })).json().catch(() => ({}));
     if (!(st.samSelect && st.samSelect.ready && st.samSelect.cached && st.characters && st.characters.cached)) return { pass: true, detail: { skipped: 'isnet-anime / SAM not installed (CI): 换角色 falls back to the manual GPT-panel wizard', st: st.characters } };
-    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'zh-CN' });
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'zh-CN', acceptDownloads: true });
     const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort()); p.on('dialog', d => d.accept());
     const errors = []; p.on('pageerror', e => errors.push(e.message));
     const calls = [];
@@ -1590,10 +1590,30 @@ async function main() {
         propagated = await p.evaluate(n => ({ layers: canvas.getObjects().filter(o => o.autoSwap).length - n, status: document.getElementById('autoSwapStatus').textContent.slice(0, 50) }), n0);
         await p.screenshot({ path: path.join(OUT, 'swap2-4-propagated.png') });
       }
-      return { pass: found.chars >= 3 && afterGen.st.result && showing === 'before' && layers.added === 2 && undone && redone === 2 &&
+      // the swap layers survive project save → open in a fresh profile
+      const want = await p.evaluate(() => canvas.getObjects().filter(o => o.autoSwap).map(o => o.autoSwap + '|' + o.name + '|' + Math.round(o.left) + ',' + Math.round(o.top)).sort());
+      await p.keyboard.press('Escape');
+      const dl = p.waitForEvent('download', { timeout: 30000 });
+      await p.locator('#navbarDropdownFile').click(); await p.locator('#projectSave').click();
+      const dlf = await dl; const projectFile = path.join(OUT, 'swap2-project-' + dlf.suggestedFilename()); await dlf.saveAs(projectFile);
+      const ctx2 = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'zh-CN' });
+      const p2 = await ctx2.newPage(); p2.on('dialog', d => d.accept());
+      let reloaded = null;
+      try {
+        await p2.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
+        await p2.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 });
+        await p2.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {}); await p2.keyboard.press('Escape');
+        const fcw = p2.waitForEvent('filechooser', { timeout: 15000 });
+        await p2.locator('#navbarDropdownFile').click(); await p2.locator('#projectLoad').click();
+        await (await fcw).setFiles(projectFile);
+        await p2.waitForFunction(n => canvas.getObjects().filter(o => o.autoSwap).length >= n, want.length, { timeout: 60000 });
+        reloaded = await p2.evaluate(() => canvas.getObjects().filter(o => o.autoSwap).map(o => o.autoSwap + '|' + o.name + '|' + Math.round(o.left) + ',' + Math.round(o.top)).sort());
+      } finally { await ctx2.close(); }
+      const survived = JSON.stringify(want) === JSON.stringify(reloaded);
+      return { pass: survived && found.chars >= 3 && afterGen.st.result && showing === 'before' && layers.added === 2 && undone && redone === 2 &&
           calls.filter(c => c.kind === 'bg').length >= 1 && calls.filter(c => c.kind === 'char' && c.refs === 1).length >= 1 &&
           (!propagated || propagated.layers === 2 * matches.length) && !errors.length,
-        detail: { clicks: clicks.n, detectMs, found, target: afterGen.st.target, info: afterGen.st.info, layers, undone, redone, matches, propagated, calls: calls.length, errors } };
+        detail: { survived, want, reloaded, clicks: clicks.n, detectMs, found, target: afterGen.st.target, info: afterGen.st.info, layers, undone, redone, matches, propagated, calls: calls.length, errors } };
     } catch (e) { await p.screenshot({ path: path.join(OUT, 'flow35-fail.png') }).catch(() => {}); throw e;
     } finally { await ctx.close(); }
   });

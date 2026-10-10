@@ -257,6 +257,14 @@ def _chars_cached():
         return False
 
 
+def _id_cached():
+    try:
+        from manga_character_detect import extra_cached
+        return extra_cached()
+    except Exception:
+        return False
+
+
 def _sam_cached():
     try:
         from manga_sam_select import cached
@@ -297,7 +305,7 @@ def local_model_status():
             "mangaOcr": {"ready": has("manga_ocr")},
             "textDetector": {"ready": has("onnxruntime") and has("cv2"), "cached": _ctd_cached()},
             "samSelect": {"ready": has("torch") and has("sam2") and has("cv2"), "cached": _sam_cached()},
-            "characters": {"ready": has("onnxruntime") and has("cv2"), "cached": _chars_cached()}}
+            "characters": {"ready": has("onnxruntime") and has("cv2"), "cached": _chars_cached(), "identityCached": _id_cached()}}
 
 
 def handle_smart_ocr_post(handler):

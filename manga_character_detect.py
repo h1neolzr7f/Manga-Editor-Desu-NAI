@@ -26,6 +26,24 @@ SEG_BYTES = 176069933
 _seg = None
 _lock = threading.Lock()
 
+# anime face detector (deepghs/anime_face_detection v1.4_s, MIT) and CCIP character identity
+# embedding (deepghs/ccip_onnx caformer-24-randaug-pruned, OpenRAIL): same consent/SHA rules.
+EXTRA = {
+    "face": {"url": "https://huggingface.co/deepghs/anime_face_detection/resolve/main/face_detect_v1.4_s/model.onnx",
+             "sha": "403b5bc93b6ff789b7d183418df4a1364049bac00c24acd927604a7ff6891483", "bytes": 44583229,
+             "file": "anime-face-v1.4s.onnx"},
+    "ccip": {"url": "https://huggingface.co/deepghs/ccip_onnx/resolve/main/ccip-caformer-24-randaug-pruned/model_feat.onnx",
+             "sha": "4ea118d16496274f4f6e08d3afc768cc592389e8f7f32f8732ce2215c228ac5f", "bytes": 150248245,
+             "file": "ccip-feat.onnx"},
+    "ccipm": {"url": "https://huggingface.co/deepghs/ccip_onnx/resolve/main/ccip-caformer-24-randaug-pruned/model_metrics.onnx",
+              "sha": "7e4646fdfbe369ad485b227ec47ac4092c98b8deef3af44e19fdbd8ba7bc25c1", "bytes": 1649,
+              "file": "ccip-metrics.onnx"},
+}
+FACE_THRESHOLD = 0.307      # model's own F1-optimal threshold
+CCIP_SAME = 0.178           # model's own F1-optimal difference threshold
+_extra = {}
+_cache = {}                 # sha1(image) -> result (last 6 pages)
+
 
 def seg_path():
     explicit = (os.environ.get("ANIME_SEG_MODEL") or "").strip()
@@ -35,9 +53,37 @@ def seg_path():
     return os.path.abspath(os.path.expanduser(os.path.join(cache, "manga-editor", "isnet-anime.onnx")))
 
 
+def extra_path(key):
+    return os.path.join(os.path.dirname(seg_path()), EXTRA[key]["file"])
+
+
 def cached():
     p = seg_path()
     return os.path.isfile(p) and os.path.getsize(p) == SEG_BYTES
+
+
+def extra_cached():
+    return all(os.path.isfile(extra_path(k)) and os.path.getsize(extra_path(k)) == v["bytes"] for k, v in EXTRA.items())
+
+
+def _get_extra(allow_download):
+    """face detector + CCIP sessions, or None when the user has not downloaded them (optional upgrade)."""
+    from manga_model_guard import require_download_consent
+    if "face" in _extra:
+        return _extra
+    if not extra_cached():
+        require_download_consent("charid", False, allow_download)
+    with _lock:
+        if "face" not in _extra:
+            import onnxruntime as ort
+            for k, v in EXTRA.items():
+                path = extra_path(k)
+                if not (os.path.isfile(path) and os.path.getsize(path) == v["bytes"]):
+                    _download_to(v["url"], path, v["sha"])
+                elif _sha256(path) != v["sha"]:
+                    raise SmartOcrError("本机的人物识别模型文件校验不通过，请删除后重新下载：" + path, 500)
+                _extra[k] = ort.InferenceSession(path, providers=["CPUExecutionProvider"])
+    return _extra
 
 
 def runtime_available():
@@ -54,7 +100,10 @@ def _sha256(path):
 
 
 def download(url=SEG_URL, opener=urllib.request.urlopen):
-    target = seg_path()
+    return _download_to(url, seg_path(), SEG_SHA256, opener)
+
+
+def _download_to(url, target, sha, opener=urllib.request.urlopen):
     os.makedirs(os.path.dirname(target), exist_ok=True)
     tmp = target + ".part"
     try:
@@ -64,7 +113,7 @@ def download(url=SEG_URL, opener=urllib.request.urlopen):
                 if not chunk:
                     break
                 f.write(chunk)
-        if _sha256(tmp) != SEG_SHA256:
+        if _sha256(tmp) != sha:
             raise SmartOcrError("人物分割模型下载内容校验失败（SHA-256 不符），已删除，没有使用。", 502)
         os.replace(tmp, target)
     finally:
@@ -203,6 +252,81 @@ def _largest(m):
     return lab == k
 
 
+# ---------- faces + identity ----------
+def faces(rgb, session, size=640):
+    """YOLOv8 anime faces -> [[x0, y0, x1, y1, score]] (letterboxed inference, NMS)."""
+    import cv2
+    import numpy as np
+    H, W = rgb.shape[:2]
+    k = size / max(H, W)
+    nh, nw = int(round(H * k)), int(round(W * k))
+    canvas = np.full((size, size, 3), 114, np.uint8)
+    canvas[:nh, :nw] = cv2.resize(rgb, (nw, nh), interpolation=cv2.INTER_AREA)
+    x = canvas.astype(np.float32).transpose(2, 0, 1)[None] / 255.0
+    out = session.run(None, {session.get_inputs()[0].name: x})[0][0]   # (5, anchors)
+    out = out.T
+    keep = out[:, 4] >= FACE_THRESHOLD
+    out = out[keep]
+    if not len(out):
+        return []
+    boxes = np.stack([out[:, 0] - out[:, 2] / 2, out[:, 1] - out[:, 3] / 2, out[:, 0] + out[:, 2] / 2, out[:, 1] + out[:, 3] / 2], 1) / k
+    idx = cv2.dnn.NMSBoxes([[float(b[0]), float(b[1]), float(b[2] - b[0]), float(b[3] - b[1])] for b in boxes],
+                           [float(v) for v in out[:, 4]], FACE_THRESHOLD, 0.5) if hasattr(cv2, "dnn") else range(len(boxes))
+    idx = np.array(idx).reshape(-1)
+    res = []
+    for i in idx:
+        b = boxes[i]
+        res.append([int(max(0, b[0])), int(max(0, b[1])), int(min(W, b[2])), int(min(H, b[3])), round(float(out[i, 4]), 3)])
+    return res
+
+
+def ccip_embed(rgb, mask, box, session):
+    """CCIP feature of one character: its box crop with everything outside the mask painted white."""
+    import cv2
+    import numpy as np
+    x0, y0, x1, y1 = box
+    crop = rgb[y0:y1, x0:x1].copy()
+    crop[~mask[y0:y1, x0:x1]] = 255
+    x = cv2.resize(crop, (384, 384), interpolation=cv2.INTER_AREA).astype(np.float32) / 255.0
+    x = ((x - 0.5) / 0.5).transpose(2, 0, 1)[None]
+    return session.run(None, {"input": x})[0][0]
+
+
+def ccip_difference(feats, metrics):
+    import numpy as np
+    if not len(feats):
+        return []
+    return metrics.run(None, {"input": np.stack(feats).astype(np.float32)})[0].tolist()
+
+
+def cluster_identities(ids, panels_of, diff, thr=CCIP_SAME):
+    """Average-linkage clustering of CCIP differences with a cannot-link rule: two characters drawn in the
+    same panel are different people. Returns a cluster index per id (singletons get their own)."""
+    groups = [[i] for i in range(len(ids))]
+
+    def link(a, b):
+        if any(panels_of[i] == panels_of[j] for i in a for j in b):
+            return None
+        return sum(diff[i][j] for i in a for j in b) / (len(a) * len(b))
+    while True:
+        best = None
+        for x in range(len(groups)):
+            for y in range(x + 1, len(groups)):
+                d = link(groups[x], groups[y])
+                if d is not None and d <= thr and (best is None or d < best[0]):
+                    best = (d, x, y)
+        if best is None:
+            break
+        _, x, y = best
+        groups[x] = groups[x] + groups[y]
+        del groups[y]
+    out = {}
+    for k, g in enumerate(groups):
+        for i in g:
+            out[ids[i]] = k
+    return out
+
+
 # ---------- foreground ----------
 def foreground(rgb, session):
     import cv2
@@ -307,7 +431,51 @@ def _split(rgb, full, box, predictor, min_area, panel_mask=None, panel_area=1):
     return kept
 
 
-def find_characters(rgb, seg, predictor=None, min_frac=0.03):
+def _char(rgb, m, pi, outline, face):
+    import numpy as np
+    ys, xs = np.nonzero(m)
+    bx = [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1]
+    return {"panel": pi, "box": bx, "area": int(m.sum()), "polygon": outline(m.astype(np.uint8)),
+            "mask": _png_box(m[bx[1]:bx[3], bx[0]:bx[2]]), "descriptor": descriptor(rgb, m), "face": face, "_m": m}
+
+
+def _by_faces(fg, pf, predictor, panel_mask, min_area):
+    """One SAM prompt per face: its centre and a body point below it (+), the other faces (−).
+    Keep the largest candidate that holds this face, no other face, and stays mostly in the foreground."""
+    import cv2
+    import numpy as np
+    grow = cv2.dilate(fg.astype(np.uint8), np.ones((21, 21), np.uint8)) > 0
+    out = []
+    # smallest face first (a pet or a child held in someone's arms): a later, bigger person may contain an
+    # already-claimed face — the caller subtracts what was claimed — but never one that is still pending.
+    pf = sorted(pf, key=lambda f: (f[2] - f[0]) * (f[3] - f[1]))
+    for i, f in enumerate(pf):
+        cx, cy = (f[0] + f[2]) / 2, (f[1] + f[3]) / 2
+        fh = f[3] - f[1]
+        pts, lab = [[cx, cy]], [1]
+        by = min(fg.shape[0] - 1, cy + 1.6 * fh)
+        if fg[int(by), int(cx)]:
+            pts.append([cx, by]); lab.append(1)
+        for j, g in enumerate(pf):
+            if j > i:
+                pts.append([(g[0] + g[2]) / 2, (g[1] + g[3]) / 2]); lab.append(0)
+        ms, sc, _ = predictor.predict(point_coords=np.array(pts, np.float32), point_labels=np.array(lab), multimask_output=True)
+        best = None
+        for m in ms > 0:
+            m = m & panel_mask
+            a = int(m.sum())
+            if a < min_area or not m[int(cy), int(cx)] or (m & grow).sum() < 0.85 * a:
+                continue
+            if any(m[int((g[1] + g[3]) / 2), int((g[0] + g[2]) / 2)] for j, g in enumerate(pf) if j > i):
+                continue
+            if best is None or a > best.sum():
+                best = m
+        if best is not None:
+            out.append((best, f))
+    return out
+
+
+def find_characters(rgb, seg, predictor=None, min_frac=0.03, face_boxes=None):
     import cv2
     import numpy as np
     from manga_sam_select import outline
@@ -320,8 +488,22 @@ def find_characters(rgb, seg, predictor=None, min_frac=0.03):
     for pi, (x0, y0, x1, y1) in enumerate(pans):
         crop = rgb[y0:y1, x0:x1]
         fg = foreground(crop, seg) > 0.5
-        n, lab, stats, _ = cv2.connectedComponentsWithStats(fg.astype(np.uint8), 8)
+        pm = np.zeros((H, W), bool)
+        pm[y0:y1, x0:x1] = True
         parea = (x1 - x0) * (y1 - y0)
+        pf = [f for f in (face_boxes or []) if x0 <= (f[0] + f[2]) / 2 < x1 and y0 <= (f[1] + f[3]) / 2 < y1]
+        claimed = np.zeros((H, W), bool)
+        if pf and predictor is not None:
+            fgfull = np.zeros((H, W), bool)
+            fgfull[y0:y1, x0:x1] = fg
+            for m, f in _by_faces(fgfull, pf, predictor, pm, parea * min_frac):
+                m = _largest(m & ~bubbles & ~claimed)
+                if m.sum() < parea * min_frac * 0.5:
+                    continue
+                claimed |= m
+                chars.append(_char(rgb, m, pi, outline, f))
+            fg = fg & ~claimed[y0:y1, x0:x1]
+        n, lab, stats, _ = cv2.connectedComponentsWithStats(fg.astype(np.uint8), 8)
         for k in range(1, n):
             cx, cy, cw, ch, area = stats[k]
             if area < parea * min_frac:
@@ -329,18 +511,20 @@ def find_characters(rgb, seg, predictor=None, min_frac=0.03):
             comp = lab == k
             full = np.zeros((H, W), bool)
             full[y0:y1, x0:x1] = comp
-            pm = np.zeros((H, W), bool)
-            pm[y0:y1, x0:x1] = True
             for m in _split(rgb, full, (x0 + cx, y0 + cy, cw, ch), predictor, parea * min_frac, pm, parea):
                 m = _largest(m & ~bubbles)
                 if m.sum() < parea * min_frac or rgb[m].mean() > 212:   # bubble / leftover speck
                     continue
-                ys, xs = np.nonzero(m)
-                bx = [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1]
-                sub = m[bx[1]:bx[3], bx[0]:bx[2]]
-                chars.append({"panel": pi, "box": bx, "area": int(m.sum()),
-                              "polygon": outline(m.astype(np.uint8)), "mask": _png_box(sub),
-                              "descriptor": descriptor(rgb, m)})
+                # a faceless part touching a face-owner of this panel is part of that person (hair, skirt…)
+                grown = cv2.dilate(m.astype(np.uint8), np.ones((9, 9), np.uint8)) > 0
+                owner = next((c for c in chars if c["panel"] == pi and c.get("face") and (grown & c["_m"]).any()), None)
+                if owner is not None and m.sum() < owner["area"]:
+                    merged = owner["_m"] | m
+                    chars[chars.index(owner)] = _char(rgb, merged, pi, outline, owner["face"])
+                    continue
+                chars.append(_char(rgb, m, pi, outline, None))
+    for c in chars:
+        c.pop("_m", None)
     chars.sort(key=lambda c: (c["panel"], -c["area"]))
     for i, c in enumerate(chars):
         c["id"] = "c%d" % (i + 1)
@@ -351,14 +535,21 @@ def detect(payload):
     from manga_model_guard import exclusive
     allow = payload.get("allow_download") is True
     seg = _get_seg(allow)
+    extra = None
+    if payload.get("identity", True) is not False:
+        extra = _get_extra(allow)          # 428 once for the face/identity models, then cached
     import numpy as np
     from PIL import Image
     raw, _w, _h = read_image(payload.get("image"))
+    key = hashlib.sha1(raw).hexdigest() + ("+id" if extra else "")
+    if key in _cache:
+        hit = dict(_cache[key]); hit["cached"] = True
+        return hit
     rgb = np.array(Image.open(io.BytesIO(raw)).convert("RGB"))
     predictor = None
-    refine = payload.get("refine", True) is not False
+    face_boxes = faces(rgb, extra["face"]) if extra else []
     with exclusive("sam2", wait=90):
-        if refine:
+        if payload.get("refine", True) is not False:
             try:
                 from manga_sam_select import _get_predictor, _embeds
                 predictor = _get_predictor(allow)
@@ -367,14 +558,35 @@ def detect(payload):
                 if exc.status == 428:
                     raise
                 predictor = None  # no torch: isnet masks only
-        pans, chars = find_characters(rgb, seg, predictor)
-    return {"ok": True, "width": int(rgb.shape[1]), "height": int(rgb.shape[0]), "panels": pans,
-            "characters": chars, "refined": predictor is not None}
+        pans, chars = find_characters(rgb, seg, predictor, face_boxes=face_boxes)
+    identity = None
+    if extra:
+        idx = [i for i, c in enumerate(chars) if c.get("face")]
+        feats = []
+        for i in idx:
+            c = chars[i]
+            m = np.zeros(rgb.shape[:2], bool)
+            mi = np.array(Image.open(io.BytesIO(base64.b64decode(c["mask"].split(",", 1)[1]))))[..., 1] > 0
+            x0, y0, x1, y1 = c["box"]
+            m[y0:y1, x0:x1] = mi
+            feats.append(ccip_embed(rgb, m, c["box"], extra["ccip"]))
+        diff = ccip_difference(feats, extra["ccipm"])
+        ids = [chars[i]["id"] for i in idx]
+        identity = {"ids": ids, "diff": [[round(v, 4) for v in row] for row in diff], "same": CCIP_SAME,
+                    "cluster": cluster_identities(ids, [chars[i]["panel"] for i in idx], diff)}
+    res = {"ok": True, "width": int(rgb.shape[1]), "height": int(rgb.shape[0]), "panels": pans, "faces": face_boxes,
+           "characters": chars, "refined": predictor is not None, "identity": identity}
+    _cache[key] = res
+    while len(_cache) > 6:
+        _cache.pop(next(iter(_cache)))
+    return res
 
 
 def _reset_for_tests():
     global _seg
     _seg = None
+    _extra.clear()
+    _cache.clear()
 
 
 def cutout_array(rgb, seg=None):

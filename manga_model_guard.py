@@ -57,6 +57,7 @@ MODELS = {
     "manga-ocr": {"label": "Manga OCR", "size": "约 450–900MB", "cached": manga_ocr_cached},
     "ctd": {"label": "漫画文字检测（comic-text-detector）", "size": "约 91MB", "cached": lambda: __import__("manga_text_detector").cached()},
     "sam2": {"label": "智能点选（SAM 2.1 tiny）", "size": "约 149MB", "cached": lambda: __import__("manga_sam_select").cached()},
+    "charid": {"label": "人物脸部识别 + 角色比对（anime face + CCIP）", "size": "约 186MB", "cached": lambda: __import__("manga_character_detect").extra_cached()},
     "animeseg": {"label": "人物分割（isnet-anime）", "size": "约 168MB", "cached": lambda: __import__("manga_character_detect").cached()},
 }
 _busy = {name: threading.Semaphore(1) for name in MODELS}

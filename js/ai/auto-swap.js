@@ -130,7 +130,25 @@
   const PROMPT_BG = 'Remove the person in the middle of this manga image completely and redraw ONLY the background that was behind them, continuing the surrounding scenery, perspective, line weight, screentone and lighting. Keep everything else unchanged. Do not draw any person, face, body part, text or speech bubble.';
   const PROMPT_CHAR = 'Redraw the main person in this manga image as the character shown in the reference image (same face, hair, outfit and colors as the reference), keeping exactly the same pose, body size, position, camera angle, facing direction and the same manga line art and shading style. Draw ONLY that one character on a plain flat pure white background: no scenery, no other people, no text, no speech bubbles.';
 
-  const api = { fitCrop, placement, clipToPanel, descriptor, similarity, growFeather, toneMatch, PROMPT_BG, PROMPT_CHAR };
+  const KEEP_OUTFIT = ' Keep the clothing, accessories and props of the person in this image exactly as they are; take ONLY the face, hairstyle, hair color and eye color from the reference character.';
+
+  /** Matching from CCIP identity clusters (server): same cluster = sure; an unclustered face that is close =
+   * possible (unchecked); characters in another cluster or without a face are never offered. */
+  function identityMatches(identity, targetId, panelOf, possibleMax) {
+    if (!identity || !identity.cluster || !(targetId in identity.cluster)) return null;
+    const ids = identity.ids, ti = ids.indexOf(targetId), tc = identity.cluster[targetId];
+    const size = {}; Object.values(identity.cluster).forEach(k => { size[k] = (size[k] || 0) + 1; });
+    const out = [];
+    ids.forEach((id, i) => {
+      if (id === targetId || panelOf(id) === panelOf(targetId)) return;
+      const d = identity.diff[ti][i], k = identity.cluster[id];
+      if (k === tc) out.push({ id, d, sure: true });
+      else if (size[k] === 1 && size[tc] >= 1 && d <= (possibleMax || 0.22)) out.push({ id, d, sure: false });
+    });
+    return out.sort((a, b) => a.d - b.d);
+  }
+
+  const api = { identityMatches, KEEP_OUTFIT, fitCrop, placement, clipToPanel, descriptor, similarity, growFeather, toneMatch, PROMPT_BG, PROMPT_CHAR };
   if (typeof module !== 'undefined' && module.exports) { module.exports = api; return; }
   if (typeof document === 'undefined') { root.AutoSwap = api; return; }
 
@@ -195,7 +213,7 @@
     const n = r.w * r.h;
     const orig = crop.getContext('2d').getImageData(0, 0, r.w, r.h);
     const refs = opts.references;
-    const extra = opts.note ? '\n' + opts.note : '';
+    const extra = (opts.keepOutfit ? KEEP_OUTFIT : '') + (opts.note ? '\n' + opts.note : '');
     const [bgUrl, charUrl] = await Promise.all([
       gptEdit(cropUrl, PROMPT_BG, r.size, [], signal),
       gptEdit(cropUrl, PROMPT_CHAR + extra, r.size, refs, signal)
@@ -205,7 +223,7 @@
     const bc = cv(r.w, r.h); const bg = bc.getContext('2d'); bg.drawImage(bgImg, 0, 0, r.w, r.h);
     const bd = bg.getImageData(0, 0, r.w, r.h);
     const span = Math.max(ch.box[2] - ch.box[0], ch.box[3] - ch.box[1]);
-    const growPx = Math.max(4, Math.round(span * 0.025));
+    const growPx = Math.max(6, Math.round(span * 0.045));   // hair strands / outline just outside the mask
     const panel = opts.panel || null;
     const alpha = clipToPanel(growFeather(Uint8ClampedArray.from(cm, v => v * 255), r.w, r.h, growPx, Math.max(2, Math.round(growPx / 2))), r, panel);
     const ctx = new Uint8ClampedArray(orig.data);              // context only: inside the patch → transparent
@@ -328,6 +346,8 @@
       if (r && r.ok && r.candidates && r.candidates.length) {
         const cand = r.candidates[r.candidates.length > 1 ? 1 : 0];
         ch = { id: 'click', box: cand.box, polygon: cand.polygon, mask: cand.mask, area: cand.area, panel: panelOf(cand.box) };
+        const twin = S.chars.filter(c => c.panel === ch.panel).map(c => ({ c, iou: boxIou(c.box, ch.box) })).sort((a, b) => b.iou - a.iou)[0];
+        if (twin && twin.iou > 0.4) ch.identityId = twin.c.id;   // same person as a detected one: reuse its identity
         await maskArray(ch, S.pg.W, S.pg.H);
         ch.descriptor = descriptor(S.pg.data, ch.full, S.pg.W * S.pg.H);
         S.chars.push(ch);
@@ -339,26 +359,37 @@
     updateButtons();
   }
 
+  function boxIou(a, b) {
+    const ix = Math.max(0, Math.min(a[2], b[2]) - Math.max(a[0], b[0])), iy = Math.max(0, Math.min(a[3], b[3]) - Math.max(a[1], b[1]));
+    const i = ix * iy, u = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - i;
+    return u > 0 ? i / u : 0;
+  }
+
   function panelOf(box) {
     const cx = (box[0] + box[2]) / 2, cy = (box[1] + box[3]) / 2;
     const i = (S.panels || []).findIndex(p => cx >= p[0] && cx <= p[2] && cy >= p[1] && cy <= p[3]);
     return i < 0 ? 0 : i;
   }
 
-  const MATCH = 0.8, SURE = 0.9;   // listed ≥80 %, pre-checked ≥90 % (grey art: tone histograms are a weak cue)
   function refreshMatches() {
     const list = $('autoSwapMatches'); if (!list) return;
     list.innerHTML = '';
     if (!S.target) return;
-    const others = S.chars.filter(c => c !== S.target && c.panel !== S.target.panel)
-      .map(c => ({ c, s: similarity(S.target.descriptor, c.descriptor) })).filter(x => x.s >= MATCH)
-      .sort((a, b) => b.s - a.s).slice(0, 8);
-    S.matches = others.map(x => x.c);
-    $('autoSwapMatchBox').hidden = !others.length;
-    others.forEach(({ c, s }) => {
-      const row = el('label', { class: 'auto-swap-match', 'data-id': c.id },
-        '<input type="checkbox"' + (s >= SURE ? ' checked' : '') + '> 第 ' + (c.panel + 1) + ' 格 · 人物 ' + (S.chars.indexOf(c) + 1) + ' <span class="ui-muted">相似度 ' + Math.round(s * 100) + '%</span>');
-      list.appendChild(row);
+    const byId = id => S.chars.find(c => c.id === id);
+    let rows = identityMatches(S.identity, S.target.identityId || S.target.id, id => (byId(id) || {}).panel);
+    if (rows) rows = rows.map(r => ({ c: byId(r.id), sure: r.sure, label: r.sure ? '同一角色' : '可能是同一角色' }));
+    else {
+      // no identity models: tone/colour only — never pre-checked
+      rows = S.chars.filter(c => c !== S.target && c.panel !== S.target.panel)
+        .map(c => ({ c, s: similarity(S.target.descriptor, c.descriptor) })).filter(x => x.s >= 0.9)
+        .sort((a, b) => b.s - a.s).slice(0, 6).map(x => ({ c: x.c, sure: false, label: '颜色相近（未装角色比对模型，请自己确认）' }));
+    }
+    rows = rows.filter(r => r.c);
+    S.matches = rows.map(r => r.c);
+    $('autoSwapMatchBox').hidden = !rows.length;
+    rows.forEach(({ c, sure, label }) => {
+      list.appendChild(el('label', { class: 'auto-swap-match', 'data-id': c.id, 'data-sure': sure ? '1' : '0' },
+        '<input type="checkbox"' + (sure ? ' checked' : '') + '> 第 ' + (c.panel + 1) + ' 格 · 人物 ' + (S.chars.indexOf(c) + 1) + ' <span class="ui-muted">' + label + '</span>'));
     });
   }
 
@@ -375,7 +406,7 @@
     S.ctrl = new AbortController();
     status('正在生成：① 擦掉原角色补背景 ② 按参考图重画同姿势的新角色（约 30–60 秒，可点「取消」）…');
     try {
-      S.result = await swapOne(S.pg, S.target, { panel: (S.panels || [])[S.target.panel], references: S.refs, note: ($('autoSwapNote') || {}).value || '', outline: !!($('autoSwapOutline') || {}).checked }, S.ctrl.signal);
+      S.result = await swapOne(S.pg, S.target, { keepOutfit: !!($('autoSwapKeep') || {}).checked, panel: (S.panels || [])[S.target.panel], references: S.refs, note: ($('autoSwapNote') || {}).value || '', outline: !!($('autoSwapOutline') || {}).checked }, S.ctrl.signal);
       await showPreview(S.result);
       step(3);
       status('预览好了：点「对比原图」看前后；满意就点「应用」（背景补丁和新角色是两个独立图层）。');
@@ -415,7 +446,7 @@
     for (const [i, ch] of todo.entries()) {
       status('正在换第 ' + (i + 1) + ' / ' + todo.length + ' 个（第 ' + (ch.panel + 1) + ' 格）…');
       try {
-        const res = await swapOne(S.pg, ch, { panel: (S.panels || [])[ch.panel], references: S.refs, note: ($('autoSwapNote') || {}).value || '', outline: !!($('autoSwapOutline') || {}).checked }, S.ctrl.signal);
+        const res = await swapOne(S.pg, ch, { keepOutfit: !!($('autoSwapKeepAll') || {}).checked, panel: (S.panels || [])[ch.panel], references: S.refs, note: ($('autoSwapNote') || {}).value || '', outline: !!($('autoSwapOutline') || {}).checked }, S.ctrl.signal);
         await applyResult(res, ' 第' + (ch.panel + 1) + '格'); S.doneIds.add(ch.id); ok++;
       } catch (e) { if (e && e.name === 'AbortError') break; fail++; }
     }
@@ -443,6 +474,7 @@
     const refRow = el('label', { class: 'auto-swap-row' }, '新角色参考图 <input type="file" id="autoSwapRef" accept="image/*" multiple>');
     body.appendChild(refRow);
     body.appendChild(el('textarea', { id: 'autoSwapNote', rows: '2', placeholder: '补充要求（可不填），例如：表情改成微笑' }));
+    body.appendChild(el('label', { class: 'auto-swap-row ui-muted' }, '<input type="checkbox" id="autoSwapKeep"> 保留原服装（只换脸、发型和发色）'));
     body.appendChild(el('label', { class: 'auto-swap-row ui-muted' }, '<input type="checkbox" id="autoSwapOutline"> 给新角色加一圈描边（线条较粗的画风）'));
     const btns = el('div', { class: 'auto-swap-row' });
     btns.innerHTML = '<button type="button" class="ui-btn ui-btn-primary" id="autoSwapGo" disabled>生成</button>' +
@@ -454,6 +486,7 @@
     body.appendChild(prevWrap);
     const mb = el('div', { id: 'autoSwapMatchBox', hidden: '' });
     mb.innerHTML = '<p class="auto-swap-sub">其他格里的同一角色（自动找到的，可取消勾选）</p><div id="autoSwapMatches"></div>' +
+      '<label class="auto-swap-row ui-muted"><input type="checkbox" id="autoSwapKeepAll" checked> 保留原服装（推荐：其他格的衣服、道具不变）</label>' +
       '<button type="button" class="ui-btn" id="autoSwapAll" disabled>一键换掉勾选的格子</button>';
     body.appendChild(mb);
     if (hooks.manual) {
@@ -516,6 +549,7 @@
     if (r && r.ok) {
       s.panels = r.panels || [];
       s.chars = r.characters || [];
+      s.identity = r.identity || null;
       for (const ch of s.chars) { await maskArray(ch, s.pg.W, s.pg.H); ch.descriptor = descriptor(s.pg.data, ch.full, s.pg.W * s.pg.H); }
     }
     drawPick();
@@ -523,7 +557,27 @@
     else status(((r && r.error) || '自动找人物不可用。') + ' 可以直接点在要换的人物身上（智能点选）。', !(r && r.declined));
   }
 
-  root.AutoSwap = Object.assign(api, { start, stop, swapOne, applyResult,
+  /** Warm the server's per-page detection cache in the background (after import). Never prompts: runs only
+   * when every model is already on this computer. */
+  let prefetchTimer = null;
+  function prefetch() {
+    clearTimeout(prefetchTimer);
+    prefetchTimer = setTimeout(async () => {
+      try {
+        if (!gpt() || !gpt().pageImage || S) return;
+        const st = await post('/manga-smart/status', {});
+        const ch = st && st.characters;
+        if (!(ch && ch.cached && ch.identityCached && st.samSelect && st.samSelect.cached)) return;
+        const pg = gpt().pageImage(false);
+        if (!pg || !pg.image) return;
+        root.__autoSwapPrefetch = 'running';
+        const r = await post('/manga-smart/characters', { image: pg.image });
+        root.__autoSwapPrefetch = r && r.ok ? 'done' : 'failed';
+      } catch (_) { root.__autoSwapPrefetch = 'failed'; }
+    }, 1500);
+  }
+
+  root.AutoSwap = Object.assign(api, { start, stop, prefetch, swapOne, applyResult,
     state: () => S && { chars: S.chars.length, target: S.target && S.target.id, targetPanel: S.target && S.target.panel, refs: S.refs.length, busy: S.busy,
       result: !!S.result, matches: (S.matches || []).map(c => c.id), done: Array.from(S.doneIds), info: S.result && S.result.info } });
 })(typeof window !== 'undefined' ? window : globalThis);

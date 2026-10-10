@@ -94,6 +94,17 @@ class Offline(unittest.TestCase):
         text[140:160, 120:180] = True
         self.assertTrue(D.bubble_mask(img, [[0, 0, 300, 300]], text)[150, 150])
 
+    def test_identity_clusters_respect_same_panel_rule(self):
+        ids = ["g1", "g2", "b1", "x"]
+        panels = [0, 1, 0, 1]
+        diff = [[0, .08, .3, .16], [.08, 0, .33, .2], [.3, .33, 0, .1], [.16, .2, .1, 0]]
+        c = D.cluster_identities(ids, panels, diff)
+        self.assertEqual(c["g1"], c["g2"])
+        self.assertNotEqual(c["g1"], c["b1"])
+        self.assertEqual(c["b1"], c["x"])             # 0.10 and in different panels
+        # x is close to b1 but drawn next to g2? same panel as g2 → can never join the girls' cluster
+        self.assertNotEqual(c["x"], c["g2"])
+
     def test_status_reports_characters(self):
         from manga_smart_ocr import local_model_status
         st = local_model_status()
@@ -109,7 +120,7 @@ def _models():
         return False
 
 
-@unittest.skipUnless(_models(), "isnet-anime / SAM weights not cached")
+@unittest.skipUnless(_models() and D.extra_cached(), "isnet-anime / SAM / face+CCIP weights not cached")
 class Page4(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -129,6 +140,20 @@ class Page4(unittest.TestCase):
         for c in chars:
             cx, cy = (c["box"][0] + c["box"][2]) / 2, (c["box"][1] + c["box"][3]) / 2
             self.assertFalse(260 <= cx <= 600 and 570 <= cy <= 640, c["box"])
+
+    def test_same_girl_across_panels_never_the_boy(self):
+        idt = self.r["identity"]
+        chars = {c["id"]: c for c in self.r["characters"]}
+        at = lambda x, y: next(c["id"] for c in self.r["characters"] if c.get("face") and c["box"][0] <= x <= c["box"][2] and c["box"][1] <= y <= c["box"][3])
+        g1, g2, boy1 = at(500, 150), at(200, 700), at(1000, 200)
+        self.assertEqual(idt["cluster"][g1], idt["cluster"][g2], "the girl in panels 1 and 2")
+        self.assertNotEqual(idt["cluster"][g1], idt["cluster"][boy1])
+        p4 = [i for i, c in chars.items() if c["panel"] == 3 and i in idt["cluster"]]
+        self.assertEqual(len({idt["cluster"][i] for i in p4}), len(p4), "people in one panel are different")
+
+    def test_cat_is_separate_from_the_girl_in_panel_4(self):
+        cats = [c for c in self.r["characters"] if c["panel"] == 3 and c["box"][0] >= 480 and c["box"][2] <= 740 and c["box"][1] >= 1420]
+        self.assertTrue(cats, "the cat is its own character")
 
     def test_masks_stay_in_their_panel(self):
         for c in self.r["characters"]:

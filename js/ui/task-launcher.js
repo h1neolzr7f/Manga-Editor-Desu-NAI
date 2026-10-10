@@ -574,6 +574,14 @@ buildBar();
 buildHome();
 applyMode(mode());
 setInterval(updateHome,1000);
+// a newly imported page: let 换角色 detection run in the background so the wizard opens instantly
+var lastPageSig='';
+setInterval(function(){
+if(typeof canvas==='undefined'||!window.AutoSwap||!AutoSwap.prefetch||mode()!=='beginner')return;
+var img=canvas.getObjects().filter(function(o){return o.type==='image'&&!o.autoSwap;})[0];
+var sig=img?(img.width+'x'+img.height+':'+((img._element&&img._element.src)||'').length):'';
+if(sig&&sig!==lastPageSig){lastPageSig=sig;AutoSwap.prefetch();}
+},2000);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(init,0);});
 else setTimeout(init,0);

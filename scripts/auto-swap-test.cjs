@@ -64,3 +64,18 @@ console.log('PASS auto-swap helpers: crop aspect/inside page, placement (feet al
   assert.strictEqual(b[7 * 10 + 6], 0, 'below the panel');
   console.log('PASS auto-swap panel clip');
 }
+
+// identity matches: same cluster pre-checked, close singleton offered unchecked, other clusters never
+{
+  const identity = { ids: ['g1', 'g2', 'g3', 'b1', 'b2', 'x'], cluster: { g1: 0, g2: 0, g3: 0, b1: 1, b2: 1, x: 2 },
+    diff: [[0, .08, .07, .3, .28, .16], [.08, 0, .06, .35, .33, .2], [.07, .06, 0, .36, .35, .21], [.3, .35, .36, 0, .11, .17], [.28, .33, .35, .11, 0, .2], [.16, .2, .21, .17, .2, 0]] };
+  const panel = { g1: 0, g2: 1, g3: 2, b1: 0, b2: 3, x: 3 };
+  const m = A.identityMatches(identity, 'g1', id => panel[id]);
+  assert.deepStrictEqual(m.map(r => r.id + (r.sure ? '!' : '?')).join(','), 'g3!,g2!,x?');
+  assert(!m.some(r => r.id.startsWith('b')), 'boys never offered for a girl');
+  const mb = A.identityMatches(identity, 'b1', id => panel[id]);
+  assert.strictEqual(mb.map(r => r.id + (r.sure ? '!' : '?')).join(','), 'b2!,x?');
+  assert.strictEqual(A.identityMatches(null, 'g1', id => panel[id]), null);
+  assert(/Keep the clothing/.test(A.KEEP_OUTFIT));
+  console.log('PASS auto-swap identity matching');
+}
