@@ -395,17 +395,26 @@
   // character swap) — then the whole patch is used as before.
   const CHANGE_LO = 10, CHANGE_HI = 26;
   function changeMask(patch, orig, w, h) {
-    const cell = Math.max(2, Math.round(Math.min(w, h) / 160));
+    const cell = Math.max(4, Math.round(Math.min(w, h) / 96));
     const gw = Math.ceil(w / cell), gh = Math.ceil(h / cell);
     const g = new Float32Array(gw * gh);
     for (let gy = 0; gy < gh; gy++) for (let gx = 0; gx < gw; gx++) {
-      let s = 0, n = 0;
+      // Compare cell mean colour (resampling/re-rendering of fine texture keeps it) plus half the difference in
+      // texture contrast (new line art of the same mean tone). Per-pixel |diff| flagged every rainy/hatched cell.
+      const mo = [0, 0, 0], mp = [0, 0, 0]; let so = 0, sp = 0, so2 = 0, sp2 = 0, n = 0, transparent = false;
       for (let y = gy * cell; y < Math.min(h, gy * cell + cell); y++) for (let x = gx * cell; x < Math.min(w, gx * cell + cell); x++) {
         const i = (y * w + x) * 4;
-        if (orig[i + 3] < 250) { s += 255; n++; continue; } // transparent original: whatever is new counts as change
-        s += (Math.abs(orig[i] - patch[i]) + Math.abs(orig[i + 1] - patch[i + 1]) + Math.abs(orig[i + 2] - patch[i + 2])) / 3; n++;
+        if (orig[i + 3] < 250) { transparent = true; continue; } // transparent original: whatever is new counts as change
+        for (let c = 0; c < 3; c++) { mo[c] += orig[i + c]; mp[c] += patch[i + c]; }
+        const lo = (orig[i] + orig[i + 1] + orig[i + 2]) / 3, lp = (patch[i] + patch[i + 1] + patch[i + 2]) / 3;
+        so += lo; sp += lp; so2 += lo * lo; sp2 += lp * lp; n++;
       }
-      const d = n ? s / n : 0;
+      let d = 255;
+      if (n && !transparent) {
+        const mean = (Math.abs(mo[0] - mp[0]) + Math.abs(mo[1] - mp[1]) + Math.abs(mo[2] - mp[2])) / 3 / n;
+        const sdO = Math.sqrt(Math.max(0, so2 / n - (so / n) ** 2)), sdP = Math.sqrt(Math.max(0, sp2 / n - (sp / n) ** 2));
+        d = Math.max(mean, 0.5 * Math.abs(sdO - sdP));
+      }
       g[gy * gw + gx] = Math.max(0, Math.min(1, (d - CHANGE_LO) / (CHANGE_HI - CHANGE_LO)));
     }
     let changed = 0; for (let k = 0; k < g.length; k++) changed += g[k];

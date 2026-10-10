@@ -41,7 +41,7 @@ if (!MOCK && process.env.GPT_REAL_API !== '1') {
   console.error('Refusing to run: set GPT_REAL_API=1 to confirm billable calls (or GPT_REAL_MOCK=1).');
   process.exit(2);
 }
-const OUT = path.join(ROOT, 'artifacts', REPLAY ? 'gpt-real-replay' : MOCK ? 'gpt-real-mock' : 'gpt-real');
+const OUT = process.env.GPT_REAL_OUT || path.join(ROOT, 'artifacts', REPLAY ? 'gpt-real-replay' : MOCK ? 'gpt-real-mock' : 'gpt-real');
 fs.mkdirSync(OUT, { recursive: true });
 const WAIT_MS = 400000; // > client 330 s > relay 300 s
 const BASE_URL = process.env.GPT_REAL_BASE_URL || 'https://api.openai.com/v1';
@@ -69,7 +69,7 @@ const CASES = {
        expand: true, prompt: TEXT_ONLY },
   I: { title: '透明页面：选区一半是透明页边（保留透明）', from: [1300, 1650], to: [1654, 2339], size: 'auto', ref: false,
        transparentPage: true, prompt: 'Add light rain streaks over this picture. Keep everything else the same. No text.' },
-  R: { title: '天空加彩虹（dogfood 第 4 页那种浅色矩形；底图为真实生成的漫画页）', from: [860, 90], to: [1600, 400], size: 'auto', ref: false,
+  R: { title: '天空加彩虹（dogfood 第 4 页那种浅色矩形；底图为真实生成的漫画页）', from: [910, 300], to: [1390, 560], size: 'auto', ref: false,
        base: process.env.GPT_REAL_SKY_BASE || '/workspace/shots-20261010/comic/page-1.png', prompt: '在天空加一道淡淡的彩虹，其余保持不变。不要加文字。' },
   G: { title: '页角选区含可编辑竖排字（默认排除文字）', from: [1150, 1300], to: [1654, 2339], size: 'auto', ref: false,
        prompt: 'Add light rain streaks and small puddles on the ground in this picture. Keep everything else the same. No text.' }
@@ -227,10 +227,13 @@ async function runCase(context, id) {
         const image = 'data:image/png;base64,' + fs.readFileSync(file).toString('base64');
         return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, image }) });
       }
-      const image = await page.evaluate(async ({ src, size }) => {
+      const image = await page.evaluate(async ({ src, size, haze }) => {
         const [w, h] = size.split('x').map(Number); const c = document.createElement('canvas'); c.width = w; c.height = h;
-        const i = new Image(); i.src = src; await i.decode(); c.getContext('2d').drawImage(i, 0, 0, w, h);
-        return c.toDataURL('image/png'); }, { src: p.image, size: p.size });
+        const i = new Image(); i.src = src; await i.decode(); const g = c.getContext('2d'); g.drawImage(i, 0, 0, w, h);
+        if (haze) { // simulated model defect measured on the real dogfood page 4: whole patch +56 lighter, plus the asked-for rainbow
+          const d = g.getImageData(0, 0, w, h); for (let k = 0; k < d.data.length; k += 4) { d.data[k] += 56; d.data[k + 1] += 56; d.data[k + 2] += 56; } g.putImageData(d, 0, 0);
+          ['#e53','#f93','#fd4','#6c6','#59f','#85d'].forEach((col, n) => { g.strokeStyle = col; g.globalAlpha = .55; g.lineWidth = h * .025; g.beginPath(); g.arc(w * .5, h * 1.05, h * (.75 - n * .025), Math.PI * 1.1, Math.PI * 1.9); g.stroke(); }); }
+        return c.toDataURL('image/png'); }, { src: p.image, size: p.size, haze: process.env.GPT_REAL_MOCK_HAZE === '1' });
       await new Promise(r => setTimeout(r, 1500));
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, image }) });
     });
@@ -253,6 +256,7 @@ async function runCase(context, id) {
   await page.locator('#mangaGptMode').selectOption('edit');
   await setGptService(page, { url: BASE_URL, model: MODEL, key: '' }); // relay uses the server-side env key (pinned base URL)
   await page.locator('#mangaGptSize').selectOption(spec.size);
+  if (process.env.GPT_REAL_CHANGE_ONLY === '0') await page.locator('#mangaGptChangeOnly').setChecked(false); // before/after evidence
   await page.locator('#mangaGptPrompt').fill(spec.prompt);
   if (spec.ref) await page.locator('#mangaGptReferences').setInputFiles(REFERENCE);
   let selStatus = await dragSelect(page, spec.from, spec.to);
