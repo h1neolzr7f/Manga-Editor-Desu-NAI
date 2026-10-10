@@ -676,10 +676,25 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         """State-changing local tools must not be reachable from other websites."""
         if self._trusted_local():
             return False
-        # The request body was not read; never reuse this keep-alive connection.
+        # Never reuse this keep-alive connection. Drain a small body first: answering while the
+        # client is still sending makes Windows reset the socket (WinError 10053) so the caller
+        # sees a connection abort instead of the 403 (flaky Windows CI). Large bodies stay unread.
         self.close_connection = True
+        self._drain_small_body()
         self._send_json({'error': 'Only the local editor page (same origin) may call this endpoint.'}, 403)
         return True
+
+    def _drain_small_body(self, limit=1 << 20):
+        try:
+            length = int(self.headers.get('Content-Length') or 0)
+        except (TypeError, ValueError):
+            return
+        if 0 < length <= limit:
+            try:
+                self.connection.settimeout(2)
+                self.rfile.read(length)
+            except OSError:
+                pass
 
     def _own_port(self):
         try:
