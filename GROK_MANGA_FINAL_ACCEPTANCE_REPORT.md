@@ -119,14 +119,14 @@ NAI_REAL_API=1 NAI_TEST_ENV_FILE=<仓库外> NAI_REAL_MAX_CALLS=1 node scripts/n
 | 角色档案、墨迹蒙版 | 真实 Chromium（本地） | PASS | E2E + `test:ink-mask` |
 | GPT 局部改图 / 角色替换（分格线保留率 1.0，选区外 0 像素变化） | **REAL** @47e62c4；MOCK @HEAD | PASS | `docs/acceptance/2026-10-09b/e2e-real-gpt-region-swap-top-panel.jpg` |
 | GPT 文生图（1254²） | **REAL** @47e62c4 | PASS | `e2e-real-results.json` |
-| GPT 重跑（10-10 早） | REAL | **NOT TESTED** | 中转站 `/v1/models` 返回 HTTP 530（源站宕机），没有生成图片；HTML 错误页问题因此发现，已在 21d2425 修复 |
+| GPT 局部改图 / 角色替换 + 文生图，重跑 @2d4386f（10-10 08:45） | **REAL** | 25/25 PASS | 选区外 0 像素变化，分格线保留率 1.0；文生图 1312×1199；`docs/acceptance/2026-10-10/e2e-real-{gpt-swap,gpt-t2i,final-page}-2d4386f.jpg`、`e2e-real-results-2d4386f.json`。（10-10 07:50 中转站曾返回 530，期间暴露的 HTML 错误显示问题已在 21d2425 修复） |
 | GPT 可读错误（地址无效 / 429 / 取消） | 真实 Chromium + mock | PASS | E2E、`test:gpt-browser` |
 | NovelAI 免费生图 832×1216、28 步、n=1 | **REAL** | 7/7 PASS | **Anlas 7980 → 7980，花费 0**（10-10 早） |
 | 代理 / 安全 / 密钥防护 | REAL HTTP（本机） | PASS | proxy-chain、proxy-guards、secret-guard |
 | `test:gpt-browser`（真实 Chromium，mock API） | MOCK | PASS（CI @4060e37；本机 74 项 @21d2425） | 新增用例：框选不受无关滚动影响；恢复弹窗 Esc 后保留数据 |
 | Windows 真机 | — | **NOT TESTED** | 已推迟 |
 
-真实计费调用：GPT 共 5 次成功（另有 2 次因中转站 530 失败，未出图）；NovelAI 0 Anlas。
+真实计费调用：GPT 共 7 次成功（另有 2 次因中转站 530 失败，未出图）；NovelAI 0 Anlas。
 
 本机 @21d2425 完整回归：`npm test`、check-translations、check:index、35 个其他套件和 mock E2E，**共 38/38 PASS**。`test:nai-pipeline` 需要服务器和 Token，已由真实 NovelAI 验收代替。
 
@@ -159,4 +159,5 @@ NAI_REAL_API=1 NAI_TEST_ENV_FILE=<仓库外> NAI_REAL_MAX_CALLS=1 node scripts/n
 4. 还有 703 个 ESLint 警告（0 个错误）。
 5. 其他语言的翻译文件在运行时不加载（应用只显示中文），只给 check-translations 用。暂时保留。
 6. **CI 工作流改动仍未推送**（manga-smart-ocr.yml 和 full-acceptance 的触发路径）。提供的 fine-grained PAT 推送时返回 403：它需要对本仓库有 **Contents: Read and write** 和 **Workflows: Read and write** 两项权限。提交已备好：本地分支 `ci-workflow-pending`（6114e98）。
-7. **请轮换 NovelAI Token**（旧 Token 曾泄露给第三方 Director）。
+7. 智能字幕替换：新文字「どうもありがとう」比气泡宽，气泡里还能看到原文字的淡淡残影（见 e2e-real-final-page-2d4386f.jpg）。建议换字时自动缩小字号以适配气泡，并默认先擦除原文字。
+8. **请轮换 NovelAI Token**（旧 Token 曾泄露给第三方 Director）。
