@@ -1,5 +1,5 @@
 // Service Worker: Cache management for HTTP/HTTPS deployment
-var CACHE_VERSION='manga-editor-v8-57-export-size-freehand-fix';
+var CACHE_VERSION='manga-editor-v8-58-bubble-point-hit';
 var STATIC_EXTENSIONS=[
 '.css','.js','.png','.jpg','.jpeg','.gif','.svg','.ico',
 '.woff','.woff2','.ttf','.eot','.otf',

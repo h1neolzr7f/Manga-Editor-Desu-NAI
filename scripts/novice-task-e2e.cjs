@@ -75,6 +75,8 @@ const op = {
   }
 };
 async function flow(name, fn) {
+  // NOVICE_ONLY=17,3 runs just those flows (debugging); default runs all.
+  if (process.env.NOVICE_ONLY && !process.env.NOVICE_ONLY.split(',').includes(String(name).split(' ')[0])) return;
   cur = { name, ops: [], notes: [] };
   const t = Date.now(); let pass = false, detail = {};
   try { const r = await fn(); pass = !!r.pass; detail = r.detail || {}; }
@@ -631,6 +633,61 @@ async function main() {
     await ctx.close();
     return { pass: !!vert && vert.type === 'vertical-textbox' && vert.text === '台词' && !!chosen && afterFont && afterFont.font === chosen &&
       free.delta >= 1 && errors.length === 0, detail: { vert, optCount, chosen, afterFont, free, errors } };
+  });
+
+  await flow('17 自由气泡：竖排文字 + 加点画形 + 移点 + 删点', async () => {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort());
+    const errors = []; p.on('pageerror', e => errors.push(e.message));
+    const warns = []; p.on('console', m => { if (/jsts|error/i.test(m.text())) warns.push(m.text().replace(/\u001b\[[0-9;]*m/g, '').slice(0, 140)); });
+    await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
+    await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 });
+    await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {}); await p.keyboard.press('Escape');
+    await p.locator('#imageInput').setInputFiles(PAGES[0]);
+    await p.waitForFunction(() => canvas.getObjects().some(o => o.type === 'image'), null, { timeout: 60000 });
+    await p.locator('[data-target="speech-bubble-area"]').click();
+    await p.locator('[data-bubble-tab="free"]').click();
+    await p.locator('#sbFreehandVerticalText').click();
+    await p.locator('#sbPointButton').click();
+    const scr = (x, y) => p.evaluate(([x, y]) => { const v = canvas.viewportTransform, r = canvas.upperCanvasEl.getBoundingClientRect();
+      return [r.left + (x * v[0] + v[4]) * r.width / canvas.getWidth(), r.top + (y * v[3] + v[5]) * r.height / canvas.getHeight()]; }, [x, y]);
+    const W = await p.evaluate(() => canvas.getWidth() / canvas.viewportTransform[0]);
+    const cx = W * 0.4, cy = W * 0.45, R = W * 0.12;
+    const pts = [0, 1, 2, 3, 4].map(k => [cx + Math.cos(k * 1.2566 - 1.57) * R, cy + Math.sin(k * 1.2566 - 1.57) * R]);
+    for (const [x, y] of [...pts, pts[0]]) { const [sx, sy] = await scr(x, y); await p.mouse.click(sx, sy); await p.waitForTimeout(120); }
+    await p.waitForTimeout(800);
+    const bubbleInfo = () => p.evaluate(() => { const b = canvas.getObjects().filter(o => o.isSpeechBubble).pop(); if (!b) return null;
+      const t = canvas.getObjects().find(o => o.targetObject === b && /text/i.test(o.type));
+      return { n: b.path.length, sig: JSON.stringify(b.path).length + ':' + b.path.map(q => q.slice(1).join(',')).join(';').slice(0, 400), textType: t && t.type, left: b.left, top: b.top }; });
+    const made = await bubbleInfo();
+    // 移点: select the bubble, drag its first control point outwards
+    await p.locator('#sbMoveButton').click();
+    const hit = (x, y) => p.evaluate(([x, y]) => { const r = canvas.upperCanvasEl.getBoundingClientRect(); const ev = { clientX: x, clientY: y, target: canvas.upperCanvasEl };
+      const t = canvas.findTarget(ev, false); return t ? t.type + (t.isSpeechBubble ? '(bubble)' : '') : null; }, [x, y]);
+    let [bx, by] = await scr(cx, cy);
+    const hitCenter = await hit(bx, by);
+    const edge = [(pts[0][0] + pts[1][0]) / 2, (pts[0][1] + pts[1][1]) / 2];
+    const [ex, ey] = await scr(edge[0], edge[1]);
+    const hitEdge = await hit(ex, ey);
+    await p.mouse.click(bx, by); await p.waitForTimeout(500);
+    warns.push('hitCenter=' + hitCenter + ' hitEdge=' + hitEdge);
+    const ctl = async i => p.evaluate(i => { const c = canvas.getObjects().filter(o => o.data && o.data.index !== undefined); const q = c.find(o => o.data.index === i) || c[i]; return q ? { x: q.left, y: q.top, count: c.length } : null; }, i);
+    const c1 = await ctl(1);
+    let moved = null;
+    if (c1) { const [sx, sy] = await scr(c1.x, c1.y); await p.mouse.move(sx, sy); await p.mouse.down();
+      for (let k = 1; k <= 6; k++) { await p.mouse.move(sx + k * 8, sy - k * 6); await p.waitForTimeout(25); } await p.mouse.up(); await p.waitForTimeout(600); moved = await bubbleInfo(); }
+    // 删点
+    await p.locator('#sbDeleteButton').click();
+    [bx, by] = await scr(cx, cy); await p.mouse.click(bx, by); await p.waitForTimeout(500);
+    const c2 = await ctl(2);
+    let deleted = null;
+    if (c2) { const [sx, sy] = await scr(c2.x, c2.y); await p.mouse.click(sx, sy); await p.waitForTimeout(600); deleted = await bubbleInfo(); }
+    await p.screenshot({ path: path.join(OUT, 'flow17-point-bubble.png') });
+    await ctx.close();
+    return { pass: !!made && made.n >= 5 && /vertical/i.test(made.textType || '') && !!c1 && !!moved && moved.sig !== made.sig &&
+      !!c2 && !!deleted && deleted.n < moved.n && errors.length === 0,
+      detail: { made: made && { n: made.n, textType: made.textType }, ctlCount: c1 && c1.count, movedChanged: !!moved && moved.sig !== made.sig,
+        deletedN: deleted && deleted.n, movedN: moved && moved.n, warns: warns.slice(-2), errors } };
   });
 
   await flow('7 生成中切页→结果不得贴到别的页→切回后再应用', async () => {

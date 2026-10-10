@@ -438,6 +438,17 @@ canvas.freeDrawingBrush.drawPreviewCircle(canvas.getPointer(options.e));
 
 
 
+function resolveSpeechBubbleAt(target,pointer){
+if(target&&target.isSpeechBubble)return target;
+if(target&&target.targetObject&&target.targetObject.isSpeechBubble)return target.targetObject;
+var objs=canvas.getObjects();
+for(var i=objs.length-1;i>=0;i--){
+var o=objs[i];
+if(o.isSpeechBubble&&o.visible!==false&&o.containsPoint(new fabric.Point(pointer.x,pointer.y),null,true))return o;
+}
+return null;
+}
+
 canvas.on("mouse:down",event=>{
 eventLogger.trace('25: mouse:down');
 isDrawing=true;
@@ -449,6 +460,12 @@ updateTemporaryShapes();
 points=[{x: pointer.x,y: pointer.y}];
 updateTemporaryShapes();
 } else if (currentMode==="movePoint"||currentMode==="deletePoint") {
+// The bubble's own text sits on top of its interior and the page image wins on the thin outline,
+// so a click on a free bubble almost never reached it: resolve the bubble under the pointer.
+if (!(event.target&&event.target.data&&event.target.data.index!==undefined)) {
+var hitBubble=resolveSpeechBubbleAt(event.target,pointer);
+if (hitBubble) event={target:hitBubble,e:event.e};
+}
 if (event.target&&event.target.isSpeechBubble) {
 selectedObject=event.target;
 createControlPoints(selectedObject);
