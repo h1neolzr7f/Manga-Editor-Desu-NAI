@@ -1,5 +1,5 @@
 {
-  "when": "2026-10-10T06:25:36.238Z",
+  "when": "2026-10-10T07:03:03.176Z",
   "gpt": "MOCK",
   "flows": [
     {
@@ -12,7 +12,7 @@
         "Import image",
         "page 1"
       ],
-      "seconds": 17.7,
+      "seconds": 17.8,
       "screenshot": "artifacts/novice/01-1_首次启动并导入_2_页漫画.png",
       "notes": [],
       "detail": {
@@ -40,7 +40,7 @@
         "生成",
         "应用为图层"
       ],
-      "seconds": 2.8,
+      "seconds": 3,
       "screenshot": "artifacts/novice/03-2_框选人物_参考图_描述_生成_预览_应用.png",
       "notes": [],
       "detail": {
@@ -72,7 +72,7 @@
         "识别",
         "应用字幕"
       ],
-      "seconds": 2.2,
+      "seconds": 2.6,
       "screenshot": "artifacts/novice/04-3_识别日文气泡_修正_去字_替换中文字幕.png",
       "notes": [
         "OCR: [\"ありがとう\"]"
@@ -101,7 +101,7 @@
     },
     {
       "name": "4 撤销/重做/切页/保存/关闭/重开",
-      "pass": false,
+      "pass": true,
       "keyOps": 12,
       "ops": [
         "Ctrl+Z",
@@ -117,7 +117,7 @@
         "page 1",
         "Ctrl+Z after reopen"
       ],
-      "seconds": 45.8,
+      "seconds": 16.3,
       "screenshot": "artifacts/novice/05-4_撤销_重做_切页_保存_关闭_重开.png",
       "notes": [],
       "detail": {
@@ -126,13 +126,13 @@
         "page2Intact": 0,
         "backToPage1": 0,
         "reopenPage1": 0,
-        "reopenPage2": 990593,
+        "reopenPage2": 0,
         "editable": {
           "type": "vertical-textbox",
           "editable": true,
           "text": "谢谢你"
         },
-        "undoAfterReopen": -1,
+        "undoAfterReopen": 6216,
         "project": "artifacts/novice/project-DESU-nai学长魔改.lz4"
       }
     },
@@ -147,7 +147,7 @@
         "生成（失败）",
         "再试一次"
       ],
-      "seconds": 2.9,
+      "seconds": 2.8,
       "screenshot": "artifacts/novice/06-5_错误_API_失败后再试_超长提示词_空选区.png",
       "notes": [],
       "detail": {
@@ -164,7 +164,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 8,
+      "seconds": 8.2,
       "screenshot": "artifacts/novice/07-8_导入含坏文件的一批图_立刻刷新_恢复对话框找回全部页.png",
       "notes": [],
       "detail": {
@@ -184,7 +184,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 6.3,
+      "seconds": 6.2,
       "screenshot": "artifacts/novice/08-9_导入超大图_提示已自动缩小_中文_8_语言文案_.png",
       "notes": [],
       "detail": {
@@ -207,7 +207,7 @@
         "未填 Token",
         "生成 5 页样稿"
       ],
-      "seconds": 3.1,
+      "seconds": 3.3,
       "screenshot": "artifacts/novice/09-10_没填_NovelAI_Token_就点_生成_5_页样稿_看得懂的提示_不.png",
       "notes": [],
       "detail": {
@@ -220,7 +220,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 10.5,
+      "seconds": 10.9,
       "screenshot": "artifacts/novice/10-11_字幕图层_点眼睛隐藏_导出不含字幕_Ctrl_Z_恢复显示_刷新恢复后字幕.png",
       "notes": [],
       "detail": {
@@ -242,7 +242,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 5.5,
+      "seconds": 5.8,
       "screenshot": "artifacts/novice/11-12_从页面外开始拖_手动框选字幕_贴边框选_贴边气泡用_LaMa_去字不越界.png",
       "notes": [],
       "detail": {
@@ -276,7 +276,7 @@
         "barText": "已删除第 1 页。撤销删除",
         "restoredOrder": true,
         "content": {
-          "guid": "5cb2c9c1-f1af-486d-9351-68746ee989f8",
+          "guid": "0c6eac20-ab6b-4b7a-9dc8-6b0c50972f3a",
           "images": 1,
           "w": 1200,
           "h": 1700
@@ -285,122 +285,348 @@
     },
     {
       "name": "14 复制本页 ⧉ / 页面左右挪动：副本插在原页后、互不影响，缩略图按钮都有提示",
-      "pass": false,
+      "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 8.3,
+      "seconds": 9,
       "screenshot": "artifacts/novice/13-14_复制本页_页面左右挪动_副本插在原页后_互不影响_缩略图按钮都有提示.png",
       "notes": [],
       "detail": {
-        "error": "page.waitForTimeout: Target page, context or browser has been closed"
+        "untitled": [],
+        "order": [
+          0,
+          -1,
+          1
+        ],
+        "st": {
+          "cur": "24781197-6b22-4591-a615-fdf7b6bf1b6f",
+          "imgs": 1,
+          "nums": "1,2,3"
+        },
+        "origMarkers": 0,
+        "copyMarkers": 1,
+        "moved": true,
+        "errors": []
       }
     },
     {
       "name": "15 气泡模板 + 横排字 + 加粗/居中 → 菜单「文件 › 下载图片」导出真实 PNG",
-      "pass": false,
+      "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 0,
+      "seconds": 6.6,
       "screenshot": "artifacts/novice/14-15_气泡模板_横排字_加粗_居中_菜单_文件_下载图片_导出真实_PNG.png",
       "notes": [],
       "detail": {
-        "error": "browser.newContext: Target page, context or browser has been closed"
+        "bubble": {
+          "name": "组合 1",
+          "imgName": "图片 1"
+        },
+        "icons": [
+          "加粗 / 取消加粗",
+          "左对齐",
+          "居中对齐",
+          "右对齐"
+        ],
+        "text": {
+          "type": "textbox",
+          "fw": "bold",
+          "align": "center"
+        },
+        "sizeToast": "已下载图片\n        2476×3508 像素 PNG（300 DPI）。想改大小：菜单「画布 › 下载 DPI」。",
+        "file": "artifacts/novice/flow15-menu-export.png",
+        "png": true,
+        "w": 2476,
+        "h": 3508,
+        "errors": []
       }
     },
     {
       "name": "16 竖排字（默认中文占位）+ 换字体 + 自由气泡手绘",
-      "pass": false,
+      "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 0,
+      "seconds": 9,
       "screenshot": "artifacts/novice/15-16_竖排字_默认中文占位_换字体_自由气泡手绘.png",
       "notes": [],
       "detail": {
-        "error": "browser.newContext: Target page, context or browser has been closed"
+        "vert": {
+          "type": "vertical-textbox",
+          "font": "Klee One",
+          "text": "台词"
+        },
+        "optCount": 50,
+        "chosen": "DotGothic16",
+        "afterFont": {
+          "type": "vertical-textbox",
+          "font": "DotGothic16",
+          "text": "台词"
+        },
+        "free": {
+          "delta": 3,
+          "types": [
+            "path",
+            "rect",
+            "textbox"
+          ]
+        },
+        "errors": []
       }
     },
     {
       "name": "17 自由气泡：竖排文字 + 加点画形 + 移点 + 删点",
-      "pass": false,
+      "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 0,
+      "seconds": 8.5,
       "screenshot": "artifacts/novice/16-17_自由气泡_竖排文字_加点画形_移点_删点.png",
       "notes": [],
       "detail": {
-        "error": "browser.newContext: Target page, context or browser has been closed"
+        "made": {
+          "n": 22,
+          "textType": "vertical-textbox",
+          "label": "台词"
+        },
+        "ctlCount": 20,
+        "movedChanged": true,
+        "deletedN": 21,
+        "movedN": 22,
+        "warns": [
+          "🟧 14:59:13 WARN [perf] [fabric-management.js:532 r.<anonymous>] [PERF:point mouse:up] processPoints:0ms JSTS:5ms merge:1ms createBubble:103",
+          "hitCenter=vertical-textbox hitEdge=image"
+        ],
+        "errors": []
       }
     },
     {
       "name": "18 自由气泡「不显示文字」+ 手绘时按住 Shift 临时变选择",
-      "pass": false,
+      "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 0,
+      "seconds": 37,
       "screenshot": "artifacts/novice/17-18_自由气泡_不显示文字_手绘时按住_Shift_临时变选择.png",
       "notes": [],
       "detail": {
-        "error": "browser.newContext: Target page, context or browser has been closed"
+        "noText": {
+          "types": [
+            "path",
+            "rect"
+          ],
+          "bubble": true,
+          "text": false
+        },
+        "modeShift": "select",
+        "shiftDrawAdded": 0,
+        "modeAfter": "freehand",
+        "afterReleaseAdded": 1,
+        "errors": []
       }
     },
     {
       "name": "19 新手把每个顶部菜单项点一遍：无控制台报错，网格线可开关",
-      "pass": false,
+      "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 0,
+      "seconds": 22.2,
       "screenshot": "artifacts/novice/18-19_新手把每个顶部菜单项点一遍_无控制台报错_网格线可开关.png",
       "notes": [],
       "detail": {
-        "error": "browser.newContext: Target page, context or browser has been closed"
+        "clicked": 23,
+        "skipped": 13,
+        "grid": {
+          "before": false,
+          "after": true
+        },
+        "errors": []
       }
     },
     {
       "name": "20 左侧工具栏：笔记本屏幕上主要工具不用滚动就能点到；逐个面板点一遍无控制台报错",
-      "pass": false,
+      "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 0,
+      "seconds": 93,
       "screenshot": "artifacts/novice/19-20_左侧工具栏_笔记本屏幕上主要工具不用滚动就能点到_逐个面板点一遍无控制台报.png",
       "notes": [],
       "detail": {
-        "error": "browser.newContext: Target page, context or browser has been closed"
+        "reach": {
+          "1440x900": [],
+          "1366x768": []
+        },
+        "swept": {
+          "svg-container-template": "0/0",
+          "simulator-chat": "3/12",
+          "asset-library": "1/12",
+          "auto-generate": "6/12",
+          "tool": "1/12",
+          "ps-tools": "9/9",
+          "speech-bubble": "2/9",
+          "text": "3/12",
+          "manga-tone": "4/6",
+          "shape": "12/12",
+          "cutout": "2/2"
+        },
+        "deadPanels": [],
+        "gallery": {
+          "opened": 1,
+          "afterEsc": 0
+        },
+        "errors": []
       }
     },
     {
       "name": "21 文件菜单：保存项目 → 打开项目（文件选择框）往返；导入图片；重置设置可取消/Esc",
-      "pass": false,
+      "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 0,
+      "seconds": 13.7,
       "screenshot": "artifacts/novice/20-21_文件菜单_保存项目_打开项目_文件选择框_往返_导入图片_重置设置可取消_.png",
       "notes": [],
       "detail": {
-        "error": "browser.newContext: Target page, context or browser has been closed"
+        "project": "flow21-project.lz4",
+        "restored": {
+          "marker": true,
+          "images": 1,
+          "objs": [
+            "image:图片 1",
+            "textbox:往返标记"
+          ],
+          "pages": 1
+        },
+        "imported": true,
+        "shown": true,
+        "a11y": true,
+        "escClosed": true,
+        "cancelClosed": true,
+        "kept": true,
+        "cleared": true,
+        "errors": []
+      }
+    },
+    {
+      "name": "22 真实生成中途：取消 / 刷新页面 / 断网（仅 NOVICE_REAL_GPT=1）",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 0.1,
+      "screenshot": "artifacts/novice/21-22_真实生成中途_取消_刷新页面_断网_仅_NOVICE_REAL_GPT_1.png",
+      "notes": [],
+      "detail": {
+        "skipped": "real-only: mid-generation interrupts need a slow real request"
       }
     },
     {
       "name": "7 生成中切页→结果不得贴到别的页→切回后再应用",
-      "pass": false,
-      "keyOps": 0,
-      "ops": [],
-      "seconds": 0,
-      "screenshot": "artifacts/novice/21-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
+      "pass": true,
+      "keyOps": 14,
+      "ops": [
+        "展开页面",
+        "page 1",
+        "page 2",
+        "page 1",
+        "GPT 改图",
+        "框选区域",
+        "drag selection",
+        "生成",
+        "展开页面",
+        "page 2",
+        "应用（在第 2 页）",
+        "展开页面",
+        "page 1",
+        "应用（回到第 1 页）"
+      ],
+      "seconds": 41.3,
+      "screenshot": "artifacts/novice/22-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
       "notes": [],
       "detail": {
-        "error": "locator.count: Target page, context or browser has been closed"
+        "applyEnabledOnPage2": true,
+        "onPage2Status": "这个结果是为第 1 页生成的，当前在第 2 页。请切回第 1 页再点“应用”（不用重新生成）。",
+        "page2Changed": 0,
+        "page1Changed": 51291,
+        "page1Outside": 0
       }
     },
     {
       "name": "6 1440/1280/1024 宽与 1.5x 缩放：面板不遮画布、可收起",
-      "pass": false,
+      "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 0,
-      "screenshot": "artifacts/novice/22-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
+      "seconds": 16.8,
+      "screenshot": "artifacts/novice/23-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
       "notes": [],
       "detail": {
-        "error": "browser.newContext: Target page, context or browser has been closed"
+        "1440x900@1": {
+          "hScroll": false,
+          "gptOpen": true,
+          "file": true,
+          "generateReachable": true,
+          "hasImage": true,
+          "open": {
+            "overlapPx": 0,
+            "canvasW": 496,
+            "canvasH": 703,
+            "visibleRatio": 1,
+            "centerOnCanvas": true,
+            "centerHit": "upper-canvas "
+          },
+          "collapsed": {
+            "overlapPx": 0,
+            "canvasW": 527,
+            "canvasH": 747,
+            "visibleRatio": 1,
+            "centerOnCanvas": true,
+            "centerHit": "upper-canvas ",
+            "reopenExpanded": true
+          }
+        },
+        "1280x800@1.5": {
+          "hScroll": false,
+          "gptOpen": true,
+          "file": true,
+          "generateReachable": true,
+          "hasImage": true,
+          "open": {
+            "overlapPx": 0,
+            "canvasW": 423,
+            "canvasH": 599,
+            "visibleRatio": 1,
+            "centerOnCanvas": true,
+            "centerHit": "upper-canvas "
+          },
+          "collapsed": {
+            "overlapPx": 0,
+            "canvasW": 423,
+            "canvasH": 599,
+            "visibleRatio": 1,
+            "centerOnCanvas": true,
+            "centerHit": "upper-canvas ",
+            "reopenExpanded": true
+          }
+        },
+        "1024x700@1": {
+          "hScroll": false,
+          "gptOpen": true,
+          "file": true,
+          "generateReachable": true,
+          "hasImage": true,
+          "open": {
+            "overlapPx": 0,
+            "canvasW": 304,
+            "canvasH": 431,
+            "visibleRatio": 1,
+            "centerOnCanvas": true,
+            "centerHit": "upper-canvas "
+          },
+          "collapsed": {
+            "overlapPx": 0,
+            "canvasW": 352,
+            "canvasH": 499,
+            "visibleRatio": 1,
+            "centerOnCanvas": true,
+            "centerHit": "upper-canvas ",
+            "reopenExpanded": true
+          }
+        }
       }
     }
   ],

@@ -797,15 +797,29 @@ async function main() {
       for (let i = 0; i < Math.min(n, 12); i++) {
         const sel = `[data-sweep="${t}-${i}"]`;
         p.__cur = t + '#' + i;
-        try { await p.locator(sel).click({ timeout: 2000 }); ok++; } catch (e) { /* hidden by a previous click: fine */ }
+        try { await p.locator(sel).click({ timeout: 1000 }); ok++; } catch (e) { /* a previous click switched the panel view: fine */ }
         await p.waitForTimeout(120); await p.keyboard.press('Escape');
       }
       swept[t.replace(/-area$/, '')] = ok + '/' + Math.min(n, 12);
     }
+    // 提示画廊 opens a 95%-screen floating window: Esc must close it (it used to trap every later click)
+    p.__cur = 'prompt gallery';
+    const gal = p.locator('#auto-generate-area button:has-text("提示画廊"), #auto-generate-area [onclick]:has-text("提示画廊")').first();
+    let gallery = null;
+    if (!(await p.locator('#auto-generate-area').isVisible())) await p.locator('#sidebar [data-target="auto-generate-area"]').click();
+    if (await gal.count()) {
+      await gal.click({ timeout: 5000 });
+      await p.waitForTimeout(600);
+      const opened = await p.locator('.flow-floating-window').count();
+      await p.keyboard.press('Escape'); await p.waitForTimeout(300);
+      gallery = { opened, afterEsc: await p.locator('.flow-floating-window').count() };
+    }
     await ctx.close();
     const unreachable = Object.values(reach).flat();
-    return { pass: unreachable.length === 0 && errors.length === 0 && Object.keys(swept).length >= 10,
-      detail: { reach, swept, errors: errors.slice(0, 5) } };
+    const dead = Object.entries(swept).filter(([k, v]) => !/^0\/0$/.test(v) && /^0\//.test(v)).map(([k]) => k);
+    return { pass: unreachable.length === 0 && errors.length === 0 && Object.keys(swept).length >= 10 && dead.length === 0 &&
+      !!gallery && gallery.opened >= 1 && gallery.afterEsc === 0,
+      detail: { reach, swept, deadPanels: dead, gallery, errors: errors.slice(0, 5) } };
   });
 
   await flow('21 文件菜单：保存项目 → 打开项目（文件选择框）往返；导入图片；重置设置可取消/Esc', async () => {
