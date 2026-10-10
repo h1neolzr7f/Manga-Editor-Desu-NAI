@@ -260,3 +260,38 @@ NAI_REAL_API=1 NAI_TEST_ENV_FILE=<仓库外> NAI_REAL_MAX_CALLS=1 node scripts/n
 - 应用侧的保护（裁人警告 + 扩展、分格边框/文字排除、透明保留、预览后再应用）在真实模型上都生效。
 - 模型侧有两类问题：局部重绘时背景色漂移，出现浅色矩形；提示词要求在选区里加东西时，模型会重画整个场景。
 - 后续可考虑（未做）：对补丁按原图做色彩匹配；预览里叠加原图做对比。
+
+## 9. 最终收尾（2026-10-10 15:09–16:00 UTC+8）
+
+### 9.1 GPT 补丁接缝色彩匹配 + 预览前后对比（2a5d832）
+- 8.z.2 里看到的「补丁浅色矩形」是模型把选区背景整体提亮或压暗。原有的全局色偏校正（`estimateDrift`）在模型重画场景时会自动放弃，所以 C/D/G 案例完全没被校正。
+- 新做法：沿选区每条内侧边（页面边缘不算），对比原图和补丁内侧 4px 的一圈像素，逐个位置算出色差；色差大于 28 的位置算作内容本来就变了，不校正；再沿边做 64px 平滑，校正量从边缘向内渐弱到 0（作用带宽为短边的 20%）。这样边缘和原图衔接，中间仍保留模型画的颜色。由「色调匹配」勾选项控制，默认开。
+- 第一版是每条边只取一个平均值，实测会在头发处留下青色或蓝色带（`run-seam-1512/seam-compare.jpg`），所以改成按位置算的轮廓版。
+- 预览新增「对比原图」按钮（生成后出现，`aria-pressed`，8 语言），可在原选区和生成结果之间来回切换。
+- 测试：`gpt-region-editor-smoke-test` 新增接缝单测（只校正内侧边、边缘贴合原图、中心不动、角落不过度校正、透明区不校正、内容变化处不上色）；novice flow 2 断言对比按钮能切换，并且图层上有 `seamMatch` 记录；gpt-browser 78/78。
+- 真实 GPT 复测（gpt-image-2.5，中转 litangking.12gg.workers.dev，15:12 和 15:14 两轮，共 6 次，全部 HTTP 200）。接缝强度指标 = 选区内外各取 2px、跨边界的平均色阶差，越接近原图越好：
+
+| 案例 | 原图 | 无校正（14:49） | 每边平均值（已弃用） | 按位置轮廓（最终） |
+|---|---|---|---|---|
+| C | 4.55 | 9.03 | 5.82 | 5.60 |
+| D | 14.16 | 22.22 | 15.77 | 16.07 |
+| G | 0.04 | 5.92 | 2.59 | 2.19 |
+
+  证据：`docs/acceptance/gpt-image-2.5/run-seam2-1514/{seam-compare.jpg,seam-metric.json,*-page-after.jpg}`。注意：每轮是不同的生成结果，指标会有随机波动。最后一次调参（阈值 40→28、平滑 24→64，用来减轻 D 案左侧发丝处的横向条纹）只有单测验证，没有再做真实调用。
+
+### 9.2 新手点击扫描（flow 20 加强版）发现并修复的问题（3c9444e）
+- 首次打开的欢迎教程浮层：按 Esc 没反应，而浮层挡住所有点击 → 现在 Esc 等于「跳过」。
+- 字体下拉列表：按 Esc 关不掉，列表盖在粗体、对齐、添加字体按钮上，下一次点击会随手选中一个字体 → 现在 Esc 能关闭。
+- 统一设置窗口（自动生成面板里的某个按钮会打开它）：按 Esc 关不掉，会挡住整个左侧栏 → 现在 Esc 能关闭，并补上 `role=dialog`。
+- 点「添加字体」时有未处理的 Promise 异常：Tagify 刷新列表（`removeAllTags`）时触发了 `remove` 事件，`unregisterFont(undefined)` 抛错；如果事件带了数据，还会误删已注册的字体 → 刷新期间和事件没有数据时都忽略。
+- 扫描脚本本身也改了：每次点击前重新标记按钮，所以会重绘的笔刷面板、会切换视图的素材/模拟器/气泡面板现在都能真正点到；跳过折叠的 `<details>`；任何「被遮挡」的点击都判失败；失败原因写入报告。
+  结果：笔刷 12/12、素材 12/12、自动生成 12/12、气泡 9/9、文字 12/12，控制台 0 错误。
+
+### 9.3 ESLint 51 → 0（363b9a4）
+- 删除（逐一用 rg 确认零引用，并跑全套测试）：7 个未用的 ImageUtil 全局别名（`fabricImage2ImageData` `imageObject2Base64Image` `img2webp` `canvas2DataURL` `encodeExportPng` `getObjLeft` `getObjTop`；ImageUtil 方法本身保留）；load-util 里 6 个从没调用过的加载器（`safeLoad` `loadCSS` `loadHTML` `loadAudio` `loadIframe` `loadVideo`）和示例注释；`calculateTransformedPath`、`iphFilterEnglishData`（只有自递归）、`updateTagifyDropdown`；整个 `js/ui/control/image-control-manager.js`（唯一的函数没人调用）及其 script 标签；只写不读的全局变量 `resizableContainer` 和 `selectedBlendMode`，以及约 20 个未使用的局部变量。
+- 修正：重复声明（`for var file`、`var prop`、`reservedSpace` 形参）；`prompt-manager` 里内联 onclick 调用的函数改为显式挂到 window。
+- 新增 `npm run lint`（`--max-warnings 0`）。
+
+### 9.4 整合
+- PR #15（`consolidate/manga-nai-gpt-stack-20261010` → `feat/manga-nai-gpt-region-editor`）已快进到 363b9a4（没有强推），它就是唯一的最终集成 PR；#6–#13 是历史栈，内容已全部包含在内。
+- 本轮测试结果：npm test PASS；新手 22/22；全功能 E2E 25/25；gpt-browser 78/78；ESLint 0。CI 05cd6d3：16/16 绿。

@@ -1,35 +1,27 @@
-# Grok Bot 最终交付状态（对照 docs/GROK_BOT_FINAL_DELIVERY.md）· 2026-10-10
+# Grok Bot 最终交付状态（对照 docs/GROK_BOT_FINAL_DELIVERY.md）· 2026-10-10 16:00 UTC+8
 
-集成分支：`integrate/grok-final-delivery-20261010`（= `fix/grok-manga-final-acceptance` = PR #15 分支 `consolidate/manga-nai-gpt-stack-20261010`）。未动 main、无强推。
+最终集成 PR：**#15** `consolidate/manga-nai-gpt-stack-20261010` → `feat/manga-nai-gpt-region-editor`（Draft）。HEAD 363b9a4（等于 `fix/grok-manga-final-acceptance`）。未动 main，没有强推。
 
-## 1. 整合
-- PR #14（codex，基于 main 的平行 GPT 实现）：没有整体合并（会多出第二套 GPT 编辑器）。只挑了它的两个修复 214fb80、ee05fa5（页面历史/页锁、image2 持久化、NovelAI 离屏结果），用 #14 自己的 4 个回归测试证明我们缺这些修复，再修好。合并冲突中发现 `setSave()` 被我们当死代码删掉、但 #14 又调用了它（运行时会 ReferenceError），已恢复。
-- 当前失败的 CI（GPT 模型选择器缺多语言字段）：已修，并把 gpt-i18n 测试加进 `npm test`。
+## 逐条核对
 
-## 2/3/4. 新手任务实测（scripts/novice-task-e2e.cjs，真 Chromium 鼠标/键盘，真 Tesseract，GPT=mock）
-| 流程 | 新版 | 关键操作 | 原版（main d612c84） |
-|---|---|---|---|
-| 1 首启+导入 2 页 | PASS（2 页，各 1200×1700，像素与原图一致，17.7s） | 4 | FAIL：2 张图叠在 1 页，第 2 页丢失，107.9s |
-| 2 框选人物+参考图+描述→生成→预览→应用 | PASS（选区外 0 像素变化，分辨率不变） | 4（原 5） | 无此功能 |
-| 3 识别竖排日文气泡→改字→去字→中文字幕 | PASS（识别 ありがとう，竖排，字号≈原字，无溢出） | 3 | 无此功能 |
-| 4 撤销/重做/切页/保存/关闭/重开 | PASS（重开后两页 0 像素差，字幕仍可编辑，可继续撤销） | 12 | 原版仅能做部分 |
-| 5 未框选/HTTP 530/再试/超长提示词 | PASS（可读错误，0 次静默重试计费） | 6 | 无 |
-| 7 生成中切页 | PASS（结果不会贴到别页） | 14 | 无 |
-| 6 1440×900 / 1280×800@1.5x / 1024×700，GPT 面板打开与收起 | PASS（无横向溢出；画布 100% 在视口内、中心点命中画布、与面板重叠 0px；收起后画布变大） | 0 | PASS（原版无 GPT 面板） |
+| 文档条目 | 状态 | 证据 |
+|---|---|---|
+| §1 先整合，不推倒重做 | ✅ #6–#13 已快进进 #15；#14 只挑了两个修复（及其回归测试） | 报告 §7、§9.4 |
+| §2 最少操作、最低学习成本 | ✅ 核心任务的关键操作：导入 4、换人 4（原版 5）、字幕 3；各弹窗/浮层都能用 Esc 关（教程、字体列表、设置、画廊、恢复对话框） | `docs/acceptance/novice-20261010/new/report.json` |
+| §3 必须完成的功能 | ✅ 框选/套索/笔刷 GPT 改图，预览前后对比，接缝色彩匹配，羽化，分格线和文字保护；OCR、LaMa、可编辑字幕；页面复制、排序、撤销删除 | 报告 §7.2 功能矩阵、§9 |
+| §4.1 首启 → 配置 → 导入 2 页 | ✅ flow 1、8、9、10 | novice report |
+| §4.2 框选人物 → 参考图 → 生成 → 预览前后 → 应用 | ✅ mock（flow 2，选区外 0 像素变化）+ 真实 gpt-image-2.5（14:37 新手流程；15:12 和 15:14 的 C/D/G 复测） | `novice-20261010/real-gpt-20261010-1437/`、`gpt-image-2.5/run-seam2-1514/` |
+| §4.3 OCR → LaMa/蒙版去字 → 横竖排字幕 | ✅ 真 Tesseract + 真 LaMa（flow 3、12；全功能 E2E） | novice report、full-feature E2E |
+| §4.4 撤销/重做/切页/保存/关闭/重开、生成中切页或取消 | ✅ flow 4、7、11、21、22（真实 GPT 下的取消、刷新、断网） | 报告 §8.z |
+| §4.5 空白项目、超长提示词、错误 API、重试、大图、多种窗口尺寸/DPI、右键 | ✅ flow 5、6、9、13–20 | novice report |
+| §4.6 每个流程记录操作次数、耗时、截图、trace | ✅ report.json + 截图；CI artifact `manga-novice-task` 含 Playwright trace | — |
+| §4.7 分层记录 mock / 本地模型 / 真实 API / Windows | ✅ 各层分开标注；中转 530/502 单独记为网络阻断 | 报告 §8.y、§8.z |
+| §5 Linux | ✅ npm test、lint 0、新手 22/22、全功能 25/25、gpt-browser 78/78；CI 05cd6d3 16/16 | — |
+| §5 Windows 实机 | ❌ **Windows 实机未验收**（只有 CI 便携 ZIP 检查通过），按用户指示延后 | — |
+| §5 交付物 | ✅ 一个集成 PR、测试脚本、截图和 trace、功能矩阵、本文件和报告；录屏用 Playwright trace 代替 | — |
 
-证据：`docs/acceptance/novice-20261010/{new,original}/`（截图 + report.json）；CI 作业 “Novice full task” 上传完整截图和 Playwright trace（artifact `manga-novice-task`）。
-
-本轮实测发现并修复的 bug：多图导入只进 1 页且顺序颠倒；默认 OCR 把竖排气泡识别成乱码（新增气泡优先 auto OCR）；替换字幕挤在旧字列/字号过大；状态栏底图尺寸过期；GPT 结果可被贴到别的页；GPT 面板遮住画布（改为停靠右侧 + “–”收起按钮，4cef9c0）；自动框选遮住面板按钮。新增：套索、笔刷选区（只改圈内/涂到的像素）。
-
-## 5. 门槛
-- Linux：npm test、真实浏览器 GPT 验收 78 项、全功能 E2E 25 项、新手脚本 7 流程、OCR/LaMa 实模型：PASS；CI 全绿。
-- 真实 GPT（gpt-image-2.5）：2026-10-10 上午 case A 实测通过（见 docs/acceptance/gpt-image-2.5/）；之后中转持续 HTTP 530 = **网络阻断**，新手流程的真实 GPT 版本未跑。
-- Windows：**实机未验收**（仅 CI 便携 ZIP 检查通过）。
-- 请所有者轮换旧 NovelAI Token。
-
-## 最新提交
-- 4cef9c0 GPT 面板停靠/收起；f1cae99 新手脚本断言画布可见。CI cc44c10：16/16 绿。
-
-## 未完成
-- 真实 GPT 跑新手流程（2026-10-10 11:05 单次 /v1/models 检查 HTTP 530，未跑；等中转恢复：`NOVICE_REAL_GPT=1 GPT_TEST_ENV_FILE=… GPT_REAL_BASE_URL=…/v1 node scripts/novice-task-e2e.cjs`，约 2 次计费）。
-- Windows 实机全流程；操作录屏（现有 Playwright trace 代替）。
+## 未完成 / 风险
+- Windows 实机全流程（EXE 安装、中文路径、双击启动）。
+- 真实 GPT 的接缝最终参数（28/64）只有单测验证，没有再做真实调用；gpt-image-2 在中转上偶发 502。
+- 模型侧问题：要求「在选区里加东西」时，模型可能重画整个选区（G 案）。用户可以在预览里用「对比原图」看清后放弃，应用侧无法根治。
+- 请所有者轮换旧的 NovelAI Token，以及本轮对话中出现过的 GitHub Token。
