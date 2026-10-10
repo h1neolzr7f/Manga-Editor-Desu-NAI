@@ -1532,7 +1532,7 @@ async function main() {
     const calls = [];
     await p.route('**/gpt-image-proxy', async route => {
       const body = route.request().postDataJSON();
-      const kind = /Remove the person/.test(body.prompt) ? 'bg' : /Redraw the main person/.test(body.prompt) ? 'char' : 'other';
+      const kind = /hole where a person/.test(body.prompt) ? 'bg' : /Redraw the main person/.test(body.prompt) ? 'char' : 'other';
       calls.push({ kind, size: body.size, refs: (body.references || []).length, model: body.model });
       const image = await p.evaluate(async ({ src, size, kind }) => {
         const [w, h] = size.split('x').map(Number); const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d');

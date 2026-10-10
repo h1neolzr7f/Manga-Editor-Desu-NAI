@@ -27,11 +27,11 @@ function startServer() {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'zh-CN' });
   const p = await ctx.newPage(); p.on('dialog', d => d.accept());
   const calls = [];
-  p.on('request', r => { if (r.url().endsWith('/gpt-image-proxy')) { const b = r.postDataJSON(); calls.push({ t: Date.now(), model: b.model, size: b.size, refs: (b.references || []).length, kind: /Remove the person/.test(b.prompt) ? 'bg' : 'char' }); } });
+  p.on('request', r => { if (r.url().endsWith('/gpt-image-proxy')) { const b = r.postDataJSON(); calls.push({ t: Date.now(), model: b.model, size: b.size, refs: (b.references || []).length, kind: /hole where a person/.test(b.prompt) ? 'bg' : 'char' }); } });
   p.on('response', async r => { if (r.url().endsWith('/gpt-image-proxy')) log.steps.push({ proxy: r.status(), at: new Date().toISOString() }); });
   if (!REAL) {
     await p.route('**/gpt-image-proxy', async route => {
-      const body = route.request().postDataJSON(); const kind = /Remove the person/.test(body.prompt) ? 'bg' : 'char';
+      const body = route.request().postDataJSON(); const kind = /hole where a person/.test(body.prompt) ? 'bg' : 'char';
       const image = await p.evaluate(async ({ src, size, kind }) => {
         const [w, h] = size.split('x').map(Number); const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d');
         const i = new Image(); i.src = src; await i.decode();
@@ -66,6 +66,7 @@ function startServer() {
     log.genSeconds = Math.round((Date.now() - t0) / 1000);
     log.status = await p.locator('#autoSwapStatus').textContent();
     log.state = await p.evaluate(() => AutoSwap.state());
+    log.matchRows = await p.evaluate(() => Array.from(document.querySelectorAll('#autoSwapMatches .auto-swap-match')).map(r => ({ id: r.dataset.id, sure: r.dataset.sure, checked: r.querySelector('input').checked, text: r.textContent.trim() })));
     await p.screenshot({ path: path.join(OUT, '3-preview.png') });
     if (log.state.result) {
       await p.locator('#autoSwapCompare').click(); await p.waitForTimeout(300);
@@ -81,7 +82,7 @@ function startServer() {
       log.layers = parts.map(x => ({ name: x.name, left: x.left, top: x.top }));
       if (process.env.SWAP_PROPAGATE === '1' && log.state.matches.length) {
         const t1 = Date.now();
-        await p.locator('#autoSwapMatches input').evaluateAll(xs => xs.forEach(x => { x.checked = true; }));
+        if (process.env.SWAP_TICK_ALL === '1') await p.locator('#autoSwapMatches input').evaluateAll(xs => xs.forEach(x => { x.checked = true; }));
         await p.locator('#autoSwapAll').click();
         await p.waitForFunction(() => /已换好/.test(document.getElementById('autoSwapStatus').textContent), null, { timeout: 900000 });
         log.propagate = { seconds: Math.round((Date.now() - t1) / 1000), status: await p.locator('#autoSwapStatus').textContent() };

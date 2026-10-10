@@ -625,6 +625,18 @@ def cutout(payload):
             raise
     raw, _w, _h = read_image(payload.get("image"))
     rgb = np.array(Image.open(io.BytesIO(raw)).convert("RGB"))
+    if payload.get("modelOnly") is True:
+        # residue check: only the segmentation model's opinion (no flat-background fallback)
+        if seg is None:
+            return {"ok": True, "model": False}
+        fg = foreground(rgb, seg) > 0.5
+        if fg.sum() < 0.01 * fg.size:
+            return {"ok": True, "model": True, "empty": True, "width": int(rgb.shape[1]), "height": int(rgb.shape[0]),
+                    "mask": _png_box(np.zeros((1, 1), bool)), "box": [0, 0, 1, 1]}
+        ys, xs = np.nonzero(fg)
+        bx = [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1]
+        return {"ok": True, "model": True, "width": int(rgb.shape[1]), "height": int(rgb.shape[0]),
+                "mask": _png_box(fg[bx[1]:bx[3], bx[0]:bx[2]]), "box": bx}
     m = cutout_array(rgb, seg)
     if not m.any():
         raise SmartOcrError("生成结果里没有找到人物，请重试。", 422)

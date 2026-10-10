@@ -127,6 +127,8 @@
     return alpha;
   }
 
+  const PROMPT_HOLE = 'The pure white blank area in this manga image is a hole where a person was cut out. Fill the hole with ONLY the background scenery that continues from around it (same perspective, line weight, screentone and lighting). Do not draw any person, face, hair, body part, text or speech bubble. Keep everything outside the hole unchanged.';
+  const PROMPT_HOLE_STRICT = PROMPT_HOLE + ' IMPORTANT: the result must contain NO character at all in that area — only empty background (walls, sky, ground, trees).';
   const PROMPT_BG = 'Remove the person in the middle of this manga image completely and redraw ONLY the background that was behind them, continuing the surrounding scenery, perspective, line weight, screentone and lighting. Keep everything else unchanged. Do not draw any person, face, body part, text or speech bubble.';
   const PROMPT_CHAR = 'Redraw the main person in this manga image as the character shown in the reference image (same face, hair, outfit and colors as the reference), keeping exactly the same pose, body size, position, camera angle, facing direction and the same manga line art and shading style. Draw ONLY that one character on a plain flat pure white background: no scenery, no other people, no text, no speech bubbles.';
 
@@ -148,7 +150,7 @@
     return out.sort((a, b) => a.d - b.d);
   }
 
-  const api = { identityMatches, KEEP_OUTFIT, fitCrop, placement, clipToPanel, descriptor, similarity, growFeather, toneMatch, PROMPT_BG, PROMPT_CHAR };
+  const api = { PROMPT_HOLE, identityMatches, KEEP_OUTFIT, fitCrop, placement, clipToPanel, descriptor, similarity, growFeather, toneMatch, PROMPT_BG, PROMPT_CHAR };
   if (typeof module !== 'undefined' && module.exports) { module.exports = api; return; }
   if (typeof document === 'undefined') { root.AutoSwap = api; return; }
 
@@ -203,6 +205,22 @@
   function cropData(pg, r) { const c = cv(r.w, r.h); c.getContext('2d').drawImage(pg.canvas, r.x, r.y, r.w, r.h, 0, 0, r.w, r.h); return c; }
   function cropMask(m, W, r) { const out = new Uint8Array(r.w * r.h); for (let y = 0; y < r.h; y++) for (let x = 0; x < r.w; x++) out[y * r.w + x] = m[(r.y + y) * W + r.x + x]; return out; }
 
+  /** Share of the hole covered by a character in the background fill (local anime-seg); null if unknown. */
+  async function holeResidue(url, hole, r, signal) {
+    try {
+      const res = await post('/manga-smart/cutout', { image: url, modelOnly: true }, signal);
+      if (!res || !res.ok || !res.model) return res && res.ok === false && res.status === 422 ? 0 : null;
+      const img = await loadImg(res.mask);
+      const c = cv(r.w, r.h), g = c.getContext('2d');
+      const k = r.w / res.width, ky = r.h / res.height;
+      g.drawImage(img, res.box[0] * k, res.box[1] * ky, (res.box[2] - res.box[0]) * k, (res.box[3] - res.box[1]) * ky);
+      const d = g.getImageData(0, 0, r.w, r.h).data;
+      let inHole = 0, covered = 0;
+      for (let i = 0; i < hole.length; i++) if (hole[i] > 0) { inHole++; if (d[i * 4 + 3] > 127) covered++; }
+      return inHole ? covered / inHole : 0;
+    } catch (e) { if (e && e.name === 'AbortError') throw e; return null; }
+  }
+
   /** Runs both GPT steps for one character and returns the two layers (not yet on the canvas). */
   async function swapOne(pg, ch, opts, signal) {
     const m = await maskArray(ch, pg.W, pg.H);
@@ -214,10 +232,26 @@
     const orig = crop.getContext('2d').getImageData(0, 0, r.w, r.h);
     const refs = opts.references;
     const extra = (opts.keepOutfit ? KEEP_OUTFIT : '') + (opts.note ? '\n' + opts.note : '');
-    const [bgUrl, charUrl] = await Promise.all([
-      gptEdit(cropUrl, PROMPT_BG, r.size, [], signal),
+    // background: the old character (grown) is blanked out first, so the model cannot just redraw them
+    const span0 = Math.max(ch.box[2] - ch.box[0], ch.box[3] - ch.box[1]);
+    const hole = growFeather(Uint8ClampedArray.from(cm, v => v * 255), r.w, r.h, Math.max(6, Math.round(span0 * 0.045)), 0);
+    const hc = cv(r.w, r.h); const hg = hc.getContext('2d'); hg.drawImage(crop, 0, 0);
+    const hd = hg.getImageData(0, 0, r.w, r.h);
+    for (let i = 0; i < n; i++) if (hole[i] > 0) { hd.data[i * 4] = hd.data[i * 4 + 1] = hd.data[i * 4 + 2] = 255; }
+    hg.putImageData(hd, 0, 0);
+    const holeUrl = hc.toDataURL('image/png');
+    let [bgUrl, charUrl] = await Promise.all([
+      gptEdit(holeUrl, PROMPT_HOLE, r.size, [], signal),
       gptEdit(cropUrl, PROMPT_CHAR + extra, r.size, refs, signal)
     ]);
+    // residue check: a character still standing in the hole → one stricter retry
+    let residue = await holeResidue(bgUrl, hole, r, signal);
+    let bgRetried = false;
+    if (residue > 0.35) {
+      bgRetried = true;
+      bgUrl = await gptEdit(holeUrl, PROMPT_HOLE_STRICT, r.size, [], signal);
+      residue = await holeResidue(bgUrl, hole, r, signal);
+    }
     // --- background patch: only inside the grown old-character mask, tone-matched on the context ---
     const bgImg = await loadImg(bgUrl);
     const bc = cv(r.w, r.h); const bg = bc.getContext('2d'); bg.drawImage(bgImg, 0, 0, r.w, r.h);
@@ -266,7 +300,7 @@
       const tmp = cv(r.w, r.h); tmp.getContext('2d').putImageData(nd, 0, 0); ng.drawImage(tmp, 0, 0);
     } else ng.putImageData(nd, 0, 0);
     return { crop: r, bg: bc.toDataURL('image/png'), character: nc.toDataURL('image/png'), before: cropUrl,
-      info: { shift: shift ? shift.map(Math.round) : null, tone, placement: pl, cutModel: cut.model } };
+      info: { residue: residue == null ? null : +residue.toFixed(3), bgRetried, shift: shift ? shift.map(Math.round) : null, tone, placement: pl, cutModel: cut.model } };
   }
 
   /** Adds both layers as one undo step. */
