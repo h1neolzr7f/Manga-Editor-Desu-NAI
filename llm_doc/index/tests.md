@@ -289,6 +289,8 @@
 - <script>alert(1)</script>
 - do not erase OCR text over complex artwork
 - do not wipe transparent bubble art
+- shrinks to fit:
+- vertical fits height
 - MangaSmartTextCore must be exposed
 
 ### `npm run test:story-engine`

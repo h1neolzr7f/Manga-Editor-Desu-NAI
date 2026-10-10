@@ -81,9 +81,9 @@
 | js/ai/manga-model-request.js | 44 | Shared POST helper for the optional local models (Tesseract, Manga OCR, LaMa). |
 | js/ai/manga-page-structure-ui.js | 391 | Manga page structure inspector: Fabric snapshot -> sampled pixels -> reviewable panels. |
 | js/ai/manga-page-structure.js | 276 | Manga page structure v1: deterministic, low-cost XY-cut candidates. |
-| js/ai/manga-smart-text-core.js | 64 | Shared, dependency-free geometry and light-bubble erase rules. |
-| js/ai/manga-smart-text-editor.js | 481 | Smart manga lettering workflow. |
-| js/ai/manga-text-ink-mask.js | 92 | Conservative dark-ink proposal for a user-selected TEXT rectangle. |
+| js/ai/manga-smart-text-core.js | 90 | Shared, dependency-free geometry and light-bubble erase rules. |
+| js/ai/manga-smart-text-editor.js | 495 | Smart manga lettering workflow. |
+| js/ai/manga-text-ink-mask.js | 106 | Conservative dark-ink proposal for a user-selected TEXT rectangle. |
 | js/ai/nai-status-format.js | 25 | Human-readable NovelAI subscription status for the "检查 NAI" toast. |
 | js/ai/novelai-only-mode.js | 132 |  |
 | js/ai/panel-pipeline-review.js | 223 | 分镜流水线状态 + 生图后人工审阅 |
@@ -296,7 +296,7 @@
 | scripts/cutout-color-key-smoke-test.py | 36 |  |
 | scripts/cutout-presets-smoke-test.cjs | 34 |  |
 | scripts/fabric-text-focus-smoke-test.cjs | 145 | fabric の編集用 textarea がスクロールを起こさないことを検証する。 |
-| scripts/full-feature-e2e.cjs | 425 | Full-feature end-to-end walk-through in real Chromium against the real 99_server.py. |
+| scripts/full-feature-e2e.cjs | 440 | Full-feature end-to-end walk-through in real Chromium against the real 99_server.py. |
 | scripts/gen-project-index.cjs | 722 | プロジェクト索引の自動生成。 |
 | scripts/generate-original-starter-svgs.cjs | 326 |  |
 | scripts/generate-site-ui-svgs.cjs | 391 |  |
@@ -332,8 +332,8 @@
 | scripts/manga-real-ui-acceptance.cjs | 160 | REAL (unmocked) Chromium acceptance for the local OCR -> Manga OCR -> LaMa flow. |
 | scripts/manga-smart-ocr-runtime-test.py | 21 |  |
 | scripts/manga-smart-ocr-test.py | 108 |  |
-| scripts/manga-smart-text-test.cjs | 45 |  |
-| scripts/manga-text-ink-mask-test.cjs | 61 |  |
+| scripts/manga-smart-text-test.cjs | 61 |  |
+| scripts/manga-text-ink-mask-test.cjs | 77 |  |
 | scripts/nai-error-readable-test.py | 164 |  |
 | scripts/nai-pipeline-credentials-test.cjs | 24 | Regression: the NAI pipeline smoke test must never reuse the NovelAI token as the |
 | scripts/nai-pipeline-smoke-test.mjs | 324 | NAI-only pipeline smoke test (NovelAI + Director proxy). |

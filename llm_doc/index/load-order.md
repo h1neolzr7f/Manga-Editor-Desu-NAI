@@ -227,9 +227,9 @@ JS/CSS を編集したら `?v=` を上げてキャッシュを更新する。現
 | 217 | cdn-local/jscolor.min.js |  |  | 2710 |
 | 218 | js/ai/gpt-region-editor.js | v=1.3 | defer | 3064 |
 | 219 | js/ai/manga-model-request.js | v=1.0 | defer | 3065 |
-| 220 | js/ai/manga-smart-text-core.js | v=1.0 | defer | 3066 |
-| 221 | js/ai/manga-smart-text-editor.js | v=1.2 | defer | 3067 |
-| 222 | js/ai/manga-text-ink-mask.js | v=1.0 | defer | 3068 |
+| 220 | js/ai/manga-smart-text-core.js | v=1.1 | defer | 3066 |
+| 221 | js/ai/manga-smart-text-editor.js | v=1.3 | defer | 3067 |
+| 222 | js/ai/manga-text-ink-mask.js | v=1.1 | defer | 3068 |
 | 223 | js/ai/manga-lama-inpaint-ui.js | v=1.1 | defer | 3069 |
 | 224 | js/ai/manga-page-structure.js | v=1.1 | defer | 3070 |
 | 225 | js/ai/manga-bubble-detector.js | v=1.0 | defer | 3071 |

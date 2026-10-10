@@ -211,9 +211,9 @@
 | `MangaPageStructureUI` | global | js/ai/manga-page-structure-ui.js:390 |
 | `MangaPanelsImage_Landscape` | var | js/svg/manga-panels-image-landscape.js:1 |
 | `MangaPanelsImage_Vertical` | var | js/svg/manga-panels-image-vertical.js:1 |
-| `MangaSmartTextCore` | global | js/ai/manga-smart-text-core.js:61 |
-| `MangaSmartTextEditor` | global | js/ai/manga-smart-text-editor.js:472 |
-| `MangaTextInkMask` | global | js/ai/manga-text-ink-mask.js:91 |
+| `MangaSmartTextCore` | global | js/ai/manga-smart-text-core.js:87 |
+| `MangaSmartTextEditor` | global | js/ai/manga-smart-text-editor.js:486 |
+| `MangaTextInkMask` | global | js/ai/manga-text-ink-mask.js:105 |
 | `MockGroup` | function | scripts/simulator-extra-smoke-test.cjs:36 |
 | `MockObject` | function | scripts/simulator-extra-smoke-test.cjs:8 |
 | `MockText` | function | scripts/simulator-extra-smoke-test.cjs:29 |

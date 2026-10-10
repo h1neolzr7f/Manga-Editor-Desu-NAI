@@ -43,3 +43,19 @@ assert.equal(translucent.safe, false, 'do not wipe transparent bubble art');
 const object = core.normalizeManualDrag({ x: 160, y: 180 }, { x: 50, y: 60 }, 180, 200);
 assert.deepEqual(JSON.parse(JSON.stringify(object)), { x: 50, y: 60, width: 110, height: 120 });
 console.log('PASS smart text geometry, OCR drafts and safe erase color guards');
+// fitText: a longer replacement shrinks (then wraps) instead of spilling out of the bubble.
+{
+  const measure = (t, size) => Array.from(t).length * size; // monospace CJK model
+  const box = { x: 0, y: 0, width: 250, height: 50 };      // original 「ありがとう」 5 x 50
+  const same = core.fitText('ありがとう', box, false, measure);
+  assert.equal(same.fontSize, 43); assert.equal(same.wrapped, false);
+  const longer = core.fitText('どうもありがとう', box, false, measure);   // 8 chars
+  assert.ok(longer.fontSize <= 31 && longer.fontSize >= 23, 'shrinks to fit: ' + longer.fontSize);
+  assert.ok(8 * longer.fontSize <= box.width);
+  const long = core.fitText('本当にどうもありがとうございました', box, false, measure);
+  assert.equal(long.wrapped, true);
+  for (const line of long.text.split('\n')) assert.ok(measure(line, long.fontSize) <= box.width, line);
+  const v = core.fitText('どうもありがとう', { x: 0, y: 0, width: 40, height: 200 }, true, measure);
+  assert.ok(8 * v.fontSize * 1.02 <= 200 && !v.wrapped, 'vertical fits height');
+  console.log('PASS fitText shrinks / wraps replacement captions to the original text area');
+}

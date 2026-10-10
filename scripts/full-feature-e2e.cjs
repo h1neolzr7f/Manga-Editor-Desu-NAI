@@ -321,13 +321,28 @@ async function main() {
 
   await step('smart subtitle: replace text as an editable Fabric textbox', 'UI', async () => {
     await page.locator('.manga-smart-item textarea').nth(await bubbleItemIndex()).fill('どうもありがとう');
-    const erase = page.locator('.manga-smart-item label').filter({ hasText: '自动去字' }).locator('input').first();
-    if (await erase.isChecked().catch(() => false)) await erase.uncheck();
+    // Default settings: 自动去字 stays on (also after LaMa) so no ghost of the old text remains.
+    const erase = page.locator('.manga-smart-item').nth(await bubbleItemIndex()).locator('label').filter({ hasText: '自动去字' }).locator('input').first();
+    const eraseDefault = await erase.isChecked().catch(() => null);
     await page.locator('#mangaSmartApply').click();
-    await page.waitForFunction(() => canvas.getObjects().some(o => o.mangaSmartText === 'editable-subtitle'), null, { timeout: 20000 });
-    const texts = await page.evaluate(() => canvas.getObjects().filter(o => o.mangaSmartText === 'editable-subtitle').map(o => o.text));
-    const t = texts.find(x => x === 'どうもありがとう');
-    return { pass: !!t, detail: { text: t, subtitles: texts } };
+    await page.waitForFunction(() => canvas.getObjects().some(o => o.mangaSmartText === 'editable-subtitle' && o.text.replace(/\n/g, '') === 'どうもありがとう'), null, { timeout: 20000 });
+    const m = await page.evaluate(async () => {
+      const t = canvas.getObjects().find(o => o.mangaSmartText === 'editable-subtitle' && o.text.replace(/\n/g, '') === 'どうもありがとう');
+      const box = t.mangaSmartFit.box; const lineW = Math.max(...t._textLines.map((l, i) => t.getLineWidth(i)));
+      // Ghost check: hide the new text, render the page, count dark pixels left inside the old text box.
+      t.visible = false; canvas.renderAll();
+      const url = canvas.toDataURL({ format: 'png', multiplier: 1 }); t.visible = true; canvas.renderAll();
+      const img = new Image(); img.src = url; await img.decode();
+      const cv = document.createElement('canvas'); cv.width = img.width; cv.height = img.height;
+      const g = cv.getContext('2d'); g.drawImage(img, 0, 0);
+      const d = g.getImageData(Math.floor(box.x), Math.floor(box.y), Math.ceil(box.width), Math.ceil(box.height)).data;
+      let dark = 0, grey = 0;
+      for (let i = 0; i < d.length; i += 4) { const l = .2126 * d[i] + .7152 * d[i + 1] + .0722 * d[i + 2]; if (l < 120) dark++; else if (l < 230) grey++; }
+      return { text: t.text, fontSize: t.fontSize, lineWidth: Math.round(lineW), box: { w: Math.round(box.width), h: Math.round(box.height) },
+        erasePatch: canvas.getObjects().some(o => o.mangaSmartText === 'erase-patch'), ghostDark: dark, ghostGrey: grey };
+    });
+    return { pass: eraseDefault === true && m.lineWidth <= m.box.w + 2 && m.ghostDark === 0 && m.ghostGrey < 30,
+      detail: { eraseDefault, ...m } };
   });
   await page.locator('#mangaSmartClose').click().catch(() => {});
 

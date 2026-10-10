@@ -59,3 +59,19 @@ const empty=page();
 assert.equal(propose(empty,box).ok,false,'empty bubbles should not produce a mask');
 assert.equal(propose(img,{x:NaN,y:20,width:10,height:20}).ok,false);
 console.log('PASS rejection of dark/art-heavy/edge/full/empty/invalid candidates');
+
+// Anti-aliased rims (mid-grey, lighter than the ink threshold) must be inside the mask with a
+// margin, otherwise LaMa re-grows faint "ghost" glyphs from them (seen in the real E2E).
+{
+  const aa=page();
+  rect(aa,58,40,8,14,180);   // grey rim around the stroke
+  rect(aa,60,40,4,14,0);     // dark core
+  const r=propose(aa,box);
+  assert.equal(r.ok,true,r.reason);
+  const at=(x,y)=>r.mask[y*aa.width+x];
+  for(const x of [58,59,64,65]) assert.equal(at(x,46),255,'grey rim x='+x+' masked');
+  assert.equal(at(56,46),255,'2px margin beyond the rim');
+  assert.equal(at(57,46),255);
+  assert.equal(at(45,46),0,'background far from ink stays unmasked');
+  console.log('PASS anti-aliased rim + 2px margin are masked (no ghost glyphs)');
+}

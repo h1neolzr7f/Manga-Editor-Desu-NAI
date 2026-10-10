@@ -53,9 +53,9 @@
 | `MangaModelRequest` | js/ai/manga-model-request.js:43 |
 | `MangaPageStructure` | js/ai/manga-page-structure.js:273 |
 | `MangaPageStructureUI` | js/ai/manga-page-structure-ui.js:390 |
-| `MangaSmartTextCore` | js/ai/manga-smart-text-core.js:61 |
-| `MangaSmartTextEditor` | js/ai/manga-smart-text-editor.js:472 |
-| `MangaTextInkMask` | js/ai/manga-text-ink-mask.js:91 |
+| `MangaSmartTextCore` | js/ai/manga-smart-text-core.js:87 |
+| `MangaSmartTextEditor` | js/ai/manga-smart-text-editor.js:486 |
+| `MangaTextInkMask` | js/ai/manga-text-ink-mask.js:105 |
 | `NaiBackgroundRemovalClient` | js/local-tools/background-removal-client.js:531 |
 | `NaiBeginnerGuide` | js/ui/beginner-guide.js:504 |
 | `NaiBrushPresets` | js/sidebar/pen/brush-presets.js:127 |

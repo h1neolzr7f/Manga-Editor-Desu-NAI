@@ -170,12 +170,13 @@
           validate:()=>state.canvas===c && state.sourceImage===snapshot(c) &&
             state.drafts[i]===draft,
           onApplied:()=>{
-            draft.erase=false; // LaMa patch has already removed original text.
+            // Keep the light-bubble fill on: it also covers faint LaMa residue ("ghost" glyphs).
+            draft.lamaApplied=true;
             state.sourceImage=snapshot(c);
             renderDrafts();
             if(window.MangaPageStructureUI)window.MangaPageStructureUI.invalidate(
               'LaMa 修复层已添加，请重新分析分镜。');
-            message('LaMa 修复层已保存为独立图层；这条字幕已自动关闭纯色遮盖。现在可以输入新台词并应用。');
+            message('LaMa 修复层已保存为独立图层。现在可以输入新台词并应用（自动去字会再盖掉残影）。');
           }
         });
       });
@@ -354,6 +355,13 @@
     return { x, y, dataUrl: patch.toDataURL('image/png') };
   }
 
+  let measureContext = null;
+  function measureText(text, size) {
+    measureContext = measureContext || document.createElement('canvas').getContext('2d');
+    measureContext.font = size + 'px Arial';
+    return measureContext.measureText(text).width;
+  }
+
   async function apply() {
     const c = getCanvas();
     if (!c || c !== state.canvas) return message('画布已切换，请重新识别或框选。', true);
@@ -380,21 +388,27 @@
         let eraseLayer = null;
         if (candidate.erase) {
           const bg = core.boundaryColor(boundarySamples(px, box, pixelCanvas.width, pixelCanvas.height));
-          if (!bg.safe) { skipped++; continue; }
-          const patch = makeErasure(pixelCanvas, box, bg.color);
-          eraseLayer = await fabricImage(patch.dataUrl);
-          eraseLayer.set({ left: patch.x, top: patch.y, selectable: true });
-          eraseLayer.set('name', '智能字幕 · 原字遮盖');
-          eraseLayer.set('mangaSmartText', 'erase-patch');
+          if (!bg.safe && !candidate.lamaApplied) { skipped++; continue; }
+          if (bg.safe) {
+            const patch = makeErasure(pixelCanvas, box, bg.color);
+            eraseLayer = await fabricImage(patch.dataUrl);
+            eraseLayer.set({ left: patch.x, top: patch.y, selectable: true });
+            eraseLayer.set('name', '智能字幕 · 原字遮盖');
+            eraseLayer.set('mangaSmartText', 'erase-patch');
+          }
         }
-        const size = Math.max(10, Math.min(128, Math.round(box.height * 0.85)));
         const vertical = candidate.vertical && typeof fabric.VerticalTextbox === 'function';
+        const fit = core.fitText(candidate.text, box, vertical, measureText);
         const TextClass = vertical ? fabric.VerticalTextbox : fabric.Textbox;
-        const textbox = new TextClass(candidate.text, {
-          left: box.x, top: box.y, width: Math.max(32, box.width),
-          fontFamily: 'Arial', fontSize: size,
+        const lineHeight = 1.16;
+        const blockHeight = vertical ? box.height : fit.lines * fit.fontSize * lineHeight;
+        const textbox = new TextClass(fit.text, {
+          left: box.x, top: vertical ? box.y : box.y + Math.max(0, (box.height - blockHeight) / 2),
+          width: Math.max(32, box.width),
+          fontFamily: 'Arial', fontSize: fit.fontSize, lineHeight,
           fill: '#151515', textAlign: 'center', breakWords: false
         });
+        textbox.set('mangaSmartFit', { fontSize: fit.fontSize, wrapped: fit.wrapped, box });
         textbox.set('name', '智能字幕 · 可编辑文字');
         textbox.set('mangaSmartText', 'editable-subtitle');
         prepared.push({ eraseLayer, textbox });
