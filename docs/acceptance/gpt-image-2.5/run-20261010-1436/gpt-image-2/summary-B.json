@@ -1,0 +1,28 @@
+[
+  {
+    "id": "B",
+    "title": "同 A 选区，无参考图，仅文字描述（A/B 对照）",
+    "region": [
+      800,
+      1241
+    ],
+    "selStatus": "已选中原始画布区域：800 × 1241 像素。注意：选区只框到了 1 个对象的一部分（如“pose”），模型只看到半个人物时容易接不上身体。可点“扩展到完整对象”。",
+    "size": "auto",
+    "ref": false,
+    "cutWarning": null,
+    "httpStatus": 502,
+    "elapsedS": 0.5,
+    "error": "上游 HTTP 502：{\"type\":\"https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/error-502/\",\"title\":\"Error 502: Bad gateway\",\"status\":502,\"detail\":\"The origin web server returned an invalid or incomplete response to Cloudflare. This typically indicates the origin is overlo",
+    "uiStatus": "上游 HTTP 502：{\"type\":\"https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/error-502/\",\"title\":\"Error 502: Bad gateway\",\"status\":502,\"detail\":\"The origin web server returned an invalid or incomplete response to Cloudflare. This typically indicates the origin is overlo",
+    "requests": 1,
+    "request": {
+      "operation": "edit",
+      "model": "gpt-image-2",
+      "size": "1024x1536",
+      "baseUrl": "https://litangking.12gg.workers.dev/v1",
+      "references": 0,
+      "authorizationHeader": false
+    },
+    "pageErrors": []
+  }
+]

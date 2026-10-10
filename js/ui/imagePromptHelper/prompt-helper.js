@@ -1,3 +1,4 @@
+/* exported createImagePromptHelperFlotingWindow */
 let flowWindowCount=0;
 
 function createImagePromptHelperFlotingWindow(){
@@ -87,7 +88,7 @@ flowWindow.setAttribute('data-height-vh',heightVh);
 flowWindow.innerHTML=`
    <div class="flow-window-header">
      <span>${title}</span>
-     <span class="flow-close-button" onclick="flowCloseWindow('${flowWindowId}')">&times;</span>
+     <span class="flow-close-button" role="button" tabindex="0" title="关闭（Esc）" aria-label="关闭（Esc）" onclick="flowCloseWindow('${flowWindowId}')">&times;</span>
    </div>
    <div class="flow-window-content" style="height: calc(100% - 30px); overflow-y: auto;">
      ${content}
@@ -206,3 +207,14 @@ document.removeEventListener('mousemove',doResize);
 document.removeEventListener('mouseup',stopResize);
 }
 }
+
+
+// Esc closes the topmost floating window (提示画廊 etc. cover 95% of the screen; before this a beginner
+// who pressed Esc stayed stuck behind it and every other click was swallowed).
+document.addEventListener('keydown',function(e){
+if(e.key!=='Escape'||e.defaultPrevented)return;
+var wins=Array.prototype.filter.call(document.querySelectorAll('.flow-floating-window'),function(w){return w.offsetParent!==null||getComputedStyle(w).display!=='none';});
+if(!wins.length)return;
+var top=wins.reduce(function(a,b){return (parseInt(getComputedStyle(b).zIndex,10)||0)>=(parseInt(getComputedStyle(a).zIndex,10)||0)?b:a;});
+if(top&&top.id){e.preventDefault();flowCloseWindow(top.id);}
+});

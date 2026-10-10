@@ -5,6 +5,7 @@
   'use strict';
   const $=id=>document.getElementById(id);
   const MAX_PIXELS=3_000_000;
+  let controller=null;
   let ongoing=false, ticket=0, approved=null, prepared=null, brushMode='add', brushRadius=12, painting=false, lastPointer=null, drawScheduled=false;
   const node=(tag,text)=>{
     const n=document.createElement(tag);
@@ -158,6 +159,60 @@
     return marked/(crop.width*crop.height);
   }
 
+  function pref(key,def){try{const v=localStorage.getItem(key);return v===null?def:v==='1';}catch(_){return def;}}
+  function setPref(key,on){try{localStorage.setItem(key,on?'1':'0');}catch(_){/* storage blocked */}}
+  // One detector run per page image (≈8 s on CPU); every caption on the page reuses it.
+  let pageMask={src:null,promise:null};
+  function detectorMask(src){
+    if(pageMask.src===src&&pageMask.promise)return pageMask.promise;
+    pageMask={src,promise:window.MangaModelRequest.post('/manga-smart/text-mask',{image:src},{signal:controller&&controller.signal})
+      .then(data=>{
+        if(!data.ok||!/^data:image\/png;base64,/.test(data.mask||'')){pageMask={src:null,promise:null};return data;}
+        return loadImage(data.mask).then(img=>({ok:true,img,seconds:data.seconds}));
+      })};
+    return pageMask.promise;
+  }
+  // Pure: turn the page-level detector mask into this crop's LaMa mask.
+  // keepSfx: only pixels inside the caption box (+margin) — text drawn on the art (SFX) stays.
+  // Returns null when the detector saw no lettering in the caption box (caller keeps the rule mask).
+  function cropDetectorMask(maskImg,crop,keepSfx){
+    const c=document.createElement('canvas');c.width=crop.width;c.height=crop.height;
+    const g=c.getContext('2d',{willReadFrequently:true});
+    g.fillStyle='#000';g.fillRect(0,0,crop.width,crop.height);
+    g.drawImage(maskImg,crop.x,crop.y,crop.width,crop.height,0,0,crop.width,crop.height);
+    const d=g.getImageData(0,0,crop.width,crop.height),m=crop.maskRect,pad=6;
+    let inBox=0;
+    for(let y=0;y<crop.height;y++)for(let x=0;x<crop.width;x++){
+      const i=(y*crop.width+x)*4,on=d.data[i]>127;
+      const inside=x>=m.x-pad&&x<m.x+m.width+pad&&y>=m.y-pad&&y<m.y+m.height+pad;
+      const keep=on&&(!keepSfx||inside);
+      if(keep&&inside)inBox++;
+      const v=keep?255:0;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255;
+    }
+    if(inBox<Math.max(12,m.width*m.height*.004))return null;
+    g.putImageData(d,0,0);
+    return c;
+  }
+  async function refreshMask(){
+    if(!prepared)return;
+    const now=prepared,crop=now.crop;
+    if(!crop.ruleMask){crop.ruleMask=document.createElement('canvas');crop.ruleMask.width=crop.width;crop.ruleMask.height=crop.height;crop.ruleMask.getContext('2d').drawImage(crop.maskCanvas,0,0);}
+    const restoreRule=()=>{const g=crop.maskCanvas.getContext('2d');g.clearRect(0,0,crop.width,crop.height);g.drawImage(crop.ruleMask,0,0);};
+    if(!$('mangaLamaUseDetector')||!$('mangaLamaUseDetector').checked){restoreRule();drawMask();crop.maskSource='rule';return show('使用规则蒙版（整个字幕框）。可用画笔精修。');}
+    show('正在用文字检测模型找出要擦的字（每页第一次约 8 秒）……');
+    const res=await detectorMask(now.input.sourceImage);
+    if(prepared!==now)return;
+    if(!res||!res.ok){restoreRule();drawMask();crop.maskSource='rule';
+      return show((res&&res.declined?'未下载文字检测模型，':'文字检测模型不可用（'+((res&&res.error)||'未知原因')+'），')+'已改用规则蒙版；请确认红色没有盖到人物。',!(res&&res.declined));}
+    const mc=cropDetectorMask(res.img,crop,$('mangaLamaKeepSfx').checked);
+    if(!mc){ // the rules called this a bubble but there is no lettering (a face, a cat…): erase nothing
+      const g0=crop.maskCanvas.getContext('2d');g0.fillStyle='#000';g0.fillRect(0,0,crop.width,crop.height);
+      crop.maskSource='detector-empty';drawMask();
+      return show('文字检测模型在这个框里没有找到字（可能是人脸、动物或花纹被误认成气泡），所以不擦任何东西。确实要擦的话，用「标记去字」画笔涂上。');}
+    const g=crop.maskCanvas.getContext('2d');g.clearRect(0,0,crop.width,crop.height);g.drawImage(mc,0,0);
+    crop.maskSource='detector';drawMask();
+    show('已用文字检测模型标出要擦的字（红色）。确认后点「根据蒙版生成本地修复预览」。');
+  }
   function content(){
     let panel=$('mangaLamaPreviewPanel');
     if(panel)return panel;
@@ -185,6 +240,15 @@
     autoInk.type='button';autoInk.id='mangaLamaAutoInk';
     autoInk.title='仅对浅色纯净底色试探性提取墨迹；复杂背景会拒绝，绝不直接擦字。';
     tools.append(add,erase,reset,autoInk,sizeLabel);
+    // comic-text-detector as the erase-mask source (rules still locate the bubble); both remembered
+    const opts=node('div');opts.className='manga-lama-actions manga-lama-opts';
+    const det=node('label');const detBox=node('input');detBox.type='checkbox';detBox.id='mangaLamaUseDetector';
+    detBox.checked=pref('mnai.lama.detector',true);det.append(detBox,document.createTextNode(' 用文字检测模型找字（不会擦到人脸、猫等；首次需下载约 91MB）'));
+    const sfx=node('label');const sfxBox=node('input');sfxBox.type='checkbox';sfxBox.id='mangaLamaKeepSfx';
+    sfxBox.checked=pref('mnai.lama.keepSfx',true);sfx.append(sfxBox,document.createTextNode(' 保留拟声词（只擦字幕框里的字，画面上的效果字不动）'));
+    detBox.addEventListener('change',()=>{setPref('mnai.lama.detector',detBox.checked);if(prepared)refreshMask();});
+    sfxBox.addEventListener('change',()=>{setPref('mnai.lama.keepSfx',sfxBox.checked);if(prepared)refreshMask();});
+    opts.append(det,sfx);
     const generate=node('button','根据蒙版生成本地修复预览');
     generate.id='mangaLamaGenerate';generate.type='button';
     const img=node('img');img.id='mangaLamaPreviewImg';
@@ -195,7 +259,7 @@
     const no=node('button','取消');no.type='button';no.id='mangaLamaCancel';
     buttons.append(yes,no);
     const status=node('div');status.id='mangaLamaStatus';status.setAttribute('role','status');
-    panel.append(head,note,maskCanvas,tools,generate,img,buttons,status);document.body.append(panel);
+    panel.append(head,note,opts,maskCanvas,tools,generate,img,buttons,status);document.body.append(panel);
     close.addEventListener('click',cancel);
     no.addEventListener('click',cancel);
     yes.addEventListener('click',apply);
@@ -217,6 +281,8 @@
   }
   function cancel(){
     ticket++;
+    // Abort an in-flight local inference request; any late answer is ignored by ticket.
+    if(controller){controller.abort();controller=null;}
     ongoing=false;
     approved=null;
     prepared=null;
@@ -244,6 +310,8 @@
       prepared={input,crop,source};
       drawMask();
       show('先调整红色蒙版；确认只覆盖要删除的文字后，再点「生成本地修复预览」。此时尚未加载 LaMa 模型。');
+      ongoing=false;
+      if(id===ticket)await refreshMask();
     }catch(e){if(id===ticket)show(e.message||String(e),true);}
     finally{if(id===ticket)ongoing=false;}
   }
@@ -260,20 +328,16 @@
     $('mangaLamaGenerate').disabled=true;
     $('mangaLamaConfirm').disabled=true;
     $('mangaLamaPreviewImg').hidden=true;
-    show('开始本地 LaMa 推理。首次使用可能下载模型，请在预览后人工检查结果。');
+    show('开始本地 LaMa 推理（可点「取消」中止）。模型未下载时会先询问是否下载。');
+    controller=typeof AbortController==='function'?new AbortController():null;
     try{
-      const response=await fetch('/manga-smart/lama-inpaint',{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          image:now.crop.modelInput,
-          mask:now.crop.maskCanvas.toDataURL('image/png')
-        })
-      });
-      let data;try{data=await response.json();}
-      catch(_){throw Error('LaMa 服务未返回 JSON。');}
-      if(!response.ok||!data.ok||!/^data:image\/png;base64,/.test(data.image||''))
-        throw Error(data.error||'LaMa 没有返回有效的修复预览。');
+      const data=await window.MangaModelRequest.post('/manga-smart/lama-inpaint',{
+        image:now.crop.modelInput,
+        mask:now.crop.maskCanvas.toDataURL('image/png')
+      },{signal:controller&&controller.signal});
       if(id!==ticket)return;
+      if(!data.ok||!/^data:image\/png;base64,/.test(data.image||''))
+        throw Error(data.error||'LaMa 没有返回有效的修复预览。');
       if(!now.input.validate()||prepared!==now)
         throw Error('模型处理期间画布或蒙版已变化，结果已丢弃。');
       if(data.width!==now.crop.width||data.height!==now.crop.height)
@@ -284,7 +348,7 @@
       $('mangaLamaConfirm').disabled=false;
       show('修复预览已生成。只有点击「确认」才应用图层；原始漫画尚未变化。');
     }catch(e){if(id===ticket)show(e.message||String(e),true);}
-    finally{if(id===ticket){ongoing=false;$('mangaLamaGenerate').disabled=false;}}
+    finally{if(id===ticket){ongoing=false;controller=null;$('mangaLamaGenerate').disabled=false;}}
   }
   function alphaMaskedCanvas(source,crop){
     const output=document.createElement('canvas');
@@ -341,5 +405,5 @@
     }catch(e){show(e.message||String(e),true);}
     finally{ongoing=false;}
   }
-  window.MangaLamaInpaintUI={preview,cancel};
+  window.MangaLamaInpaintUI={preview,cancel,cropDetectorMask,maskSource:()=>prepared&&prepared.crop.maskSource};
 })();

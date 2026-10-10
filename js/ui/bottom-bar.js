@@ -58,10 +58,7 @@ var currentIndex=btmGetGuidIndex(currentGuid);
 var targetIndex=currentIndex+direction;
 if(targetIndex<0||targetIndex>=btmGetGuidsSize())return;
 var targetGuid=btmGetGuidByIndex(targetIndex);
-if(stateStack.length>=btmSaveStateThreshold){
-await btmSaveProjectFile();
-}
-await chengeCanvasByGuid(targetGuid);
+await chengeCanvasByGuid(targetGuid,true);
 btmUpdateHandleText();
 }
 
@@ -97,6 +94,7 @@ pageNumber.textContent=index+1;
 const moveLeftBtn=document.createElement("button");
 moveLeftBtn.innerHTML="←";
 moveLeftBtn.className="btm-move-btn btm-move-left";
+moveLeftBtn.title="把这一页往前挪一位";
 moveLeftBtn.addEventListener("click",(e)=>{
 e.stopPropagation();
 const currentIndex=btmGetGuidIndex(guid);
@@ -112,16 +110,14 @@ if(imageLink&&imageLink.href)image.src=imageLink.href;
 image.className="btm-image";
 image.dataset.index=guid;
 image.addEventListener("click",async ()=>{
-if(stateStack.length>=btmSaveStateThreshold){
-await btmSaveProjectFile();
-}
-await chengeCanvasByGuid(guid);
+await chengeCanvasByGuid(guid,true);
 btmUpdateHandleText();
 });
 
 const moveRightBtn=document.createElement("button");
 moveRightBtn.innerHTML="→";
 moveRightBtn.className="btm-move-btn btm-move-right";
+moveRightBtn.title="把这一页往后挪一位";
 moveRightBtn.addEventListener("click",(e)=>{
 e.stopPropagation();
 const currentIndex=btmGetGuidIndex(guid);
@@ -135,8 +131,13 @@ updateAllPageNumbers();
 const deleteBtn=document.createElement("button");
 deleteBtn.textContent="🗑";
 deleteBtn.className="btm-delete-btn";
+deleteBtn.title="删除这一页（删除后 20 秒内可撤销）";
 deleteBtn.addEventListener("click",async (e)=>{
 e.stopPropagation();
+if(window.NaiPageLoading||window.NaiHistoryLoading)return;
+// One misclick on 🗑 used to drop a whole page for good: keep its saved data so it can be restored.
+if(getCanvasGUID()===guid)await btmSaveProjectFile(null,false);
+var removedPage={guid:guid,index:btmGetGuidIndex(guid),data:btmProjectsMap.get(guid)};
 if(btmGetGuidsSize()>1){
 var isCurrentPage=(getCanvasGUID()===guid);
 var deletedIndex=btmGetGuidIndex(guid);
@@ -148,7 +149,7 @@ var targetGuid=btmGetGuidByIndex(targetIndex);
 await chengeCanvasByGuid(targetGuid);
 }
 }else{
-var isCurrentPage=(getCanvasGUID()===guid);
+isCurrentPage=(getCanvasGUID()===guid);
 btmProjectsMap.delete(guid);
 imageWrapper.remove();
 if(isCurrentPage&&getObjectCount()===0){
@@ -160,11 +161,13 @@ await btmSaveProjectFile();
 btmUpdateScrollButtons();
 updateAllPageNumbers();
 btmUpdateHandleText();
+btmOfferPageRestore(removedPage);
 });
 
 var addBtn=document.createElement("button");
 addBtn.textContent="+";
 addBtn.className="btm-add-btn";
+addBtn.title="在这一页后面新建空白页";
 addBtn.addEventListener("click",function(e){
 e.stopPropagation();
 btmShowAddPageDialog(guid);
@@ -174,6 +177,16 @@ imageWrapper.appendChild(pageNumber);
 imageWrapper.appendChild(moveLeftBtn);
 imageWrapper.appendChild(image);
 imageWrapper.appendChild(moveRightBtn);
+const dupBtn=document.createElement("button");
+dupBtn.className="btm-dup-btn";
+dupBtn.textContent="⧉";
+dupBtn.title="复制这一页（副本插在它后面）";
+dupBtn.addEventListener("click",async (e)=>{
+e.stopPropagation();
+if(window.NaiPageLoading||window.NaiHistoryLoading)return;
+await btmDuplicatePage(guid);
+});
+imageWrapper.appendChild(dupBtn);
 imageWrapper.appendChild(deleteBtn);
 imageWrapper.appendChild(addBtn);
 btmImageContainer.appendChild(imageWrapper);
@@ -376,13 +389,19 @@ btmImageContainer.addEventListener("mousedown",btmStartDrag);
 window.addEventListener("resize",btmUpdateScrollButtons);
 });
 
-async function chengeCanvasByGuid(guid) {
+async function chengeCanvasByGuid(guid,saveCurrent=false){
+if(window.NaiPageLoading||window.NaiHistoryLoading)return false;
 const projectData=btmProjectsMap.get(guid);
-try {
-await loadLz4BlobProjectFile(projectData.blob,guid);
-} catch (error) {
+if(!projectData||!projectData.blob)return false;
+window.NaiPageLoading=true;
+try{
+if(saveCurrent&&stateStack.length>=btmSaveStateThreshold)await btmSaveProjectFile();
+return await loadLz4BlobProjectFile(projectData.blob,guid,true);
+}catch(error){
 uiLogger.error("Error loading ZIP:",error);
 throw error;
+}finally{
+window.NaiPageLoading=false;
 }
 }
 
@@ -408,8 +427,81 @@ const guids=Array.from(btmProjectsMap.keys());
 return guids[index];
 }
 
-function btmGetFirstGuidByIndex() {
-return Array.from(btmProjectsMap.keys())[0];
+// Create an empty w x h page right after `guid` and switch to it. Caller holds window.NaiPageLoading.
+// "Undo delete" bar for a page removed from the page bar (20 s). Restores thumbnail, saved
+// content and position, then opens the page.
+// Copy a page (content and thumbnail) right after itself under a new guid and open the copy.
+async function btmDuplicatePage(guid){
+if(getCanvasGUID()===guid)await btmSaveProjectFile(null,false);
+var src=btmProjectsMap.get(guid);
+if(!src||!src.blob){if(typeof createToastError==='function')createToastError('无法复制','这一页还没有保存内容，先画点东西再复制。');return null;}
+var newGuid=generateGUID();
+btmAddImage(src.imageLink?{href:src.imageLink.href}:src.imageLink,src.blob,newGuid,true);
+var idx=btmGetGuidIndex(guid)+1;
+if(idx<btmGetGuidsSize()-1)reorderImages(idx,newGuid);
+updateAllPageNumbers();
+btmUpdateScrollButtons();
+btmUpdateHandleText();
+await chengeCanvasByGuid(newGuid,true);
+return newGuid;
+}
+
+function btmOfferPageRestore(removed){
+if(!removed||!removed.data)return;
+var old=document.getElementById('btmPageRestoreBar');
+if(old)old.remove();
+var bar=document.createElement('div');
+bar.id='btmPageRestoreBar';
+bar.setAttribute('role','status');
+bar.style.cssText='position:fixed;left:50%;bottom:72px;transform:translateX(-50%);z-index:12000;background:#1d2b38;color:#eef6fb;border:1px solid #4f7590;border-radius:8px;padding:8px 12px;font:13px/1.4 sans-serif;box-shadow:0 6px 20px #0008;display:flex;gap:10px;align-items:center';
+var text=document.createElement('span');
+text.textContent='已删除第 '+(removed.index+1)+' 页。';
+var btn=document.createElement('button');
+btn.type='button';
+btn.id='btmPageRestoreButton';
+btn.textContent='撤销删除';
+btn.style.cssText='cursor:pointer;background:#2c6a8f;color:#fff;border:1px solid #5aa0c8;border-radius:6px;padding:4px 10px';
+var timer=setTimeout(function(){bar.remove();},20000);
+btn.addEventListener('click',async function(){
+clearTimeout(timer);
+bar.remove();
+if(btmProjectsMap.has(removed.guid))return;
+btmAddImage(removed.data.imageLink,removed.data.blob,removed.guid,true);
+if(removed.index<btmGetGuidsSize()-1)reorderImages(removed.index,removed.guid);
+updateAllPageNumbers();
+btmUpdateScrollButtons();
+btmUpdateHandleText();
+if(typeof chengeCanvasByGuid==='function')await chengeCanvasByGuid(removed.guid);
+});
+bar.appendChild(text);
+bar.appendChild(btn);
+document.body.appendChild(bar);
+}
+
+async function btmCreatePageAfter(guid,w,h){
+// Save the current page first: on a fresh project it has no page-bar entry yet, and an index
+// of -1 would insert the new page BEFORE it (imported pages came out in reverse order).
+await btmSaveProjectFile(null,false);
+var currentIndex=btmGetGuidIndex(guid);
+var newGuid=generateGUID();
+var pc=document.createElement('canvas');
+pc.width=100;
+pc.height=Math.round(100*h/w);
+var pctx=pc.getContext('2d');
+pctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--color-tertiary').trim()||'#505050';
+pctx.fillRect(0,0,pc.width,pc.height);
+var placeholderUrl=pc.toDataURL('image/jpeg',0.5);
+btmAddImage({href:placeholderUrl},null,newGuid,true);
+reorderImages(currentIndex+1,newGuid);
+changeDoNotSaveHistory();
+resizeCanvasToObject(w,h);
+changeDoSaveHistory();
+initImageHistory();
+setCanvasGUID(newGuid);
+await btmSaveProjectFile(newGuid,false);
+updateAllPageNumbers();
+btmUpdateHandleText();
+return newGuid;
 }
 
 function btmShowAddPageDialog(guid) {
@@ -437,30 +529,17 @@ cancelButton.addEventListener("click",function(){
 document.body.removeChild(dialog);
 });
 submitButton.addEventListener("click",async function(){
+if(window.NaiPageLoading||window.NaiHistoryLoading)return;
+window.NaiPageLoading=true;
+try{
 var selectedSize=document.querySelector('input[name="page-size"]:checked').value;
 document.body.removeChild(dialog);
-var currentIndex=btmGetGuidIndex(guid);
-var newGuid=generateGUID();
 var w,h;
 if(selectedSize==="portrait"){w=portrait.width;h=portrait.height;}
 else{w=landscape.width;h=landscape.height;}
-var pc=document.createElement('canvas');
-pc.width=100;
-pc.height=Math.round(100*h/w);
-var pctx=pc.getContext('2d');
-pctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--color-tertiary').trim()||'#505050';
-pctx.fillRect(0,0,pc.width,pc.height);
-var placeholderUrl=pc.toDataURL('image/jpeg',0.5);
-await btmSaveProjectFile(null,false);
-btmAddImage({href:placeholderUrl},null,newGuid,true);
-reorderImages(currentIndex+1,newGuid);
-changeDoNotSaveHistory();
-resizeCanvasToObject(w,h);
-changeDoSaveHistory();
-initImageHistory();
-setCanvasGUID(newGuid);
-await btmSaveProjectFile(newGuid,false);
-updateAllPageNumbers();
-btmUpdateHandleText();
+await btmCreatePageAfter(guid,w,h);
+}finally{
+window.NaiPageLoading=false;
+}
 });
 }

@@ -227,8 +227,8 @@ targetHeight=Math.max(64,raisedHeight);
 }
 }
 if(targetHeight<minEdge&&targetWidth<maxEdge){
-var raisedHeight=minEdge;
-var raisedWidth=round64(raisedHeight*aspect);
+raisedHeight=minEdge;
+raisedWidth=round64(raisedHeight*aspect);
 if(raisedWidth*raisedHeight<=maxPixels&&raisedWidth<=maxEdge){
 targetHeight=raisedHeight;
 targetWidth=Math.max(64,raisedWidth);
@@ -259,13 +259,6 @@ return/[.!?]$/.test(sentence)?sentence:sentence+'.';
 function splitPrompt(prompt){
 return textOf(prompt)
 .split(/[,，;；\n]+/)
-.map(function(part){return part.trim();})
-.filter(Boolean);
-}
-
-function splitUserPrompt(prompt){
-return textOf(prompt)
-.split(/[,，、;；\n]+/)
 .map(function(part){return part.trim();})
 .filter(Boolean);
 }

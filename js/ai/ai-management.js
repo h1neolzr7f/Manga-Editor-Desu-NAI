@@ -1,3 +1,4 @@
+/* exported I2I, T2I, apiHeartbeat, clearAllQueues, existsWaitQueue */
 // AI機能の中央ルーター: プロバイダーレジストリ経由でディスパッチ
 const novelaiQueue=new TaskQueue(1);
 
@@ -42,33 +43,7 @@ return provider.executeI2I(layer,spinner.id);
 }
 }
 
-async function aiRembg(layer,spinner){
-createToastError('NovelAI Only','背景删除已移除');
-}
 
-async function aiUpscale(layer,spinner){
-createToastError('NovelAI Only','高清放大已移除');
-}
-
-function canUseInpaint(){
-return false;
-}
-
-function canUseAngle(){
-return false;
-}
-
-function AngleGenerate(layer,spinner,anglePrompt){
-createToastError('NovelAI Only','角度生成已移除');
-}
-
-
-function getDiffusionInformation() {
-var provider=providerRegistry.getActive();
-if(provider){
-provider.fetchDiffusionInformation();
-}
-}
 
 
 function getInUseProviders(){
@@ -133,21 +108,8 @@ announce.style.display='none';
 }
 
 
-function updateUpscalerDropdown(models) {
-}
-
-function updateSamplerDropdown(models) {
-}
-
-function updateModelDropdown(models) {
-}
-
-function updateVaeDropdown(models) {
-}
 
 
-//Before:ABC.safetensors [23e4fa2b6f]
-//After :ABC.safetensors
-function removeHashStr(str) {
-return str.replace(/\s*\[[^\]]+\]\s*$/,'');
-}
+
+
+

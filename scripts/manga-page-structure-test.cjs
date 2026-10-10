@@ -92,3 +92,25 @@ assert.equal(page.planPanelEdit('第二格',found.panels).ok,false,
   'an edit intent must contain an actionable change, not only panel number');
 
 console.log('PASS manga page structure: gutters, reading order, 4-panel recursion, uncertain OCR links');
+
+// Editor panels (templates / knife / shapes) are used as-is, in reading order;
+// a shape inside a panel is not a separate panel; nothing without panels.
+{
+  const ed = page.fromEditorPanels([
+    {x:10,y:706,width:1634,height:1618},   // bottom
+    {x:10,y:13,width:1634,height:673},     // top
+    {x:900,y:1000,width:136,height:252},   // star inside the bottom panel
+    {x:-50,y:-50,width:10,height:10}       // off-page junk
+  ],{pageWidth:1654,pageHeight:2339,direction:'rtl'});
+  assert.equal(ed.panels.length, 2, 'two top-level editor panels');
+  assert.deepEqual(ed.panels.map(p=>[p.order,p.y]), [[1,13],[2,706]], 'top panel is read first');
+  assert.ok(ed.panels.every(p=>p.source==='editor-panel' && p.verified===false));
+  const row = page.fromEditorPanels([{x:0,y:0,width:400,height:300},{x:420,y:0,width:400,height:300}],{pageWidth:820,pageHeight:300,direction:'rtl'});
+  assert.deepEqual(row.panels.map(p=>p.x), [420,0], 'manga order: right panel first');
+  const ltr = page.fromEditorPanels([{x:0,y:0,width:400,height:300},{x:420,y:0,width:400,height:300}],{pageWidth:820,pageHeight:300,direction:'ltr'});
+  assert.deepEqual(ltr.panels.map(p=>p.x), [0,420], 'ltr: left panel first');
+  assert.equal(page.fromEditorPanels([],{pageWidth:100,pageHeight:100}), null, 'no editor panels -> pixel analysis');
+  const ui = fs.readFileSync(path.join(__dirname, '../js/ai/manga-page-structure-ui.js'), 'utf8');
+  assert.match(ui, /core\.fromEditorPanels\(editorPanelRects\(c\),pageOptions\)\|\|core\.analyze\(pixels,pageOptions\)/);
+  console.log('PASS editor panels used in reading order (shapes inside panels ignored)');
+}

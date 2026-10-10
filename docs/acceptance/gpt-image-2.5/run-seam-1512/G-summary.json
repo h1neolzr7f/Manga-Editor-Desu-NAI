@@ -1,0 +1,87 @@
+{
+  "id": "G",
+  "title": "页角选区含可编辑竖排字（默认排除文字）",
+  "region": [
+    504,
+    1039
+  ],
+  "selStatus": "已选中原始画布区域：504 × 1039 像素。",
+  "size": "auto",
+  "ref": false,
+  "cutWarning": null,
+  "httpStatus": 200,
+  "elapsedS": 22.9,
+  "resultFile": "/workspace/mnai-repo/artifacts/gpt-real/G-result.png",
+  "uiStatus": "图像已生成，请检查预览后点击“作为新图层应用”。",
+  "requests": 1,
+  "request": {
+    "operation": "edit",
+    "model": "gpt-image-2.5",
+    "size": "1024x1536",
+    "baseUrl": "https://litangking.12gg.workers.dev/v1",
+    "references": 0,
+    "authorizationHeader": false
+  },
+  "resultSize": [
+    1024,
+    1536
+  ],
+  "applyStatus": "已添加独立图层：取回选区对应部分并等比例缩放（不拉伸、不裁头）。原图和画布尺寸未改变，可撤销。已按原选区的透明区域恢复透明。",
+  "patch": {
+    "index": 4,
+    "vtextIndex": 5,
+    "left": 1150,
+    "top": 1300,
+    "w": 504,
+    "h": 1039,
+    "scaleX": 0.676510067114094,
+    "scaleY": 0.6768729641693811,
+    "srcW": 745,
+    "srcH": 1535,
+    "crop": {
+      "x": 139.64,
+      "y": 0.37,
+      "w": 744.73,
+      "h": 1535.26,
+      "resultWidth": 1024,
+      "resultHeight": 1536,
+      "feather": 15,
+      "toneOffset": [
+        22,
+        19,
+        12
+      ],
+      "keepAlpha": true,
+      "keepLines": false,
+      "seamMatch": {
+        "left": [
+          5,
+          4,
+          2
+        ],
+        "top": [
+          18,
+          17,
+          12
+        ]
+      }
+    }
+  },
+  "metrics": {
+    "outsideChanged": 0,
+    "seamBefore": 0,
+    "seamAfter": 1.01,
+    "insideMeanDiff": 6.51
+  },
+  "saveReload": {
+    "objects": [
+      6,
+      6
+    ],
+    "name": "GPT 局部改图",
+    "source": "openai-compatible-image",
+    "bytes": 1616612,
+    "pixelsEqual": true
+  },
+  "pageErrors": []
+}

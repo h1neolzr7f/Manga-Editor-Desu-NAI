@@ -13,6 +13,26 @@ const net = require('node:net');
 const path = require('node:path');
 const { chromium } = require('playwright');
 
+// GPT URL / Key / Model live in 服务设置 (one place for every service): set them the way a user does.
+async function setGptService(pg, cfg) {
+  await pg.locator('#taskMore').click(); await pg.locator('#taskServiceSettings').click();
+  if (cfg.url !== undefined) await pg.locator('#mangaGptUrl').fill(cfg.url);
+  if (cfg.model !== undefined) await pg.locator('#mangaGptModel').fill(cfg.model);
+  if (cfg.key !== undefined) await pg.locator('#mangaGptKey').fill(cfg.key);
+  await pg.locator('#svcDone').click();
+}
+// These suites exercise the full (pro) UI; a user who picked 专业模式 keeps it across reloads.
+function proMode(browser) {
+  const make = browser.newContext.bind(browser);
+  browser.newContext = async (opts = {}) => {
+    const { beginner, ...rest } = opts;
+    const c = await make(rest);
+    if (!beginner) await c.addInitScript(() => { try { if (!localStorage.getItem('mnai.uiMode')) localStorage.setItem('mnai.uiMode', 'pro'); } catch (e) { /* storage blocked */ } });
+    return c;
+  };
+  return browser;
+}
+
 const ROOT = path.resolve(__dirname, '..');
 const SERVER = 'http://127.0.0.1:8000';
 const REPLAY = process.env.GPT_REAL_REPLAY || ''; // dir with <case>-result.png from an earlier real run (free)
@@ -21,7 +41,7 @@ if (!MOCK && process.env.GPT_REAL_API !== '1') {
   console.error('Refusing to run: set GPT_REAL_API=1 to confirm billable calls (or GPT_REAL_MOCK=1).');
   process.exit(2);
 }
-const OUT = path.join(ROOT, 'artifacts', REPLAY ? 'gpt-real-replay' : MOCK ? 'gpt-real-mock' : 'gpt-real');
+const OUT = process.env.GPT_REAL_OUT || path.join(ROOT, 'artifacts', REPLAY ? 'gpt-real-replay' : MOCK ? 'gpt-real-mock' : 'gpt-real');
 fs.mkdirSync(OUT, { recursive: true });
 const WAIT_MS = 400000; // > client 330 s > relay 300 s
 const BASE_URL = process.env.GPT_REAL_BASE_URL || 'https://api.openai.com/v1';
@@ -49,6 +69,8 @@ const CASES = {
        expand: true, prompt: TEXT_ONLY },
   I: { title: '透明页面：选区一半是透明页边（保留透明）', from: [1300, 1650], to: [1654, 2339], size: 'auto', ref: false,
        transparentPage: true, prompt: 'Add light rain streaks over this picture. Keep everything else the same. No text.' },
+  R: { title: '天空加彩虹（dogfood 第 4 页那种浅色矩形；底图为真实生成的漫画页）', from: [910, 300], to: [1390, 560], size: 'auto', ref: false,
+       base: process.env.GPT_REAL_SKY_BASE || '/workspace/shots-20261010/comic/page-1.png', prompt: '在天空加一道淡淡的彩虹，其余保持不变。不要加文字。' },
   G: { title: '页角选区含可编辑竖排字（默认排除文字）', from: [1150, 1300], to: [1654, 2339], size: 'auto', ref: false,
        prompt: 'Add light rain streaks and small puddles on the ground in this picture. Keep everything else the same. No text.' }
 };
@@ -110,7 +132,17 @@ async function openEditor(context) {
   return { page, errors };
 }
 
-async function buildScene(page) {
+async function buildScene(page, spec = {}) {
+  if (spec.base) { // a real page as the whole canvas (sky / gradient seams)
+    const src = 'data:image/png;base64,' + fs.readFileSync(spec.base).toString('base64');
+    await page.evaluate(async src => {
+      canvas.getObjects().filter(o => o.text === '拖放或生成图片').forEach(o => canvas.remove(o));
+      const img = await new Promise(res => fabric.Image.fromURL(src, res));
+      const k = canvas.getWidth() / img.width; img.set({ left: 0, top: 0, scaleX: k, scaleY: k, name: 'page' });
+      canvas.add(img); canvas.discardActiveObject(); canvas.renderAll(); saveStateByManual();
+    }, src);
+    return;
+  }
   const pose = 'data:image/png;base64,' + fs.readFileSync(POSE).toString('base64');
   await page.evaluate(async pose => {
     canvas.getObjects().filter(o => o.text === '拖放或生成图片').forEach(o => canvas.remove(o));
@@ -168,7 +200,19 @@ async function metrics(page, before, after, rect) {
     let inside = 0, n = 0;
     for (let y = rect.top; y < rect.top + rect.height; y += 2) for (let x = rect.left; x < rect.left + rect.width; x += 2) {
       inside += d(px(A, x, y), px(B, x, y)); n++; }
-    return { outsideChanged, seamBefore: seam(A), seamAfter: seam(B), insideMeanDiff: +(inside / n).toFixed(2) };
+    // Band seam: |mean tone 3..10 px inside - 3..10 px outside| per 24 px edge segment, averaged. A whole patch
+    // repainted lighter/darker (pale rectangle) shows here even when single pixels look continuous.
+    const band = D => { let s = 0, n = 0; const R = rect.left + rect.width, Bm = rect.top + rect.height, seg = 24;
+      const lum = (x, y) => { const p = px(D, x, y); return (p[0] + p[1] + p[2]) / 3; };
+      const side = (inside, outside, along0, along1, ok) => { if (!ok) return; for (let a = along0; a + seg <= along1; a += seg) { let si = 0, so = 0, c = 0;
+        for (let t = a; t < a + seg; t += 2) for (let k = 3; k <= 10; k++) { si += inside(t, k); so += outside(t, k); c++; }
+        s += Math.abs(si - so) / c; n++; } };
+      side((t, k) => lum(rect.left + k, t), (t, k) => lum(rect.left - 1 - k, t), rect.top, Bm, rect.left > 12);
+      side((t, k) => lum(R - 1 - k, t), (t, k) => lum(R + k, t), rect.top, Bm, R + 12 < D.width);
+      side((t, k) => lum(t, rect.top + k), (t, k) => lum(t, rect.top - 1 - k), rect.left, R, rect.top > 12);
+      side((t, k) => lum(t, Bm - 1 - k), (t, k) => lum(t, Bm + k), rect.left, R, Bm + 12 < D.height);
+      return n ? +(s / n).toFixed(2) : 0; };
+    return { outsideChanged, seamBefore: seam(A), seamAfter: seam(B), bandBefore: band(A), bandAfter: band(B), insideMeanDiff: +(inside / n).toFixed(2) };
   }, { before, after, rect });
 }
 
@@ -183,10 +227,13 @@ async function runCase(context, id) {
         const image = 'data:image/png;base64,' + fs.readFileSync(file).toString('base64');
         return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, image }) });
       }
-      const image = await page.evaluate(async ({ src, size }) => {
+      const image = await page.evaluate(async ({ src, size, haze }) => {
         const [w, h] = size.split('x').map(Number); const c = document.createElement('canvas'); c.width = w; c.height = h;
-        const i = new Image(); i.src = src; await i.decode(); c.getContext('2d').drawImage(i, 0, 0, w, h);
-        return c.toDataURL('image/png'); }, { src: p.image, size: p.size });
+        const i = new Image(); i.src = src; await i.decode(); const g = c.getContext('2d'); g.drawImage(i, 0, 0, w, h);
+        if (haze) { // simulated model defect measured on the real dogfood page 4: whole patch +56 lighter, plus the asked-for rainbow
+          const d = g.getImageData(0, 0, w, h); for (let k = 0; k < d.data.length; k += 4) { d.data[k] += 56; d.data[k + 1] += 56; d.data[k + 2] += 56; } g.putImageData(d, 0, 0);
+          ['#e53','#f93','#fd4','#6c6','#59f','#85d'].forEach((col, n) => { g.strokeStyle = col; g.globalAlpha = .55; g.lineWidth = h * .025; g.beginPath(); g.arc(w * .5, h * 1.05, h * (.75 - n * .025), Math.PI * 1.1, Math.PI * 1.9); g.stroke(); }); }
+        return c.toDataURL('image/png'); }, { src: p.image, size: p.size, haze: process.env.GPT_REAL_MOCK_HAZE === '1' });
       await new Promise(r => setTimeout(r, 1500));
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, image }) });
     });
@@ -203,14 +250,13 @@ async function runCase(context, id) {
         authorizationHeader: Boolean(req.headers().authorization) }, null, 2));
     } catch {}
   });
-  await buildScene(page);
+  await buildScene(page, spec);
   if (spec.transparentPage) await page.evaluate(() => { canvas.backgroundColor = ''; canvas.renderAll(); });
   await page.locator('#mangaGptOpen').click();
   await page.locator('#mangaGptMode').selectOption('edit');
-  await page.locator('#mangaGptUrl').fill(BASE_URL);
-  await page.locator('#mangaGptModel').fill(MODEL);
-  await page.locator('#mangaGptKey').fill(''); // relay uses the server-side env key (pinned base URL)
+  await setGptService(page, { url: BASE_URL, model: MODEL, key: '' }); // relay uses the server-side env key (pinned base URL)
   await page.locator('#mangaGptSize').selectOption(spec.size);
+  if (process.env.GPT_REAL_CHANGE_ONLY === '0') await page.locator('#mangaGptChangeOnly').setChecked(false); // before/after evidence
   await page.locator('#mangaGptPrompt').fill(spec.prompt);
   if (spec.ref) await page.locator('#mangaGptReferences').setInputFiles(REFERENCE);
   let selStatus = await dragSelect(page, spec.from, spec.to);
@@ -302,7 +348,7 @@ async function runCase(context, id) {
   if (ids.some(id => !CASES[id])) throw new Error('unknown case');
   if (ids.some(id => CASES[id].ref) && !fs.existsSync(REFERENCE)) throw new Error('GPT_REAL_REFERENCE missing');
   await startServer();
-  const browser = await chromium.launch({ headless: true });
+  const browser = proMode(await chromium.launch({ headless: true }));
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const all = [];
   try {

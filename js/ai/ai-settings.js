@@ -269,8 +269,11 @@ if(window.location&&window.location.protocol==='file:')return'http://127.0.0.1:8
 return window.location.origin;
 }
 
+var NAI_TOKEN_MISSING_MSG='还没填 NovelAI Token：点顶部「未填 Token」按钮，在「访问令牌」里粘贴后再试。没有 Token 时不会发出请求，也不会扣 Anlas。';
 async function startNovelAiToolJob(path,title,body){
 var token=getNovelAiToolToken();
+// Without a token the proxy answered with NovelAI's raw 'Missing authorization header'.
+if(!token)throw new Error(NAI_TOKEN_MISSING_MSG);
 var headers={
 'Content-Type':'application/json',
 'Accept':'application/json'
@@ -285,6 +288,9 @@ body:JSON.stringify(body||{})
 });
 var json=await response.json();
 if(!response.ok){
+if(response.status===401||/authorization header|unauthori[sz]ed|invalid token/i.test(String(json.error||''))){
+throw new Error('NovelAI 拒绝了这个 Token（'+response.status+'）：请检查「访问令牌」是否完整、是否已过期，可在 NovelAI 账户页重新复制。');
+}
 throw new Error(json.error||('任务启动失败：'+response.status));
 }
 if(json.status==='completed'&&!json.job_id){
@@ -354,14 +360,7 @@ var json=await response.json();
 if(!response.ok||!json.ok){
 throw new Error(json.error||('NAI 检查失败：'+response.status));
 }
-createToast('NovelAI 状态',[
-'订阅：'+(json.active?'已激活':'未激活'),
-'会员层级：'+(json.tier===undefined?'未知':json.tier),
-'无限生图：'+(json.unlimitedImageGeneration?'是':'否'),
-'Anlas 余额：'+(json.anlas===undefined||json.anlas===null?'未知':json.anlas),
-'代理：'+(json.proxy||'未使用'),
-'安全请求：samples=1，总像素≤1024×1024，步数≤28，队列并发=1'
-],6500);
+createToast('NovelAI 状态',window.NaiStatusFormat.statusLines(json),6500);
 return json;
 }
 

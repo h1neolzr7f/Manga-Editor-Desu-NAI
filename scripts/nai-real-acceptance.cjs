@@ -153,12 +153,12 @@ async function run() {
     for (let i = 0; i < 40; i++) {
       await new Promise(r => setTimeout(r, 500));
       const t = c ? c.textContent : '';
-      if (t !== t0 && /NovelAI 状态/.test(t)) return t.replace(/\s+/g, ' ').slice(-300);
+      if (t !== t0 && /NovelAI 状态/.test(t) && /安全请求/.test(t)) return t.replace(/\s+/g, ' ').slice(-300);
     }
     return 'timeout';
   });
   record('"检查 NAI" button works against the moved subscription endpoint (tier + Anlas shown)',
-    /会员层级：3/.test(health) && /Anlas 余额：\d+/.test(health) && /步数≤28/.test(health), { health });
+    /会员层级：3/.test(health) && /免费生图：可用/.test(health) && !/无限生图/.test(health) && /Anlas 余额：\d+/.test(health) && /步数≤28/.test(health), { health });
 
   const after = await balance();
   const spent = (before.anlas == null || after.anlas == null) ? null : before.anlas - after.anlas;

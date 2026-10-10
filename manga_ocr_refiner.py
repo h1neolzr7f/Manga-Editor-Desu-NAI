@@ -10,12 +10,13 @@ import io
 import threading
 
 from manga_smart_ocr import read_image, SmartOcrError
+from manga_model_guard import exclusive, require_download_consent
 
 _model = None
 _model_lock = threading.RLock()
 
 
-def get_model():
+def get_model(allow_download=False):
     global _model
     with _model_lock:
         if _model is None:
@@ -26,6 +27,8 @@ def get_model():
                     "未安装 Manga OCR。请在本地 Python 环境执行 pip install manga-ocr；"
                     "首次使用还需下载约 400MB 的模型。", 503
                 ) from exc
+            # Installed but weights not cached: ask the user before MangaOcr() downloads.
+            require_download_consent("manga-ocr", False, allow_download)
             try:
                 # Do not let web input supply a model or arbitrary download URL.
                 _model = engine.MangaOcr()
@@ -56,18 +59,19 @@ def decode_image(raw, width, height):
         raise SmartOcrError("选区图片无法解码。") from exc
 
 
-def refine_region(image_url):
+def refine_region(image_url, allow_download=False):
     data, width, height = read_image(image_url)
     if width * height > 4_000_000 or width < 2 or height < 2:
         raise SmartOcrError("Manga OCR 选区无效或超过 400 万像素上限。", 413)
     image = decode_image(data, width, height)
-    model = get_model()
-    try:
-        # The model's underlying transformer is not guaranteed thread-safe.
-        with _model_lock:
-            text = model(image)
-    except Exception as exc:
-        raise SmartOcrError("Manga OCR 推理失败；请检查本机可用内存与模型安装。", 502) from exc
+    with exclusive("manga-ocr"):
+        model = get_model(allow_download)
+        try:
+            # The model's underlying transformer is not guaranteed thread-safe.
+            with _model_lock:
+                text = model(image)
+        except Exception as exc:
+            raise SmartOcrError("Manga OCR 推理失败；请检查本机可用内存与模型安装。", 502) from exc
     if not isinstance(text, str) or not text.strip() or len(text) > 500:
         raise SmartOcrError("Manga OCR 未返回有效短文本，请重新框选或手动修改。", 422)
     return {

@@ -1,3 +1,4 @@
+/* exported addAlignTypeButton, addCheckBox, addColor, addDropDownByDot, addDropDownByGrad, addDropDownBySpeedLine, addDropDownByStyle, addOrientationButton, addSimpleSubmitButton, addSlider, addTextArea, saveEffectValueMap, saveValueMap */
 Map.prototype.getOrDefault=function (key,defaultValue) {
 return this.has(key) ? this.get(key) : defaultValue;
 };
@@ -29,10 +30,6 @@ localStorage.setItem('effectValues',JSON.stringify(Object.fromEntries(effectValu
 },500);
 }
 
-function savePenValueMap(element){
-penValueMap.set(element.id,element.value);
-_debouncedSidebarSave();
-}
 function saveEffectValueMap(element){
 effectValueMap.set(element.id,element.value);
 _debouncedSidebarSave();
@@ -41,16 +38,6 @@ _debouncedSidebarSave();
 function saveValueMap(element){
 sidebarValueMap.set(element.id,element.value);
 _debouncedSidebarSave();
-}
-
-function addNumber(id,label,min,max,value,step=1) {
-const transLavel=getText(label);
-return `
-      <div class="pen-input-2group">
-          <label for="${id}" data-i18n="${label}">${transLavel}</label>
-          <input type="number" id="${id}" min="${min}" max="${max}" value="${value}" step="${step}">
-      </div>
-  `;
 }
 
 function addSimpleSubmitButton(id) {
@@ -66,20 +53,6 @@ return `
   `;
 }
 
-
-
-function addSubmitButton(id) {
-const transLavel=getText("submit");
-return `
-    <div class="input-group-multi-mini">
-      <a style="visibility: hidden;"></a>
-      <a style="visibility: hidden;"></a>
-      <button id="${id}-submit" onclick="text2Submit('${id}-submit')">
-        <span>${transLavel}</span>
-      </button>
-    </div>
-  `;
-}
 
 
 function addColor(id,label,value) {
@@ -137,15 +110,6 @@ return `<div class="input-group-multi" data-group="orientation_group">
       <i class="material-icons">south</i>
     </button>
   </div>`;
-}
-
-function addOneSelectBox(id) {
-return `
-      <div class="input-group_one">
-        <select id="${id}">
-        </select>
-      </div>
-  `;
 }
 
 function addDropDownBySpeedLine(id,label) {

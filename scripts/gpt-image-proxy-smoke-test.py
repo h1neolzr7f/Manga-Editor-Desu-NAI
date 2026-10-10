@@ -179,5 +179,41 @@ class NetworkGuardSuite(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout[-3000:] + result.stderr[-3000:])
 
 
+class UpstreamHtmlErrorSuite(unittest.TestCase):
+    """Cloudflare 530 / nginx 502 pages must never reach the user as raw HTML."""
+
+    CF = ('<!DOCTYPE html>\n<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en-US"> <![endif]-->'
+          '<head><title>Origin DNS error | example.workers.dev | Cloudflare</title></head><body>x</body></html>')
+
+    def test_cloudflare_530_is_readable(self):
+        msg = proxy.readable_upstream_message(530, self.CF)
+        self.assertNotIn("<", msg)
+        self.assertIn("暂时不可用", msg)
+        self.assertIn("Origin DNS error", msg)
+
+    def test_html_401_and_404_hints(self):
+        self.assertIn("API Key", proxy.readable_upstream_message(401, "<html><body>no</body></html>"))
+        self.assertIn("/v1", proxy.readable_upstream_message(404, "<html><title>Not Found</title></html>"))
+
+    def test_plain_and_json_messages_unchanged(self):
+        self.assertEqual(proxy.readable_upstream_message(400, "invalid size"), "invalid size")
+        self.assertEqual(proxy.readable_upstream_message(429, "a < b"), "a < b")
+
+
+    @mock.patch.object(proxy.socket, "getaddrinfo", side_effect=public_dns)
+    def test_models_listing_for_connection_test(self, _dns):
+        upstream = json.dumps({"data": [{"id": "gpt-image-2.5"}, {"id": "gpt-image-2"}, {"id": "gpt-4o"}]}).encode()
+        opener = FakeOpener(upstream)
+        with mock.patch.object(proxy, "_opener", return_value=opener):
+            result = proxy.list_models({"baseUrl": "https://relay.example.com/v1/"}, "fake-key-never-persisted")
+        self.assertEqual(opener.request.full_url, "https://relay.example.com/v1/models")
+        self.assertEqual(opener.request.get_method(), "GET")
+        self.assertEqual(result["imageModels"], ["gpt-image-2", "gpt-image-2.5"])
+        with self.assertRaises(proxy.ImageProxyError):
+            proxy.list_models({"baseUrl": "https://relay.example.com/v1"}, "")
+        with self.assertRaises(proxy.ImageProxyError):
+            proxy.list_models({"baseUrl": "http://127.0.0.1:9/v1"}, "k")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -43,6 +43,15 @@
     ctx.drawImage(image,0,0,sampled.width,sampled.height);
     return ctx.getImageData(0,0,sampled.width,sampled.height);
   }
+  // Panel objects created by templates / the knife tool, in page coordinates.
+  function editorPanelRects(c) {
+    if(!c || typeof c.getObjects!=='function')return [];
+    return c.getObjects().filter(o=>o && o.isPanel && o.visible!==false &&
+      typeof o.getBoundingRect==='function').map(o=>{
+      const r=o.getBoundingRect(true,true);
+      return {x:r.left,y:r.top,width:r.width,height:r.height};
+    });
+  }
   function currentDrafts() {
     const smart=window.MangaSmartTextEditor;
     return smart && typeof smart.getDrafts==='function' ? smart.getDrafts() : [];
@@ -264,7 +273,8 @@
     const bubbleCount=(state.graph.bubbleCandidates||[]).length;
     const enclosed=(state.graph.bubbleCandidates||[]).filter(
       x=>x.source==='enclosed-light-region').length;
-    say('识别到 '+state.graph.panels.length+' 个候选分镜、'+bubbleCount+
+    const fromEditor=(state.graph.panels||[]).some(x=>x.source==='editor-panel');
+    say((fromEditor?'已按画布上的分镜格排序：':'')+'识别到 '+state.graph.panels.length+' 个候选分镜、'+bubbleCount+
       ' 个气泡候选（封闭浅色区域 '+enclosed+' 个、其余为文字框外扩）；有 '+
       unknown+' 条文字归属不明确。都需要人工核对。');
   }
@@ -280,11 +290,12 @@
       const pixels=await scan(c,screenshot);
       if(c!==getCanvas() || screenshot!==snapshotCanvas(c))
         throw new Error('分析期间画布发生改变，请重新分析。');
-      const next=core.analyze(pixels,{
+      const pageOptions={
         direction:$('mangaPageDirection').value,
         pageWidth:c.getWidth(),pageHeight:c.getHeight(),
         maxPanels:12
-      });
+      };
+      const next=core.fromEditorPanels(editorPanelRects(c),pageOptions)||core.analyze(pixels,pageOptions);
       state.graph={...next,texts:[],bubbleCandidates:[]};
       state.previewPixels=pixels;
       state.canvas=c;

@@ -1,3 +1,4 @@
+/* exported t2_broken_updateAll */
 let t2_broken_textSvg,t2_broken_defs,t2_broken_filter,t2_broken_mainText,nowT2BrokenStr=null;
 function t2_broken_deleteSvg(){
 [t2_broken_textSvg,t2_broken_defs,t2_broken_filter,t2_broken_mainText,nowT2BrokenStr]=[null,null,null,null,null];

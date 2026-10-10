@@ -1,3 +1,4 @@
+/* exported KNIFE_CONSTANTS */
 /**
  * knife-constants.js
  * ナイフツールで使用する定数定義

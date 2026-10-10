@@ -1,3 +1,4 @@
+/* exported LayersDown, LayersUp, calculateCenter, highlightClear, removeLayer */
 let finalLayerOrder=[];
 let lastHighlightGuid=null;
 var naiLayerPageFold=Object.create(null);
@@ -13,7 +14,15 @@ if(layer.isPanel&&layer.name&&!isGenericLayerName(layer.name))return layer.name;
 if(layer.isPanel)return '画面格';
 if(layer.text)return String(layer.text).replace(/\s+/g,' ').slice(0,18);
 if(layer.name&&!isGenericLayerName(layer.name))return layer.name;
-return '图层 '+(Number(index)+1);
+// Fallback names are written back onto the object, so they must be unique on the canvas: the row
+// index alone gave an imported image and a bubble added later the same '图层 1'.
+var base=layer.type==='image'?'图片':(layer.type==='group'?'组合':(/^(rect|path|polygon|circle|ellipse)$/.test(layer.type)?'图形':'图层'));
+var taken={};
+if(typeof canvas!=='undefined'&&canvas&&canvas.getObjects)canvas.getObjects().forEach(function(o){if(o!==layer&&o.name)taken[o.name]=1;});
+var n=Number(index)+1;
+if(!(n>0))n=1;
+while(taken[base+' '+n])n++;
+return base+' '+n;
 }
 
 function pageLayerTitle(pageId,items){
@@ -82,37 +91,6 @@ if(window.NaiBeginnerGuide&&typeof window.NaiBeginnerGuide.selectPageById==='fun
 else if(window.NaiComicExtraRendererFactory)window.NaiComicExtraRendererFactory.selectPage(canvas,pageId);
 };
 return row;
-}
-
-function getLayerTypeIcon(layer){
-if(isSpeechBubbleSVG(layer)||isFreehandBubblePath(layer)){
-return '<i class="material-icons">chat_bubble_outline</i>';
-}
-if(isPanel(layer)){
-return '<i class="material-icons">crop_landscape</i>';
-}
-if(isImage(layer)){
-return '<i class="material-icons">image</i>';
-}
-if(isVerticalText(layer)){
-return '<i class="material-icons">text_rotation_none</i>';
-}
-if(isText(layer)){
-return '<i class="material-icons">text_fields</i>';
-}
-if(isPath(layer)){
-return '<i class="material-icons">gesture</i>';
-}
-if(isGroup(layer)){
-return '<i class="material-icons">folder</i>';
-}
-return '<i class="material-icons">layers</i>';
-}
-
-function putLayerBtnSeparator(buttonsDiv){
-var sep=document.createElement("span");
-sep.className="layer-btn-separator";
-buttonsDiv.appendChild(sep);
 }
 
 let lastUpdateTime=0;
@@ -226,6 +204,7 @@ className: "layer-details",
 var nameTextArea=Object.assign(document.createElement("input"),{
 className: "layer-name",
 });
+nameTextArea.setAttribute("aria-label","图层名称");
 var buttonsDiv=Object.assign(document.createElement("div"),{
 className: "layer-buttons",
 });
@@ -236,7 +215,7 @@ createPreviewImage(layer,previewDiv);
 var fullText=layer.text;
 nameTextArea.value=fullText.substring(0,20);
 } else if (isVerticalText(layer)) {
-var fullText=layer.name;
+fullText=layer.name;
 if (fullText) {
 nameTextArea.value=fullText.substring(0,15);
 } else {
@@ -439,9 +418,9 @@ var pathBounds=layer.getBoundingRect();
 var pathWidth=pathBounds.width;
 var pathHeight=pathBounds.height;
 
-var scale=Math.min(canvasSize/pathWidth,canvasSize/pathHeight);
-var offsetX=(canvasSize-pathWidth*scale)/2;
-var offsetY=(canvasSize-pathHeight*scale)/2;
+scale=Math.min(canvasSize/pathWidth,canvasSize/pathHeight);
+offsetX=(canvasSize-pathWidth*scale)/2;
+offsetY=(canvasSize-pathHeight*scale)/2;
 
 tempCtx.save();
 tempCtx.translate(offsetX,offsetY);
@@ -455,12 +434,12 @@ var imgElement=layer.getElement();
 var imgWidth=imgElement.width;
 var imgHeight=imgElement.height;
 
-var scale=Math.min(canvasSize/imgWidth,canvasSize/imgHeight);
+scale=Math.min(canvasSize/imgWidth,canvasSize/imgHeight);
 var drawWidth=imgWidth*scale;
 var drawHeight=imgHeight*scale;
 
-var offsetX=(canvasSize-drawWidth)/2;
-var offsetY=(canvasSize-drawHeight)/2;
+offsetX=(canvasSize-drawWidth)/2;
+offsetY=(canvasSize-drawHeight)/2;
 
 tempCtx.drawImage(imgElement,offsetX,offsetY,drawWidth,drawHeight);
 } else if (isPanelType(layer)) {
@@ -544,14 +523,6 @@ lastHighlightGuid=activeObject?activeObject.guid:null;
 updateLayerPanel();
 }
 
-
-function getLayerIndexByActiveObject(targetObject) {
-if (!targetObject||!finalLayerOrder||finalLayerOrder.length===0) return-1;
-
-const normalIndex=finalLayerOrder.findIndex(item=>item.layer===targetObject);
-const result=finalLayerOrder.length-normalIndex;
-return result;
-}
 
 function LayersUp() {
 var activeObject=canvas.getActiveObject();

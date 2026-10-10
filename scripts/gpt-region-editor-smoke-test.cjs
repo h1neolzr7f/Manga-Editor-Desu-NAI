@@ -60,7 +60,7 @@ const elements = Object.fromEntries([
   'mangaGptStatus', 'mangaGptClose', 'mangaGptSelect', 'mangaGptGenerate',
   'mangaGptApply', 'mangaGptReplaceText', 'mangaGptMode',
   'mangaGptReferences', 'mangaGptReferenceList', 'mangaGptPreview',
-  'mangaGptUrl', 'mangaGptModel', 'mangaGptSize', 'mangaGptKey',
+  'mangaGptUrl', 'mangaGptModel', 'mangaGptModelPreset', 'mangaGptSize', 'mangaGptKey',
   'mangaGptPrompt', 'mangaGptSubtitle', 'mangaGptAllowUpscale', 'mangaGptCancel', 'mangaGptIncludeText'
 ].map(id => [id, new MockNode('input')]));
 elements.mangaGptMode.value = 'edit';
@@ -263,6 +263,78 @@ elements.mangaGptStatus.textContent = savedRegionStatus;
   const all = { left: true, right: true, top: true, bottom: true };
   assert(api.featherAlpha(0, 50, 100, 100, 10, all) < 0.1 && api.featherAlpha(50, 50, 100, 100, 10, all) === 1);
   assert.equal(api.featherAlpha(0, 50, 100, 100, 10, { left: false, right: true, top: true, bottom: true }), 1);
+  // Seam match: a patch 20 levels lighter than the page meets it at the interior edges, fades to 0 inside.
+  {
+    const W = 40, H = 40, px = (v, a = 255) => [v, v, v, a];
+    const orig = new Uint8ClampedArray(W * H * 4), pat = new Float32Array(W * H * 4);
+    for (let k = 0; k < W * H; k++) { orig.set(px(100), k * 4); pat.set(px(120), k * 4); }
+    const sides = { left: true, right: false, top: true, bottom: false };
+    const d = api.seamDiffs(pat, orig, W, H, sides);
+    assert.deepEqual(Object.keys(d).sort(), ['left', 'top'], 'only interior sides are measured');
+    assert(Math.abs(d.left[0] + 20) < 0.01 && Math.abs(d.top[2] + 20) < 0.01, 'measures -20 per channel');
+    assert(api.applySeamMatch(pat, W, H, d, 10) > 0);
+    assert(Math.abs(pat[(20 * W + 0) * 4] - 100) < 0.5, 'left edge pulled to the page tone');
+    assert(Math.abs(pat[(20 * W + 30) * 4] - 120) < 0.01, 'centre/right keeps model colour');
+    assert(Math.abs(pat[0] - 100) < 0.5, 'corner where two sides meet is not over-corrected');
+    // transparent original (lettering/transparent page) is ignored; huge differences are clamped
+    const o2 = new Uint8ClampedArray(W * H * 4); const p2 = new Float32Array(W * H * 4);
+    for (let k = 0; k < W * H; k++) { o2.set(px(0, 0), k * 4); p2.set(px(200), k * 4); }
+    assert.equal(Object.keys(api.seamDiffs(p2, o2, W, H, sides)).length, 0, 'no opaque original -> no correction');
+    // a big step is changed content, not drift: left alone (no tinted band)
+    for (let k = 0; k < W * H; k++) { o2.set(px(0), k * 4); }
+    assert.equal(Object.keys(api.seamDiffs(p2, o2, W, H, sides)).length, 0, 'content change is not corrected');
+    // half of the left edge is changed content (other colour), half is a -20 drift: only the drift half is corrected
+    const H3 = 200, o3 = new Uint8ClampedArray(W * H3 * 4), p3 = new Float32Array(W * H3 * 4);
+    for (let y = 0; y < H3; y++) for (let x = 0; x < W; x++) { const k = (y * W + x) * 4; o3.set(px(100), k); p3.set(y < 100 ? [220, 40, 40, 255] : px(120), k); }
+    const d3 = api.seamDiffs(p3, o3, W, H3, { left: true });
+    assert(Math.abs(d3.left[190 * 3] + 20) < 0.5, 'drift half measured');
+    assert(Math.abs(d3.left[2 * 3]) < 0.5, 'changed-content half not tinted');
+    // real page-4 rainbow: the sky came back 56 levels lighter (145 → 201) — larger than SEAM_MAX but uniform,
+    // so it is drift and must be pulled back (it used to be skipped → pale rectangle)
+    const o4 = new Uint8ClampedArray(W * H3 * 4), p4 = new Float32Array(W * H3 * 4);
+    for (let y = 0; y < H3; y++) for (let x = 0; x < W; x++) { const k = (y * W + x) * 4; o4.set(px(145), k); p4.set(y < 60 ? [30, 30, 30, 255] : px(201), k); }
+    const d4 = api.seamDiffs(p4, o4, W, H3, { left: true });
+    assert(Math.abs(d4.left[150 * 3] + 56) < 0.5, 'uniform 56-level sky shift is measured');
+    assert(Math.abs(d4.left[2 * 3]) < 0.5, 'the 30% that is new dark content is still not tinted');
+    api.applySeamMatch(p4, W, H3, d4, 10);
+    assert(Math.abs(p4[(150 * W) * 4] - 145) < 0.5, 'sky edge meets the page tone');
+    // change-only compositing: a sky repainted +56 lighter with a rainbow band in the middle
+    {
+      const w = 160, h = 100, o = new Uint8ClampedArray(w * h * 4), q = new Uint8ClampedArray(w * h * 4);
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const k = (y * w + x) * 4; o.set([140, 150, 165, 255], k);
+        const rainbow = y >= 40 && y < 56 && x >= 30 && x < 130; q.set(rainbow ? [230, 120, 60, 255] : [196, 206, 221, 255], k); }
+      const sh = api.globalShift(q, o, w, h);
+      assert(sh && Math.abs(sh[0] + 56) <= 1 && Math.abs(sh[2] + 56) <= 1, 'whole-region +56 haze measured: ' + sh);
+      const f = new Float32Array(q); for (let i = 0; i < f.length; i += 4) { f[i] += sh[0]; f[i + 1] += sh[1]; f[i + 2] += sh[2]; }
+      const m = api.changeMask(f, o, w, h);
+      assert(m, 'mask built when only part changed');
+      assert.equal(m[(5 * w + 5)], 0, 'untouched sky corner keeps the original (alpha 0)');
+      assert.equal(m[(48 * w + 80)], 255, 'rainbow centre fully replaced');
+      assert(m[(30 * w + 80)] > 0 && m[(30 * w + 80)] < 255, 'grown + softened edge around the change');
+      assert(m.changedFraction < 0.2);
+      // full character swap: nearly everything differs → no mask (use the whole patch)
+      const z = new Float32Array(w * h * 4); for (let k = 0; k < w * h; k++) z.set([(k * 37) % 255, (k * 91) % 255, 20, 255], k * 4);
+      assert.equal(api.changeMask(z, o, w, h), null, 'whole region changed → no change mask');
+      assert.equal(api.globalShift(z, o, w, h), null, 'no global shift when content dominates');
+      // half content / half shift: no consensus → no global shift
+      const hh = new Uint8ClampedArray(w * h * 4); for (let k = 0; k < w * h; k++) hh.set(k < w * h / 2 ? [20, 200, 20, 255] : [160, 170, 185, 255], k * 4);
+      assert.equal(api.globalShift(hh, o, w, h), null, '50/50 mix is not a global shift');
+      // real gpt-image-2.5 case R: a faint pastel rainbow (+15/-5/-15 on grey) is a change, not noise
+      {
+        const go = new Uint8ClampedArray(w * h * 4), gq = new Uint8ClampedArray(w * h * 4);
+        for (let k = 0; k < w * h; k++) { const y = Math.floor(k / w), x = k % w; go.set([150, 150, 150, 255], k * 4);
+          gq.set(y >= 40 && y < 56 && x >= 30 && x < 130 ? [165, 145, 135, 255] : [151, 149, 150, 255], k * 4); }
+        const gm = api.changeMask(gq, go, w, h);
+        assert(gm && gm[48 * w + 80] > 200, 'faint pastel arc kept: ' + (gm && gm[48 * w + 80]));
+        assert.equal(gm[5 * w + 5], 0, 'grey sky with ±1 noise still shows the original');
+      }
+      // drift vs. intent: only a shift the context ring confirmed is undone
+      assert.deepEqual(Array.from(api.ringConfirmed([-8, -8, -8], [-48, -48, -48])), [-8, -8, -8], 'haze beyond the ±48 ring clamp: residual removed');
+      assert.equal(api.ringConfirmed([-40, -40, -40], [0, 0, 0]), null, '"make it redder" inside the selection only (ring unchanged) is kept');
+      assert.equal(api.ringConfirmed([-40, -40, -40], null), null, 'no ring measurement → no whole-region shift');
+      assert.equal(api.ringConfirmed([30, 30, 30], [-20, -20, -20]), null, 'opposite direction is not drift');
+    }
+  }
   // Context around a corner selection is clipped to the page; the inner mapping is unchanged.
   const cplan = api.letterboxPlan(400, 100, '1024x1024');
   const cr = api.contextRect({ left: 0, top: 0, width: 400, height: 100 }, cplan, 1000, 1000);

@@ -1,0 +1,100 @@
+/* One theme for the whole editor. Every new surface (task bar, wizards, 服务设置) and the main
+   existing panels/dialogs read these tokens; dark/light come from the html/body mode class. */
+.dark-mode {
+  --ui-bg: #17191e;
+  --ui-surface: #20232b;
+  --ui-surface-2: #2a2e38;
+  --ui-border: #474c58;
+  --ui-text: #f2f4f7;
+  --ui-text-muted: #aeb5c0;
+  --ui-accent: #c2413a;
+  --ui-accent-hover: #d65a52;
+  --ui-accent-text: #ffffff;
+  --ui-focus: #6fb3ff;
+  --ui-ok: #4cc38a;
+  --ui-warn: #f0b429;
+  --ui-danger: #ff6b6b;
+  --ui-shadow: 0 14px 40px rgba(0,0,0,.45);
+  --ui-overlay: rgba(8,10,14,.55);
+}
+.light-mode {
+  --ui-bg: #f3efe2;
+  --ui-surface: #fbf8ef;
+  --ui-surface-2: #eee8d6;
+  --ui-border: #c9bf9f;
+  --ui-text: #1f1f1f;
+  --ui-text-muted: #5b5648;
+  --ui-accent: #b8573c;
+  --ui-accent-hover: #cc6f50;
+  --ui-accent-text: #ffffff;
+  --ui-focus: #1f6fd1;
+  --ui-ok: #23864f;
+  --ui-warn: #a06a00;
+  --ui-danger: #c62828;
+  --ui-shadow: 0 12px 32px rgba(60,50,20,.22);
+  --ui-overlay: rgba(40,36,20,.35);
+}
+:root {
+  --ui-radius: 10px;
+  --ui-radius-sm: 6px;
+  --ui-space-1: 4px;
+  --ui-space-2: 8px;
+  --ui-space-3: 12px;
+  --ui-space-4: 18px;
+  --ui-font: 13px/1.5 "Noto Sans SC","Microsoft YaHei",Arial,sans-serif;
+  --ui-font-title: 600 15px/1.4 "Noto Sans SC","Microsoft YaHei",Arial,sans-serif;
+}
+
+/* ---- components ---- */
+.ui-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 30px; padding: 4px 12px; border-radius: var(--ui-radius-sm);
+  border: 1px solid var(--ui-border); background: var(--ui-surface-2); color: var(--ui-text);
+  font: var(--ui-font); cursor: pointer; transition: background .15s, border-color .15s;
+}
+.ui-btn:hover:not(:disabled) { border-color: var(--ui-accent); }
+.ui-btn:focus-visible, .ui-field input:focus-visible, .ui-field select:focus-visible { outline: 2px solid var(--ui-focus); outline-offset: 1px; }
+.ui-btn:disabled { opacity: .5; cursor: not-allowed; }
+.ui-btn-primary { background: var(--ui-accent); border-color: var(--ui-accent); color: var(--ui-accent-text); font-weight: 600; }
+.ui-btn-primary:hover:not(:disabled) { background: var(--ui-accent-hover); }
+.ui-btn-ghost { background: transparent; }
+.ui-card { background: var(--ui-surface); color: var(--ui-text); border: 1px solid var(--ui-border); border-radius: var(--ui-radius); box-shadow: var(--ui-shadow); font: var(--ui-font); }
+.ui-modal-backdrop { position: fixed; inset: 0; z-index: 13000; background: var(--ui-overlay); display: flex; align-items: center; justify-content: center; }
+.ui-modal { width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 48px); overflow: auto; padding: var(--ui-space-4); }
+.ui-modal h2 { margin: 0 0 var(--ui-space-3); font: var(--ui-font-title); font-size: 18px; }
+.ui-field { display: grid; gap: 4px; margin: var(--ui-space-2) 0; }
+.ui-field > span { color: var(--ui-text-muted); }
+.ui-field input, .ui-field select, .ui-textarea {
+  width: 100%; box-sizing: border-box; padding: 6px 8px; border-radius: var(--ui-radius-sm);
+  border: 1px solid var(--ui-border); background: var(--ui-bg); color: var(--ui-text); font: var(--ui-font);
+}
+.ui-badge { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 999px; font-size: 12px; border: 1px solid var(--ui-border); color: var(--ui-text-muted); }
+.ui-badge.is-ok { color: var(--ui-ok); border-color: var(--ui-ok); }
+.ui-badge.is-warn { color: var(--ui-warn); border-color: var(--ui-warn); }
+.ui-badge.is-error { color: var(--ui-danger); border-color: var(--ui-danger); }
+.ui-muted { color: var(--ui-text-muted); }
+
+/* ---- existing panels and dialogs on the same tokens ---- */
+.manga-gpt-panel, .manga-smart-panel {
+  background: var(--ui-surface) !important; color: var(--ui-text) !important;
+  border-color: var(--ui-border) !important; border-radius: var(--ui-radius) !important;
+  box-shadow: var(--ui-shadow) !important; font: var(--ui-font);
+}
+.manga-gpt-panel button, .manga-smart-panel button {
+  border-radius: var(--ui-radius-sm); border: 1px solid var(--ui-border);
+  background: var(--ui-surface-2); color: var(--ui-text); padding: 4px 10px; cursor: pointer;
+}
+.manga-gpt-panel button:hover:not(:disabled), .manga-smart-panel button:hover:not(:disabled) { border-color: var(--ui-accent); }
+#mangaGptGenerate, #mangaGptApply, #mangaSmartDetect, #mangaSmartApply {
+  background: var(--ui-accent); border-color: var(--ui-accent); color: var(--ui-accent-text); font-weight: 600;
+}
+.manga-gpt-panel input, .manga-gpt-panel select, .manga-gpt-panel textarea,
+.manga-smart-panel input:not([type=checkbox]), .manga-smart-panel select, .manga-smart-panel textarea {
+  background: var(--ui-bg); color: var(--ui-text); border: 1px solid var(--ui-border); border-radius: var(--ui-radius-sm);
+}
+.manga-smart-panel p, .manga-gpt-panel .manga-gpt-status { color: var(--ui-text-muted); }
+.us-window, .flow-floating-window, #autoSaveRecoveryDialog > div, #sp-manga-toastContainer > div {
+  border-radius: var(--ui-radius) !important;
+}
+.us-window { background: var(--ui-surface) !important; color: var(--ui-text); border-color: var(--ui-border) !important; box-shadow: var(--ui-shadow) !important; }
+.us-overlay { background: var(--ui-overlay) !important; }

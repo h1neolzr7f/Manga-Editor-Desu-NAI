@@ -394,6 +394,7 @@ const base_fr = {
 "imageDownload":"Télécharger l'Image",
 "imageCopy":"Copier l'Image",
 "allRemove":"Tout Supprimer",
+"allRemoveConfirm":"Tout effacer sur cette page ? Action irréversible. Enregistrez d’abord le projet (Ctrl+S) pour le conserver.",
 "prompt":"Prompt",
 "searchReplace":"Rechercher et Remplacer",
 "sdWebUI":"SD WebUI",

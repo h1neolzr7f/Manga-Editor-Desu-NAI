@@ -139,11 +139,18 @@ class SecretGuardTest(unittest.TestCase):
         self.assertEqual(status, 403)
         self.assertEqual(self.capture.requests, [])
 
-    def test_explicit_user_token_is_rejected_from_opaque_file_origin(self):
+    def test_explicit_user_token_rejected_from_null_origin(self):
+        # PR #6 review P0: 'null' is also every sandboxed iframe on the web, so even an
+        # explicit token may not turn the proxy into a relay. file:// users are redirected
+        # to http://127.0.0.1:8000 by js/assets/boot-guard.js instead.
         status, _ = self.call("POST", "/nai-proxy/generate-image",
                               {"Origin": "null", "Authorization": "Bearer user-typed"}, b'{"input":"x"}')
         self.assertEqual(status, 403)
         self.assertEqual(self.capture.requests, [])
+        status, _ = self.call("POST", "/nai-proxy/generate-image",
+                              dict(self.same_origin, Authorization="Bearer user-typed"), b'{"input":"x"}')
+        self.assertEqual(status, 200)
+        self.assertEqual(self.capture.requests[-1]["headers"]["authorization"], "Bearer user-typed")
 
     def test_director_env_key_cannot_be_redirected(self):
         for label, headers in self.hostile_variants:
@@ -201,10 +208,11 @@ class SecretGuardTest(unittest.TestCase):
                     self.assertIsNone(response.getheader("Access-Control-Allow-Origin"))
             finally:
                 conn.close()
-        # Even explicit-token APIs must not be CORS-accessible to sandboxed files.
+        # API routes are no longer readable by 'null' origins either (PR #6 review P0).
         conn = http.client.HTTPConnection("127.0.0.1", self.port, timeout=8)
         try:
-            conn.request("GET", "/nai-proxy/health", headers={"Host": self.host, "Origin": "null"})
+            conn.request("GET", "/nai-proxy/health", headers={"Host": self.host, "Origin": "null",
+                                                              "Authorization": "Bearer user-typed"})
             response = conn.getresponse()
             response.read()
             self.assertEqual(response.status, 403)

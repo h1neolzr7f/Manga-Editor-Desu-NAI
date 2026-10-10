@@ -11,7 +11,7 @@
 | [PhotoDemon](https://github.com/tannerhelland/PhotoDemon) | 非破坏性图层、选区、撤销/重做、修图预览 | 沿用 Fabric 原生图层和 `js/layer/image-history-management.js` | 借鉴专业编辑的可逆交互体验；**没有引入 PhotoDemon VB6 代码** | 无 |
 | [AI Manga Factory（用户自有漫画流水线）](https://github.com/h1neolzr7f/jm-remix-pipeline) | Director 在真正生成前先输出可检查的分镜/编辑计划，避免直接改坏源素材 | `js/ai/manga-edit-planner.js`、`js/ai/manga-edit-planner-ui.js`、`js/ai/gpt-region-editor.js` | **借鉴计划→确认→执行的工作流思想；V1 是自行编写的本地规则解析器**，不调用模型，不声称具备角色视觉识别 | 无 |
 | [NovelAI Harness](https://github.com/h1neolzr7f/Novelai-harness) + AI Manga Factory 的角色锚点理念 | Character Bible：角色姓名、服装/外观文字锚点、多张参考图可跨分镜复用 | `js/ai/manga-character-bible-core.js`、`js/ai/manga-character-bible-ui.js`、`js/ai/gpt-region-editor.js` | **只借鉴“角色设定→参考图→修改确认”的产品思路**；角色卡格式、IndexedDB 存储、压缩和桥接均为本仓自行实现 | 无 |
-| [Simple LaMa](https://github.com/okaris/simple-lama) | 使用局部矩形蒙版，在本机离线模型上修复复杂背景原字；先预览后应用 | `manga_lama_inpaint.py`、`manga_smart_ocr.py`、`js/ai/manga-lama-inpaint-ui.js`、`js/ai/manga-smart-text-editor.js` | **运行时可选调用**公开 `SimpleLama()(PIL.Image, mask)` API；独立实现蒙版与 Fabric 图层管理，未复制上游代码或打包权重 | 可选 pip `simple-lama` 与首次模型下载 |
+| [simple-lama-inpainting](https://github.com/enesmsahin/simple-lama-inpainting) | 使用局部矩形蒙版，在本机离线模型上修复复杂背景原字；先预览后应用 | `manga_lama_inpaint.py`、`manga_smart_ocr.py`、`js/ai/manga-lama-inpaint-ui.js`、`js/ai/manga-smart-text-editor.js` | **运行时可选调用**公开 `SimpleLama()(PIL.Image, mask)` API；独立实现蒙版与 Fabric 图层管理，未复制上游代码或打包权重 | 可选 pip `simple-lama-inpainting`（Py3.12+ 需 `--no-deps`，见 MANGA_LAMA_INPAINT_V1.md）与用户确认后的首次模型下载 |
 | Manga-NAI 原生 Fabric 页面编辑器 | 画布序列化、结构化对象、已有文字图层及 GPT 代理 | `js/ai/manga-smart-text-editor.js`、`js/ai/gpt-region-editor.js`、`js/core/settings.js` | **直接复用本项目现有代码与接口** | 项目已有依赖 |
 
 ## 本轮新增代码模块地图
@@ -53,7 +53,7 @@
 ## LaMa 去字引用记录（PR #11）
 
 - `manga_lama_inpaint.py` 用公开 API 调用可选上游包，在服务端合成回原图蒙版外像素，避免模型更改整块背景。
-- `js/ai/manga-lama-inpaint-ui.js` 生成局部 PNG 蒙版，展示预览，点击确认才生成可撤销 Fabric 修复图层。
+- `js/ai/manga-lama-inpaint-ui.js` 以 OCR 框生成初始 PNG 蒙版，并提供双向涂抹（标记去字/保留原图）、尺寸调节与重置；只有明确请求 LaMa 预览后才运行可选本地模型，再单独确认生成可撤销 Fabric 修复图层。
 - `scripts/manga-lama-inpaint-test.py` 与 Chromium 模拟模型检查未安装依赖/不调用付费 API/确认前不改原图。
 - **原始默认矩形蒙版**，现已有手绘画笔修正与浅色纯净底色深色墨迹候选（`js/ai/manga-text-ink-mask.js`，自行编写）；仍不能替代精确字符语义分割或真实 LaMa 质量验收。
 - `scripts/manga-text-ink-mask-test.cjs`：不依赖模型权重的透明/边缘/暗底/全黑/空白边界单测。候选按钮在 `js/ai/manga-lama-inpaint-ui.js`，网页入口由 `index.html` 加载；没有搬运第三方算法源码。

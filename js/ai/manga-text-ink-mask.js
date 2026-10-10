@@ -70,14 +70,28 @@
     if(dark<3)return fail('未找到足够可靠的深色文字笔画，请保留手动蒙版。');
     if(dark/total>.43)
       return fail('候选墨迹覆盖范围过大，可能是人物或画面纹理，请手动框选。');
+    // Anti-aliased rims are lighter than the threshold; LaMa re-grows faint glyphs from them
+    // ("ghost" text). Add softer ink pixels that touch strong ink, then dilate by a radius that
+    // scales with the text (>=2px; 1px was too little on a 200dpi page).
+    const soft=Math.min(235,brightness-22);
+    for(let pass=0;pass<2;pass++)for(let py=y;py<bottom;py++)for(let px=x;px<right;px++){
+      const k=py*w+px; if(values[k])continue;
+      const i=k*4; if(data[i+3]<245)continue;
+      const lum=.2126*data[i]+.7152*data[i+1]+.0722*data[i+2];
+      if(lum>=soft)continue;
+      if((px>x&&values[k-1]===1)||(px<right-1&&values[k+1]===1)||(py>y&&values[k-w]===1)||(py<bottom-1&&values[k+w]===1))values[k]=2;
+    }
+    for(let k=0;k<values.length;k++)if(values[k]===2)values[k]=1;
+    const radius=Math.max(2,Math.min(5,Math.round(Math.min(bw,bh)*.04)));
+    const mx0=Math.max(0,x-radius),my0=Math.max(0,y-radius);
+    const mx1=Math.min(w-1,right-1+radius),my1=Math.min(h-1,bottom-1+radius);
     const mask=new Uint8ClampedArray(w*h);
     let filled=0;
-    // 1 pixel ink padding includes antialiasing without engulfing the bubble.
     for(let py=y;py<bottom;py++)for(let px=x;px<right;px++){
       const k=py*w+px;
       if(!values[k])continue;
-      for(let yy=Math.max(y,py-1);yy<=Math.min(bottom-1,py+1);yy++)
-        for(let xx=Math.max(x,px-1);xx<=Math.min(right-1,px+1);xx++){
+      for(let yy=Math.max(my0,py-radius);yy<=Math.min(my1,py+radius);yy++)
+        for(let xx=Math.max(mx0,px-radius);xx<=Math.min(mx1,px+radius);xx++){
           const index=yy*w+xx;
           if(!mask[index]){mask[index]=255;filled++;}
         }

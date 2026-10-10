@@ -1,3 +1,4 @@
+/* exported baseStylesDefault, createFilterElement, getFirstNCharsDefault */
 let svgHttp="http://www.w3.org/2000/svg";
 const baseStylesDefault="";
 
@@ -10,16 +11,6 @@ element.setAttribute(key,value)
 );
 }
 
-function createFilterOneElement(type,attrs,child=null){
-const element=createSvgElement(type);
-setAttributes(element,attrs);
-if(child){
-const childElement=createSvgElement(child.type);
-setAttributes(childElement,child.attrs);
-element.appendChild(childElement);
-}
-return element;
-}
 function createFilterElement(type,attrs,children=[]) {
 const element=createSvgElement(type);
 setAttributes(element,attrs);
@@ -31,12 +22,6 @@ element.appendChild(childElement);
 return element;
 }
 
-
-function createMergeNode(inValue) {
-const node=createSvgElement("feMergeNode");
-setAttributes(node,{in: inValue});
-return node;
-}
 
 function getFirstNCharsDefault(textarea) {
 return getFirstNChars(textarea,20);

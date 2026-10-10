@@ -292,7 +292,6 @@ return date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+Stri
 async function getStreak(){
 try{
 var dailyData=await getDailyStats();
-var keys=Object.keys(dailyData).sort().reverse();
 var currentStreak=0;
 var today=new Date();
 today.setHours(0,0,0,0);
@@ -321,7 +320,7 @@ checkDate.setDate(checkDate.getDate()-1);
 break;
 }
 }
-var longestStreak=(await timeStore.getItem('longestStreak'))||0;
+longestStreak=(await timeStore.getItem('longestStreak'))||0;
 if(currentStreak>longestStreak){
 longestStreak=currentStreak;
 await timeStore.setItem('longestStreak',longestStreak);

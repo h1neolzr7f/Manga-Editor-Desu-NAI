@@ -12,14 +12,17 @@ import os
 import re
 import shutil
 import subprocess
+import threading
 
 from gpt_image_proxy import _authorized_local_request
 
 MAX_IMAGE_BYTES = 12 * 1024 * 1024
 MAX_HTTP_BYTES = 17 * 1024 * 1024
 MAX_PIXELS = 25 * 1024 * 1024
-LANGUAGES = frozenset(("jpn+eng", "jpn_vert+eng", "eng", "chi_sim+eng", "chi_tra+eng", "kor+eng"))
+LANGUAGES = frozenset(("auto", "jpn+eng", "jpn_vert+eng", "eng", "chi_sim+eng", "chi_tra+eng", "kor+eng"))
 MAX_REGIONS = 120
+# At most two Tesseract processes at once (each may use several cores / ~1GB on big pages).
+_TESSERACT_SLOTS = threading.BoundedSemaphore(2)
 
 
 class SmartOcrError(ValueError):
@@ -59,6 +62,33 @@ def _joined_words(words):
     return out
 
 
+CJK_OR_KANA = re.compile(r"[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af\uff66-\uff9f]")
+
+
+def is_ocr_noise(text, confidence):
+    """True for fragments Tesseract reads out of art, screentone or panel lines.
+
+    Anything with kana/CJK/Hangul is kept (the user decides). Dropped: pure symbols
+    (except a confident "!?"), single Latin letters/digits, and short Latin bits that
+    are mostly symbols or mixed case ("<<NS", "0)", "Wi"). Real words survive.
+    """
+    compact = re.sub(r"\s+", "", text or "")
+    if not compact:
+        return True
+    if CJK_OR_KANA.search(compact):
+        return False
+    core = re.sub(r"[^0-9A-Za-z]", "", compact)
+    if not core:
+        return not (re.fullmatch(r"[!?\uff01\uff1f\u2026.]+", compact) and confidence >= 80)
+    if (len(compact) - len(core)) / len(compact) > 0.25:
+        return True
+    if len(core) == 1:
+        return True
+    if len(core) == 2:
+        return not (core.isalpha() and (core.isupper() or core.islower()) and confidence >= 60)
+    return False
+
+
 def parse_tsv(tsv, width, height, language):
     """Read word-level OCR lines from TSV; discard low confidence and empty OCR noise."""
     groups = {}
@@ -87,10 +117,13 @@ def parse_tsv(tsv, width, height, language):
         text = _joined_words([word[4] for word in words])
         if not text or right <= left or bottom <= top:
             continue
+        confidence = round(sum(w[5] for w in words) / len(words), 1)
+        if is_ocr_noise(text, confidence):
+            continue
         regions.append({
             "text": text[:500], "x": left, "y": top,
             "width": right - left, "height": bottom - top,
-            "confidence": round(sum(w[5] for w in words) / len(words), 1),
+            "confidence": confidence,
             "vertical": language.startswith("jpn_vert"),
         })
     regions.sort(key=lambda r: (r["y"], r["x"]))
@@ -114,7 +147,7 @@ def find_tesseract():
     return None
 
 
-def ocr_image(data_url, language="jpn+eng"):
+def ocr_image(data_url, language="auto"):
     if language not in LANGUAGES:
         raise SmartOcrError("OCR 语言不受支持。")
     image, width, height = read_image(data_url)
@@ -123,8 +156,80 @@ def ocr_image(data_url, language="jpn+eng"):
         raise SmartOcrError(
             "未安装本地 Tesseract OCR。请安装 Tesseract 和日文语言包（jpn、jpn_vert），或使用手动框选字幕。",
             503)
+    if not _TESSERACT_SLOTS.acquire(blocking=False):
+        raise SmartOcrError("已有 OCR 任务在运行，请等待完成后再试。", 429)
+    psm = "5" if language.startswith("jpn_vert") else "11"
+    if language == "auto":
+        try:
+            return _ocr_auto(executable, image, width, height)
+        finally:
+            _TESSERACT_SLOTS.release()
     try:
-        psm = "5" if language.startswith("jpn_vert") else "11"
+        # Tesseract ignores text enclosed by a closed bubble outline; OCR a copy with
+        # outlines/borders whitened as well (same coordinates), then the original.
+        cleaned = None
+        try:
+            from manga_ocr_preclean import strip_frames
+            cleaned = strip_frames(image, width, height)
+        except Exception:
+            cleaned = None
+        regions = []
+        if cleaned:
+            regions = parse_tsv(_run_tesseract(executable, cleaned, language, psm), width, height, language)
+        original = parse_tsv(_run_tesseract(executable, image, language, psm), width, height, language)
+        regions = merge_regions(regions, original)
+    finally:
+        _TESSERACT_SLOTS.release()
+    return {"ok": True, "width": width, "height": height, "regions": regions,
+            "engine": "tesseract-local", "preclean": bool(cleaned)}
+
+
+def _ocr_auto(executable, image, width, height):
+    """Default for beginners: bubble-first (vertical+horizontal per bubble), then a vertical
+    whole-page pass for text outside bubbles that clearly reads as Japanese."""
+    from manga_bubble_ocr import find_bubbles, read_bubble, japanese_score
+    run = lambda png, lang, psm: _run_tesseract(executable, png, lang, psm)
+    regions = []
+    try:
+        bubbles = find_bubbles(image)
+    except Exception:
+        bubbles = []
+    for bubble in bubbles:
+        region = read_bubble(run, parse_tsv, bubble)
+        if region:
+            regions.append(region)
+    cleaned = None
+    try:
+        from manga_ocr_preclean import strip_frames
+        cleaned = strip_frames(image, width, height)
+    except Exception:
+        cleaned = None
+    loose = parse_tsv(_run_tesseract(executable, cleaned or image, "jpn_vert", "5"), width, height, "jpn_vert")
+    loose = [r for r in loose if japanese_score(r["text"], r["confidence"]) >= 2.0]
+    regions = merge_regions(regions, loose)
+    return {"ok": True, "width": width, "height": height, "regions": regions,
+            "engine": "tesseract-local", "mode": "auto", "bubbles": len(bubbles), "preclean": bool(cleaned)}
+
+
+def _overlap(a, b):
+    ix = max(0, min(a["x"] + a["width"], b["x"] + b["width"]) - max(a["x"], b["x"]))
+    iy = max(0, min(a["y"] + a["height"], b["y"] + b["height"]) - max(a["y"], b["y"]))
+    small = min(a["width"] * a["height"], b["width"] * b["height"]) or 1
+    return ix * iy / float(small)
+
+
+def merge_regions(primary, extra):
+    """Keep every primary region; add extra regions that do not overlap one (>30%)."""
+    out = list(primary)
+    for region in extra:
+        if all(_overlap(region, kept) <= 0.3 for kept in out):
+            out.append(region)
+    out.sort(key=lambda r: (r["y"], r["x"]))
+    return out[:MAX_REGIONS]
+
+
+def _run_tesseract(executable, image, language, psm):
+    try:
         process = subprocess.run(
             [executable, "stdin", "stdout", "-l", language, "--psm", psm, "tsv"],
             input=image, capture_output=True, text=False, timeout=75, check=False)
@@ -141,13 +246,54 @@ def ocr_image(data_url, language="jpn+eng"):
             "未找到 OCR 语言包。请安装所选语言的 Tesseract traineddata。"
             if missing else "Tesseract 识别失败，请确认输入图片可正常打开。",
             503 if missing else 502)
-    return {"ok": True, "width": width, "height": height,
-            "regions": parse_tsv(stdout, width, height, language), "engine": "tesseract-local"}
+    return stdout
+
+
+def _sam_cached():
+    try:
+        from manga_sam_select import cached
+        return cached()
+    except Exception:
+        return False
+
+
+def _ctd_cached():
+    try:
+        from manga_text_detector import cached
+        return cached()
+    except Exception:
+        return False
+
+
+def local_model_status():
+    """Cheap readiness check for the settings page: no model is loaded or downloaded."""
+    import importlib.util
+    executable = find_tesseract()
+    langs = []
+    if executable:
+        try:
+            out = subprocess.run([executable, "--list-langs"], capture_output=True, text=True, timeout=10).stdout
+            langs = [x.strip() for x in out.splitlines()[1:] if x.strip()]
+        except (OSError, subprocess.SubprocessError):
+            langs = []
+    def has(name):
+        try:
+            return importlib.util.find_spec(name) is not None
+        except (ImportError, ValueError):
+            return False
+    lama = any(has(m) for m in ("simple_lama_inpainting", "simple_lama")) and has("torch")
+    return {"ok": True,
+            "ocr": {"ready": bool(executable) and ("jpn" in langs or "jpn_vert" in langs), "tesseract": bool(executable),
+                    "languages": [x for x in langs if x in ("jpn", "jpn_vert", "eng", "chi_sim", "chi_tra")]},
+            "lama": {"ready": lama},
+            "mangaOcr": {"ready": has("manga_ocr")},
+            "textDetector": {"ready": has("onnxruntime") and has("cv2"), "cached": _ctd_cached()},
+            "samSelect": {"ready": has("torch") and has("sam2") and has("cv2"), "cached": _sam_cached()}}
 
 
 def handle_smart_ocr_post(handler):
     route = handler.path.split("?", 1)[0]
-    if route not in ("/manga-smart/ocr", "/manga-smart/manga-ocr", "/manga-smart/lama-inpaint"):
+    if route not in ("/manga-smart/ocr", "/manga-smart/manga-ocr", "/manga-smart/lama-inpaint", "/manga-smart/status", "/manga-smart/text-mask", "/manga-smart/sam-click"):
         return False
     if not _authorized_local_request(handler):
         handler.close_connection = True
@@ -162,18 +308,29 @@ def handle_smart_ocr_post(handler):
         data = json.loads(handler.rfile.read(length))
         if not isinstance(data, dict):
             raise SmartOcrError("OCR 请求必须是对象。")
-        if route == "/manga-smart/lama-inpaint":
+        allow_download = data.get("allow_download") is True
+        if route == "/manga-smart/status":
+            result = local_model_status()
+        elif route == "/manga-smart/sam-click":
+            from manga_sam_select import select
+            result = select(data)
+        elif route == "/manga-smart/text-mask":
+            from manga_text_detector import detect
+            result = detect(data.get("image"), allow_download)
+        elif route == "/manga-smart/lama-inpaint":
             from manga_lama_inpaint import inpaint
-            result = inpaint(data.get("image"), data.get("mask"))
+            result = inpaint(data.get("image"), data.get("mask"), allow_download)
         elif route == "/manga-smart/manga-ocr":
             # Heavy optional model only imported after same-origin, length and JSON guards.
             from manga_ocr_refiner import refine_region
-            result = refine_region(data.get("image"))
+            result = refine_region(data.get("image"), allow_download)
         else:
             result = ocr_image(data.get("image"), data.get("language") or "jpn+eng")
         handler._send_json(result)
     except SmartOcrError as exc:
-        handler._send_json({"ok": False, "error": str(exc)}, exc.status)
+        payload = {"ok": False, "error": str(exc)}
+        payload.update(getattr(exc, "extra", None) or {})
+        handler._send_json(payload, exc.status)
     except (ValueError, UnicodeDecodeError, json.JSONDecodeError):
         handler._send_json({"ok": False, "error": "OCR 请求 JSON 无效。"}, 400)
     except Exception:

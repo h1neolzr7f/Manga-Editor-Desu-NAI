@@ -136,14 +136,27 @@ def _get_local_proxy_fallback():
 def _get_proxy_url():
     return os.environ.get('HTTPS_PROXY') or os.environ.get('HTTP_PROXY') or _get_windows_user_proxy() or _get_local_proxy_fallback()
 
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Never follow upstream redirects: a 30x could carry Authorization or the
+    request to a host that was never validated (SSRF / credential leak)."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
 def _build_proxy_opener():
     proxy_url = _get_proxy_url()
     if not proxy_url:
-        return urllib.request.build_opener()
-    return urllib.request.build_opener(urllib.request.ProxyHandler({
+        return urllib.request.build_opener(_NoRedirect())
+    return urllib.request.build_opener(_NoRedirect(), urllib.request.ProxyHandler({
         'http': proxy_url,
         'https': proxy_url
     }))
+
+
+def _build_direct_opener():
+    """Loopback upstreams (local tagger): no system proxy, no redirects."""
+    return urllib.request.build_opener(_NoRedirect(), urllib.request.ProxyHandler({}))
 
 def _browser_headers(extra=None):
     headers = {
@@ -264,20 +277,94 @@ def is_blocked_static_path(request_path):
             return True
     return False
 
-def cors_allow_origin(origin):
+def cors_allow_origin(origin, host=None):
+    """CORS is only ever granted to the editor page itself (exact same origin).
+
+    'null' (sandboxed iframes of ANY website, file:// pages), foreign sites and other
+    localhost ports never get Access-Control-Allow-Origin. file:// users are sent to
+    http://127.0.0.1:8000 by js/assets/boot-guard.js instead.
+    """
     origin = (origin or '').strip()
     if not origin or origin == 'null':
         return ''
-    try:
-        parsed = urllib.parse.urlsplit(origin)
-        host = (parsed.hostname or '').lower()
-        if parsed.scheme in ('http', 'https') and host in ('127.0.0.1', 'localhost', '::1'):
-            return origin
-    except Exception:
+    if host is None:
+        # Origin-only form (Host unknown): loopback http(s) origins only. end_headers
+        # always passes the Host, which narrows this to the exact same origin.
+        try:
+            parsed = urllib.parse.urlsplit(origin)
+            if parsed.scheme in ('http', 'https') and (parsed.hostname or '').lower() in LOCAL_HOSTNAMES:
+                return origin
+        except ValueError:
+            pass
         return ''
-    return ''
+    host = host.strip().lower()
+    if not host:
+        return ''
+    try:
+        hostname = urllib.parse.urlsplit('//' + host).hostname or ''
+    except ValueError:
+        return ''
+    if hostname not in LOCAL_HOSTNAMES:
+        return ''
+    return origin if origin.lower() == 'http://' + host else ''
 
 LOCAL_HOSTNAMES = ('127.0.0.1', 'localhost', '::1')
+# Every route that proxies, spends credits, starts jobs, writes files or runs models.
+# Only the same-origin editor page (or a local non-browser script) may call them.
+API_PREFIXES = ('/nai-proxy/', '/director-proxy/', '/tagger-proxy/', '/nai-tools/',
+                '/user-assets', '/gpt-image-proxy', '/manga-smart/')
+MAX_JSON_BODY_BYTES = 48 * 1024 * 1024
+MAX_DIRECTOR_BODY_BYTES = 4 * 1024 * 1024
+
+
+def is_api_path(path):
+    path = urllib.parse.urlsplit(path or '').path
+    return any(path == p.rstrip('/') or path.startswith(p) for p in API_PREFIXES)
+
+
+def validate_upstream_url(url, own_port=None):
+    """Return an error string, or '' when the proxy may contact `url`.
+
+    Blocks non-HTTP schemes, credentials in the URL, link-local / metadata / unspecified
+    / multicast addresses (also after DNS resolution), and this server itself (proxy
+    chains into /nai-tools etc.). Other loopback services (local LLM, tagger) stay allowed
+    because only the same-origin editor can reach the proxies at all.
+    """
+    try:
+        parsed = urllib.parse.urlsplit(url or '')
+        port = parsed.port or (443 if parsed.scheme == 'https' else 80)
+    except ValueError:
+        return 'invalid URL'
+    if parsed.scheme not in ('http', 'https') or not parsed.hostname:
+        return 'only http(s) URLs are allowed'
+    if parsed.username or parsed.password:
+        return 'credentials in URL are not allowed'
+    host = parsed.hostname.lower().rstrip('.')
+    if host in ('metadata.google.internal', 'metadata'):
+        return 'cloud metadata endpoints are blocked'
+    try:
+        infos = socket.getaddrinfo(host, port, proto=socket.IPPROTO_TCP)
+        addresses = {info[4][0].split('%', 1)[0] for info in infos}
+    except (socket.gaierror, UnicodeError, OSError):
+        addresses = set()
+        try:
+            addresses.add(str(ipaddress.ip_address(host)))
+        except ValueError:
+            pass
+    for address in addresses:
+        try:
+            ip = ipaddress.ip_address(address)
+        except ValueError:
+            continue
+        if getattr(ip, 'ipv4_mapped', None):
+            ip = ip.ipv4_mapped
+        if ip.is_link_local or ip.is_unspecified or ip.is_multicast or ip.is_reserved:
+            return 'link-local / reserved addresses are blocked'
+        if ip.is_loopback and own_port and port == own_port:
+            return 'the proxy may not call this server itself'
+    if host in LOCAL_HOSTNAMES and own_port and port == own_port:
+        return 'the proxy may not call this server itself'
+    return ''
 # No third-party default: the Director gateway is only used when the user configures
 # a URL (UI field or DIRECTOR_API_URL in .env).
 DEFAULT_DIRECTOR_API_URL = ''
@@ -559,6 +646,8 @@ def _is_allowed_tagger_url(url):
 
 class CORSRequestHandler(SimpleHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
+    # Socket timeout for slow / stalled clients (uploads, keep-alive).
+    timeout = 120
     
     def log_message(self, format, *args):
         if QUIET_REQUESTS:
@@ -566,10 +655,9 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         return super(CORSRequestHandler, self).log_message(format, *args)
     
     def end_headers(self):
-        # Never echo an opaque/null origin: it may be an attacker-owned sandbox.
-        # Echo a browser Origin only for an exact same-origin local editor request.
-        origin = cors_allow_origin(self.headers.get('Origin'))
-        if not self._trusted_local() or origin != 'http://' + (self.headers.get('Host') or '').strip().lower():
+        # Never echo an opaque/null origin: only the exact same-origin, trusted editor.
+        origin = cors_allow_origin(self.headers.get('Origin'), self.headers.get('Host'))
+        if origin and not self._trusted_local():
             origin = ''
         if origin:
             self.send_header('Access-Control-Allow-Origin', origin)
@@ -588,13 +676,60 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         """State-changing local tools must not be reachable from other websites."""
         if self._trusted_local():
             return False
-        # The request body was not read; never reuse this keep-alive connection.
+        # Never reuse this keep-alive connection. Drain a small body first: answering while the
+        # client is still sending makes Windows reset the socket (WinError 10053) so the caller
+        # sees a connection abort instead of the 403 (flaky Windows CI). Large bodies stay unread.
         self.close_connection = True
+        self._drain_small_body()
         self._send_json({'error': 'Only the local editor page (same origin) may call this endpoint.'}, 403)
         return True
 
+    def _drain_small_body(self, limit=1 << 20):
+        try:
+            length = int(self.headers.get('Content-Length') or 0)
+        except (TypeError, ValueError):
+            return
+        if 0 < length <= limit:
+            try:
+                self.connection.settimeout(2)
+                self.rfile.read(length)
+            except OSError:
+                pass
+
+    def _own_port(self):
+        try:
+            return int(self.server.server_address[1])
+        except Exception:
+            return None
+
+    def _reject_untrusted_api(self):
+        """Gate for every API route (see API_PREFIXES), before any body is read."""
+        if not is_api_path(self.path):
+            return False
+        return self._reject_untrusted()
+
+    def _content_length(self, limit):
+        """Parsed Content-Length, or None after answering 400/413."""
+        try:
+            length = int(self.headers.get('Content-Length', '0') or '0')
+        except ValueError:
+            length = -1
+        if length < 0:
+            self.close_connection = True
+            self._send_json({'error': 'Invalid Content-Length'}, 400)
+            return None
+        if length > limit:
+            self.close_connection = True
+            self._send_json({'error': 'Payload too large'}, 413)
+            return None
+        return length
+
     def do_OPTIONS(self):
-        if self._reject_untrusted():
+        # Same-origin requests never need a preflight; any preflight from another
+        # origin (including 'null') is refused so the browser never sends the request.
+        if not self._trusted_local():
+            self.close_connection = True
+            self._send_json({'error': 'Cross-origin requests are not allowed.'}, 403)
             return
         self.send_response(204)
         self.send_header('Content-Length', '0')
@@ -616,14 +751,18 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(payload)
 
-    def _read_json_body(self):
-        length = int(self.headers.get('Content-Length', '0') or '0')
+    def _read_json_body(self, limit=MAX_JSON_BODY_BYTES):
+        """JSON object body; None after an error response was already sent."""
+        length = self._content_length(limit)
+        if length is None:
+            return None
         if not length:
             return {}
         try:
-            return json.loads(self.rfile.read(length).decode('utf-8') or '{}')
+            data = json.loads(self.rfile.read(length).decode('utf-8') or '{}')
         except Exception:
             return {}
+        return data if isinstance(data, dict) else {}
 
     def _normalize_director_body(self, body):
         if not body:
@@ -688,9 +827,9 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         if not upstream_url:
             self.send_error(400, 'Missing X-Director-Api-Url header')
             return
-        parsed = urllib.parse.urlsplit(upstream_url)
-        if parsed.scheme not in ('http', 'https') or not parsed.netloc:
-            self.send_error(400, 'Invalid director API URL')
+        url_error = validate_upstream_url(upstream_url, self._own_port())
+        if url_error:
+            self._send_json({'error': 'Invalid director API URL: ' + url_error}, 400)
             return
 
         headers = {
@@ -726,9 +865,15 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
 
     def _proxy_tagger(self):
         body = self._read_json_body()
-        upstream_url = (body.get('tagger_url') or os.environ.get('TAGGER_API_URL') or 'http://127.0.0.1:7860/tag').strip()
+        if body is None:
+            return
+        upstream_url = str(body.get('tagger_url') or os.environ.get('TAGGER_API_URL') or 'http://127.0.0.1:7860/tag').strip()
         if not _is_allowed_tagger_url(upstream_url):
             self._send_json({'error': 'Invalid or non-local tagger_url. Set TAGGER_ALLOW_REMOTE=1 to allow remote taggers.'}, 400)
+            return
+        url_error = validate_upstream_url(upstream_url, self._own_port())
+        if url_error:
+            self._send_json({'error': 'Invalid tagger_url: ' + url_error}, 400)
             return
         if not body.get('image'):
             self._send_json({'error': 'Missing image data'}, 400)
@@ -741,7 +886,8 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             'Content-Type': 'application/json'
         }, method='POST')
         try:
-            with urllib.request.build_opener().open(request, timeout=90) as response:
+            opener = _build_proxy_opener() if os.environ.get('TAGGER_ALLOW_REMOTE') == '1' else _build_direct_opener()
+            with opener.open(request, timeout=90) as response:
                 data = response.read()
                 content_type = response.headers.get('Content-Type', 'application/json')
                 if 'application/json' in content_type:
@@ -770,10 +916,11 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         if not token:
             self._send_json({'error': 'Missing director API token'}, 401)
             return
-        parsed = urllib.parse.urlsplit(upstream_url)
-        if parsed.scheme not in ('http', 'https') or not parsed.netloc:
-            self._send_json({'error': 'Invalid director API URL'}, 400)
+        url_error = validate_upstream_url(upstream_url, self._own_port())
+        if url_error:
+            self._send_json({'error': 'Invalid director API URL: ' + url_error}, 400)
             return
+        parsed = urllib.parse.urlsplit(upstream_url)
         base_path = parsed.path
         if base_path.endswith('/chat/completions'):
             base_path = base_path[:-len('/chat/completions')]
@@ -811,11 +958,8 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             self._send_json(_director_fallback_models(f'{type(error).__name__}: {error}'))
 
     def do_POST(self):
-        # Deny unsafe proxy callers *before* reading their body, borrowing a
-        # token or opening any upstream connection (including file:// null Origin).
-        if self.path.startswith(('/nai-proxy/', '/director-proxy/', '/tagger-proxy/')):
-            if self._reject_untrusted():
-                return
+        if self._reject_untrusted_api():
+            return
         # Load the optional GPT extension on demand: existing scripts that load
         # 99_server.py through importlib must not require a modified sys.path.
         from gpt_image_proxy import handle_gpt_image_post
@@ -825,13 +969,17 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         if handle_smart_ocr_post(self):
             return
         if self.path == '/nai-proxy/generate-image':
-            length = int(self.headers.get('Content-Length', '0') or '0')
+            length = self._content_length(MAX_JSON_BODY_BYTES)
+            if length is None:
+                return
             body = self.rfile.read(length) if length else b''
             body = _normalize_novelai_body(body)
             self._proxy_novelai('POST', '/ai/generate-image', body)
             return
         if self.path == '/director-proxy/chat-completions':
-            length = int(self.headers.get('Content-Length', '0') or '0')
+            length = self._content_length(MAX_DIRECTOR_BODY_BYTES)
+            if length is None:
+                return
             body = self.rfile.read(length) if length else b''
             self._proxy_director(body)
             return
@@ -845,7 +993,9 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             if not token:
                 self._send_json({'error': 'Missing Authorization header'}, 401)
                 return
-            body = self._read_json_body()
+            body = self._read_json_body(1024 * 1024)
+            if body is None:
+                return
             try:
                 preview_status = _material_preview_missing_status()
                 if int(preview_status.get('missing') or 0) <= 0:
@@ -860,13 +1010,14 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
                 pass
             args = ['previews']
             limit = body.get('limit')
-            if isinstance(limit, int) and limit > 0:
-                args.append(f'--limit={limit}')
+            if isinstance(limit, int) and not isinstance(limit, bool) and limit > 0:
+                args.append(f'--limit={min(limit, 500)}')
             steps = body.get('steps')
-            if isinstance(steps, int) and steps > 0:
-                args.append(f'--steps={steps}')
+            if isinstance(steps, int) and not isinstance(steps, bool) and steps > 0:
+                # Free-tier policy: never exceed NAI_MAX_STEPS (default 28).
+                args.append(f'--steps={min(steps, max(1, _env_int("NAI_MAX_STEPS", 28)))}')
             scale = body.get('scale')
-            if isinstance(scale, (int, float)) and scale > 0:
+            if isinstance(scale, (int, float)) and not isinstance(scale, bool) and 0 < scale <= 20:
                 args.append(f'--scale={scale}')
             job = _start_tool_job('material-previews', token, args)
             self._send_json({'job_id': job['id'], 'status': job['status']})
@@ -884,11 +1035,9 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         if self.path == '/user-assets':
             if self._reject_untrusted():
                 return
-            length = int(self.headers.get('Content-Length', '0') or '0')
-            if length > int(USER_ASSET_MAX_BYTES * 1.4) + 8192:
-                self._send_json({'error': 'Payload too large'}, 413)
+            body = self._read_json_body(int(USER_ASSET_MAX_BYTES * 1.4) + 8192)
+            if body is None:
                 return
-            body = self._read_json_body()
             path, error = save_imported_asset(body)
             if error:
                 self._send_json({'error': error}, 400)
@@ -898,9 +1047,8 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         self.send_error(404, 'Not Found')
         
     def do_GET(self):
-        if self.path.startswith(('/nai-proxy/', '/director-proxy/', '/tagger-proxy/')):
-            if self._reject_untrusted():
-                return
+        if self._reject_untrusted_api():
+            return
         if self.path.startswith('/director-proxy/models'):
             self._proxy_director_models()
             return

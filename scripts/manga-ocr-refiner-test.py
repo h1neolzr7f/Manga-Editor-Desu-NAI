@@ -71,7 +71,7 @@ class MangaOcrRefinerTest(unittest.TestCase):
             def __call__(self,image):return "テスト"
         with mock.patch.object(refiner.importlib,"import_module",
                                return_value=SimpleNamespace(MangaOcr=FakeManga)):
-            first=refiner.get_model()
+            first=refiner.get_model(allow_download=True)
             second=refiner.get_model()
         self.assertIs(first,second)
         self.assertEqual(FakeManga.count,1)

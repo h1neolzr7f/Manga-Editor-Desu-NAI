@@ -6,6 +6,8 @@
   'use strict';
 
   const state = {
+    task: null,          // wizard task {id, preset} while a beginner task wizard drives the panel
+    appliedCount: 0,
     region: null,
     result: '',
     pending: false,
@@ -21,6 +23,11 @@
   const SIZE_ASPECTS = { '1024x1024': [1024, 1024], '1536x1024': [1536, 1024], '1024x1536': [1024, 1536] };
   // Longer than the local relay's upstream timeout (300 s) so its readable 504 arrives first.
   const REQUEST_TIMEOUT_MS = 330000;
+  // Image model presets (ids from the relay's /v1/models, 2026-10-10). First entry is the default.
+  // The text box stays editable, so any other compatible model id can still be typed in.
+  const GPT_MODEL_PRESETS = ['gpt-image-2.5', 'gpt-image-2.5-flare', 'gpt-image-2.5-sunburst', 'gpt-image-2', 'gpt-image-1'];
+  const GPT_DEFAULT_MODEL = GPT_MODEL_PRESETS[0];
+  function modelPresetFor(id) { return GPT_MODEL_PRESETS.includes(id) ? id : 'custom'; }
   // Mean |residual| (0-255) on the context ring above which the model is considered to have
   // recomposed the surroundings; measured on real gpt-image-2 results (drift 2-16, recomposed 33-51).
   const DRIFT_MAX_RESIDUAL = 20;
@@ -288,8 +295,218 @@
     return mean.map(v => Math.max(-maxOffset, Math.min(maxOffset, Math.round(v))));
   }
 
-  // Bake crop (+ optional colour offset and feather) into a bitmap at the crop's native resolution.
-  function bakePatch(imageElement, crop, scale, feather, offset, alphaMask) {
+  // Seam colour match. A real model often repaints the background of the selection a few levels
+  // lighter/darker (real gpt-image-2.5 cases C/D: a pale rectangle around the patch), and when it
+  // recomposes the scene estimateDrift() rightly refuses a global offset. Instead compare a thin ring
+  // just inside each interior edge with the original pixels there and fade that per-side difference
+  // out towards the centre: the edges meet the page, the middle keeps the model's colours.
+  const SEAM_RING = 4;
+  const SEAM_MAX = 28;        // a larger per-pixel step is changed content (other hair, new object), not drift
+  const SEAM_SHIFT_MAX = 96;  // a whole side shifted uniformly (sky repainted lighter) is still drift, up to this many levels
+  const SEAM_SMOOTH = 64;     // correction profile is smoothed along the edge over this many pixels
+  // Per side: a smoothed per-position colour difference (orig - patch) along the edge, measured on a
+  // thin inner ring. Positions where the content itself changed are skipped, so a red-hair-vs-silver-hair
+  // edge does not smear a tint along the whole side (first real retest showed cyan bands with a single
+  // per-side mean).
+  function seamDiffs(patch, orig, w, h, sides, ring) {
+    const rw = Math.max(1, Math.min(ring || SEAM_RING, Math.floor(Math.min(w, h) / 4)));
+    const out = {};
+    for (const side of ['left', 'right', 'top', 'bottom']) {
+      if (!sides || !sides[side]) continue;
+      const vertical = side === 'left' || side === 'right';
+      const len = vertical ? h : w;
+      const sum = new Float32Array(len * 3), cnt = new Float32Array(len);
+      // the side's typical shift (per-channel median): samples are judged against it, not against 0, so a
+      // uniform tonal shift larger than SEAM_MAX (real case: sky 56 levels lighter → pale rectangle) is corrected
+      // while content that really changed still stands out from the median and is skipped
+      const ds = [[], [], []];
+      for (let t = 0; t < len; t += 2) {
+        for (let k = 0; k < rw; k++) {
+          const x = vertical ? (side === 'left' ? k : w - 1 - k) : t;
+          const y = vertical ? t : (side === 'top' ? k : h - 1 - k);
+          const i = (y * w + x) * 4;
+          if (orig[i + 3] < 250 || patch[i + 3] < 8) continue;
+          for (let c = 0; c < 3; c++) ds[c].push(orig[i + c] - patch[i + c]);
+        }
+      }
+      const med = ds.map(a => { if (!a.length) return 0; const b = a.slice().sort((p, q) => p - q); return b[b.length >> 1]; });
+      // trust the median only when most samples agree with it (a 50/50 mix of drift and new content gives a vector
+      // that matches neither); otherwise judge against 0 as before
+      let agree = 0;
+      for (let j = 0; j < ds[0].length; j++) if ((Math.abs(ds[0][j] - med[0]) + Math.abs(ds[1][j] - med[1]) + Math.abs(ds[2][j] - med[2])) / 3 <= SEAM_MAX) agree++;
+      if (agree < ds[0].length * 0.6) med[0] = med[1] = med[2] = 0;
+      if (Math.abs(med[0] + med[1] + med[2]) / 3 > SEAM_SHIFT_MAX) med[0] = med[1] = med[2] = 0;
+      for (let t = 0; t < len; t++) {
+        for (let k = 0; k < rw; k++) {
+          const x = vertical ? (side === 'left' ? k : w - 1 - k) : t;
+          const y = vertical ? t : (side === 'top' ? k : h - 1 - k);
+          const i = (y * w + x) * 4;
+          if (orig[i + 3] < 250 || patch[i + 3] < 8) continue;
+          const dr = orig[i] - patch[i], dg = orig[i + 1] - patch[i + 1], db = orig[i + 2] - patch[i + 2];
+          if ((Math.abs(dr - med[0]) + Math.abs(dg - med[1]) + Math.abs(db - med[2])) / 3 > SEAM_MAX) continue;
+          sum[t * 3] += dr; sum[t * 3 + 1] += dg; sum[t * 3 + 2] += db; cnt[t]++;
+        }
+      }
+      // box-smooth along the edge (prefix sums), positions with no valid samples nearby get 0
+      const ps = new Float64Array((len + 1) * 4);
+      for (let t = 0; t < len; t++) {
+        for (let c = 0; c < 3; c++) ps[(t + 1) * 4 + c] = ps[t * 4 + c] + sum[t * 3 + c];
+        ps[(t + 1) * 4 + 3] = ps[t * 4 + 3] + cnt[t];
+      }
+      const prof = new Float32Array(len * 3);
+      const half = Math.max(1, Math.round(SEAM_SMOOTH / 2));
+      let valid = 0;
+      for (let t = 0; t < len; t++) {
+        const a = Math.max(0, t - half), b = Math.min(len, t + half + 1);
+        const n = ps[b * 4 + 3] - ps[a * 4 + 3];
+        if (n < rw * 2) continue;
+        for (let c = 0; c < 3; c++) prof[t * 3 + c] = (ps[b * 4 + c] - ps[a * 4 + c]) / n;
+        valid++;
+      }
+      if (valid >= Math.min(len, 8)) out[side] = prof;
+    }
+    return out;
+  }
+
+  // Whole-region tone consensus: the model often repaints the entire selection a few dozen levels lighter or
+  // darker (real dogfood sky: +56). If most pixels agree on one per-channel shift it is drift, not content:
+  // return it (orig - patch) so the caller can remove it before anything else. null when content dominates.
+  // A whole-region shift is drift only when the context ring drifted the same way.
+  function ringConfirmed(shift, ringOffset) {
+    if (!shift || !ringOffset) return null;
+    const ring = (ringOffset[0] + ringOffset[1] + ringOffset[2]) / 3, mean = (shift[0] + shift[1] + shift[2]) / 3;
+    return Math.abs(ring) >= 2 && Math.sign(ring) === Math.sign(mean) ? shift : null;
+  }
+
+  function globalShift(patch, orig, w, h) {
+    const ds = [[], [], []];
+    const step = Math.max(1, Math.floor(Math.sqrt(w * h / 40000)));
+    for (let y = 0; y < h; y += step) for (let x = 0; x < w; x += step) {
+      const i = (y * w + x) * 4;
+      if (orig[i + 3] < 250 || patch[i + 3] < 8) continue;
+      for (let c = 0; c < 3; c++) ds[c].push(orig[i + c] - patch[i + c]);
+    }
+    const n = ds[0].length;
+    if (n < 16) return null;
+    const med = ds.map(a => a.slice().sort((p, q) => p - q)[a.length >> 1]);
+    if (Math.abs(med[0] + med[1] + med[2]) / 3 > SEAM_SHIFT_MAX) return null;
+    let agree = 0;
+    for (let j = 0; j < n; j++) if ((Math.abs(ds[0][j] - med[0]) + Math.abs(ds[1][j] - med[1]) + Math.abs(ds[2][j] - med[2])) / 3 <= SEAM_MAX) agree++;
+    if (agree < n * 0.6) return null;
+    return (Math.abs(med[0]) + Math.abs(med[1]) + Math.abs(med[2])) / 3 >= 2 ? med : null;
+  }
+
+  // Change-only compositing: where the (tone-corrected) result matches the original, the original pixels are
+  // kept exactly (alpha 0 → the page shows through), so untouched sky/background can never seam or drift. The
+  // changed area is grown and softened so new content blends in. null when nearly everything changed (a full
+  // character swap) — then the whole patch is used as before.
+  const CHANGE_LO = 10, CHANGE_HI = 26;
+  function changeMask(patch, orig, w, h) {
+    const cell = Math.max(4, Math.round(Math.min(w, h) / 96));
+    const gw = Math.ceil(w / cell), gh = Math.ceil(h / cell);
+    const g = new Float32Array(gw * gh);
+    for (let gy = 0; gy < gh; gy++) for (let gx = 0; gx < gw; gx++) {
+      // Compare cell mean colour (resampling/re-rendering of fine texture keeps it) plus half the difference in
+      // texture contrast (new line art of the same mean tone). Per-pixel |diff| flagged every rainy/hatched cell.
+      const mo = [0, 0, 0], mp = [0, 0, 0]; let so = 0, sp = 0, so2 = 0, sp2 = 0, n = 0, transparent = false;
+      for (let y = gy * cell; y < Math.min(h, gy * cell + cell); y++) for (let x = gx * cell; x < Math.min(w, gx * cell + cell); x++) {
+        const i = (y * w + x) * 4;
+        if (orig[i + 3] < 250) { transparent = true; continue; } // transparent original: whatever is new counts as change
+        for (let c = 0; c < 3; c++) { mo[c] += orig[i + c]; mp[c] += patch[i + c]; }
+        const lo = (orig[i] + orig[i + 1] + orig[i + 2]) / 3, lp = (patch[i] + patch[i + 1] + patch[i + 2]) / 3;
+        so += lo; sp += lp; so2 += lo * lo; sp2 += lp * lp; n++;
+      }
+      let d = 255;
+      if (n && !transparent) {
+        const mean = (Math.abs(mo[0] - mp[0]) + Math.abs(mo[1] - mp[1]) + Math.abs(mo[2] - mp[2])) / 3 / n;
+        const sdO = Math.sqrt(Math.max(0, so2 / n - (so / n) ** 2)), sdP = Math.sqrt(Math.max(0, sp2 / n - (sp / n) ** 2));
+        // chroma: a faint pastel rainbow on a grey sky moves channels in opposite directions (+15/-5/-15)
+        // so the channel average barely registers; resampling noise never adds colour, so weight it up.
+        const chroma = v => Math.max(v[0], v[1], v[2]) - Math.min(v[0], v[1], v[2]);
+        const dChroma = Math.abs(chroma(mo) - chroma(mp)) / n;
+        d = Math.max(mean, 0.5 * Math.abs(sdO - sdP), 1.5 * dChroma);
+      }
+      g[gy * gw + gx] = Math.max(0, Math.min(1, (d - CHANGE_LO) / (CHANGE_HI - CHANGE_LO)));
+    }
+    let changed = 0; for (let k = 0; k < g.length; k++) changed += g[k];
+    const frac = changed / g.length;
+    if (frac > 0.85) return null;
+    // grow 3 cells (max filter) then soften 3 cells (box blur), separable
+    const pass = (src, horiz, fn, rad) => { const out = new Float32Array(src.length);
+      for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) { let acc = fn === 'max' ? 0 : 0, n = 0;
+        for (let k = -rad; k <= rad; k++) { const xx = horiz ? x + k : x, yy = horiz ? y : y + k; if (xx < 0 || yy < 0 || xx >= gw || yy >= gh) continue;
+          const v = src[yy * gw + xx]; if (fn === 'max') acc = Math.max(acc, v); else { acc += v; n++; } }
+        out[y * gw + x] = fn === 'max' ? acc : acc / n; } return out; };
+    let m = pass(pass(g, true, 'max', 3), false, 'max', 3);
+    m = pass(pass(m, true, 'avg', 3), false, 'avg', 3);
+    const out = new Uint8ClampedArray(w * h);
+    for (let y = 0; y < h; y++) {
+      const fy = Math.min(gh - 1, Math.max(0, (y + 0.5) / cell - 0.5)), y0 = Math.floor(fy), y1 = Math.min(gh - 1, y0 + 1), ty = fy - y0;
+      for (let x = 0; x < w; x++) {
+        const fx = Math.min(gw - 1, Math.max(0, (x + 0.5) / cell - 0.5)), x0 = Math.floor(fx), x1 = Math.min(gw - 1, x0 + 1), tx = fx - x0;
+        const v = (m[y0 * gw + x0] * (1 - tx) + m[y0 * gw + x1] * tx) * (1 - ty) + (m[y1 * gw + x0] * (1 - tx) + m[y1 * gw + x1] * tx) * ty;
+        out[y * w + x] = Math.round(255 * v);
+      }
+    }
+    out.changedFraction = frac;
+    return out;
+  }
+
+  function applySeamMatch(patch, w, h, diffs, band) {
+    const sides = Object.keys(diffs);
+    if (!sides.length) return 0;
+    const b = Math.max(2, band || Math.max(12, Math.round(Math.min(w, h) * 0.2)));
+    let touched = 0;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        let tot = 0;
+        const corr = [0, 0, 0];
+        for (const side of sides) {
+          const d = side === 'left' ? x : side === 'right' ? w - 1 - x : side === 'top' ? y : h - 1 - y;
+          if (d >= b) continue;
+          const t = side === 'left' || side === 'right' ? y : x;
+          const prof = diffs[side];
+          const wt = (1 - d / b) * (1 - d / b);
+          tot += wt;
+          corr[0] += wt * prof[t * 3];
+          corr[1] += wt * prof[t * 3 + 1];
+          corr[2] += wt * prof[t * 3 + 2];
+        }
+        if (!tot) continue;
+        const norm = tot > 1 ? tot : 1;
+        const i = (y * w + x) * 4;
+        patch[i] += corr[0] / norm;
+        patch[i + 1] += corr[1] / norm;
+        patch[i + 2] += corr[2] / norm;
+        touched++;
+      }
+    }
+    return touched;
+  }
+
+  function loadRegionPixels(dataUrl, w, h) {
+    return new Promise(resolve => {
+      if (!dataUrl) return resolve(null);
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const cv = document.createElement('canvas');
+          cv.width = w;
+          cv.height = h;
+          const ctx = cv.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(ctx.getImageData(0, 0, w, h).data);
+        } catch (error) {
+          resolve(null);
+        }
+      };
+      img.onerror = () => resolve(null);
+      img.src = dataUrl;
+    });
+  }
+
+  // Bake crop (+ optional colour offset, seam match and feather) into a bitmap at the crop's native resolution.
+  function bakePatch(imageElement, crop, scale, feather, offset, alphaMask, seam) {
     const w = Math.max(1, Math.round(crop.w));
     const h = Math.max(1, Math.round(crop.h));
     const out = document.createElement('canvas');
@@ -307,6 +524,19 @@
       }
       ctx.putImageData(data, 0, 0);
     }
+    let changeOnly = null;
+    if (seam && seam.orig && seam.orig.length === w * h * 4) {
+      const data = ctx.getImageData(0, 0, w, h);
+      // Only finish a drift the context ring confirmed (tone matching found the model shifted the
+      // surroundings the same way). A uniform change inside the selection alone is what the user
+      // asked for ("make it redder") and must not be undone.
+      const shift = ringConfirmed(hasOffset ? globalShift(data.data, seam.orig, w, h) : null, hasOffset ? offset : null);
+      if (shift) { for (let i = 0; i < data.data.length; i += 4) { data.data[i] += shift[0]; data.data[i + 1] += shift[1]; data.data[i + 2] += shift[2]; } seam.shift = shift; }
+      if (seam.changeOnly) { changeOnly = changeMask(data.data, seam.orig, w, h); seam.changedFraction = changeOnly ? +changeOnly.changedFraction.toFixed(3) : 1; }
+      const diffs = seamDiffs(data.data, seam.orig, w, h, seam.sides);
+      seam.diffs = diffs;
+      if (applySeamMatch(data.data, w, h, diffs)) ctx.putImageData(data, 0, 0);
+    }
     if (feather && feather.width > 0 && (feather.left || feather.right || feather.top || feather.bottom)) {
       const fw = feather.width / scale; // page pixels -> source pixels
       const data = ctx.getImageData(0, 0, w, h);
@@ -318,6 +548,11 @@
           data.data[i] = Math.round(data.data[i] * featherAlpha(x, y, w, h, fw, feather));
         }
       }
+      ctx.putImageData(data, 0, 0);
+    }
+    if (changeOnly) {
+      const data = ctx.getImageData(0, 0, w, h);
+      for (let k = 0; k < changeOnly.length; k++) data.data[k * 4 + 3] = Math.round(data.data[k * 4 + 3] * changeOnly[k] / 255);
       ctx.putImageData(data, 0, 0);
     }
     if (alphaMask && alphaMask.length === w * h) {
@@ -419,16 +654,36 @@
     });
   }
 
+  // Before/after toggle on the preview: once a result exists, 对比原图 flips the preview to the original
+  // selection and back, so a beginner can judge the edit before applying it.
+  function setCompare(available) {
+    const btn = $g('mangaGptCompare');
+    if (!btn) return;
+    btn.hidden = !available;
+    btn.setAttribute('aria-pressed', 'false');
+    btn.textContent = tr('mgpt_compare_show_original', '对比原图');
+  }
+
+  function toggleCompare() {
+    const btn = $g('mangaGptCompare');
+    if (!btn || btn.hidden || !state.result || !state.region) return;
+    const showOriginal = btn.getAttribute('aria-pressed') !== 'true';
+    btn.setAttribute('aria-pressed', showOriginal ? 'true' : 'false');
+    $g('mangaGptPreview').src = showOriginal ? state.region.image : state.result;
+    btn.textContent = showOriginal ? tr('mgpt_compare_show_result', '看生成结果') : tr('mgpt_compare_show_original', '对比原图');
+  }
+
   function setRegion(c, region, message) {
     try {
       const excludeLettering = !$g('mangaGptIncludeText') || !$g('mangaGptIncludeText').checked;
       const image = cropCanvas(c, region, excludeLettering);
       const cut = findCutBoxes(candidateBoxes(c), region, c.getWidth(), c.getHeight());
-      state.region = { canvas: c, ...region, image, excludeLettering, cut,
+      state.region = { canvas: c, ...region, image, excludeLettering, cut, pageGuid: currentPageGuid(),
         canvasWidth: c.getWidth(), canvasHeight: c.getHeight() };
       state.result = '';
       $g('mangaGptApply').disabled = true;
       $g('mangaGptPreview').src = image;
+      setCompare(false);
       if ($g('mangaGptExpand')) $g('mangaGptExpand').hidden = !cut.length;
       feedback(message + (cut.length ? tr('mgpt_cut_warn',
         '注意：选区只框到了 {count} 个对象的一部分（如“{name}”），模型只看到半个人物时容易接不上身体。可点“扩展到完整对象”。',
@@ -460,6 +715,38 @@
     setRegion(c, { left, top, width: right - left, height: bottom - top },
       tr('mgpt_ocr_staged', '已从智能字幕定位擦字区域。请确认选区和费用，再点击“生成预览”。'));
     return true;
+  }
+
+  // Smart click-select (SAM) bridge: a page-pixel outline becomes a lasso selection. Never starts a request.
+  function selectPolygon(points, message) {
+    const c = pageCanvas();
+    if (!c || !Array.isArray(points) || points.length < 3) return false;
+    const xs = points.map(p => +p[0]), ys = points.map(p => +p[1]);
+    if (!xs.concat(ys).every(Number.isFinite)) return false;
+    const left = Math.max(0, Math.floor(Math.min(...xs))), top = Math.max(0, Math.floor(Math.min(...ys)));
+    const right = Math.min(c.getWidth(), Math.ceil(Math.max(...xs)) + 1), bottom = Math.min(c.getHeight(), Math.ceil(Math.max(...ys)) + 1);
+    if (right - left < 8 || bottom - top < 8) {
+      feedback(tr('mgpt_region_too_small', '框选区域太小，请至少选择 8 × 8 像素。'), true);
+      return false;
+    }
+    const panel = $g('mangaGptPanel');
+    if (!panel) return false;
+    cancelSelection();
+    panel.hidden = false;
+    $g('mangaGptMode').value = 'edit';
+    $g('mangaGptSelect').disabled = false;
+    const region = { left, top, width: right - left, height: bottom - top };
+    setRegion(c, region, message || tr('mgpt_smart_selected', '已用智能点选选中（外框 {w} × {h} 像素）；只有选中的形状会被修改。', { w: region.width, h: region.height }));
+    if (state.region) state.region.lasso = points.map(p => [+(p[0] - left).toFixed(1), +(p[1] - top).toFixed(1)]);
+    return true;
+  }
+
+  // Whole page as the region editor sees it (same pixel grid as selections), lettering hidden by default.
+  function pageImage(includeLettering) {
+    const c = pageCanvas();
+    if (!c) return null;
+    return { image: cropCanvas(c, { left: 0, top: 0, width: c.getWidth(), height: c.getHeight() }, !includeLettering),
+      width: c.getWidth(), height: c.getHeight() };
   }
 
   // Page inspector bridge: stage a complete panel; never start an API request.
@@ -502,6 +789,7 @@
     $g('mangaGptApply').disabled=true;
     if($g('mangaGptExpand')) $g('mangaGptExpand').hidden=true;
     $g('mangaGptPreview').removeAttribute('src');
+    setCompare(false);
     feedback(tr('mgpt_manual_character_region', '人物区域尚未确认。请在画布中手动框选目标角色，确认后再生成。'));
     startSelection();
     return true;
@@ -597,13 +885,205 @@
     });
   }
 
-  function startSelection() {
+  // Long straight dark runs (panel borders, gutters, frame lines) in the ORIGINAL selection.
+  // Image models redraw the region and routinely drop these lines; returning alpha 0 there
+  // lets the original line show through the patch. Returns null when no line is found.
+  function panelLineAlpha(rgba, w, h, options) {
+    const opts = options || {};
+    const dark = opts.dark || 100;
+    const maxThick = opts.maxThick || 12; // thicker than this is a dark fill (hair, clothes), not a line
+    const minH = Math.max(opts.minRun || 40, Math.round(w * (opts.ratio || 0.3)));
+    const minV = Math.max(opts.minRun || 40, Math.round(h * (opts.ratio || 0.3)));
+    const lum = new Float32Array(w * h);
+    const ink = new Uint8Array(w * h);
+    for (let k = 0; k < w * h; k++) {
+      const i = k * 4;
+      lum[k] = rgba[i + 3] > 200 ? rgba[i] * 0.299 + rgba[i + 1] * 0.587 + rgba[i + 2] * 0.114 : 255;
+      if (lum[k] < dark) ink[k] = 1;
+    }
+    // runs along one axis, then drop stacks thicker than maxThick across the other axis
+    function scan(horizontal) {
+      const mark = new Uint8Array(w * h);
+      const outer = horizontal ? h : w, inner = horizontal ? w : h, min = horizontal ? minH : minV;
+      const at = (o, i) => horizontal ? o * w + i : i * w + o;
+      for (let o = 0; o < outer; o++) {
+        let start = -1;
+        for (let i = 0; i <= inner; i++) {
+          const on = i < inner && ink[at(o, i)];
+          if (on && start < 0) start = i;
+          else if (!on && start >= 0) {
+            if (i - start >= min) for (let k = start; k < i; k++) mark[at(o, k)] = 1;
+            start = -1;
+          }
+        }
+      }
+      for (let i = 0; i < inner; i++) {
+        let start = -1;
+        for (let o = 0; o <= outer; o++) {
+          const on = o < outer && mark[at(o, i)];
+          if (on && start < 0) start = o;
+          else if (!on && start >= 0) {
+            if (o - start > maxThick) for (let k = start; k < o; k++) mark[at(k, i)] = 0;
+            start = -1;
+          }
+        }
+      }
+      return mark;
+    }
+    const mh = scan(true), mv = scan(false);
+    // Panel lines are anchored: each end reaches the selection edge or meets a perpendicular
+    // line (frame corner / gutter junction). Long straight strokes inside the art (pleats,
+    // poles, hair) end in the middle of the picture and are left to the model.
+    const edge = opts.edge || 4, near = maxThick + 2;
+    const anchored = (mask, other, horizontal) => {
+      const keep = new Uint8Array(w * h);
+      const outer = horizontal ? h : w, inner = horizontal ? w : h;
+      const at = (o, i) => horizontal ? o * w + i : i * w + o;
+      const meets = (o, i) => {
+        for (let d = -near; d <= near; d++) {
+          for (let e = -near; e <= near; e++) {
+            const oo = o + d, ii = i + e;
+            if (oo >= 0 && oo < outer && ii >= 0 && ii < inner && other[at(oo, ii)]) return true;
+          }
+        }
+        return false;
+      };
+      for (let o = 0; o < outer; o++) {
+        let start = -1;
+        for (let i = 0; i <= inner; i++) {
+          const on = i < inner && mask[at(o, i)];
+          if (on && start < 0) start = i;
+          else if (!on && start >= 0) {
+            const end = i - 1;
+            const okStart = start <= edge || meets(o, start);
+            const okEnd = end >= inner - 1 - edge || meets(o, end);
+            if (okStart && okEnd) for (let k = start; k <= end; k++) keep[at(o, k)] = 1;
+            start = -1;
+          }
+        }
+      }
+      return keep;
+    };
+    const kh = anchored(mh, mv, true), kv = anchored(mv, mh, false);
+    mh.set(kh); mv.set(kv);
+    const alpha = new Uint8ClampedArray(w * h).fill(255);
+    let found = 0;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const k = y * w + x;
+        if (!mh[k] && !mv[k]) continue;
+        found++;
+        alpha[k] = 0;
+        // anti-aliased edge: neighbours that are noticeably darker than paper, never light content
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            const yy = y + dy, xx = x + dx;
+            if (yy >= 0 && yy < h && xx >= 0 && xx < w && lum[yy * w + xx] < 170) alpha[yy * w + xx] = 0;
+          }
+        }
+      }
+    }
+    return found ? alpha : null;
+  }
+
+  // Freehand (lasso) selection: only pixels inside the drawn outline may change. Points are in
+  // region pixels; the mask is rendered at the crop size with a 1px soft edge.
+  // strokeWidth (region pixels) = brush mode: the painted stroke, not the enclosed area.
+  function lassoAlphaMask(points, regionWidth, regionHeight, w, h, strokeWidth) {
+    if (!Array.isArray(points) || points.length < (strokeWidth ? 1 : 3)) return null;
+    const cv = document.createElement('canvas');
+    cv.width = w; cv.height = h;
+    const g = cv.getContext('2d');
+    const sx = w / regionWidth, sy = h / regionHeight;
+    g.fillStyle = '#fff';
+    g.strokeStyle = '#fff';
+    g.beginPath();
+    points.forEach(([x, y], i) => (i ? g.lineTo(x * sx, y * sy) : g.moveTo(x * sx, y * sy)));
+    if (strokeWidth) {
+      if (points.length === 1) g.lineTo(points[0][0] * sx + 0.01, points[0][1] * sy);
+      g.lineWidth = strokeWidth * (sx + sy) / 2; g.lineCap = 'round'; g.lineJoin = 'round';
+      g.stroke();
+    } else {
+      g.closePath();
+      g.fill();
+    }
+    const data = g.getImageData(0, 0, w, h).data;
+    const out = new Uint8ClampedArray(w * h);
+    for (let k = 0; k < out.length; k++) out[k] = data[k * 4 + 3];
+    return out;
+  }
+
+  // Dock: the open panel takes a column on the right; the canvas area gives up exactly the
+  // overlapped width and the page is refitted, so the panel never hides part of the page.
+  function dock() {
+    const panel = $g('mangaGptPanel');
+    const area = document.getElementById('canvas-area');
+    if (!panel || !area) return;
+    area.style.marginRight = '';
+    if (!panel.hidden && !panel.classList.contains('is-collapsed')) {
+      const p = panel.getBoundingClientRect();
+      const a = area.getBoundingClientRect();
+      const overlap = Math.ceil(a.right - p.left + 8);
+      if (overlap > 0 && overlap < a.width - 240) area.style.marginRight = overlap + 'px';
+    }
+    if (typeof fitCanvasViewToContainer === 'function') {
+      try { fitCanvasViewToContainer(true); } catch (error) { /* layout not ready */ }
+    }
+  }
+
+  function currentPageGuid() {
+    try { return typeof getCanvasGUID === 'function' ? getCanvasGUID() || null : null; } catch (error) { return null; }
+  }
+
+  function pageNumber(guid) {
+    try { const i = typeof btmGetGuidIndex === 'function' ? btmGetGuidIndex(guid) : -1; return i >= 0 ? i + 1 : '?'; } catch (error) { return '?'; }
+  }
+
+  function combineAlpha(a, b) {
+    if (!a) return b;
+    if (!b) return a;
+    const out = new Uint8ClampedArray(a.length);
+    for (let k = 0; k < a.length; k++) out[k] = Math.min(a[k], b[k]);
+    return out;
+  }
+
+  function loadPanelLineMask(dataUrl, w, h) {
+    return new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const cv = document.createElement('canvas');
+          cv.width = w;
+          cv.height = h;
+          const ctx = cv.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(panelLineAlpha(ctx.getImageData(0, 0, w, h).data, w, h));
+        } catch (error) {
+          resolve(null);
+        }
+      };
+      img.onerror = () => resolve(null);
+      img.src = dataUrl;
+    });
+  }
+
+  function canvasRectMoved(before, now) {
+    return ['left', 'top', 'width', 'height'].some(k => Math.abs(before[k] - now[k]) > 0.5);
+  }
+
+  function startSelection(options) {
+    const auto = !!(options && options.auto === true); // opened by the panel itself, not by the explicit select button
     const c = pageCanvas();
     if (!c || !c.upperCanvasEl) {
       feedback(tr('mgpt_canvas_not_ready', '画布还没有初始化。'), true);
       return;
     }
     cancelSelection();
+    if ($g('mangaGptShape') && $g('mangaGptShape').value === 'smart' && window.SamClickSelect) {
+      if (window.SamClickSelect.begin({ target: 'gpt' })) return;
+      feedback(tr('mgpt_smart_unavailable', '智能点选打不开，请改用矩形或套索。'), true);
+      return;
+    }
     const rect = c.upperCanvasEl.getBoundingClientRect();
     if (!rect.width || !rect.height) {
       feedback(tr('mgpt_canvas_hidden', '画布不可见，无法框选。'), true);
@@ -618,12 +1098,32 @@
     const rectangle = document.createElement('div');
     rectangle.className = 'manga-gpt-selection-rectangle';
     overlay.appendChild(rectangle);
+    const shape = $g('mangaGptShape') ? $g('mangaGptShape').value : 'rect';
+    const lasso = shape === 'lasso' || shape === 'brush';
+    const brush = shape === 'brush';
+    // brush width in page pixels (~5% of the short side), drawn at screen scale while painting
+    const brushPage = Math.max(12, Math.round(Math.min(c.getWidth(), c.getHeight()) * 0.05));
+    const brushScreen = brushPage * rect.width / c.getWidth();
+    let path = null, pathLine = null;
+    if (lasso) {
+      rectangle.hidden = true;
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('class', 'manga-gpt-lasso' + (brush ? ' is-brush' : ''));
+      svg.setAttribute('width', rect.width); svg.setAttribute('height', rect.height);
+      pathLine = document.createElementNS('http://www.w3.org/2000/svg', brush ? 'polyline' : 'polygon');
+      if (brush) pathLine.setAttribute('stroke-width', brushScreen);
+      svg.appendChild(pathLine);
+      overlay.appendChild(svg);
+    }
     document.body.appendChild(overlay);
     state.selectionOverlay = overlay;
     // The overlay is fixed to the canvas rectangle captured now; if the page scrolls,
     // zooms or resizes the mapping would be wrong, so abort instead of mis-selecting.
-    const abortOnMove = () => {
+    // Resize always aborts. A scroll only aborts if the canvas really moved: scrolling an
+    // unrelated container (this panel, the layer list) also fires a captured 'scroll'.
+    const abortOnMove = event => {
       if (state.selectionOverlay !== overlay) return;
+      if (event && event.type === 'scroll' && !canvasRectMoved(rect, c.upperCanvasEl.getBoundingClientRect())) return;
       cancelSelection();
       feedback(tr('mgpt_canvas_moved', '画布位置已变化（滚动/缩放/窗口大小），请重新点“框选区域”。'), true);
     };
@@ -637,13 +1137,37 @@
     overlay.addEventListener('pointerdown', event => {
       if (event.button !== 0 && event.button !== 2) return;
       event.preventDefault();
+      // Auto-started selection must not swallow clicks meant for the GPT panel floating over the
+      // canvas (e.g. 生成 / 模式 / 关闭): leave selection mode and hand the click to the panel.
+      const panelEl = $g('mangaGptPanel');
+      if (auto && panelEl && !panelEl.hidden) {
+        const p = panelEl.getBoundingClientRect();
+        if (event.clientX >= p.left && event.clientX <= p.right && event.clientY >= p.top && event.clientY <= p.bottom) {
+          cancelSelection();
+          const target = document.elementFromPoint(event.clientX, event.clientY);
+          if (target && panelEl.contains(target)) {
+            if (typeof target.focus === 'function') target.focus();
+            if (typeof target.click === 'function') target.click();
+          }
+          return;
+        }
+      }
       start = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+      if (lasso) { path = [start]; pathLine.setAttribute('points', start.x + ',' + start.y); }
       overlay.setPointerCapture(event.pointerId);
     });
     overlay.addEventListener('pointermove', event => {
       if (!start) return;
       const x = Math.max(0, Math.min(rect.width, event.clientX - rect.left));
       const y = Math.max(0, Math.min(rect.height, event.clientY - rect.top));
+      if (lasso) {
+        const last = path[path.length - 1];
+        if (Math.hypot(x - last.x, y - last.y) >= 3) {
+          path.push({ x, y });
+          pathLine.setAttribute('points', path.map(p => p.x + ',' + p.y).join(' '));
+        }
+        return;
+      }
       rectangle.style.left = Math.min(x, start.x) + 'px';
       rectangle.style.top = Math.min(y, start.y) + 'px';
       rectangle.style.width = Math.abs(x - start.x) + 'px';
@@ -653,6 +1177,29 @@
       if (!start) return;
       const x = Math.max(0, Math.min(rect.width, event.clientX - rect.left));
       const y = Math.max(0, Math.min(rect.height, event.clientY - rect.top));
+      if (lasso) {
+        const points = path.concat([{ x, y }]);
+        cancelSelection();
+        start = null;
+        const pad = brush ? brushScreen / 2 : 0;
+        const xs = points.map(p => p.x), ys = points.map(p => p.y);
+        const region = normalizeRegion(Math.max(0, Math.min(...xs) - pad), Math.max(0, Math.min(...ys) - pad),
+          Math.min(rect.width, Math.max(...xs) + pad), Math.min(rect.height, Math.max(...ys) + pad), rect, c);
+        if ((!brush && points.length < 3) || region.width < 8 || region.height < 8) {
+          feedback(tr('mgpt_region_too_small', '框选区域太小，请至少选择 8 × 8 像素。'), true);
+          return;
+        }
+        const fx = c.getWidth() / rect.width, fy = c.getHeight() / rect.height;
+        const local = points.map(p => [+(p.x * fx - region.left).toFixed(1), +(p.y * fy - region.top).toFixed(1)]);
+        if (brush) {
+          setRegion(c, region, tr('mgpt_brush_selected', '已用笔刷涂抹（外框 {w} × {h} 像素）；只有涂到的地方会被修改。', { w: region.width, h: region.height }));
+          if (state.region) state.region.brush = { points: local, width: brushPage };
+        } else {
+          setRegion(c, region, tr('mgpt_lasso_selected', '已用套索圈选（外框 {w} × {h} 像素）；只有圈内会被修改。', { w: region.width, h: region.height }));
+          if (state.region) state.region.lasso = local;
+        }
+        return;
+      }
       const region = normalizeRegion(start.x, start.y, x, y, rect, c);
       cancelSelection();
       start = null;
@@ -688,7 +1235,8 @@
     }
     const apiKey = $g('mangaGptKey').value.trim().replace(/^Bearer\s+/i, '');
     // An empty input lets the localhost relay use optional GPT_IMAGE_API_KEY from .env.
-    const prompt = $g('mangaGptPrompt').value.trim();
+    // A wizard task adds its hidden preset instruction; the user's own words come after it.
+    const prompt = [state.task && state.task.preset, $g('mangaGptPrompt').value.trim()].filter(Boolean).join('\n').slice(0, 4000);
     if (!prompt) return feedback(tr('mgpt_prompt_required', '请先描述想要的画面修改。'), true);
     state.pending = true;
     state.result = '';
@@ -745,6 +1293,7 @@
       state.result = json.image;
       $g('mangaGptPreview').src = json.image;
       $g('mangaGptApply').disabled = false;
+      setCompare(true);
       const warnAspect = operation === 'edit' && !sizeChoice.switchedFrom &&
         aspectMismatch(state.region.width, state.region.height, sizeChoice.size);
       let note = '';
@@ -776,6 +1325,12 @@
     if (!c || !state.result) return feedback(tr('mgpt_nothing_to_apply', '没有可应用的结果。'), true);
     const isEdit = currentOperation() === 'edit';
     const region = state.region;
+    // One Fabric canvas serves every page: a result made for page 1 must never be pasted onto
+    // page 2 because the user switched pages while it was generating. Keep the result.
+    if (isEdit && region && region.pageGuid && currentPageGuid() && currentPageGuid() !== region.pageGuid) {
+      return feedback(tr('mgpt_wrong_page', '这个结果是为第 {from} 页生成的，当前在第 {now} 页。请切回第 {from} 页再点“应用”（不用重新生成）。',
+        { from: pageNumber(region.pageGuid), now: pageNumber(currentPageGuid()) }), true);
+    }
     if (isEdit && !regionUnchanged(c, region)) {
       return feedback(tr('mgpt_region_changed_regen', '画布或选中区域已经改变，请重新框选并生成。'), true);
     }
@@ -800,6 +1355,7 @@
           { cw: Math.floor(crop.w), ch: Math.floor(crop.h), w: region.width, h: region.height }));
       }
       let alphaRestored = false;
+      let linesKept = false;
       let scale = isEdit ? targetWidth / crop.w :
         Math.min(1, c.getWidth() / targetWidth, c.getHeight() / targetHeight);
       if (isEdit) {
@@ -813,12 +1369,25 @@
           offset = null;
         }
         const keepAlpha = !$g('mangaGptKeepAlpha') || $g('mangaGptKeepAlpha').checked;
-        const mask = keepAlpha ? await loadAlphaMask(region.image, Math.max(1, Math.round(crop.w)), Math.max(1, Math.round(crop.h))) : null;
-        alphaRestored = !!mask;
-        const baked = bakePatch(image.getElement(), crop, scale, feather, offset, mask);
+        const cw = Math.max(1, Math.round(crop.w)), ch = Math.max(1, Math.round(crop.h));
+        const alphaMask = keepAlpha ? await loadAlphaMask(region.image, cw, ch) : null;
+        alphaRestored = !!alphaMask;
+        const keepLines = !$g('mangaGptKeepLines') || $g('mangaGptKeepLines').checked;
+        const lineMask = keepLines ? await loadPanelLineMask(region.image, cw, ch) : null;
+        linesKept = !!lineMask;
+        const lassoMask = region.lasso ? lassoAlphaMask(region.lasso, region.width, region.height, cw, ch) :
+          region.brush ? lassoAlphaMask(region.brush.points, region.width, region.height, cw, ch, region.brush.width) : null;
+        const mask = combineAlpha(combineAlpha(alphaMask, lineMask), lassoMask);
+        // seam match on every interior side (page edges have nothing to match against)
+        const seamSides = featherPlan(region, c.getWidth(), c.getHeight());
+        const changeOn = !$g('mangaGptChangeOnly') || $g('mangaGptChangeOnly').checked;
+        const seam = (matchOn || changeOn) ? { orig: await loadRegionPixels(region.image, cw, ch), sides: matchOn ? seamSides : {}, changeOnly: changeOn } : null;
+        const baked = bakePatch(image.getElement(), crop, scale, feather, offset, mask, seam);
         const sourceCrop = { x: +crop.x.toFixed(2), y: +crop.y.toFixed(2), w: +crop.w.toFixed(2), h: +crop.h.toFixed(2),
           resultWidth: image.width, resultHeight: image.height, feather: feather ? feather.width : 0,
-          toneOffset: offset || [0, 0, 0], keepAlpha: alphaRestored };
+          toneOffset: offset || [0, 0, 0], globalShift: seam && seam.shift ? seam.shift.map(Math.round) : null, changedFraction: seam ? seam.changedFraction : null, keepAlpha: alphaRestored, keepLines: linesKept,
+          seamMatch: seam && seam.diffs ? Object.fromEntries(Object.entries(seam.diffs).map(([k, v]) => {
+            let m = 0; for (let q = 0; q < v.length; q++) m = Math.max(m, Math.abs(v[q])); return [k, Math.round(m)]; })) : null };
         image = await new Promise((resolve, reject) => {
           fabric.Image.fromURL(baked, img => (img && img.width ? resolve(img) : reject(new Error(tr('mgpt_decode_failed', '生成图片解码失败。')))));
         });
@@ -857,8 +1426,10 @@
       state.result = '';
       state.region = null;
       if ($g('mangaGptExpand')) $g('mangaGptExpand').hidden = true;
+      state.appliedCount++;
       feedback(tr('mgpt_applied', '已添加独立图层：取回选区对应部分并等比例缩放（不拉伸、不裁头）。原图和画布尺寸未改变，可撤销。') +
-        (alphaRestored ? tr('mgpt_alpha_restored', '已按原选区的透明区域恢复透明。') : ''));
+        (alphaRestored ? tr('mgpt_alpha_restored', '已按原选区的透明区域恢复透明。') : '') +
+        (linesKept ? tr('mgpt_lines_kept', '已保留选区内原有的分格线/边框。') : ''));
     } catch (error) {
       feedback(error.message || tr('mgpt_insert_failed', '无法插入图层。'), true);
       $g('mangaGptApply').disabled = false;
@@ -931,13 +1502,20 @@
     const hint = (id, key, zh, checked) => '<label class="manga-gpt-hint"><input id="' + id + '" type="checkbox"' +
       (checked ? ' checked' : '') + '> ' + t(key, zh) + '</label>';
     panel.innerHTML = [
-      '<div class="manga-gpt-head"><strong>Manga-NAI-GPT</strong><button type="button" id="mangaGptClose" aria-label="' + t('mgpt_close', '关闭') + '">×</button></div>',
+      '<div class="manga-gpt-head"><strong>Manga-NAI-GPT</strong><span class="manga-gpt-head-buttons"><button type="button" id="mangaGptCollapse" aria-expanded="true" title="' + t('mgpt_collapse', '收起面板（让出画布）') + '" aria-label="' + t('mgpt_collapse', '收起面板（让出画布）') + '">–</button>' +
+        '<button type="button" id="mangaGptClose" aria-label="' + t('mgpt_close', '关闭') + '">×</button></span></div>',
       '<div class="manga-gpt-row"><label>' + t('mgpt_operation', '操作') + '<select id="mangaGptMode"><option value="edit">' + t('mgpt_mode_edit', '局部改图 / 角色替换') +
         '</option><option value="generate">' + t('mgpt_mode_generate', '文字生图 / 新图层') + '</option></select></label>',
+      '<select id="mangaGptShape" aria-label="' + t('mgpt_shape_label', '选区形状') + '" title="' + t('mgpt_shape_tip', '矩形：拖出方框；套索：按住鼠标沿人物轮廓画一圈，只有圈内会被修改') + '">' +
+        '<option value="rect">' + t('mgpt_shape_rect', '矩形') + '</option><option value="lasso">' + t('mgpt_shape_lasso', '套索') + '</option>' +
+        '<option value="brush">' + t('mgpt_shape_brush', '笔刷') + '</option><option value="smart">' + t('mgpt_shape_smart', '智能点选') + '</option></select>',
       '<button type="button" id="mangaGptSelect">' + t('mgpt_select_btn', '框选区域') + '</button>',
       '<button type="button" id="mangaGptExpand" hidden>' + t('mgpt_expand_btn', '扩展到完整对象') + '</button></div>',
       '<label>' + t('mgpt_api_url', '兼容 API 地址') + '<input id="mangaGptUrl" type="url" placeholder="https://api.openai.com/v1" value="https://api.openai.com/v1" autocomplete="off"></label>',
-      '<div class="manga-gpt-row"><label>' + t('mgpt_model', '图像模型') + '<input id="mangaGptModel" type="text" value="gpt-image-1" placeholder="' + t('mgpt_model_ph', '模型 ID') + '"></label>',
+      '<div class="manga-gpt-row"><label>' + t('mgpt_model', '图像模型') + '<select id="mangaGptModelPreset" title="' + t('mgpt_model_tip', 'gpt-image-2.5 效果最好（默认）；选“自定义”可在右侧输入任意兼容模型 ID') + '">' +
+        GPT_MODEL_PRESETS.map((id, i) => '<option value="' + id + '">' + id + (i === 0 ? t('mgpt_model_default', '（默认，推荐）') : '') + '</option>').join('') +
+        '<option value="custom">' + t('mgpt_model_custom', '自定义…') + '</option></select>' +
+        '<input id="mangaGptModel" type="text" value="' + GPT_DEFAULT_MODEL + '" placeholder="' + t('mgpt_model_ph', '模型 ID') + '" aria-label="' + t('mgpt_model_ph', '模型 ID') + '"></label>',
       '<label>' + t('mgpt_size', '尺寸') + '<select id="mangaGptSize"><option value="auto">' + t('mgpt_size_auto', '自动') +
         '</option><option value="1024x1024">1024×1024</option><option value="1536x1024">1536×1024</option><option value="1024x1536">1024×1536</option></select></label></div>',
       '<label>' + t('mgpt_key', 'API Key（可留空读取本地 .env）') + '<input id="mangaGptKey" type="password" placeholder="sk-…" autocomplete="off" spellcheck="false"></label>',
@@ -949,21 +1527,50 @@
       hint('mangaGptContext', 'mgpt_context', '附带选区周围画面作为上下文（接缝更自然；会多上传选区外的少量画面）', true),
       hint('mangaGptMatchTone', 'mgpt_match_tone', '按周围画面校正模型整体偏色（用上下文边带测量，最多 ±48）', true),
       hint('mangaGptFeather', 'mgpt_feather', '选区边缘柔化（只在选区内侧过渡，选区外像素不变）', true),
+      hint('mangaGptChangeOnly', 'mgpt_change_only', '只替换模型真正改动的部分（没改的地方保留原图像素，不会出现浅色方块或接缝）', true),
       hint('mangaGptKeepAlpha', 'mgpt_keep_alpha', '保留原选区的透明区域（透明背景/镂空处不被模型画成实色）', true),
+      hint('mangaGptKeepLines', 'mgpt_keep_lines', '保留选区内的分格线/边框直线（模型常把它们抹掉；想改线条时取消勾选）', true),
       hint('mangaGptAspectGuard', 'mgpt_aspect_guard', '所选尺寸与选区比例相差过大时自动改用最接近的比例', true),
       hint('mangaGptIncludeText', 'mgpt_include_text', '框选时包含文字/气泡（默认不包含：文字保持可编辑并留在新图层上方）', false),
       '<div class="manga-gpt-row"><button type="button" id="mangaGptGenerate">' + t('mgpt_generate', '生成预览') +
         '</button><button type="button" id="mangaGptCancel" disabled>' + t('mgpt_cancel', '取消请求') +
         '</button><button type="button" id="mangaGptApply" disabled>' + t('mgpt_apply', '作为新图层应用') + '</button></div>',
       '<img id="mangaGptPreview" class="manga-gpt-preview" alt="' + t('mgpt_preview_alt', '当前框选或 GPT 生成预览') + '">',
+      '<button type="button" id="mangaGptCompare" class="manga-gpt-compare" hidden aria-pressed="false" title="' +
+        t('mgpt_compare_tip', '在原图和生成结果之间切换，确认后再应用') + '">' + t('mgpt_compare_show_original', '对比原图') + '</button>',
       '<details><summary>' + t('mgpt_subtitle_summary', '原生字幕修改（无需 API）') + '</summary><label>' + t('mgpt_subtitle_label', '替换选中文字图层') +
         '<input id="mangaGptSubtitle" type="text" placeholder="' + t('mgpt_subtitle_ph', '输入新的字幕内容') + '"></label>',
       '<button type="button" id="mangaGptReplaceText">' + t('mgpt_replace_btn', '替换文字并记录撤销') + '</button></details>',
       '<div id="mangaGptStatus" class="manga-gpt-status" role="status">' + t('mgpt_status_initial', '先框选，再输入修改描述。不会覆盖原图。') + '</div>'
     ].join('');
     document.body.appendChild(panel);
-    button.addEventListener('click', () => { panel.hidden = !panel.hidden; });
-    $g('mangaGptClose').addEventListener('click', () => { panel.hidden = true; cancelSelection(); });
+    button.addEventListener('click', () => {
+      if (panel.hidden && state.task) exitTask();   // the pro entry always shows the full panel
+      panel.hidden = !panel.hidden;
+      if (!panel.hidden && panel.classList.contains('is-collapsed')) {
+        // reopening from the toolbar always shows the full panel (a bare header looks empty to a beginner)
+        panel.classList.remove('is-collapsed');
+        const cb = $g('mangaGptCollapse');
+        if (cb) { cb.textContent = '–'; cb.setAttribute('aria-expanded', 'true'); }
+      }
+      dock();
+      if (panel.hidden) { cancelSelection(); return; }
+      // Fewest clicks: opening the panel for an edit with nothing selected goes straight into
+      // selection mode (one drag on the page), instead of needing a separate "框选区域" click.
+      if ($g('mangaGptMode').value === 'edit' && !state.region && !state.pending) {
+        startSelection({ auto: true });
+        feedback(tr('mgpt_drag_now', '直接在画布上拖动鼠标，框出要修改的区域（Esc 取消）。'));
+      }
+    });
+    $g('mangaGptClose').addEventListener('click', () => { panel.hidden = true; cancelSelection(); exitTask(); dock(); });
+    const collapseBtn = $g('mangaGptCollapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', () => {
+      const collapsed = panel.classList.toggle('is-collapsed');
+      collapseBtn.textContent = collapsed ? '+' : '–';
+      collapseBtn.setAttribute('aria-expanded', String(!collapsed));
+      dock();
+    });
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', () => dock());
     $g('mangaGptSelect').addEventListener('click', startSelection);
     if ($g('mangaGptExpand')) $g('mangaGptExpand').addEventListener('click', expandSelection);
     $g('mangaGptGenerate').addEventListener('click', generate);
@@ -971,8 +1578,18 @@
       $g('mangaGptCancel').addEventListener('click', () => { if (state.controller) state.controller.abort(); });
     }
     $g('mangaGptApply').addEventListener('click', apply);
+    if ($g('mangaGptCompare')) $g('mangaGptCompare').addEventListener('click', toggleCompare);
     $g('mangaGptReplaceText').addEventListener('click', changeSelectedText);
+    $g('mangaGptModelPreset').addEventListener('change', event => {
+      const input = $g('mangaGptModel');
+      if (event.target.value === 'custom') { input.focus(); input.select(); return; }
+      input.value = event.target.value;
+    });
+    $g('mangaGptModel').addEventListener('input', event => {
+      $g('mangaGptModelPreset').value = modelPresetFor(event.target.value.trim());
+    });
     $g('mangaGptMode').addEventListener('change', () => {
+      if ($g('mangaGptMode').value !== 'edit') cancelSelection();
       state.result = '';
       $g('mangaGptApply').disabled = true;
       $g('mangaGptSelect').disabled = currentOperation() !== 'edit';
@@ -1006,7 +1623,57 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render);
   else render();
 
-  window.MangaGPTRegionEditor = { normalizeRegion, startSelection, cancelSelection, selectRegionForTextRemoval, selectRegionForPanel, prepareManualEdit, useCharacterCard, referenceSummary,
-    letterboxPlan, resultCropRect, letteringInsertIndex, isLettering, contextRect, featherPlan, featherAlpha, estimateDrift, aspectMismatch,
-    findCutBoxes, expandRegion, effectiveSize, bakePatch, tr };
+  // ---- Beginner task wizard hooks. The task launcher owns all wizard text; this only switches modes.
+  const KEEP_IDS = ['mangaGptPrompt', 'mangaGptReferences', 'mangaGptGenerate', 'mangaGptCancel', 'mangaGptApply',
+    'mangaGptPreview', 'mangaGptCompare', 'mangaGptStatus', 'mangaGptExpand', 'mangaGptClose', 'mangaGptCollapse',
+    'mangaGptServiceSummary', 'mangaGptTaskHead'];
+  function tagAdvanced(el) {
+    const keeps = KEEP_IDS.some(id => el.id === id || el.querySelector('#' + id));
+    if (!keeps) { el.classList.add('mgpt-adv'); return; }
+    if (KEEP_IDS.includes(el.id)) return;
+    Array.from(el.children).forEach(tagAdvanced);
+  }
+  function openTask(task) {
+    const panel = $g('mangaGptPanel');
+    if (!panel) return false;
+    cancelSelection();
+    state.task = { id: task.id, preset: String(task.preset || '') };
+    panel.querySelectorAll('.mgpt-adv').forEach(e => e.classList.remove('mgpt-adv'));
+    Array.from(panel.children).forEach(tagAdvanced);
+    panel.classList.toggle('is-simple', task.simple !== false);
+    panel.dataset.task = task.id;
+    if ($g('mangaGptMode')) { $g('mangaGptMode').value = task.operation || 'edit'; $g('mangaGptMode').dispatchEvent(new Event('change')); }
+    if ($g('mangaGptShape')) { $g('mangaGptShape').value = 'rect'; $g('mangaGptShape').dispatchEvent(new Event('change')); }
+    $g('mangaGptPrompt').value = task.prompt || '';
+    if (task.placeholder) $g('mangaGptPrompt').placeholder = task.placeholder;
+    panel.hidden = false;
+    panel.classList.remove('is-collapsed');
+    dock();
+    if ((task.operation || 'edit') === 'edit' && !state.pending) startSelection({ auto: true });
+    return true;
+  }
+  function setSimple(on) {
+    const panel = $g('mangaGptPanel');
+    if (panel) panel.classList.toggle('is-simple', !!on);
+  }
+  function exitTask() {
+    const panel = $g('mangaGptPanel');
+    state.task = null;
+    if (!panel) return;
+    panel.classList.remove('is-simple');
+    delete panel.dataset.task;
+    panel.querySelectorAll('.mgpt-adv').forEach(e => e.classList.remove('mgpt-adv'));
+    const head = $g('mangaGptTaskHead');
+    if (head) head.remove();
+  }
+  function wizardState() {
+    return { task: state.task && state.task.id, region: !!state.region, references: state.references.length,
+      pending: !!state.pending, result: !!state.result, applied: state.appliedCount,
+      open: !!($g('mangaGptPanel') && !$g('mangaGptPanel').hidden) };
+  }
+
+  window.MangaGPTRegionEditor = { openTask, exitTask, setSimple, wizardState, normalizeRegion, startSelection, cancelSelection, selectRegionForTextRemoval, selectRegionForPanel, selectPolygon, pageImage, prepareManualEdit, useCharacterCard, referenceSummary,
+    letterboxPlan, resultCropRect, letteringInsertIndex, isLettering, contextRect, featherPlan, featherAlpha, seamDiffs, applySeamMatch, globalShift, ringConfirmed, changeMask, estimateDrift, aspectMismatch,
+    findCutBoxes, expandRegion, effectiveSize, bakePatch, panelLineAlpha, combineAlpha, tr,
+    GPT_MODEL_PRESETS, GPT_DEFAULT_MODEL, modelPresetFor };
 })();

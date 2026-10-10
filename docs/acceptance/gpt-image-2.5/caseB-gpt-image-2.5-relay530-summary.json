@@ -1,0 +1,26 @@
+{
+  "id": "B",
+  "title": "同 A 选区，无参考图，仅文字描述（A/B 对照）",
+  "region": [
+    802,
+    1240
+  ],
+  "selStatus": "已选中原始画布区域：802 × 1240 像素。注意：选区只框到了 1 个对象的一部分（如“pose”），模型只看到半个人物时容易接不上身体。可点“扩展到完整对象”。",
+  "size": "auto",
+  "ref": false,
+  "cutWarning": null,
+  "httpStatus": 502,
+  "elapsedS": 30.8,
+  "error": "上游 HTTP 530：图像服务（或其网关）暂时不可用，本次没有生成图片，请稍后重试。（Cloudflare Tunnel error | departmental-implemented-toll-hydraulic.trycloudflare.）",
+  "uiStatus": "上游 HTTP 530：图像服务（或其网关）暂时不可用，本次没有生成图片，请稍后重试。（Cloudflare Tunnel error | departmental-implemented-toll-hydraulic.trycloudflare.）",
+  "requests": 1,
+  "request": {
+    "operation": "edit",
+    "model": "gpt-image-2.5",
+    "size": "1024x1536",
+    "baseUrl": "https://litangking.12gg.workers.dev/v1",
+    "references": 0,
+    "authorizationHeader": false
+  },
+  "pageErrors": []
+}

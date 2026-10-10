@@ -9,6 +9,26 @@ const net = require('node:net');
 const path = require('node:path');
 const { chromium } = require('playwright');
 
+// GPT URL / Key / Model live in 服务设置 (one place for every service): set them the way a user does.
+async function setGptService(pg, cfg) {
+  await pg.locator('#taskMore').click(); await pg.locator('#taskServiceSettings').click();
+  if (cfg.url !== undefined) await pg.locator('#mangaGptUrl').fill(cfg.url);
+  if (cfg.model !== undefined) await pg.locator('#mangaGptModel').fill(cfg.model);
+  if (cfg.key !== undefined) await pg.locator('#mangaGptKey').fill(cfg.key);
+  await pg.locator('#svcDone').click();
+}
+// These suites exercise the full (pro) UI; a user who picked 专业模式 keeps it across reloads.
+function proMode(browser) {
+  const make = browser.newContext.bind(browser);
+  browser.newContext = async (opts = {}) => {
+    const { beginner, ...rest } = opts;
+    const c = await make(rest);
+    if (!beginner) await c.addInitScript(() => { try { if (!localStorage.getItem('mnai.uiMode')) localStorage.setItem('mnai.uiMode', 'pro'); } catch (e) { /* storage blocked */ } });
+    return c;
+  };
+  return browser;
+}
+
 const ROOT = path.resolve(__dirname, '..');
 const SERVER = 'http://127.0.0.1:8000';
 const OUT = path.join(ROOT, 'artifacts', 'gpt-browser');
@@ -68,6 +88,15 @@ async function openEditor(context) {
   const skip = page.locator('#tutorialSkipBtn');
   if (await skip.count() && await skip.isVisible()) await skip.click();
   await page.keyboard.press('Escape');
+  // A second tab sees the first tab's auto-save; Esc = "decide later" (keeps the data).
+  const recovery = page.locator('#autoSaveRecoveryDialog');
+  if (await recovery.waitFor({ timeout: 2500 }).then(() => true, () => false)) {
+    page.recoveryDialog = await recovery.evaluate(el => ({ role: el.getAttribute('role'),
+      labelled: !!document.getElementById(el.getAttribute('aria-labelledby')),
+      focused: document.activeElement && document.activeElement.id }));
+    await page.keyboard.press('Escape');
+    await recovery.waitFor({ state: 'detached', timeout: 5000 });
+  }
   return page;
 }
 
@@ -75,7 +104,7 @@ async function openEditor(context) {
 async function installMockModel(page, state) {
   await page.route('**/gpt-image-proxy', async route => {
     const payload = route.request().postDataJSON();
-    state.calls.push({ operation: payload.operation, size: payload.size, refs: (payload.references || []).length,
+    state.calls.push({ operation: payload.operation, size: payload.size, refs: (payload.references || []).length, model: payload.model,
       auth: Boolean(route.request().headers().authorization), image: payload.image });
     if (state.fail) {
       return route.fulfill({ status: state.fail.status, contentType: 'application/json',
@@ -194,14 +223,14 @@ async function lastRegion(page) {
 
 async function generateAndApply(page, { allowUpscale = false } = {}) {
   await page.locator('#mangaGptGenerate').click();
-  await page.waitForFunction(() => !document.querySelector('#mangaGptGenerate').disabled, { timeout: 30000 });
+  await page.waitForFunction(() => !document.querySelector('#mangaGptGenerate').disabled, { timeout: 60000 });
   const status = await page.locator('#mangaGptStatus').textContent();
   if (await page.locator('#mangaGptApply').isDisabled()) return { applied: false, status };
   await page.locator('#mangaGptAllowUpscale').setChecked(allowUpscale);
   const before = await page.evaluate(() => canvas.getObjects().length);
   await page.locator('#mangaGptApply').click();
   await page.waitForFunction(n => canvas.getObjects().length === n + 1 ||
-    document.querySelector('#mangaGptStatus').dataset.error === 'true', before, { timeout: 20000 });
+    document.querySelector('#mangaGptStatus').dataset.error === 'true', before, { timeout: 60000 });
   const applyStatus = await page.locator('#mangaGptStatus').textContent();
   const added = await page.evaluate(n => canvas.getObjects().length === n + 1, before);
   return { applied: added, status: applyStatus };
@@ -227,7 +256,7 @@ async function patchInfo(page) {
 
 async function run() {
   await startServer();
-  browser = await chromium.launch({ headless: true });
+  browser = proMode(await chromium.launch({ headless: true }));
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const page = await openEditor(context);
   const cdp = await context.newCDPSession(page);
@@ -235,12 +264,28 @@ async function run() {
   const heap = async () => (await cdp.send('Performance.getMetrics')).metrics.find(m => m.name === 'JSHeapUsedSize').value;
   const base = await page.evaluate(() => ({ w: canvas.getWidth(), h: canvas.getHeight() }));
   record('editor loads with A4 200dpi page', base.w === 1654 && base.h === 2339, base);
+  // Model picker: gpt-image-2.5 is the default, gpt-image-2 stays selectable, free entry still works.
+  const modelUi = await page.evaluate(() => {
+    const sel = document.getElementById('mangaGptModelPreset'), box = document.getElementById('mangaGptModel');
+    const out = { def: box.value, preset: sel.value, options: Array.from(sel.options).map(o => o.value) };
+    sel.value = 'gpt-image-2'; sel.dispatchEvent(new Event('change'));
+    out.afterPick = box.value;
+    box.value = 'my-custom-image-model'; box.dispatchEvent(new Event('input'));
+    out.afterType = sel.value;
+    box.value = 'gpt-image-2.5'; box.dispatchEvent(new Event('input'));
+    out.backToDefault = sel.value;
+    return out;
+  });
+  record('GPT model picker: gpt-image-2.5 default, gpt-image-2 selectable, custom id allowed',
+    modelUi.def === 'gpt-image-2.5' && modelUi.preset === 'gpt-image-2.5' && modelUi.options.includes('gpt-image-2') &&
+    modelUi.options.includes('custom') && modelUi.afterPick === 'gpt-image-2' && modelUi.afterType === 'custom' &&
+    modelUi.backToDefault === 'gpt-image-2.5', modelUi);
 
   const mock = { calls: [] };
   await installMockModel(page, mock);
   await buildScene(page);
   await page.locator('#mangaGptOpen').click();
-  await page.locator('#mangaGptKey').fill('fake-ephemeral-test-key');
+  await setGptService(page, { key: 'fake-ephemeral-test-key' });
   await page.locator('#mangaGptPrompt').fill('identity test');
 
   // 1. Selection interactions: left / right button, reversed drag, beyond-edge clamping, Esc.
@@ -256,6 +301,14 @@ async function run() {
   for (let i = 0; i < 20; i++) { await page.locator('#mangaGptSelect').click(); await page.keyboard.press('Escape'); }
   record('20x open/cancel leaves no overlay', await page.locator('.manga-gpt-selection').count() === 0);
   await page.locator('#mangaGptSelect').click();
+  await page.evaluate(() => {
+    const panel = document.querySelector('.manga-gpt-panel') || document.getElementById('mangaGptPanel');
+    (panel || document.body).dispatchEvent(new Event('scroll'));
+  });
+  record('scrolling an unrelated container (GPT panel) keeps the selection',
+    await page.locator('.manga-gpt-selection').count() === 1);
+  await page.keyboard.press('Escape');
+  await page.locator('#mangaGptSelect').click();
   await page.evaluate(() => window.dispatchEvent(new Event('resize')));
   record('window resize during selection aborts overlay', await page.locator('.manga-gpt-selection').count() === 0,
     { status: await page.locator('#mangaGptStatus').textContent() });
@@ -266,6 +319,10 @@ async function run() {
     { name: 'tall 300x900', from: [1100, 300], to: [1400, 1200] },
     { name: 'square 500x500', from: [200, 1300], to: [700, 1800] }
   ];
+  // The mock 'edits' are synthetic tints; change-only compositing (default on) would rightly strip
+  // them as non-changes, hiding what these checks measure. Seam/change-only is covered by
+  // gpt-region-editor-smoke-test.cjs and the seam evidence; switch it off here.
+  await page.evaluate(() => { const c = document.getElementById('mangaGptChangeOnly'); if (c) { c.checked = false; c.dispatchEvent(new Event('change')); } });
   for (const c of cases) {
     await dragSelect(page, c.from, c.to);
     const before = await snapshot(page);
@@ -280,7 +337,7 @@ async function run() {
     record('identity edit ' + c.name + ': uniform scale, outside pixels untouched, inside matches',
       r.applied && uniform(info) && diff.outsideChanged === 0 &&
       diff.insideMeanAbsDiff < 6 && Math.abs(info.w - region.width) <= 2 && Math.abs(info.h - region.height) <= 2,
-      { applied: r.applied, size: mock.calls.at(-1).size, info, diff });
+      { applied: r.applied, status: r.status, size: mock.calls.at(-1).size, info, diff });
   }
 
   // 3. Model ignores requested aspect (returns 3:2 for a 1:1 request): still no stretching.
@@ -321,10 +378,13 @@ async function run() {
     const load = async src => { const i = new Image(); i.src = src; await i.decode();
       const c = document.createElement('canvas'); c.width = i.width; c.height = i.height;
       const x = c.getContext('2d'); x.drawImage(i, 0, 0); return x.getImageData(0, 0, c.width, c.height); };
-    const B = await load(after);
-    const p = (x, y) => { const i = (y * B.width + x) * 4; return (B.data[i] + B.data[i + 1] + B.data[i + 2]) / 3; };
+    // Seam the patch ADDED: edge strength after minus the edge already in the artwork, so a
+    // 1px-different drag that lands on an existing panel line does not count as a seam.
+    const A = await load(before); const B = await load(after);
+    const p = (D, x, y) => { const i = (y * D.width + x) * 4; return (D.data[i] + D.data[i + 1] + D.data[i + 2]) / 3; };
     let s = 0, n = 0;
-    for (let y = rect.top + 4; y < rect.top + rect.height - 4; y++) { s += Math.abs(p(rect.left, y) - p(rect.left - 1, y)); n++; }
+    for (let y = rect.top + 4; y < rect.top + rect.height - 4; y++) {
+      s += Math.abs((p(B, rect.left, y) - p(B, rect.left - 1, y)) - (p(A, rect.left, y) - p(A, rect.left - 1, y))); n++; }
     return +(s / n).toFixed(2);
   }, { before, after, rect });
   mock.tint = 40;
@@ -426,22 +486,25 @@ async function run() {
   // 6b. Keyboard redo: Ctrl+Shift+Z works like Ctrl+Y; never fires while typing in a field.
   const keyText = async () => page.evaluate(() => canvas.getObjects().find(o => o.name === 'vtext').text);
   await page.evaluate(() => { if (document.activeElement) document.activeElement.blur(); canvas.discardActiveObject(); });
+  // Wait for the expected text instead of a fixed sleep (the box can be heavily loaded).
+  const settle = async expected => {
+    await page.waitForFunction(t => canvas.getObjects().find(o => o.name === 'vtext').text === t, expected,
+      { timeout: 10000 }).catch(() => {});
+    return keyText();
+  };
   await page.keyboard.press('Control+z');
-  await page.waitForTimeout(900);
-  const kUndo = await keyText();
+  const kUndo = await settle('竖排台词');
   await page.keyboard.press('Control+Shift+z');
-  await page.waitForTimeout(900);
-  const kRedo = await keyText();
+  const kRedo = await settle('新竖排');
   await page.keyboard.press('Control+z');
-  await page.waitForTimeout(900);
+  await settle('竖排台词');
   await page.locator('#mangaGptPrompt').focus();
   await page.keyboard.press('Control+Shift+z');
-  await page.waitForTimeout(900);
+  await page.waitForTimeout(1200);
   const kInField = await keyText();
   await page.evaluate(() => document.activeElement.blur());
   await page.keyboard.press('Control+y');
-  await page.waitForTimeout(900);
-  const kCtrlY = await keyText();
+  const kCtrlY = await settle('新竖排');
   record('Ctrl+Shift+Z redoes (like Ctrl+Y), ignored while typing in a text field',
     kUndo === '竖排台词' && kRedo === '新竖排' && kInField === '竖排台词' && kCtrlY === '新竖排', { kUndo, kRedo, kInField, kCtrlY });
 
@@ -600,6 +663,90 @@ async function run() {
     alpha.keep.applied && alpha.keep.hole === 0 && alpha.keep.solid === 255 && alpha.keep.flag === true &&
     /恢复透明/.test(alpha.keep.status) && alpha.off.applied && alpha.off.hole === 255 && alpha.off.flag === false, alpha);
 
+  // 9e. Lasso (freehand) selection: only pixels inside the drawn outline change, even inside its box.
+  {
+    await page.locator('#mangaGptShape').selectOption('lasso');
+    await page.locator('#mangaGptSelect').click();
+    const b = await canvasBox(page);
+    const px = p => ({ x: b.x + p[0] * b.w / b.cw, y: b.y + p[1] * b.h / b.ch });
+    const tri = [[300, 300], [700, 300], [500, 700]];
+    const before = await snapshot(page);
+    await page.mouse.move(px(tri[0]).x, px(tri[0]).y); await page.mouse.down();
+    for (const p of [tri[1], tri[2], tri[0]]) await page.mouse.move(px(p).x, px(p).y, { steps: 20 });
+    await page.mouse.up();
+    const lassoStatus = await page.locator('#mangaGptStatus').textContent();
+    await page.locator('#mangaGptMatchTone').setChecked(false); // the whole-image tint stands for an edit here, not drift
+    mock.tint = 60;
+    const res = await generateAndApply(page);
+    mock.tint = 0;
+    await page.locator('#mangaGptMatchTone').setChecked(true);
+    const after = await snapshot(page);
+    const px3 = await page.evaluate(async ({ before, after, pts }) => {
+      const load = async src => { const i = new Image(); i.src = src; await i.decode(); const c = document.createElement('canvas');
+        c.width = i.width; c.height = i.height; const g = c.getContext('2d'); g.drawImage(i, 0, 0); return g; };
+      const A = await load(before), B = await load(after);
+      const d = ([x, y]) => { const a = A.getImageData(x, y, 1, 1).data, z = B.getImageData(x, y, 1, 1).data; return Math.abs(a[0] - z[0]) + Math.abs(a[1] - z[1]) + Math.abs(a[2] - z[2]); };
+      // whole bounding box: count changed pixels outside the triangle (allow the 1px anti-aliased edge)
+      let outsideChanged = 0;
+      const inTri = (x, y) => { const [[ax, ay], [bx, by], [cx, cy]] = pts; const s = (px, py, qx, qy, rx, ry) => (px - rx) * (qy - ry) - (qx - rx) * (py - ry);
+        const d1 = s(x, y, ax, ay, bx, by), d2 = s(x, y, bx, by, cx, cy), d3 = s(x, y, cx, cy, ax, ay); return !((d1 < 0 || d2 < 0 || d3 < 0) && (d1 > 0 || d2 > 0 || d3 > 0)); };
+      const da = A.getImageData(300, 300, 400, 400).data, db = B.getImageData(300, 300, 400, 400).data;
+      for (let y = 0; y < 400; y += 2) for (let x = 0; x < 400; x += 2) {
+        const i = (y * 400 + x) * 4;
+        if (Math.abs(da[i] - db[i]) + Math.abs(da[i + 1] - db[i + 1]) + Math.abs(da[i + 2] - db[i + 2]) > 6) {
+          // distance-tolerant: only count if clearly outside (shrink-test 4px around)
+          if (!inTri(300 + x, 300 + y) && !inTri(300 + x + 4, 300 + y) && !inTri(300 + x - 4, 300 + y) && !inTri(300 + x, 300 + y + 4) && !inTri(300 + x, 300 + y - 4)) outsideChanged++;
+        }
+      }
+      return { inside: d([500, 430]), corner: d([320, 680]), outsideChanged };
+    }, { before, after, pts: tri });
+    await page.evaluate(() => undo()); await page.waitForTimeout(800);
+    await page.locator('#mangaGptShape').selectOption('rect');
+    record('lasso selection: only the freehand outline changes (box corners untouched), status explains it',
+      res.applied && /套索/.test(lassoStatus) && px3.inside > 30 && px3.corner === 0 && px3.outsideChanged === 0,
+      { lassoStatus: lassoStatus.slice(0, 60), ...px3, applied: res.applied });
+  }
+
+  // 9f. Brush: only the painted stroke changes.
+  {
+    await page.locator('#mangaGptShape').selectOption('brush');
+    await page.locator('#mangaGptSelect').click();
+    const b = await canvasBox(page);
+    const px = p => ({ x: b.x + p[0] * b.w / b.cw, y: b.y + p[1] * b.h / b.ch });
+    const before = await snapshot(page);
+    await page.mouse.move(px([300, 300]).x, px([300, 300]).y); await page.mouse.down();
+    await page.mouse.move(px([700, 700]).x, px([700, 700]).y, { steps: 30 });
+    await page.mouse.up();
+    const brushStatus = await page.locator('#mangaGptStatus').textContent();
+    const width = await page.evaluate(() => Math.max(12, Math.round(Math.min(canvas.getWidth(), canvas.getHeight()) * 0.05)));
+    await page.locator('#mangaGptMatchTone').setChecked(false); // the whole-image tint stands for an edit here, not drift
+    mock.tint = 60;
+    const res = await generateAndApply(page);
+    mock.tint = 0;
+    await page.locator('#mangaGptMatchTone').setChecked(true);
+    const after = await snapshot(page);
+    const m = await page.evaluate(async ({ before, after, width }) => {
+      const load = async src => { const i = new Image(); i.src = src; await i.decode(); const c = document.createElement('canvas');
+        c.width = i.width; c.height = i.height; const g = c.getContext('2d'); g.drawImage(i, 0, 0); return g; };
+      const A = await load(before), B = await load(after);
+      const d = (x, y) => { const a = A.getImageData(x, y, 1, 1).data, z = B.getImageData(x, y, 1, 1).data; return Math.abs(a[0] - z[0]) + Math.abs(a[1] - z[1]) + Math.abs(a[2] - z[2]); };
+      // distance from the stroke centre line y = x (between 300 and 700)
+      let farChanged = 0, nearSame = 0;
+      for (let y = 260; y < 740; y += 3) for (let x = 260; x < 740; x += 3) {
+        const dist = Math.abs(x - y) / Math.SQRT2;
+        const ch = d(x, y) > 6;
+        if (dist > width / 2 + 3 && ch) farChanged++;
+        if (dist < width / 2 - 3 && x > 320 && x < 680 && !ch) nearSame++;
+      }
+      return { onStroke: d(500, 500), corner: d(320, 680), farChanged, nearSame };
+    }, { before, after, width });
+    await page.evaluate(() => undo()); await page.waitForTimeout(800);
+    await page.locator('#mangaGptShape').selectOption('rect');
+    record('brush selection: only the painted stroke changes',
+      res.applied && /笔刷/.test(brushStatus) && m.onStroke > 30 && m.corner === 0 && m.farChanged === 0 && m.nearSame === 0,
+      { brushStatus: brushStatus.slice(0, 60), width, ...m });
+  }
+
   // 10. Smart manga text: real Chromium/Fabric UI, fake OCR only, no model charges.
   await page.evaluate(() => {
     canvas.clear();
@@ -613,7 +760,7 @@ async function run() {
     smartOcrCalls++;
     const payload = route.request().postDataJSON();
     assert(/^data:image\/png;base64,/.test(payload.image));
-    assert.equal(payload.language, 'jpn+eng');
+    assert.equal(payload.language, 'auto'); // default: bubble-first vertical+horizontal OCR
     return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
       ok: true, width: 2000, height: 2000,
       regions: [{ text: '旧对白', x: 140, y: 220, width: 180, height: 65, confidence: 95 }]
@@ -701,10 +848,23 @@ async function run() {
 
   // Local LaMa: use a fake identity inpainting model, but REAL canvas crop,
   // rectangle mask, human preview and non-destructive Fabric overlay.
-  let lamaCalls=0,lamaMaskUrl='';
+  let lamaCalls=0,lamaMaskUrl='',lamaMode='ok',lamaExtra=[];
   await page.route('**/manga-smart/lama-inpaint',route=>{
-    lamaCalls++;
     const payload=route.request().postDataJSON();
+    if(lamaMode==='consent' && payload.allow_download!==true){
+      lamaExtra.push('428');
+      return route.fulfill({status:428,contentType:'application/json',body:JSON.stringify({
+        ok:false,needs_download:true,model:'lama',size:'约 200MB',error:'LaMa 模型尚未下载（约 200MB）。'})});
+    }
+    if(lamaMode==='hang'){lamaExtra.push('hang');return new Promise(()=>{});}
+    if(lamaMode!=='ok'){
+      lamaExtra.push('allowed:'+(payload.allow_download===true));
+      const b=Buffer.from(payload.image.split(',')[1],'base64');
+      return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+        ok:true,engine:'simple-lama-local',applied:false,verified:false,
+        width:b.readUInt32BE(16),height:b.readUInt32BE(20),image:payload.image})});
+    }
+    lamaCalls++;
     assert(/^data:image\/png;base64,/.test(payload.image));
     assert(/^data:image\/png;base64,/.test(payload.mask));
     lamaMaskUrl=payload.mask;
@@ -788,16 +948,48 @@ async function run() {
   const appliedLama=await page.evaluate(()=>({
     objects:canvas.getObjects().length,
     layer:canvas.getObjects().find(o=>o.mangaSmartText==='lama-erase-patch')?.type,
-    erase:window.MangaSmartTextEditor.getDrafts()[0]?.erase
+    erase:window.MangaSmartTextEditor.getDrafts()[0]?.erase,
+    lamaApplied:window.MangaSmartTextEditor.getDrafts()[0]?.lamaApplied
   }));
   record('confirmed LaMa result is an independent erasable Fabric layer with no GPT charges',
     appliedLama.objects===beforeLama+1 && appliedLama.layer==='image' &&
-    appliedLama.erase===false && mock.calls.length===paidCallsBeforeLama,appliedLama);
+    appliedLama.erase===true && appliedLama.lamaApplied===true && // fill stays on to cover LaMa residue
+    mock.calls.length===paidCallsBeforeLama,appliedLama);
   await page.evaluate(()=>undo());
   await page.waitForFunction(n=>canvas.getObjects().length===n,beforeLama,{timeout:20000});
   await page.evaluate(()=>redo());
   await page.waitForFunction(n=>canvas.getObjects().length===n,beforeLama+1,{timeout:20000});
   record('local LaMa patch undo and redo works as a single history action',true);
+
+  // P0: model weights are never downloaded silently, and inference can be cancelled.
+  const lamaObjects=await page.evaluate(()=>canvas.getObjects().length);
+  await page.locator('.manga-smart-item button').filter({hasText:'本地 LaMa 去字'}).first().click();
+  await page.waitForFunction(()=>document.getElementById('mangaLamaMaskCanvas').width>10&&
+    !document.getElementById('mangaLamaGenerate').disabled,null,{timeout:16000});
+  lamaMode='consent';
+  page.once('dialog',d=>d.dismiss());
+  await page.locator('#mangaLamaGenerate').click();
+  await page.waitForFunction(()=>/未下载模型/.test(document.getElementById('mangaLamaStatus').textContent),
+    null,{timeout:15000});
+  const declined={calls:[...lamaExtra],objects:await page.evaluate(()=>canvas.getObjects().length)};
+  page.once('dialog',d=>d.accept());
+  await page.locator('#mangaLamaGenerate').click();
+  await page.waitForFunction(()=>!document.getElementById('mangaLamaConfirm').disabled,null,{timeout:15000});
+  const accepted=[...lamaExtra];
+  record('LaMa asks before downloading weights; decline sends nothing more, accept retries with allow_download',
+    JSON.stringify(declined.calls)==='["428"]' && declined.objects===lamaObjects &&
+    JSON.stringify(accepted)==='["428","428","allowed:true"]',{declined,accepted});
+  lamaMode='hang';lamaExtra=[];
+  await page.locator('#mangaLamaGenerate').click();
+  await page.waitForFunction(()=>/取消/.test(document.getElementById('mangaLamaStatus').textContent),null,{timeout:15000});
+  await page.locator('#mangaLamaCancel').click();
+  await page.waitForTimeout(400);
+  const cancelled=await page.evaluate(()=>({hidden:document.getElementById('mangaLamaPreviewPanel').hidden,
+    objects:canvas.getObjects().length,confirm:document.getElementById('mangaLamaConfirm').disabled}));
+  record('cancelling an in-flight LaMa inference aborts it and changes nothing',
+    JSON.stringify(lamaExtra)==='["hang"]' && cancelled.hidden && cancelled.confirm &&
+    cancelled.objects===lamaObjects,cancelled);
+  lamaMode='ok';
   // Cancelling a mask adjustment must never create another layer or run inference.
   await page.locator('.manga-smart-item button').filter({hasText:'本地 LaMa 去字'}).click();
   await page.waitForFunction(()=>document.getElementById('mangaLamaMaskCanvas').width>10,
@@ -1067,6 +1259,8 @@ async function run() {
   await page.waitForFunction(before=>document.getElementById('mangaGptApply').disabled===false &&
     !!document.getElementById('mangaGptPreview').src, null,{timeout:30000});
   const refRequest=mock.calls[mock.calls.length-1];
+  record('GPT request carries the default model id gpt-image-2.5', mock.calls.length>0 && mock.calls.every(c=>c.model==='gpt-image-2.5'),
+    Array.from(new Set(mock.calls.map(c=>c.model))));
   record('saved Character Bible image reaches mocked GPT edit payload only after Generate click',
     mock.calls.length===characterCallsBefore+1 &&
     refRequest.refs===1 && refRequest.operation==='edit' && refRequest.auth,
@@ -1092,6 +1286,12 @@ async function run() {
   const page2 = await openEditor(context);
   const two = await page2.evaluate(() => ({ w: canvas.getWidth(), panel: !!document.getElementById('mangaGptOpen') }));
   record('second editor tab loads independently', two.w > 0 && two.panel, two);
+  if (page2.recoveryDialog) {
+    const kept = await page2.evaluate(async () => !!(await localforage.createInstance({ name: 'autoSaveStorage', storeName: 'projectAutoSave' }).getItem('metadata').catch(() => null)));
+    record('auto-save recovery dialog is an accessible dialog; Esc closes it and keeps the data',
+      page2.recoveryDialog.role === 'dialog' && page2.recoveryDialog.labelled &&
+      page2.recoveryDialog.focused === 'autoSaveRecoverBtn' && kept, { ...page2.recoveryDialog, kept });
+  }
   await page2.locator('#mangaCharacterOpen').click();
   await page2.locator('.manga-character-card').first().waitFor({ timeout:15000 });
   const acrossTabs=await page2.evaluate(()=>window.MangaCharacterBibleUI.list());

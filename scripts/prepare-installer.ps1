@@ -30,7 +30,7 @@ $excludeDirs = @(
     "llm_doc", "roadmap", "99_doc", "test", "installer",
     "ロードマップ２", "ロードマップ３_複数API対応"
 )
-$excludeFiles = @(".env", ".DS_Store", "100_git_push_draft.bat", "99_git_fetch.bat")
+$excludeFiles = @(".env", ".DS_Store")
 
 Get-ChildItem -LiteralPath $SourceRoot -Directory | ForEach-Object {
     if ($_.Name -like "*API*" -or $_.Name -like "*roadmap*") { $excludeDirs += $_.Name }

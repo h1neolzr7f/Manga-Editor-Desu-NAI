@@ -1,0 +1,348 @@
+{
+ "realGpt": true,
+ "results": [
+  {
+   "name": "first run: tutorial shown, no failed requests or console errors",
+   "kind": "UI",
+   "pass": true,
+   "ms": 5649,
+   "screenshot": "artifacts/e2e/01-first_run_tutorial_shown_no_failed_reque.png",
+   "detail": {
+    "tutorial": true,
+    "failedRequests": [],
+    "consoleErrors": [],
+    "pageErrors": []
+   }
+  },
+  {
+   "name": "template: first template on a fresh page applies without a scary confirm",
+   "kind": "UI",
+   "pass": true,
+   "ms": 343,
+   "screenshot": "artifacts/e2e/02-template_first_template_on_a_fresh_page_.png",
+   "detail": {
+    "panels": [
+     [
+      10,
+      706,
+      1634,
+      1618
+     ],
+     [
+      10,
+      13,
+      1634,
+      673
+     ]
+    ],
+    "dialogs": []
+   }
+  },
+  {
+   "name": "import image via File menu into the page",
+   "kind": "UI",
+   "pass": true,
+   "ms": 531,
+   "screenshot": "artifacts/e2e/03-import_image_via_File_menu_into_the_page.png",
+   "detail": {
+    "before": 2,
+    "after": 3,
+    "types": "polygon,polygon,image"
+   }
+  },
+  {
+   "name": "speech bubble template adds a bubble",
+   "kind": "UI",
+   "pass": true,
+   "ms": 761,
+   "screenshot": "artifacts/e2e/04-speech_bubble_template_adds_a_bubble.png",
+   "detail": {
+    "before": 3,
+    "after": 5
+   }
+  },
+  {
+   "name": "horizontal text box: add and type Japanese text",
+   "kind": "UI",
+   "pass": true,
+   "ms": 732,
+   "screenshot": "artifacts/e2e/05-horizontal_text_box_add_and_type_Japanes.png",
+   "detail": {
+    "type": "textbox",
+    "value": "こんにちは世界"
+   }
+  },
+  {
+   "name": "vertical text box",
+   "kind": "UI",
+   "pass": true,
+   "ms": 408,
+   "screenshot": "artifacts/e2e/06-vertical_text_box.png",
+   "detail": {
+    "type": "vertical-textbox"
+   }
+  },
+  {
+   "name": "shape: star (pick tool, drag on the page)",
+   "kind": "UI",
+   "pass": true,
+   "ms": 1221,
+   "screenshot": "artifacts/e2e/07-shape_star_pick_tool_drag_on_the_page_.png",
+   "detail": {
+    "before": 7,
+    "after": 8,
+    "last": {
+     "type": "polygon",
+     "w": 136,
+     "h": 252
+    }
+   }
+  },
+  {
+   "name": "layers panel: eye button hides and shows one layer",
+   "kind": "UI",
+   "pass": true,
+   "ms": 1297,
+   "screenshot": "artifacts/e2e/08-layers_panel_eye_button_hides_and_shows_.png",
+   "detail": {
+    "hiddenIdx": [
+     8
+    ],
+    "restored": true,
+    "layers": 8
+   }
+  },
+  {
+   "name": "undo / redo toolbar buttons",
+   "kind": "UI",
+   "pass": true,
+   "ms": 3156,
+   "screenshot": "artifacts/e2e/09-undo_redo_toolbar_buttons.png",
+   "detail": {
+    "n0": 8,
+    "afterUndo": 7,
+    "afterRedo": 8
+   }
+  },
+  {
+   "name": "save project via File menu (download)",
+   "kind": "UI",
+   "pass": true,
+   "ms": 660,
+   "screenshot": "artifacts/e2e/10-save_project_via_File_menu_download_.png",
+   "detail": {
+    "file": "artifacts/e2e/project-DESU-nai学长魔改.lz4",
+    "bytes": 1551442
+   }
+  },
+  {
+   "name": "clear canvas, then load project via File menu restores identical pixels",
+   "kind": "UI",
+   "pass": true,
+   "ms": 4679,
+   "screenshot": "artifacts/e2e/11-clear_canvas_then_load_project_via_File_.png",
+   "detail": {
+    "cleared": 0,
+    "size": [
+     1654,
+     2339
+    ],
+    "changed": 0,
+    "outside": 0
+   }
+  },
+  {
+   "name": "export PNG via File menu (Ctrl+D path): page resolution, not blank",
+   "kind": "UI",
+   "pass": true,
+   "ms": 839,
+   "screenshot": "artifacts/e2e/12-export_PNG_via_File_menu_Ctrl_D_path_pag.png",
+   "detail": {
+    "file": "artifacts/e2e/export-DESU-nai学长魔改-20261010_084448_757.png",
+    "w": 2481,
+    "h": 3508,
+    "bytes": 3403327
+   }
+  },
+  {
+   "name": "export SVG via File menu",
+   "kind": "UI",
+   "pass": true,
+   "ms": 378,
+   "screenshot": "artifacts/e2e/13-export_SVG_via_File_menu.png",
+   "detail": {
+    "file": "artifacts/e2e/export-canvas.svg",
+    "bytes": 508127
+   }
+  },
+  {
+   "name": "screentone on the selected panel",
+   "kind": "UI",
+   "pass": true,
+   "ms": 5126,
+   "screenshot": "artifacts/e2e/14-screentone_on_the_selected_panel.png",
+   "detail": {
+    "objects": [
+     8,
+     9
+    ],
+    "changedPixels": 935267,
+    "toneClipTop": 710,
+    "panelTop": 706
+   }
+  },
+  {
+   "name": "page structure: detects panels in reading order",
+   "kind": "UI",
+   "pass": true,
+   "ms": 888,
+   "screenshot": "artifacts/e2e/15-page_structure_detects_panels_in_reading.png",
+   "detail": {
+    "entries": 2,
+    "status": "已按画布上的分镜格排序：识别到 2 个候选分镜、0 个气泡候选（封闭浅色区域 0 个、其余为文字框外扩）；有 0 条文字归属不明确。都需要人工核对。"
+   }
+  },
+  {
+   "name": "smart subtitles: REAL Tesseract finds the bubble text (inside a closed outline)",
+   "kind": "REAL",
+   "pass": true,
+   "ms": 2560,
+   "screenshot": "artifacts/e2e/16-smart_subtitles_REAL_Tesseract_finds_the.png",
+   "detail": {
+    "texts": [
+     "の",
+     "ありがとう"
+    ]
+   }
+  },
+  {
+   "name": "Manga OCR refine (REAL model)",
+   "kind": "REAL",
+   "pass": true,
+   "ms": 368,
+   "screenshot": "artifacts/e2e/17-Manga_OCR_refine_REAL_model_.png",
+   "detail": {
+    "value": "ありがとう"
+   }
+  },
+  {
+   "name": "ink mask candidate + REAL LaMa preview + apply as layer",
+   "kind": "REAL",
+   "pass": true,
+   "ms": 8476,
+   "screenshot": "artifacts/e2e/18-ink_mask_candidate_REAL_LaMa_preview_app.png",
+   "detail": {
+    "ink": "已生成深色文字候选蒙版（占文字框 22%）。仅是未验证候选，请检查红色区域，必要时用画笔纠错，再手动生成修复预览。",
+    "status": "修复预览已生成。只有点击「确认」才应用图层；原始漫画尚未变化。",
+    "patch": {
+     "left": 241,
+     "top": 1195,
+     "width": 516,
+     "height": 164
+    },
+    "size": [
+     1654,
+     2339
+    ],
+    "changed": 3419,
+    "outside": 0
+   }
+  },
+  {
+   "name": "smart subtitle: replace text as an editable Fabric textbox",
+   "kind": "UI",
+   "pass": true,
+   "ms": 3638,
+   "screenshot": "artifacts/e2e/19-smart_subtitle_replace_text_as_an_editab.png",
+   "detail": {
+    "text": "どうもありがとう",
+    "subtitles": [
+     "の",
+     "どうもありがとう"
+    ]
+   }
+  },
+  {
+   "name": "character bible: save a character with a reference picture (local only)",
+   "kind": "UI",
+   "pass": true,
+   "ms": 537,
+   "screenshot": "artifacts/e2e/20-character_bible_save_a_character_with_a_.png",
+   "detail": {
+    "prompt": "【角色参考档案：雨衣少女】\n必须尽量保持这些识别特征：红色短发、绿色眼睛、黄色连帽雨衣、星形发卡\n参考备注：保持原动作和构图\n以提供的参考图为角色外形依据，尽量保持脸、发型、瞳色、服装等可见特征；保留所选原画动作、画风、构图和未选中部分。",
+    "list": "角色档案：雨衣少女 · 1 张参考图（本机读取）"
+   }
+  },
+  {
+   "name": "GPT region edit: character swap with the character card (REAL)",
+   "kind": "REAL",
+   "pass": true,
+   "ms": 29347,
+   "screenshot": "artifacts/e2e/21-GPT_region_edit_character_swap_with_the_.png",
+   "detail": {
+    "status": "图像已生成，请检查预览后点击“作为新图层应用”。",
+    "size": [
+     1654,
+     2339
+    ],
+    "changed": 679907,
+    "outside": 0,
+    "panelBorderKeptRatio": 1,
+    "keepLines": true
+   }
+  },
+  {
+   "name": "GPT text-to-image as a new layer (REAL)",
+   "kind": "REAL",
+   "pass": true,
+   "ms": 30091,
+   "screenshot": "artifacts/e2e/22-GPT_text-to-image_as_a_new_layer_REAL_.png",
+   "detail": {
+    "status": "图像已生成，请检查预览后点击“作为新图层应用”。",
+    "name": "GPT 生图",
+    "w": 1312,
+    "h": 1199
+   }
+  },
+  {
+   "name": "GPT error is readable (unreachable API address, no charge)",
+   "kind": "UI",
+   "pass": true,
+   "ms": 358,
+   "screenshot": "artifacts/e2e/23-GPT_error_is_readable_unreachable_API_ad.png",
+   "detail": {
+    "isError": "true",
+    "status": "API 地址必须是公开 HTTPS URL，不得包含凭据、查询参数或自定义端口。"
+   }
+  },
+  {
+   "name": "final page export (evidence)",
+   "kind": "UI",
+   "pass": true,
+   "ms": 383,
+   "screenshot": "artifacts/e2e/24-final_page_export_evidence_.png",
+   "detail": {
+    "file": "artifacts/e2e/final-page.png"
+   }
+  },
+  {
+   "name": "no uncaught page errors during the whole run",
+   "kind": "UI",
+   "pass": true,
+   "ms": 183,
+   "screenshot": "artifacts/e2e/25-no_uncaught_page_errors_during_the_whole.png",
+   "detail": {
+    "pageErrors": [],
+    "consoleErrors": [
+     "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+    ]
+   }
+  }
+ ],
+ "dialogs": [],
+ "failedRequests": [],
+ "consoleErrors": [
+  "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+ ],
+ "pageErrors": []
+}

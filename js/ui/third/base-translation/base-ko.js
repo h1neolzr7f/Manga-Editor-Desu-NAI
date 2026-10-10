@@ -394,6 +394,7 @@ const base_ko = {
 "imageDownload":"이미지 다운로드",
 "imageCopy":"이미지 복사",
 "allRemove":"모두 삭제",
+"allRemoveConfirm":"이 페이지의 모든 내용을 지울까요? 되돌릴 수 없습니다. 남기려면 먼저 프로젝트를 저장하세요 (Ctrl+S).",
 "prompt":"프롬프트",
 "searchReplace":"검색 및 교체",
 "sdWebUI":"SD WebUI",

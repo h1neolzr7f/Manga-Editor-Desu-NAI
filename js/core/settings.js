@@ -1,5 +1,5 @@
+/* exported basePrompt, commonProperties, i2iInit, jsColorSetById, minCanvasSizeHeight, minCanvasSizeWidth, svgPagging, syncJsColorFromInputs, t2iInit, webpQuality */
 //FabricCanvas2HtmlCanvas Scale
-const blendScale=3;
 var webpQuality=0.98;
 
 fabric.Object.NUM_FRACTION_DIGITS=100;
@@ -30,12 +30,6 @@ svgPagging=$('marginFromPanel').value;
 });
 
 
-
-var sdWebUIPort=7860;
-var sdWebUIHost="127.0.0.1";
-
-var comfyuiPort=8188;
-var comfyuiHost="127.0.0.1";
 
 const basePrompt={
 text2img_prompt         :"masterpiece, best quality, 1girl, simple background, ",

@@ -1,3 +1,4 @@
+/* exported createSpeechBubbleMetrics, customSpeechBubbleAllRelocation, parseSvg, sbTextChange, textFrameScaling, updateObjectPositions */
 function sbTextChange(alignment,button) {
 changeSelected(button);
 }
@@ -80,8 +81,7 @@ function updateShapeMetrics(svgObj) {
 const rect=getSpeechBubbleRectBySVG(svgObj);
 const textbox=getSpeechBubbleTextBySVG(svgObj);
 
-let grid,scale,viewBox,largestRect;
-grid=svgObj.speechBubbleGrid;
+let scale,viewBox,largestRect;
 scale=svgObj.speechBubbleScale;
 viewBox={
 width: svgObj.speechBubbleViewBoxWidth,
@@ -236,7 +236,7 @@ evented: true,
 renderOnAddRemove: true,
 targetObject: svgObj,
 };
-newTextbox=new VerticalTextbox("new",style);
+newTextbox=new VerticalTextbox("台词",style);
 } else {
 newTextbox=new fabric.Textbox(
 `${Math.round(rectWidth * scaleWidth)}x${Math.round(
@@ -387,7 +387,6 @@ const rect=canvas
 
 if (rect) {
 const chars=Math.max(textObj.text.length,1);
-const fontSize=textObj.fontSize;
 const charWidth=
 textObj.calcTextWidth()/Math.max(textObj.text.length,1);
 const singleLineHeight=

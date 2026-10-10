@@ -1,3 +1,4 @@
+/* exported ArrayBufferUtils */
 class ArrayBufferUtils {
 static async toArrayBuffer(data) {
 if (data===null||data===undefined) {

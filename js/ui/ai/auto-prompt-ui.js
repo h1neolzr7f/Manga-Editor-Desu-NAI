@@ -155,15 +155,6 @@ function showI2IPrompts(layer){
 renderNovelAILayerPrompt(layer,'I2I');
 }
 
-function adjustToMultipleOfEight(elementId){
-var inputElement=$(elementId);
-if(!inputElement)return;
-var value=parseInt(inputElement.value,10);
-if(value!==-1){
-inputElement.value=Math.round(value/8)*8;
-}
-}
-
 function noShowPrompt(){
 var otherControlsMini=$("other-controls-mini");
 if(otherControlsMini){
