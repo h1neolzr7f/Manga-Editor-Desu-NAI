@@ -27,16 +27,15 @@ function startServer() {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'zh-CN' });
   const p = await ctx.newPage(); p.on('dialog', d => d.accept());
   const calls = [];
-  p.on('request', r => { if (r.url().endsWith('/gpt-image-proxy')) { const b = r.postDataJSON(); calls.push({ t: Date.now(), model: b.model, size: b.size, refs: (b.references || []).length, kind: /hole where a person/.test(b.prompt) ? 'bg' : 'char' }); } });
+  p.on('request', r => { if (r.url().endsWith('/gpt-image-proxy')) { const b = r.postDataJSON(); calls.push({ t: Date.now(), model: b.model, size: b.size, refs: (b.references || []).length, kind: /Replace the main person/.test(b.prompt) ? 'swap' : 'other' }); } });
   p.on('response', async r => { if (r.url().endsWith('/gpt-image-proxy')) log.steps.push({ proxy: r.status(), at: new Date().toISOString() }); });
   if (!REAL) {
     await p.route('**/gpt-image-proxy', async route => {
-      const body = route.request().postDataJSON(); const kind = /hole where a person/.test(body.prompt) ? 'bg' : 'char';
+      const body = route.request().postDataJSON(); const kind = /Replace the main person/.test(body.prompt) ? 'swap' : 'other';
       const image = await p.evaluate(async ({ src, size, kind }) => {
         const [w, h] = size.split('x').map(Number); const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d');
         const i = new Image(); i.src = src; await i.decode();
-        if (kind === 'bg') { g.drawImage(i, 0, 0, w, h); g.fillStyle = 'rgba(235,235,235,.85)'; g.fillRect(w * .2, h * .1, w * .6, h * .85); }
-        else { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.fillStyle = '#d0507a'; g.beginPath(); g.ellipse(w / 2, h * .55, w * .22, h * .38, 0, 0, 7); g.fill(); }
+        g.drawImage(i, 0, 0, w, h); if (kind === 'swap') { g.fillStyle = 'rgba(208,80,122,.55)'; g.beginPath(); g.ellipse(w / 2, h * .55, w * .22, h * .38, 0, 0, 7); g.fill(); }
         return c.toDataURL('image/png');
       }, { src: body.image, size: body.size, kind });
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, image }) });
@@ -78,7 +77,7 @@ function startServer() {
       fs.writeFileSync(path.join(OUT, '5-page-after.png'), Buffer.from(page.split(',')[1], 'base64'));
       // the two layers alone, for inspection
       const parts = await p.evaluate(() => canvas.getObjects().filter(o => o.autoSwap).map(o => ({ name: o.name, src: o.getSrc ? o.getSrc() : o._element.src, left: o.left, top: o.top })));
-      parts.forEach((x, i) => fs.writeFileSync(path.join(OUT, '6-layer-' + (i + 1) + '-' + (x.name.includes('背景') ? 'bg' : 'character') + '.png'), Buffer.from(x.src.split(',')[1], 'base64')));
+      parts.forEach((x, i) => fs.writeFileSync(path.join(OUT, '6-layer-' + (i + 1) + '-' + 'layer' + '.png'), Buffer.from(x.src.split(',')[1], 'base64')));
       log.layers = parts.map(x => ({ name: x.name, left: x.left, top: x.top }));
       if (process.env.SWAP_PROPAGATE === '1' && log.state.matches.length) {
         const t1 = Date.now();

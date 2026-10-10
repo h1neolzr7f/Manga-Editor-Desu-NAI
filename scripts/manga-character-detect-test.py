@@ -75,17 +75,6 @@ class Offline(unittest.TestCase):
         self.assertGreater(p[1][0], p[2][0], "right panel before left (manga order)")
 
     @unittest.skipUnless(HAVE_NP, "numpy/cv2 missing")
-    def test_cutout_fallback_on_flat_background(self):
-        img = np.full((300, 200, 3), 250, np.uint8)
-        cv2.ellipse(img, (100, 170), (50, 100), 0, 0, 360, (200, 60, 90), -1)
-        cv2.circle(img, (100, 170), 10, (250, 250, 250), -1)        # white hole inside → filled
-        m = D.cutout_array(img, None)
-        ys, xs = np.nonzero(m)
-        self.assertTrue(48 <= xs.min() <= 52 and 148 <= xs.max() <= 152)
-        self.assertTrue(m[170, 100], "holes inside the figure are kept")
-        self.assertFalse(m[5, 5])
-
-    @unittest.skipUnless(HAVE_NP, "numpy/cv2 missing")
     def test_no_bubble_subtraction_without_text_model(self):
         img = np.full((300, 300, 3), 80, np.uint8)
         cv2.ellipse(img, (150, 150), (60, 40), 0, 0, 360, (255, 255, 255), -1)

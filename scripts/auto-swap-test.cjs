@@ -1,4 +1,4 @@
-// 换角色 v2 pure helpers: crop/aspect, placement, descriptor/similarity, grow+feather, tone match.
+// 换角色 pure helpers: crop aspect/inside panel, prompt, descriptor/similarity, panel clip, identity matching.
 const assert = require('node:assert');
 const fs = require('node:fs'); const path = require('node:path'); const vm = require('node:vm');
 const ctx = { globalThis: null }; ctx.globalThis = ctx;
@@ -17,15 +17,11 @@ assert(c.x === 0 && c.y === 0 && c.size === '1536x1024');
 c = A.fitCrop([0, 0, 1238, 1754], 1238, 1754);
 assert(c.x >= 0 && c.y >= 0 && c.x + c.w <= 1238 && c.y + c.h <= 1754, JSON.stringify(c));
 
-// placement: same framing → untouched; drifted → old height, bottom-centre aligned
-let p = A.placement([0, 0, 100, 200], [2, 3, 101, 201]);
-assert.strictEqual(p.adjusted, false);
-p = A.placement([10, 10, 110, 210], [20, 0, 100, 160]);
-assert(p.adjusted && Math.abs(p.scale - 1.25) < 1e-9);
-assert(Math.abs(60 * p.scale + p.dx - 60) < 1e-9, 'centre x kept');
-assert(Math.abs(160 * p.scale + p.dy - 210) < 1e-9, 'feet stay on the ground');
-p = A.placement([0, 0, 100, 400], [0, 0, 100, 100]);
-assert.strictEqual(p.scale, 1.4, 'scale clamped');
+// crop inside a panel: never crosses the panel border, keeps an API aspect
+c = A.fitCropIn([620, 600, 900, 1100], [560, 551, 1182, 1119], 0.18);
+assert(c.x >= 560 && c.y >= 551 && c.x + c.w <= 1182 && c.y + c.h <= 1119, JSON.stringify(c));
+assert(['1024x1024', '1536x1024', '1024x1536'].includes(c.size));
+assert(/IN PLACE/.test(A.PROMPT_SWAP) && /speech bubbles/.test(A.PROMPT_SWAP));
 
 // descriptor: grey art → hue weight ~0; same character in two panels scores higher than a different one
 const n = 400, px = (r, g, b) => { const d = new Uint8ClampedArray(n * 4); for (let i = 0; i < n; i++) d.set([r, g, b, 255], i * 4); return d; };
@@ -38,18 +34,7 @@ const girlB = A.descriptor(half([215, 95, 62, 255], [45, 42, 52, 255]), all, n);
 const boy = A.descriptor(half([60, 90, 220, 255], [30, 30, 30, 255]), all, n);
 assert(A.similarity(girlA, girlB) > 0.9 && A.similarity(girlA, boy) < 0.8, [A.similarity(girlA, girlB), A.similarity(girlA, boy)].join());
 
-// grow + feather: a single pixel grows to a soft disc, centre stays opaque
-const w = 21, h = 21, a = new Uint8ClampedArray(w * h); a[10 * w + 10] = 255;
-const g = A.growFeather(a, w, h, 3, 2);
-assert.strictEqual(g[10 * w + 10], 255);
-assert(g[10 * w + 13] > 0 && g[10 * w + 13] < 255, 'soft edge');
-assert.strictEqual(g[0], 0);
-
-// tone match: a too-bright new character moves toward the old one (60% strength)
-const src = px(200, 200, 200), ref = px(100, 100, 100);
-A.toneMatch(src, all, ref, all, n, 0.6);
-assert(Math.abs(src[0] - 140) <= 1, String(src[0]));
-console.log('PASS auto-swap helpers: crop aspect/inside page, placement (feet aligned, clamped), descriptor similarity, feather, tone match');
+console.log('PASS auto-swap helpers: crop aspect/inside page/inside panel, prompt, descriptor similarity');
 
 // panel clip: nothing outside the panel (inset past its border line) survives
 {

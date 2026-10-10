@@ -1532,14 +1532,12 @@ async function main() {
     const calls = [];
     await p.route('**/gpt-image-proxy', async route => {
       const body = route.request().postDataJSON();
-      const kind = /hole where a person/.test(body.prompt) ? 'bg' : /Redraw the main person/.test(body.prompt) ? 'char' : 'other';
+      const kind = /Replace the main person/.test(body.prompt) ? 'swap' : 'other';
       calls.push({ kind, size: body.size, refs: (body.references || []).length, model: body.model });
       const image = await p.evaluate(async ({ src, size, kind }) => {
         const [w, h] = size.split('x').map(Number); const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d');
         const i = new Image(); i.src = src; await i.decode();
-        if (kind === 'bg') { g.drawImage(i, 0, 0, w, h); g.fillStyle = 'rgba(235,235,235,.85)'; g.fillRect(w * .2, h * .1, w * .6, h * .85); }
-        else { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.fillStyle = '#d0507a'; g.beginPath(); g.ellipse(w / 2, h * .55, w * .22, h * .38, 0, 0, 7); g.fill();
-          g.fillStyle = '#f2d2b6'; g.beginPath(); g.arc(w / 2, h * .2, w * .12, 0, 7); g.fill(); }
+        g.drawImage(i, 0, 0, w, h); if (kind === 'swap') { g.fillStyle = 'rgba(208,80,122,.55)'; g.beginPath(); g.ellipse(w / 2, h * .55, w * .22, h * .38, 0, 0, 7); g.fill(); }
         return c.toDataURL('image/png');
       }, { src: body.image, size: body.size, kind });
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, image }) });
@@ -1561,6 +1559,13 @@ async function main() {
       const at = async (fx, fy) => p.evaluate(([x, y]) => { const u = canvas.upperCanvasEl.getBoundingClientRect(); return { x: u.left + x * u.width / canvas.getWidth(), y: u.top + y * u.height / canvas.getHeight() }; }, [fx, fy]);
       const q = await at(150, 660); await p.mouse.click(q.x, q.y); clicks.n++;          // the girl in panel 2
       await p.waitForFunction(() => AutoSwap.state() && AutoSwap.state().target, null, { timeout: 30000 });
+      // the edit box can be adjusted: drag a smaller box (upper body) → smaller crop, still inside the panel
+      const crop0 = (await p.evaluate(() => AutoSwap.state())).crop;
+      const d0 = await at(90, 600), d1 = await at(330, 820);
+      await p.mouse.move(d0.x, d0.y); await p.mouse.down(); await p.mouse.move(d1.x, d1.y, { steps: 8 }); await p.mouse.up(); clicks.n++;
+      const crop1 = (await p.evaluate(() => AutoSwap.state())).crop;
+      const boxGrows = crop1.w * crop1.h < crop0.w * crop0.h && crop1.x >= 55 && crop1.y >= 551 && crop1.x + crop1.w <= 670 && crop1.y + crop1.h <= 1119;
+      await click('#autoSwapBigger');   // back to a generous margin around the dragged box
       await p.locator('#autoSwapRef').setInputFiles(path.join(__dirname, 'fixtures', 'novice', 'reference.png')); clicks.n++;
       await p.waitForFunction(() => !document.getElementById('autoSwapGo').disabled, null, { timeout: 10000 });
       await click('#autoSwapGo');
@@ -1571,6 +1576,7 @@ async function main() {
       const before = await p.evaluate(() => canvas.getObjects().length);
       await click('#autoSwapApply');
       await p.waitForFunction(() => canvas.getObjects().some(o => o.autoSwap === 'character'), null, { timeout: 15000 });
+      // the box can be adjusted before generating again: bigger box → bigger crop
       const layers = await p.evaluate(n => ({ added: canvas.getObjects().filter(o => o.autoSwap).length, total: canvas.getObjects().length - n, names: canvas.getObjects().filter(o => o.autoSwap).map(o => o.name),
         order: canvas.getObjects().map(o => o.autoSwap || (o.customType || o.type)).slice(-6) }), before);
       await p.screenshot({ path: path.join(OUT, 'swap2-3-applied.png') });
@@ -1610,10 +1616,10 @@ async function main() {
         reloaded = await p2.evaluate(() => canvas.getObjects().filter(o => o.autoSwap).map(o => o.autoSwap + '|' + o.name + '|' + Math.round(o.left) + ',' + Math.round(o.top)).sort());
       } finally { await ctx2.close(); }
       const survived = JSON.stringify(want) === JSON.stringify(reloaded);
-      return { pass: survived && found.chars >= 3 && afterGen.st.result && showing === 'before' && layers.added === 2 && undone && redone === 2 &&
-          calls.filter(c => c.kind === 'bg').length >= 1 && calls.filter(c => c.kind === 'char' && c.refs === 1).length >= 1 &&
-          (!propagated || propagated.layers === 2 * matches.length) && !errors.length,
-        detail: { survived, want, reloaded, clicks: clicks.n, detectMs, found, target: afterGen.st.target, info: afterGen.st.info, layers, undone, redone, matches, propagated, calls: calls.length, errors } };
+      return { pass: boxGrows && survived && found.chars >= 3 && afterGen.st.result && showing === 'before' && layers.added === 1 && undone && redone === 1 &&
+          calls.filter(c => c.kind === 'swap' && c.refs === 1).length >= 1 && calls.every(c => c.kind === 'swap') &&
+          (!propagated || propagated.layers === matches.length) && !errors.length,
+        detail: { boxGrows, crop0, crop1, survived, want, reloaded, clicks: clicks.n, detectMs, found, target: afterGen.st.target, info: afterGen.st.info, layers, undone, redone, matches, propagated, calls: calls.length, errors } };
     } catch (e) { await p.screenshot({ path: path.join(OUT, 'flow35-fail.png') }).catch(() => {}); throw e;
     } finally { await ctx.close(); }
   });

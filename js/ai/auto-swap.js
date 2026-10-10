@@ -1,13 +1,12 @@
-/* 换角色 v2 — automatic character swap.
- * 1. Local detection finds the characters per panel (/manga-smart/characters: panels → isnet-anime →
- *    SAM refine, bubbles removed). The user clicks the one to replace (or any spot: SAM click-select).
- * 2. With a reference image, two GPT edits on the same crop (box + context, cropped to the output aspect
- *    so the result maps 1:1):  a) remove the person, redraw only background → used inside the dilated
- *    old-character mask, tone-matched to the surroundings;  b) same person/pose redrawn as the reference
- *    character on a flat white background → cut out locally (/manga-smart/cutout), aligned to the old
- *    bounding box, tone-matched to the old character, feathered (+ optional outline).
- * 3. Result = two layers (背景补丁 + 新角色), one undo step. Matching characters in other panels are
- *    listed for per-panel preview and one-click apply.
+/* 换角色 — character swap in place.
+ * 1. Local detection finds the characters per panel (/manga-smart/characters: panels → anime faces →
+ *    isnet-anime + SAM masks, bubbles removed, CCIP identity clusters). Detection only proposes the edit box:
+ *    the user clicks a person (or drags a box) and can make the box bigger/smaller.
+ * 2. ONE GPT edit: the crop (box + margin, API aspect, inside the panel) + reference image → the same crop with
+ *    the character redrawn in place. It is pasted back with the region editor's seam/tone match, optional
+ *    change-only mask and a feathered edge, clipped to the panel (borders/neighbours untouched).
+ * 3. One undoable layer per panel. Other panels with the same character (CCIP) are offered for one-click apply
+ *    (keep-outfit on by default there); uncertain matches are listed unticked.
  * Nothing is sent to the paid API before the user clicks 生成.
  */
 (function (root) {
@@ -15,6 +14,14 @@
 
   // ---------- pure helpers (unit-tested in Node) ----------
   const ASPECTS = [['1024x1024', 1], ['1536x1024', 1.5], ['1024x1536', 2 / 3]];
+
+  /** Same as fitCrop but inside a panel rectangle [x0, y0, x1, y1] (crop never crosses the panel border). */
+  function fitCropIn(box, bounds, pad) {
+    const [bx0, by0, bx1, by1] = bounds;
+    const local = [box[0] - bx0, box[1] - by0, box[2] - bx0, box[3] - by0];
+    const r = fitCrop(local, bx1 - bx0, by1 - by0, pad);
+    return Object.assign(r, { x: r.x + bx0, y: r.y + by0 });
+  }
 
   /** Crop around box (+pad) grown to the nearest API aspect, kept inside the page (shifted, then shrunk). */
   function fitCrop(box, pageW, pageH, pad) {
@@ -33,18 +40,6 @@
     x = Math.max(0, Math.min(pageW - w, x));
     y = Math.max(0, Math.min(pageH - h, y));
     return { x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h), size: best[0] };
-  }
-
-  /** Where the new character goes: keep the generated framing unless its box drifted; then match the
-   * old box height (clamped) and align bottom-centre (feet stay on the ground). Boxes in crop pixels. */
-  function placement(oldBox, newBox) {
-    const ow = oldBox[2] - oldBox[0], oh = oldBox[3] - oldBox[1];
-    const nh = newBox[3] - newBox[1];
-    const ocx = (oldBox[0] + oldBox[2]) / 2, ncx = (newBox[0] + newBox[2]) / 2;
-    const drift = Math.abs(nh / oh - 1) > 0.08 || Math.abs(ncx - ocx) > 0.06 * ow || Math.abs(newBox[3] - oldBox[3]) > 0.06 * oh;
-    if (!drift) return { scale: 1, dx: 0, dy: 0, adjusted: false };
-    const s = Math.max(0.7, Math.min(1.4, oh / nh));
-    return { scale: s, dx: ocx - ncx * s, dy: oldBox[3] - newBox[3] * s, adjusted: true };
   }
 
   /** 24-d descriptor: 12 tone bins + 12 hue bins weighted by saturation (grey art: hue barely counts). */
@@ -80,43 +75,6 @@
     return 0.5 * tone + 0.5 * hue;
   }
 
-  /** Separable max filter (dilation) then box blur (feather) on a 0..255 alpha array. */
-  function growFeather(alpha, w, h, grow, feather) {
-    const pass = (src, horiz, rad, fn) => {
-      const out = new Float32Array(src.length);
-      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-        let acc = 0, n = 0;
-        for (let k = -rad; k <= rad; k++) {
-          const xx = horiz ? x + k : x, yy = horiz ? y : y + k;
-          if (xx < 0 || yy < 0 || xx >= w || yy >= h) continue;
-          const v = src[yy * w + xx];
-          if (fn === 'max') { if (v > acc) acc = v; } else { acc += v; n++; }
-        }
-        out[y * w + x] = fn === 'max' ? acc : acc / n;
-      }
-      return out;
-    };
-    let a = Float32Array.from(alpha);
-    if (grow > 0) a = pass(pass(a, true, grow, 'max'), false, grow, 'max');
-    if (feather > 0) a = pass(pass(a, true, feather, 'avg'), false, feather, 'avg');
-    return Uint8ClampedArray.from(a);
-  }
-
-  /** Mean/std luminance match of the new character to the old one (strength 0..1, ratio clamped). */
-  function toneMatch(src, srcMask, ref, refMask, n, strength) {
-    const stats = (d, m) => { let s = 0, s2 = 0, c = 0; for (let i = 0; i < n; i++) if (m[i]) { const l = (d[i * 4] + d[i * 4 + 1] + d[i * 4 + 2]) / 3; s += l; s2 += l * l; c++; }
-      const mu = c ? s / c : 0; return { mu, sd: c ? Math.sqrt(Math.max(1, s2 / c - mu * mu)) : 1, c }; };
-    const a = stats(src, srcMask), b = stats(ref, refMask);
-    if (!a.c || !b.c) return { gain: 1, shift: 0 };
-    const gain = 1 + strength * (Math.max(0.7, Math.min(1.4, b.sd / a.sd)) - 1);
-    const shift = strength * (b.mu - a.mu * gain);
-    for (let i = 0; i < n; i++) {
-      if (!srcMask[i]) continue;
-      for (let c = 0; c < 3; c++) src[i * 4 + c] = Math.max(0, Math.min(255, src[i * 4 + c] * gain + shift));
-    }
-    return { gain: +gain.toFixed(3), shift: +shift.toFixed(1) };
-  }
-
   /** Zero alpha outside the character's panel (inset past the border line) so panel borders and the
    * neighbouring panels are never repainted. crop/panel in page pixels. */
   function clipToPanel(alpha, crop, panel, inset) {
@@ -127,11 +85,7 @@
     return alpha;
   }
 
-  const PROMPT_HOLE = 'The pure white blank area in this manga image is a hole where a person was cut out. Fill the hole with ONLY the background scenery that continues from around it (same perspective, line weight, screentone and lighting). Do not draw any person, face, hair, body part, text or speech bubble. Keep everything outside the hole unchanged.';
-  const PROMPT_HOLE_STRICT = PROMPT_HOLE + ' IMPORTANT: the result must contain NO character at all in that area — only empty background (walls, sky, ground, trees).';
-  const PROMPT_BG = 'Remove the person in the middle of this manga image completely and redraw ONLY the background that was behind them, continuing the surrounding scenery, perspective, line weight, screentone and lighting. Keep everything else unchanged. Do not draw any person, face, body part, text or speech bubble.';
-  const PROMPT_CHAR = 'Redraw the main person in this manga image as the character shown in the reference image (same face, hair, outfit and colors as the reference), keeping exactly the same pose, body size, position, camera angle, facing direction and the same manga line art and shading style. Draw ONLY that one character on a plain flat pure white background: no scenery, no other people, no text, no speech bubbles.';
-
+  const PROMPT_SWAP = 'Replace the main person in this manga panel crop with the character shown in the reference image (same face, hairstyle, hair color and eye color as the reference), redrawn IN PLACE: exactly the same pose, body size, position, camera angle and facing direction, and the same manga line art, shading and screentone style. Keep everything else in the image unchanged — the background, other people, props, panel borders, speech bubbles and text must stay exactly as they are.';
   const KEEP_OUTFIT = ' Keep the clothing, accessories and props of the person in this image exactly as they are; take ONLY the face, hairstyle, hair color and eye color from the reference character.';
 
   /** Matching from CCIP identity clusters (server): same cluster = sure; an unclustered face that is close =
@@ -150,7 +104,7 @@
     return out.sort((a, b) => a.d - b.d);
   }
 
-  const api = { PROMPT_HOLE, identityMatches, KEEP_OUTFIT, fitCrop, placement, clipToPanel, descriptor, similarity, growFeather, toneMatch, PROMPT_BG, PROMPT_CHAR };
+  const api = { PROMPT_SWAP, KEEP_OUTFIT, identityMatches, fitCrop, fitCropIn, clipToPanel, descriptor, similarity };
   if (typeof module !== 'undefined' && module.exports) { module.exports = api; return; }
   if (typeof document === 'undefined') { root.AutoSwap = api; return; }
 
@@ -203,126 +157,54 @@
   }
 
   function cropData(pg, r) { const c = cv(r.w, r.h); c.getContext('2d').drawImage(pg.canvas, r.x, r.y, r.w, r.h, 0, 0, r.w, r.h); return c; }
-  function cropMask(m, W, r) { const out = new Uint8Array(r.w * r.h); for (let y = 0; y < r.h; y++) for (let x = 0; x < r.w; x++) out[y * r.w + x] = m[(r.y + y) * W + r.x + x]; return out; }
 
-  /** Share of the hole covered by a character in the background fill (local anime-seg); null if unknown. */
-  async function holeResidue(url, hole, r, signal) {
-    try {
-      const res = await post('/manga-smart/cutout', { image: url, modelOnly: true }, signal);
-      if (!res || !res.ok || !res.model) return res && res.ok === false && res.status === 422 ? 0 : null;
-      const img = await loadImg(res.mask);
-      const c = cv(r.w, r.h), g = c.getContext('2d');
-      const k = r.w / res.width, ky = r.h / res.height;
-      g.drawImage(img, res.box[0] * k, res.box[1] * ky, (res.box[2] - res.box[0]) * k, (res.box[3] - res.box[1]) * ky);
-      const d = g.getImageData(0, 0, r.w, r.h).data;
-      let inHole = 0, covered = 0;
-      for (let i = 0; i < hole.length; i++) if (hole[i] > 0) { inHole++; if (d[i * 4 + 3] > 127) covered++; }
-      return inHole ? covered / inHole : 0;
-    } catch (e) { if (e && e.name === 'AbortError') throw e; return null; }
-  }
-
-  /** Runs both GPT steps for one character and returns the two layers (not yet on the canvas). */
+  /** One GPT edit of the character crop (+ reference) → pasted back in place with seam/tone match,
+   * optional change-only mask, feathered edge, clipped to the panel. Returns one layer (not yet added). */
   async function swapOne(pg, ch, opts, signal) {
-    const m = await maskArray(ch, pg.W, pg.H);
-    const r = fitCrop(ch.box, pg.W, pg.H, 0.12);
+    const ed = gpt();
+    const panel = opts.panel || [0, 0, pg.W, pg.H];
+    const r = ch.cropBox || fitCropIn(ch.box, panel, opts.pad == null ? 0.18 : opts.pad);
     const crop = cropData(pg, r);
     const cropUrl = crop.toDataURL('image/png');
-    const cm = cropMask(m, pg.W, r);
-    const n = r.w * r.h;
-    const orig = crop.getContext('2d').getImageData(0, 0, r.w, r.h);
-    const refs = opts.references;
-    const extra = (opts.keepOutfit ? KEEP_OUTFIT : '') + (opts.note ? '\n' + opts.note : '');
-    // background: the old character (grown) is blanked out first, so the model cannot just redraw them
-    const span0 = Math.max(ch.box[2] - ch.box[0], ch.box[3] - ch.box[1]);
-    const hole = growFeather(Uint8ClampedArray.from(cm, v => v * 255), r.w, r.h, Math.max(6, Math.round(span0 * 0.045)), 0);
-    const hc = cv(r.w, r.h); const hg = hc.getContext('2d'); hg.drawImage(crop, 0, 0);
-    const hd = hg.getImageData(0, 0, r.w, r.h);
-    for (let i = 0; i < n; i++) if (hole[i] > 0) { hd.data[i * 4] = hd.data[i * 4 + 1] = hd.data[i * 4 + 2] = 255; }
-    hg.putImageData(hd, 0, 0);
-    const holeUrl = hc.toDataURL('image/png');
-    let [bgUrl, charUrl] = await Promise.all([
-      gptEdit(holeUrl, PROMPT_HOLE, r.size, [], signal),
-      gptEdit(cropUrl, PROMPT_CHAR + extra, r.size, refs, signal)
-    ]);
-    // residue check: a character still standing in the hole → one stricter retry
-    let residue = await holeResidue(bgUrl, hole, r, signal);
-    let bgRetried = false;
-    if (residue > 0.35) {
-      bgRetried = true;
-      bgUrl = await gptEdit(holeUrl, PROMPT_HOLE_STRICT, r.size, [], signal);
-      residue = await holeResidue(bgUrl, hole, r, signal);
+    const orig = crop.getContext('2d').getImageData(0, 0, r.w, r.h).data;
+    const prompt = PROMPT_SWAP + (opts.keepOutfit ? KEEP_OUTFIT : '') + (opts.note ? '\n' + opts.note : '');
+    const url = await gptEdit(cropUrl, prompt, r.size, opts.references, signal);
+    const img = await loadImg(url);
+    const c = cv(r.w, r.h), g = c.getContext('2d');
+    g.drawImage(img, 0, 0, r.w, r.h);                       // crop has the request's aspect: 1:1 mapping
+    const d = g.getImageData(0, 0, r.w, r.h);
+    const w = r.w, h = r.h, n = w * h;
+    // edges touching the panel border are not blended (the border must stay the original line)
+    const sides = { left: r.x > panel[0] + 4, right: r.x + w < panel[2] - 4, top: r.y > panel[1] + 4, bottom: r.y + h < panel[3] - 4 };
+    const info = { crop: [r.x, r.y, w, h], size: r.size };
+    const shift = ed.globalShift ? ed.globalShift(d.data, orig, w, h) : null;   // uniform haze over the whole crop
+    if (shift) { for (let i = 0; i < n; i++) for (let k = 0; k < 3; k++) d.data[i * 4 + k] = Math.max(0, Math.min(255, d.data[i * 4 + k] + shift[k])); info.shift = shift.map(Math.round); }
+    let change = null;
+    if (opts.changeOnly !== false && ed.changeMask) { change = ed.changeMask(d.data, orig, w, h); info.changed = change ? +change.changedFraction.toFixed(3) : 1; }
+    if (ed.seamDiffs && ed.applySeamMatch) { const diffs = ed.seamDiffs(d.data, orig, w, h, sides); info.seamSides = Object.keys(diffs).length; ed.applySeamMatch(d.data, w, h, diffs); }
+    const fw = Math.max(6, Math.round(Math.min(w, h) * 0.04));
+    const alpha = new Uint8ClampedArray(n);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const a = ed.featherAlpha ? ed.featherAlpha(x, y, w, h, fw, sides) : 1;
+      alpha[y * w + x] = Math.round(255 * a * (change ? change[y * w + x] / 255 : 1));
     }
-    // --- background patch: only inside the grown old-character mask, tone-matched on the context ---
-    const bgImg = await loadImg(bgUrl);
-    const bc = cv(r.w, r.h); const bg = bc.getContext('2d'); bg.drawImage(bgImg, 0, 0, r.w, r.h);
-    const bd = bg.getImageData(0, 0, r.w, r.h);
-    const span = Math.max(ch.box[2] - ch.box[0], ch.box[3] - ch.box[1]);
-    const growPx = Math.max(6, Math.round(span * 0.045));   // hair strands / outline just outside the mask
-    const panel = opts.panel || null;
-    const alpha = clipToPanel(growFeather(Uint8ClampedArray.from(cm, v => v * 255), r.w, r.h, growPx, Math.max(2, Math.round(growPx / 2))), r, panel);
-    const ctx = new Uint8ClampedArray(orig.data);              // context only: inside the patch → transparent
-    for (let i = 0; i < n; i++) if (alpha[i] > 0) ctx[i * 4 + 3] = 0;
-    const shift = gpt().globalShift ? gpt().globalShift(bd.data, ctx, r.w, r.h) : null;
-    for (let i = 0; i < n; i++) {
-      if (shift) for (let c = 0; c < 3; c++) bd.data[i * 4 + c] = Math.max(0, Math.min(255, bd.data[i * 4 + c] + shift[c]));
-      bd.data[i * 4 + 3] = alpha[i];
-    }
-    bg.putImageData(bd, 0, 0);
-    // --- new character: local cut-out, placement, tone match, feather, outline ---
-    const cut = await post('/manga-smart/cutout', { image: charUrl }, signal);
-    if (!cut || !cut.ok) throw new Error((cut && cut.error) || '抠出新角色失败。');
-    const chImg = await loadImg(charUrl), cutImg = await loadImg(cut.mask);
-    const kx = r.w / chImg.width, ky = r.h / chImg.height;
-    const newBox = [cut.box[0] * kx, cut.box[1] * ky, cut.box[2] * kx, cut.box[3] * ky];
-    const oldBox = [ch.box[0] - r.x, ch.box[1] - r.y, ch.box[2] - r.x, ch.box[3] - r.y];
-    const pl = placement(oldBox, newBox);
-    const nc = cv(r.w, r.h); const ng = nc.getContext('2d');
-    ng.setTransform(pl.scale, 0, 0, pl.scale, pl.dx, pl.dy);
-    ng.drawImage(chImg, 0, 0, r.w, r.h);
-    const nd = ng.getImageData(0, 0, r.w, r.h);
-    const mc = cv(r.w, r.h); const mg = mc.getContext('2d');
-    mg.setTransform(pl.scale, 0, 0, pl.scale, pl.dx, pl.dy);
-    const cbx = cut.box;
-    mg.drawImage(cutImg, cbx[0] * kx, cbx[1] * ky, (cbx[2] - cbx[0]) * kx, (cbx[3] - cbx[1]) * ky);
-    const ma = mg.getImageData(0, 0, r.w, r.h).data;
-    const nm = new Uint8Array(n); for (let i = 0; i < n; i++) nm[i] = ma[i * 4 + 3] > 127 ? 1 : 0;
-    const tone = toneMatch(nd.data, nm, orig.data, cm, n, 0.6);
-    const na = clipToPanel(growFeather(Uint8ClampedArray.from(nm, v => v * 255), r.w, r.h, 0, 1), r, panel);
-    for (let i = 0; i < n; i++) nd.data[i * 4 + 3] = na[i];
-    ng.setTransform(1, 0, 0, 1, 0, 0);
-    ng.clearRect(0, 0, r.w, r.h);
-    if (opts.outline) {   // optional line-weight outline under the character
-      const lw = Math.max(1, Math.round(span * 0.004));
-      const oa = clipToPanel(growFeather(Uint8ClampedArray.from(nm, v => v * 255), r.w, r.h, lw, 0), r, panel);
-      const od = ng.createImageData(r.w, r.h);
-      for (let i = 0; i < n; i++) { od.data[i * 4] = od.data[i * 4 + 1] = od.data[i * 4 + 2] = 24; od.data[i * 4 + 3] = oa[i]; }
-      ng.putImageData(od, 0, 0);
-      const tmp = cv(r.w, r.h); tmp.getContext('2d').putImageData(nd, 0, 0); ng.drawImage(tmp, 0, 0);
-    } else ng.putImageData(nd, 0, 0);
-    return { crop: r, bg: bc.toDataURL('image/png'), character: nc.toDataURL('image/png'), before: cropUrl,
-      info: { residue: residue == null ? null : +residue.toFixed(3), bgRetried, shift: shift ? shift.map(Math.round) : null, tone, placement: pl, cutModel: cut.model } };
+    clipToPanel(alpha, r, panel);
+    for (let i = 0; i < n; i++) d.data[i * 4 + 3] = alpha[i];
+    g.putImageData(d, 0, 0);
+    return { crop: r, layer: c.toDataURL('image/png'), before: cropUrl, info };
   }
 
-  /** Adds both layers as one undo step. */
+  /** Adds the swapped crop as one layer (one undo step), below lettering. */
   function applyResult(res, label) {
     const c = fc();
     return new Promise(resolve => {
-      const paused = typeof changeDoNotSaveHistory === 'function';
-      if (paused) changeDoNotSaveHistory();
-      fabric.Image.fromURL(res.bg, bgObj => {
-        fabric.Image.fromURL(res.character, chObj => {
-          bgObj.set({ left: res.crop.x, top: res.crop.y, name: '换角色·背景补丁' + (label || ''), autoSwap: 'bg' });
-          chObj.set({ left: res.crop.x, top: res.crop.y, name: '换角色·新角色' + (label || ''), autoSwap: 'character' });
-          c.add(bgObj); c.add(chObj);
-          // keep lettering (bubbles/text) on top like the GPT region editor does
-          if (gpt().letteringInsertIndex) {
-            [bgObj, chObj].forEach(o => { const idx = gpt().letteringInsertIndex(c.getObjects(), o); if (idx < c.getObjects().indexOf(o)) o.moveTo(idx); });
-          }
-          c.requestRenderAll();
-          if (paused) { changeDoSaveHistory(); if (typeof saveStateByManual === 'function') saveStateByManual(); }
-          if (typeof updateLayerPanel === 'function') updateLayerPanel();
-          resolve([bgObj, chObj]);
-        });
+      fabric.Image.fromURL(res.layer, obj => {
+        obj.set({ left: res.crop.x, top: res.crop.y, name: '换角色' + (label || ''), autoSwap: 'character' });
+        c.add(obj);
+        if (gpt().letteringInsertIndex) { const idx = gpt().letteringInsertIndex(c.getObjects(), obj); if (idx < c.getObjects().indexOf(obj)) obj.moveTo(idx); }
+        c.requestRenderAll();
+        if (typeof updateLayerPanel === 'function') updateLayerPanel();
+        resolve(obj);
       });
     });
   }
@@ -362,6 +244,16 @@
       g.fillStyle = on ? '#2563eb' : '#f59e0b'; g.beginPath(); g.arc(x0 * sx + 14, y0 * sy + 14, 12, 0, Math.PI * 2); g.fill();
       g.fillStyle = '#fff'; g.font = 'bold 13px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(i + 1), x0 * sx + 14, y0 * sy + 14.5);
     });
+    const cr = targetCrop();
+    if (cr) { g.setLineDash([8, 5]); g.lineWidth = 2; g.strokeStyle = '#38bdf8'; g.strokeRect(cr.x * sx, cr.y * sy, cr.w * sx, cr.h * sy); g.setLineDash([]); }
+    if (S.drag && S.drag.box) { const b = S.drag.box; g.strokeStyle = '#38bdf8'; g.lineWidth = 2; g.strokeRect(b[0] * sx, b[1] * sy, (b[2] - b[0]) * sx, (b[3] - b[1]) * sy); }
+  }
+
+  function targetCrop() {
+    if (!S || !S.target) return null;
+    const panel = (S.panels || [])[S.target.panel] || [0, 0, S.pg.W, S.pg.H];
+    if (!S.target.cropBox) S.target.cropBox = fitCropIn(S.target.userBox || S.target.box, panel, S.pad);
+    return S.target.cropBox;
   }
 
   function hit(px, py) {
@@ -389,6 +281,7 @@
     }
     if (!ch) return;
     S.target = ch; drawPick(); refreshMatches(); step(1);
+    if ($('autoSwapBoxRow')) $('autoSwapBoxRow').hidden = false;
     status('已选中第 ' + (S.chars.indexOf(ch) + 1) + ' 个人物。上传新角色的参考图，然后点「生成」。');
     updateButtons();
   }
@@ -438,12 +331,12 @@
     if (!S || !S.target || S.busy) return;
     S.busy = true; S.result = null; updateButtons(); step(2);
     S.ctrl = new AbortController();
-    status('正在生成：① 擦掉原角色补背景 ② 按参考图重画同姿势的新角色（约 30–60 秒，可点「取消」）…');
+    status('正在生成：按参考图在原位置重画这个人物（约 30–60 秒，可点「取消」）…');
     try {
-      S.result = await swapOne(S.pg, S.target, { keepOutfit: !!($('autoSwapKeep') || {}).checked, panel: (S.panels || [])[S.target.panel], references: S.refs, note: ($('autoSwapNote') || {}).value || '', outline: !!($('autoSwapOutline') || {}).checked }, S.ctrl.signal);
+      S.result = await swapOne(S.pg, S.target, { keepOutfit: !!($('autoSwapKeep') || {}).checked, changeOnly: !!($('autoSwapChangeOnly') || {}).checked, panel: (S.panels || [])[S.target.panel], references: S.refs, note: ($('autoSwapNote') || {}).value || '' }, S.ctrl.signal);
       await showPreview(S.result);
       step(3);
-      status('预览好了：点「对比原图」看前后；满意就点「应用」（背景补丁和新角色是两个独立图层）。');
+      status('预览好了：点「对比原图」看前后；满意就点「应用」（放在一个新图层上，Ctrl+Z 可撤销）。');
     } catch (e) {
       status(e && e.name === 'AbortError' ? '已取消，没有改动画布。' : '生成失败：' + ((e && e.message) || e), !(e && e.name === 'AbortError'));
     } finally { S.busy = false; updateButtons(); }
@@ -452,7 +345,7 @@
   async function showPreview(res) {
     const prev = $('autoSwapPreview'); if (!prev) return;
     const c = cv(res.crop.w, res.crop.h), g = c.getContext('2d');
-    g.drawImage(await loadImg(res.before), 0, 0); g.drawImage(await loadImg(res.bg), 0, 0); g.drawImage(await loadImg(res.character), 0, 0);
+    g.drawImage(await loadImg(res.before), 0, 0); g.drawImage(await loadImg(res.layer), 0, 0);
     res.afterUrl = c.toDataURL('image/png');
     prev.src = res.afterUrl; prev.hidden = false; prev.dataset.showing = 'after';
     $('autoSwapCompare').hidden = false; $('autoSwapCompare').textContent = '对比原图';
@@ -463,7 +356,7 @@
     await applyResult(S.result, '');
     S.applied = (S.applied || 0) + 1;
     S.doneIds.add(S.target.id);
-    status('已应用：图层「换角色·背景补丁」和「换角色·新角色」（Ctrl+Z 一步撤销）。' + (S.matches && S.matches.length ? '下面还有其他格里的同一角色，可以一键换掉。' : ''));
+    status('已应用：图层「换角色」（Ctrl+Z 撤销）。' + (S.matches && S.matches.length ? '下面还有其他格里的同一角色，可以一键换掉。' : ''));
     S.result = null; $('autoSwapPreview').hidden = true; $('autoSwapCompare').hidden = true; updateButtons(); step(4);
     if (S.onApplied) S.onApplied();
   }
@@ -480,7 +373,7 @@
     for (const [i, ch] of todo.entries()) {
       status('正在换第 ' + (i + 1) + ' / ' + todo.length + ' 个（第 ' + (ch.panel + 1) + ' 格）…');
       try {
-        const res = await swapOne(S.pg, ch, { keepOutfit: !!($('autoSwapKeepAll') || {}).checked, panel: (S.panels || [])[ch.panel], references: S.refs, note: ($('autoSwapNote') || {}).value || '', outline: !!($('autoSwapOutline') || {}).checked }, S.ctrl.signal);
+        const res = await swapOne(S.pg, ch, { keepOutfit: !!($('autoSwapKeepAll') || {}).checked, changeOnly: !!($('autoSwapChangeOnly') || {}).checked, panel: (S.panels || [])[ch.panel], references: S.refs, note: ($('autoSwapNote') || {}).value || '' }, S.ctrl.signal);
         await applyResult(res, ' 第' + (ch.panel + 1) + '格'); S.doneIds.add(ch.id); ok++;
       } catch (e) { if (e && e.name === 'AbortError') break; fail++; }
     }
@@ -502,14 +395,17 @@
   async function start(body, hooks) {
     stop();
     hooks = hooks || {};
-    S = { chars: [], refs: [], target: null, busy: false, doneIds: new Set(), markStep: hooks.markStep, onApplied: hooks.onApplied };
+    S = { pad: 0.18, chars: [], refs: [], target: null, busy: false, doneIds: new Set(), markStep: hooks.markStep, onApplied: hooks.onApplied };
     body.innerHTML = '';
     body.appendChild(el('p', { id: 'autoSwapStatus', class: 'auto-swap-status', role: 'status', 'aria-live': 'polite' }, '正在准备…'));
     const refRow = el('label', { class: 'auto-swap-row' }, '新角色参考图 <input type="file" id="autoSwapRef" accept="image/*" multiple>');
     body.appendChild(refRow);
     body.appendChild(el('textarea', { id: 'autoSwapNote', rows: '2', placeholder: '补充要求（可不填），例如：表情改成微笑' }));
     body.appendChild(el('label', { class: 'auto-swap-row ui-muted' }, '<input type="checkbox" id="autoSwapKeep"> 保留原服装（只换脸、发型和发色）'));
-    body.appendChild(el('label', { class: 'auto-swap-row ui-muted' }, '<input type="checkbox" id="autoSwapOutline"> 给新角色加一圈描边（线条较粗的画风）'));
+    body.appendChild(el('label', { class: 'auto-swap-row ui-muted' }, '<input type="checkbox" id="autoSwapChangeOnly" checked> 只替换变化的部分（背景保持原图像素）'));
+    const boxRow = el('div', { class: 'auto-swap-row', id: 'autoSwapBoxRow', hidden: '' });
+    boxRow.innerHTML = '<span class="ui-muted">修改范围：</span><button type="button" class="ui-btn ui-btn-ghost" id="autoSwapBigger">框大一点</button><button type="button" class="ui-btn ui-btn-ghost" id="autoSwapSmaller">框小一点</button><span class="ui-muted">（也可在画布上拖一个框）</span>';
+    body.appendChild(boxRow);
     const btns = el('div', { class: 'auto-swap-row' });
     btns.innerHTML = '<button type="button" class="ui-btn ui-btn-primary" id="autoSwapGo" disabled>生成</button>' +
       '<button type="button" class="ui-btn" id="autoSwapApply" disabled>应用</button>' +
@@ -535,6 +431,9 @@
       updateButtons();
     });
     $('autoSwapGo').addEventListener('click', runTarget);
+    const resize = k => { if (!S || !S.target) return; S.pad = Math.max(0, Math.min(0.6, S.pad + k)); S.target.cropBox = null; drawPick(); };
+    $('autoSwapBigger').addEventListener('click', () => resize(0.08));
+    $('autoSwapSmaller').addEventListener('click', () => resize(-0.08));
     $('autoSwapApply').addEventListener('click', applyTarget);
     $('autoSwapAll').addEventListener('click', applyAll);
     $('autoSwapCancel').addEventListener('click', () => { if (S && S.ctrl) S.ctrl.abort(); });
@@ -554,10 +453,27 @@
       const b = s.ov.view.getBoundingClientRect(); const px = Math.round((e.clientX - b.left) / s.ov.sx), py = Math.round((e.clientY - b.top) / s.ov.sy);
       const h = hit(px, py); if (h !== s.hover) { s.hover = h; drawPick(); }
     });
-    s.ov.view.addEventListener('pointerdown', e => {
-      e.preventDefault();
-      const b = s.ov.view.getBoundingClientRect();
-      pickAt(Math.round((e.clientX - b.left) / s.ov.sx), Math.round((e.clientY - b.top) / s.ov.sy));
+    const toPage = e => { const b = s.ov.view.getBoundingClientRect(); return [Math.round((e.clientX - b.left) / s.ov.sx), Math.round((e.clientY - b.top) / s.ov.sy)]; };
+    s.ov.view.addEventListener('pointerdown', e => { e.preventDefault(); s.drag = { start: toPage(e) }; s.ov.view.setPointerCapture && s.ov.view.setPointerCapture(e.pointerId); });
+    s.ov.view.addEventListener('pointermove', e => {
+      if (!s.drag) return;
+      const [x, y] = toPage(e), [x0, y0] = s.drag.start;
+      if (Math.abs(x - x0) + Math.abs(y - y0) > 12) { s.drag.box = [Math.min(x, x0), Math.min(y, y0), Math.max(x, x0), Math.max(y, y0)]; drawPick(); }
+    });
+    s.ov.view.addEventListener('pointerup', e => {
+      const d = s.drag; s.drag = null;
+      if (!d) return;
+      if (!d.box) { pickAt(d.start[0], d.start[1]); return; }
+      // a dragged box: the edit range (snapped to an API aspect inside the panel); picks the person inside too
+      const cx = (d.box[0] + d.box[2]) / 2, cy = (d.box[1] + d.box[3]) / 2;
+      const inside = s.chars.filter(c => c.box[0] < cx && c.box[2] > cx && c.box[1] < cy && c.box[3] > cy).sort((a, b) => a.area - b.area)[0];
+      const t = inside || s.target || { id: 'box', box: d.box, panel: panelOf(d.box), area: 0, descriptor: new Array(24).fill(0) };
+      if (!inside && !s.target) { s.chars.push(t); }
+      t.userBox = d.box; s.pad = 0;   // the margin buttons now grow/shrink around the dragged box
+      t.cropBox = fitCropIn(d.box, (s.panels || [])[t.panel] || [0, 0, s.pg.W, s.pg.H], 0);
+      s.target = t; if ($('autoSwapBoxRow')) $('autoSwapBoxRow').hidden = false;
+      refreshMatches(); drawPick(); step(1); updateButtons();
+      status('已设好修改范围（蓝色虚线框）。上传参考图后点「生成」。');
     });
     s.onKey = e => { if (e.key === 'Escape' && S === s && s.ov) { s.ov.box.remove(); s.ov = null; status('已关闭选人；重新打开向导可再选。'); } };
     window.addEventListener('keydown', s.onKey, true);
@@ -612,6 +528,6 @@
   }
 
   root.AutoSwap = Object.assign(api, { start, stop, prefetch, swapOne, applyResult,
-    state: () => S && { chars: S.chars.length, target: S.target && S.target.id, targetPanel: S.target && S.target.panel, refs: S.refs.length, busy: S.busy,
+    state: () => S && { crop: S.target ? targetCrop() : null, chars: S.chars.length, target: S.target && S.target.id, targetPanel: S.target && S.target.panel, refs: S.refs.length, busy: S.busy,
       result: !!S.result, matches: (S.matches || []).map(c => c.id), done: Array.from(S.doneIds), info: S.result && S.result.info } });
 })(typeof window !== 'undefined' ? window : globalThis);
