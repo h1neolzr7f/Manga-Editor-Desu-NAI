@@ -21,6 +21,20 @@ assert(c.x >= 0 && c.y >= 0 && c.x + c.w <= 1238 && c.y + c.h <= 1754, JSON.stri
 c = A.fitCropIn([620, 600, 900, 1100], [560, 551, 1182, 1119], 0.18);
 assert(c.x >= 560 && c.y >= 551 && c.x + c.w <= 1182 && c.y + c.h <= 1119, JSON.stringify(c));
 assert(['1024x1024', '1536x1024', '1024x1536'].includes(c.size));
+// whole-figure crop: big character → whole panel; small one → box + margin inside the panel
+c = A.swapCrop([60, 560, 600, 1110], [55, 551, 623, 1119], 1238, 1754);
+assert(c.x <= 55 && c.y <= 551 && c.x + c.w >= 623 && c.y + c.h >= 1119, 'whole panel ' + JSON.stringify(c));
+c = A.swapCrop([300, 700, 360, 800], [55, 551, 1182, 1119], 1238, 1754);
+assert(c.x >= 55 && c.x + c.w <= 1182 && c.w < 600, 'small ' + JSON.stringify(c));
+// figure mask: whole silhouette pasted even where change-only said "unchanged"; other characters protected
+{ const w = 40, h = 20, own = new Uint8Array(w * h), oth = new Uint8Array(w * h), ch0 = new Uint8ClampedArray(w * h);
+  for (let y = 5; y < 15; y++) for (let x = 5; x < 15; x++) own[y * w + x] = 1;
+  for (let y = 0; y < h; y++) for (let x = 30; x < 40; x++) { oth[y * w + x] = 1; ch0[y * w + x] = 255; }
+  const f = A.figureMask(ch0, own, oth, w, h, 3);
+  assert(f[10 * w + 10] === 255 && f[10 * w + 3] === 255, 'silhouette + grow kept');
+  assert(f[10 * w + 22] === 0, 'unchanged background stays original');
+  assert(f[10 * w + 35] === 0, 'other character protected even though it changed'); }
+assert(/same neck and shoulders/.test(A.PROMPT_SWAP));
 assert(/facial expression/.test(A.KEEP_EXPRESSION) && /eyes open or closed/.test(A.KEEP_EXPRESSION));
 assert(/IN PLACE/.test(A.PROMPT_SWAP) && /speech bubbles/.test(A.PROMPT_SWAP));
 

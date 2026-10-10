@@ -23,6 +23,37 @@
     return Object.assign(r, { x: r.x + bx0, y: r.y + by0 });
   }
 
+  /** Edit crop for a character: it must hold the WHOLE figure. A character taking a sizable part of its panel
+   * gets the whole panel (grown to an API aspect, may reach across the border; the paste is clipped). */
+  function swapCrop(box, panel, pageW, pageH) {
+    const ba = (box[2] - box[0]) * (box[3] - box[1]), pa = (panel[2] - panel[0]) * (panel[3] - panel[1]);
+    if (pa > 0 && ba / pa > 0.2) return fitCrop(panel, pageW, pageH, 0);
+    return fitCropIn(box, panel, 0.3);
+  }
+
+  function dilate(m, w, h, r) {
+    const t = new Uint8Array(w * h), o = new Uint8Array(w * h);
+    for (let y = 0; y < h; y++) { let last = -1e9; for (let x = 0; x < w; x++) { if (m[y * w + x]) last = x; t[y * w + x] = x - last <= r ? 1 : 0; }
+      last = 1e9; for (let x = w - 1; x >= 0; x--) { if (m[y * w + x]) last = x; if (last - x <= r) t[y * w + x] = 1; } }
+    for (let x = 0; x < w; x++) { let last = -1e9; for (let y = 0; y < h; y++) { if (t[y * w + x]) last = y; o[y * w + x] = y - last <= r ? 1 : 0; }
+      last = 1e9; for (let y = h - 1; y >= 0; y--) { if (t[y * w + x]) last = y; if (last - y <= r) o[y * w + x] = 1; } }
+    return o;
+  }
+
+  /** Paste mask (0..255) that never splits a figure: the old character's whole silhouette (dilated) is always
+   * replaced, plus wherever the result changed (new hair reaching further); other characters are protected. */
+  function figureMask(change, own, others, w, h, grow) {
+    const g = dilate(own, w, h, grow);
+    const o = others ? dilate(others, w, h, 2) : null;
+    const out = new Uint8ClampedArray(w * h);
+    for (let i = 0; i < out.length; i++) {
+      let v = g[i] ? 255 : (change ? change[i] : 255);
+      if (o && o[i] && !own[i]) v = 0;
+      out[i] = v;
+    }
+    return out;
+  }
+
   /** Crop around box (+pad) grown to the nearest API aspect, kept inside the page (shifted, then shrunk). */
   function fitCrop(box, pageW, pageH, pad) {
     const [x0, y0, x1, y1] = box;
@@ -85,7 +116,7 @@
     return alpha;
   }
 
-  const PROMPT_SWAP = 'Replace the main person in this manga panel crop with the character shown in the reference image (same face, hairstyle, hair color and eye color as the reference), redrawn IN PLACE: exactly the same pose, body size, position, camera angle and facing direction, and the same manga line art, shading and screentone style. Keep everything else in the image unchanged — the background, other people, props, panel borders, speech bubbles and text must stay exactly as they are.';
+  const PROMPT_SWAP = 'Replace the main person in this manga panel crop with the character shown in the reference image (same face, hairstyle, hair color and eye color as the reference), redrawn IN PLACE: exactly the same pose, body size, position, camera angle and facing direction — the head stays on the same neck and shoulders at exactly the same angle and the body proportions stay identical, so the figure stays one natural continuous body — and the same manga line art, shading and screentone style. Keep everything else in the image unchanged — the background, other people, props, panel borders, speech bubbles and text must stay exactly as they are.';
   const KEEP_OUTFIT = ' Keep the clothing, accessories and props of the person in this image exactly as they are; take ONLY the face, hairstyle, hair color and eye color from the reference character.';
 
   /** Matching from CCIP identity clusters (server): same cluster = sure; an unclustered face that is close =
@@ -105,7 +136,7 @@
   }
 
   const KEEP_EXPRESSION = ' Keep the facial expression (eyes open or closed, mouth shape, smile, tears, blush) and the head tilt and gaze direction exactly as in this image; the reference only defines who the character is, not their expression.';
-  const api = { PROMPT_SWAP, KEEP_OUTFIT, KEEP_EXPRESSION, identityMatches, fitCrop, fitCropIn, clipToPanel, descriptor, similarity };
+  const api = { swapCrop, figureMask, PROMPT_SWAP, KEEP_OUTFIT, KEEP_EXPRESSION, identityMatches, fitCrop, fitCropIn, clipToPanel, descriptor, similarity };
   if (typeof module !== 'undefined' && module.exports) { module.exports = api; return; }
   if (typeof document === 'undefined') { root.AutoSwap = api; return; }
 
@@ -175,7 +206,7 @@
   async function swapOne(pg, ch, opts, signal) {
     const ed = gpt();
     const panel = opts.panel || [0, 0, pg.W, pg.H];
-    const r = ch.cropBox || fitCropIn(ch.box, panel, opts.pad == null ? 0.18 : opts.pad);
+    const r = ch.cropBox || swapCrop(ch.box, panel, pg.W, pg.H);
     const crop = cropData(pg, r);
     const cropUrl = crop.toDataURL('image/png');
     const orig = crop.getContext('2d').getImageData(0, 0, r.w, r.h).data;
@@ -193,12 +224,22 @@
     if (shift) { for (let i = 0; i < n; i++) for (let k = 0; k < 3; k++) d.data[i * 4 + k] = Math.max(0, Math.min(255, d.data[i * 4 + k] + shift[k])); info.shift = shift.map(Math.round); }
     let change = null;
     if (opts.changeOnly !== false && ed.changeMask) { change = ed.changeMask(d.data, orig, w, h); info.changed = change ? +change.changedFraction.toFixed(3) : 1; }
+    // never split the figure: the whole old silhouette is replaced together with what changed; others protected
+    const sub = (full) => { const m = new Uint8Array(w * h); for (let y = 0; y < h; y++) { const sy = r.y + y; if (sy < 0 || sy >= pg.H) continue; for (let x = 0; x < w; x++) { const sx = r.x + x; if (sx >= 0 && sx < pg.W) m[y * w + x] = full[sy * pg.W + sx]; } } return m; };
+    let figure = null;
+    if (ch.mask) {
+      const own = sub(await maskArray(ch, pg.W, pg.H));
+      let others = null;
+      for (const oc of (opts.others || [])) { if (!oc.mask || oc.id === ch.id) continue; const om = sub(await maskArray(oc, pg.W, pg.H)); others = others || new Uint8Array(w * h); for (let i = 0; i < om.length; i++) if (om[i]) others[i] = 1; }
+      const span = Math.max(ch.box[2] - ch.box[0], ch.box[3] - ch.box[1]);
+      figure = figureMask(change, own, others, w, h, Math.max(8, Math.round(span * 0.06)));
+    } else if (change) figure = change;
     if (ed.seamDiffs && ed.applySeamMatch) { const diffs = ed.seamDiffs(d.data, orig, w, h, sides); info.seamSides = Object.keys(diffs).length; ed.applySeamMatch(d.data, w, h, diffs); }
     const fw = Math.max(6, Math.round(Math.min(w, h) * 0.04));
     const alpha = new Uint8ClampedArray(n);
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
       const a = ed.featherAlpha ? ed.featherAlpha(x, y, w, h, fw, sides) : 1;
-      alpha[y * w + x] = Math.round(255 * a * (change ? change[y * w + x] / 255 : 1));
+      alpha[y * w + x] = Math.round(255 * a * (figure ? figure[y * w + x] / 255 : 1));
     }
     clipToPanel(alpha, r, panel);
     for (let i = 0; i < n; i++) d.data[i * 4 + 3] = alpha[i];
@@ -267,7 +308,7 @@
     const base = S.target.userBox || S.target.box;
     // up to the default margin the crop stays inside the panel; enlarging beyond that may take context from
     // across the panel border (the paste is still clipped to the panel)
-    if (!S.target.cropBox) S.target.cropBox = S.pad > 0.18 ? fitCrop(base, S.pg.W, S.pg.H, S.pad) : fitCropIn(base, panel, S.pad);
+    if (!S.target.cropBox) S.target.cropBox = S.target.userBox || S.pad !== 0.18 ? (S.pad > 0.18 ? fitCrop(base, S.pg.W, S.pg.H, S.pad) : fitCropIn(base, panel, S.pad)) : swapCrop(base, panel, S.pg.W, S.pg.H);
     return S.target.cropBox;
   }
 
@@ -351,7 +392,7 @@
     status(msg());
     const tick = setInterval(() => { if (S && S.busy) status(msg()); }, 1000);
     try {
-      S.result = await swapOne(S.pg, S.target, { keepOutfit: !!($('autoSwapKeep') || {}).checked, keepExpression: !!($('autoSwapExpr') || {}).checked, changeOnly: !!($('autoSwapChangeOnly') || {}).checked, panel: (S.panels || [])[S.target.panel], references: S.refs, note: ($('autoSwapNote') || {}).value || '' }, S.ctrl.signal);
+      S.result = await swapOne(S.pg, S.target, { keepOutfit: !!($('autoSwapKeep') || {}).checked, keepExpression: !!($('autoSwapExpr') || {}).checked, changeOnly: !!($('autoSwapChangeOnly') || {}).checked, panel: (S.panels || [])[S.target.panel], others: S.chars.filter(c => c.panel === S.target.panel), references: S.refs, note: ($('autoSwapNote') || {}).value || '' }, S.ctrl.signal);
       await showPreview(S.result);
       if ($('autoSwapGo')) $('autoSwapGo').textContent = '生成';
       step(3);
@@ -394,7 +435,7 @@
     for (const [i, ch] of todo.entries()) {
       status('正在换第 ' + (i + 1) + ' / ' + todo.length + ' 个（第 ' + (ch.panel + 1) + ' 格）…');
       try {
-        const res = await swapOne(S.pg, ch, { keepOutfit: !!($('autoSwapKeepAll') || {}).checked, keepExpression: !!($('autoSwapExpr') || {}).checked, changeOnly: !!($('autoSwapChangeOnly') || {}).checked, panel: (S.panels || [])[ch.panel], references: S.refs, note: ($('autoSwapNote') || {}).value || '' }, S.ctrl.signal);
+        const res = await swapOne(S.pg, ch, { keepOutfit: !!($('autoSwapKeepAll') || {}).checked, keepExpression: !!($('autoSwapExpr') || {}).checked, changeOnly: !!($('autoSwapChangeOnly') || {}).checked, panel: (S.panels || [])[ch.panel], others: S.chars.filter(c => c.panel === ch.panel), references: S.refs, note: ($('autoSwapNote') || {}).value || '' }, S.ctrl.signal);
         await applyResult(res, ' 第' + (ch.panel + 1) + '格'); S.doneIds.add(ch.id); ok++;
       } catch (e) { if (e && e.name === 'AbortError') break; fail++; }
     }
