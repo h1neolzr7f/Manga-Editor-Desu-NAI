@@ -1179,8 +1179,16 @@ async function main() {
       const proAfterReload = await p.evaluate(() => document.body.classList.contains('ui-pro'));
       await op.click(p.locator('#uiModeToggle'), '新手模式');
       const backToBeginner = (await p.locator('#taskBar .task-btn:visible').count()) === 7;
-      return { pass: homeShown && afterImportHidden && tasks === 7 && proEntriesHidden && pro.gptOpen && pro.smartOpen && pro.tasksHidden && proAfterReload && backToBeginner && !errors.length,
-        detail: { homeShown, afterImportHidden, tasks, proEntriesHidden, pro, proAfterReload, backToBeginner, errors } };
+      const surface = () => p.evaluate(() => getComputedStyle(document.body).getPropertyValue('--ui-surface').trim());
+      const darkSurface = await surface();
+      await op.click(p.locator('#themeToggle'), '浅色/深色');
+      const light = { cls: await p.evaluate(() => document.documentElement.classList.contains('light-mode') && !document.body.classList.contains('dark-mode')), changed: (await surface()) !== darkSurface };
+      await p.reload({ waitUntil: 'domcontentloaded' }); await p.waitForFunction(() => !!document.getElementById('taskBar'), null, { timeout: 60000 });
+      light.kept = await p.evaluate(() => document.body.classList.contains('light-mode'));
+      await p.keyboard.press('Escape'); await op.click(p.locator('#themeToggle'), '切回深色');
+      light.back = await p.evaluate(() => document.body.classList.contains('dark-mode') && !document.documentElement.classList.contains('light-mode'));
+      return { pass: homeShown && afterImportHidden && tasks === 7 && proEntriesHidden && pro.gptOpen && pro.smartOpen && pro.tasksHidden && proAfterReload && backToBeginner && light.cls && light.changed && light.kept && light.back && !errors.length,
+        detail: { homeShown, afterImportHidden, tasks, proEntriesHidden, pro, proAfterReload, backToBeginner, light, errors } };
     } finally { await ctx.close(); }
   });
 
@@ -1340,7 +1348,7 @@ async function main() {
       await p.waitForTimeout(1200);
       const afterUndo = await p.evaluate(() => canvas.getObjects().filter(x => x.type === 'image').length);
       return { pass: /3 次/.test(cost) && /第 1 格还没写画面/.test(emptyMsg) && /整页完成/.test(status) && st.panels === 3 && st.images === 3 && st.clipped === 3 &&
-        st.bubbles === 2 && st.texts.join('|') === '今天也要加油！|再见啦，明天见！' && inside && st.thumbs >= 1 && calls.length === 3 && calls.every(c => c.op === 'generate' && /漫画分镜/.test(c.prompt)) && afterUndo === 0 && !errors.length,
+        st.bubbles === 2 && st.texts.join('|') === '今天也要加油！|再见啦，明天见！' && inside && st.thumbs >= 1 && calls.length === 3 && calls.every(c => c.op === 'generate' && /单幅画面/.test(c.prompt) && /不要再分格/.test(c.prompt)) && afterUndo === 0 && !errors.length,
         detail: { cost, emptyMsg, status, st, inside, calls: calls.map(c => c.op + ':' + c.prompt.slice(0, 30)), afterUndo, errors } };
     } finally { await ctx.close(); }
   });

@@ -71,6 +71,9 @@ bar.appendChild(b);
 var gear=el('button',{type:'button',class:'ui-btn task-util',id:'taskServiceSettings',title:'GPT / NovelAI / 本机服务的地址和 Key'},'<i class="material-icons" aria-hidden="true">settings</i>服务设置');
 gear.addEventListener('click',function(){if(window.ServiceSettings)ServiceSettings.open('gpt');});
 bar.appendChild(gear);
+var theme=el('button',{type:'button',class:'ui-btn ui-btn-ghost task-util',id:'themeToggle',title:'切换浅色 / 深色界面','aria-label':'切换浅色 / 深色界面'},'<i class="material-icons" aria-hidden="true">contrast</i>');
+theme.addEventListener('click',function(){var box=$('mode-toggle');if(!box)return;box.checked=!box.checked;box.dispatchEvent(new Event('change'));});
+bar.appendChild(theme);
 var toggle=el('button',{type:'button',class:'ui-btn ui-btn-ghost task-util',id:'uiModeToggle'},'专业模式');
 toggle.addEventListener('click',function(){setMode(mode()==='beginner'?'pro':'beginner');});
 bar.appendChild(toggle);
@@ -287,6 +290,10 @@ return (LAYOUTS[n]||LAYOUTS[3]).map(function(c){
 return {left:Math.round(m+c[0]*iw+g/2),top:Math.round(m+c[1]*ih+g/2),width:Math.round(c[2]*iw-g),height:Math.round(c[3]*ih-g)};
 });
 }
+// One single picture per frame: asking for a "漫画分镜" made the model draw a whole multi-panel page in one frame.
+function pagePrompt(style,scene){
+return (style?style+'。':'')+'只画一个完整的单幅画面（这是漫画里的一格，但画面本身不要再分格、不要画边框、不要画对白框或任何文字）。画面内容：'+scene;
+}
 function sizeFor(r){var a=r.width/r.height;return a>1.2?'1536x1024':a<.83?'1024x1536':'1024x1024';}
 var pageJob=null;
 function startPage(t){
@@ -308,6 +315,7 @@ $('taskPageCancel').addEventListener('click',function(){if(pageJob)pageJob.cance
 function choosePanels(n){
 document.querySelectorAll('#taskWizardBody [data-panels]').forEach(function(b){b.classList.toggle('is-active',Number(b.dataset.panels)===n);b.setAttribute('aria-pressed',String(Number(b.dataset.panels)===n));});
 var box=$('taskPagePanels');box.innerHTML='';
+box.hidden=false;if($('taskPageEdit'))$('taskPageEdit').hidden=true;
 for(var i=0;i<n;i++){
 var f=el('fieldset',{class:'task-page-panel'});
 f.innerHTML='<legend>第 '+(i+1)+' 格</legend>'+
@@ -318,6 +326,15 @@ box.appendChild(f);
 $('taskPageGo').disabled=false;
 $('taskPageCost').textContent='会调用 GPT 图像 '+n+' 次（每格一次）。生成的每一格、气泡和文字都是独立图层，可单独修改或撤销。';
 markStep(1);
+}
+function collapseForm(){
+// after a page is done, fold the form so the card stops covering the page
+var box=$('taskPagePanels');if(!box)return;
+box.hidden=true;
+var more=$('taskPageEdit');
+if(!more){more=el('button',{type:'button',class:'ui-btn ui-btn-ghost',id:'taskPageEdit'},'展开每格内容');box.parentNode.insertBefore(more,box);
+more.addEventListener('click',function(){box.hidden=!box.hidden;more.textContent=box.hidden?'展开每格内容':'收起每格内容';});}
+more.hidden=false;more.textContent='展开每格内容';
 }
 function pageStatus(t,isError){var s=$('taskPageStatus');if(s){s.textContent=t;s.classList.toggle('is-error',!!isError);}}
 // Frames must be polygons: image clipping (updateClipPath) follows polygon points, a Rect is not clipped.
@@ -333,6 +350,9 @@ function addBubble(rect,text,index){
 var w=Math.max(150,Math.min(rect.width*.42,380));
 var fontSize=Math.max(20,Math.round(Math.min(rect.width,rect.height)*.06));
 // splitByGrapheme: Chinese has no spaces, so wrap per character; .66 keeps lines inside the ellipse
+// balance lines: about sqrt(1.6*chars) glyphs per line, so punctuation does not end up alone
+var perLine=Math.max(3,Math.min(text.length,Math.ceil(Math.sqrt(text.length*1.6))));
+w=Math.min(Math.max(w,0),Math.max(perLine*fontSize*1.08/.66,fontSize*4));
 var tb=new fabric.Textbox(text,{width:w*.66,fontSize:fontSize,textAlign:'center',fill:'#111',splitByGrapheme:true,
 fontFamily:'"Noto Sans SC","Microsoft YaHei",sans-serif',name:'对白 '+index});
 var bh=Math.max(tb.height*1.75,fontSize*2.6);
@@ -376,7 +396,7 @@ pageJob.ctl=new AbortController();
 try{
 var data=await ServiceRequest.request('gpt','/gpt-image-proxy',{signal:pageJob.ctl.signal,timeoutMs:300000,headers:key?{Authorization:'Bearer '+key}:{},
 body:{operation:'generate',baseUrl:$('mangaGptUrl').value.trim(),model:$('mangaGptModel').value.trim(),size:sizeFor(rects[i]),
-prompt:(style?style+'。':'')+'漫画分镜画面（不要画对白框和文字）：'+scenes[i]}});
+prompt:pagePrompt(style,scenes[i])}});
 var img=await loadFabricImage(data.image);
 img.name='第'+(i+1)+'格画面';
 putImageInFrame(img,rects[i].left+rects[i].width/2,rects[i].top+rects[i].height/2,true,false,true,panels[i]);
@@ -392,7 +412,7 @@ if(typeof saveStateByManual==='function')saveStateByManual();
 if(typeof btmSaveProjectFile==='function'){try{await btmSaveProjectFile(null,false);}catch(e){/* thumbnail is best-effort */}}
 if(pageJob.cancel)pageStatus('已停止：画好 '+done+' 格。');
 else if(failed.length)pageStatus('画好 '+done+' 格；第 '+failed.join('、')+' 格没成功，可以用「自定义修改」重画那一格。',true);
-else{pageStatus('整页完成：'+done+' 格画面和对白气泡都是独立图层，可直接拖动或修改（Ctrl+Z 可撤销）。');markStep(3,true);}
+else{collapseForm();pageStatus('整页完成：'+done+' 格画面和对白气泡都是独立图层，可直接拖动或修改（Ctrl+Z 可撤销）。');markStep(3,true);}
 }finally{
 if(pageJob&&pageJob.historyPaused&&typeof changeDoSaveHistory==='function'){changeDoSaveHistory();if(typeof saveStateByManual==='function')saveStateByManual();}
 pageJob=null;

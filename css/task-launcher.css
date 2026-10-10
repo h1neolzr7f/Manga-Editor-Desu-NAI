@@ -67,3 +67,5 @@ body.ui-beginner #mangaPageOpen, body.ui-beginner #mangaCharacterOpen { display:
 .task-page-panel { border: 1px solid var(--ui-border); border-radius: var(--ui-radius-sm); margin: var(--ui-space-2) 0; padding: var(--ui-space-1) var(--ui-space-2) var(--ui-space-2); display: grid; gap: 4px; }
 .task-page-panel legend { color: var(--ui-text-muted); padding: 0 4px; }
 .task-card-body .ui-textarea { resize: vertical; }
+.task-page-panel legend { font: var(--ui-font); font-size: 12px; font-weight: 600; }
+.task-page-panel textarea { min-height: 44px; }
