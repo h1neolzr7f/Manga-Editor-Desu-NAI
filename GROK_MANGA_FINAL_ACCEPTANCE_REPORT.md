@@ -111,6 +111,9 @@ NAI_REAL_API=1 NAI_TEST_ENV_FILE=<仓库外> NAI_REAL_MAX_CALLS=1 node scripts/n
 | 8f8ad95 | 中转站恢复后，在 2d4386f 上重跑真实 E2E（25/25） |
 | 3d17d53 | 修复网点设置不保存：tone.js 的同名全局函数覆盖了 tone-manager.js 的函数。新增全局函数冲突测试 `no-duplicate-globals-test`；删除 43 个只有声明、没有任何引用的顶层声明 |
 | 4d4d326 | 去掉 64 处重复的 `var` 声明（行为不变） |
+| 223e1fd | 全局函数冲突测试改为不依赖 npm 包（CI 不安装 node_modules） |
+| 1d5a1b1 | 智能字幕替换：字号自动缩小以适配原文字区域，必要时按字换行；墨迹蒙版加入抗锯齿边缘并外扩 2–5 px；LaMa 之后自动去字仍默认开启，彻底盖掉残影。证据：`docs/acceptance/2026-10-10/fix-caption-fit-no-ghost-before-after.jpg` |
+| 6e779de | ESLint：用 `/* exported */` 声明跨文件使用的全局（由 `npm run lint:sync-exported` 生成，没有关闭任何规则），警告 480 → 71 |
 
 ### 7.2 功能矩阵
 
@@ -161,8 +164,36 @@ NAI_REAL_API=1 NAI_TEST_ENV_FILE=<仓库外> NAI_REAL_MAX_CALLS=1 node scripts/n
 1. 智能字幕会保留单个 kana 碎片（例如「の」）。这是有意的：日文单字也可能是真对白。
 2. GPT 替换后，人物可能越过下方分格线：原画本来就跨格，选区外像素不会被改动。
 3. 【已修复 2d4386f】形状面板颜色框文字被截断。
-4. ESLint（`npm run lint`）：0 个错误，警告从 703 降到 480。剩下的大多是跨文件使用的全局函数（经典 script 共享全局作用域，ESLint 看不到跨文件引用），属于误报。
+4. ESLint（`npm run lint`）：0 个错误，71 个警告（最初 703）。剩下的是未使用的局部变量、只在本文件内互相调用的旧辅助函数，以及运行时不加载的其他语言翻译对象。
 5. 其他语言的翻译文件在运行时不加载（应用只显示中文），只给 check-translations 用。暂时保留。
 6. 【已完成 1f10627】CI 工作流改动已推送，ocr-native 的日志确认新测试实际运行了。
-7. 智能字幕替换：新文字「どうもありがとう」比气泡宽，气泡里还能看到原文字的淡淡残影（见 e2e-real-final-page-2d4386f.jpg）。建议换字时自动缩小字号以适配气泡，并默认先擦除原文字。
+7. 【已修复 1d5a1b1】智能字幕替换后文字溢出气泡、留下原字残影：真实 OCR/LaMa 端到端测试中文字宽 239 px，原文字区域宽 245 px，残影像素为 0。
 8. **请轮换 NovelAI Token**（旧 Token 曾泄露给第三方 Director）。
+
+## 8. 可以开始审阅（Ready for review）
+
+**审阅入口：** 合并 PR（Draft）`consolidate/manga-nai-gpt-stack-20261010` → `feat/manga-nai-gpt-region-editor`。它包含 #6–#13 的全部提交，是 fast-forward，没有冲突，也没有改写历史。审阅完后，#6–#13 可以关闭，不必逐个合并。
+
+**状态：**
+- **CI：** 4 个工作流全绿：offline checks、full acceptance（Legacy / HTTP 安全 / Chromium / Windows ZIP）、Smart OCR native、page structure。
+- **本机：** `npm test` 和其余 35 个测试套件全部通过；全功能端到端测试 25/25。
+- **真实验收：** GPT（gpt-image-2）、Tesseract、Manga OCR、LaMa 均 25/25；NovelAI 7/7，Anlas 花费 0。
+- **安全：** 每次推送前做密钥扫描，结果均为 0；没有改动 main，没有强推，没有发布。
+
+**审阅时请重点看：**
+1. 代理安全（§2）；
+2. GPT 局部改图保留分格线（2c50ba2）；
+3. 编辑器修复（f108028、14f1762、3d17d53）；
+4. 大规模删除（§7.3）；
+5. 智能字幕（1d5a1b1）。
+
+**未覆盖：**
+- Windows 真机；
+- 真实商业漫画扫描页；
+- GPU 版 LaMa；
+- OpenAI 官方 API。
+
+**需要 owner 处理：**
+- 轮换 NovelAI Token；
+- 决定是否删除运行时不加载的 7 种语言翻译文件；
+- GitHub Token 用完后可以撤销。
