@@ -526,17 +526,17 @@ updateObjectSelectability();
 updateTemporaryShapes();
 }
 } else if (currentMode==="freehand"&&points.length>=4) {
-var t0=performance.now();
+t0=performance.now();
 points.push({x: points[0].x,y: points[0].y});
 points=processPoints(points);
-var t1=performance.now();
+t1=performance.now();
 const geometry=createJSTSPolygon(points);
-var t2=performance.now();
+t2=performance.now();
 if (geometry&&geometry.isValid()) {
-var merged=mergeOverlappingShapes(geometry);
-var t3=performance.now();
+merged=mergeOverlappingShapes(geometry);
+t3=performance.now();
 createSpeechBubble(merged);
-var t4=performance.now();
+t4=performance.now();
 perfLogger.warn("[PERF:freehand mouse:up] processPoints:"+Math.round(t1-t0)+"ms JSTS:"+Math.round(t2-t1)+"ms merge:"+Math.round(t3-t2)+"ms createBubble:"+Math.round(t4-t3)+"ms total:"+Math.round(t4-t0)+"ms pts:"+points.length);
 points=[];
 } else {

@@ -390,15 +390,15 @@ maxCount=Math.max(maxCount,count);
 var html='<div class="heatmap-grid">';
 html+='<div class="heatmap-row heatmap-header">';
 html+='<div class="heatmap-label"></div>';
-for(var hour=0;hour<24;hour++){
+for(hour=0;hour<24;hour++){
 html+='<div class="heatmap-hour">'+hour+'</div>';
 }
 html+='</div>';
-for(var day=0;day<7;day++){
+for(day=0;day<7;day++){
 html+='<div class="heatmap-row">';
 html+='<div class="heatmap-label">'+(getText('dashboardDay'+day)||DAY_LABELS[day])+'</div>';
-for(var hour=0;hour<24;hour++){
-var count=(hourlyData[day]&&hourlyData[day][hour])||0;
+for(hour=0;hour<24;hour++){
+count=(hourlyData[day]&&hourlyData[day][hour])||0;
 var intensity=maxCount>0?count/maxCount:0;
 var bgColor=getHeatmapColor(intensity);
 var dayLabel=getText('dashboardDay'+day)||DAY_LABELS[day];
@@ -418,9 +418,9 @@ var b=Math.round(220-intensity*53);
 return 'rgb('+r+','+g+','+b+')';
 }
 if(intensity===0) return '#2a2a2a';
-var r=Math.round(30+intensity*0);
-var g=Math.round(50+intensity*138);
-var b=Math.round(60+intensity*152);
+r=Math.round(30+intensity*0);
+g=Math.round(50+intensity*138);
+b=Math.round(60+intensity*152);
 return 'rgb('+r+','+g+','+b+')';
 }
 function getCalendarColor(intensity){
@@ -452,13 +452,13 @@ data=sorted.map(function(e){return e[1];});
 chartLabel=getText('dashboardDaily')||'Daily';
 }else if(currentTrendPeriod==='weekly'){
 var weeklyData=await PerformanceStorage.getWeeklyStats();
-var sorted=Object.entries(weeklyData).sort(function(a,b){return a[0].localeCompare(b[0]);});
+sorted=Object.entries(weeklyData).sort(function(a,b){return a[0].localeCompare(b[0]);});
 labels=sorted.map(function(e){return e[0].substring(5);});
 data=sorted.map(function(e){return e[1];});
 chartLabel=getText('dashboardWeekly')||'Weekly';
 }else{
 var monthlyData=await PerformanceStorage.getMonthlyStats();
-var sorted=Object.entries(monthlyData).sort(function(a,b){return a[0].localeCompare(b[0]);});
+sorted=Object.entries(monthlyData).sort(function(a,b){return a[0].localeCompare(b[0]);});
 labels=sorted.map(function(e){return e[0];});
 data=sorted.map(function(e){return e[1];});
 chartLabel=getText('dashboardMonthly')||'Monthly';
@@ -577,7 +577,7 @@ var wordList=topTags.map(function(item){
 var size=minSize+(item.count/maxCount)*(maxSize-minSize);
 return[item.tag,size];
 });
-var ctx=canvas.getContext('2d');
+ctx=canvas.getContext('2d');
 ctx.fillStyle=bgColor;
 ctx.fillRect(0,0,canvas.width,canvas.height);
 WordCloud(canvas,{
@@ -656,14 +656,14 @@ html+='<span class="calendar-month-label" style="width:13px"></span>';
 html+='</div>';
 html+='<div class="calendar-body">';
 html+='<div class="calendar-day-labels">';
-for(var d=0;d<7;d++){
+for(d=0;d<7;d++){
 html+='<div class="calendar-day-label">'+dayLabels[d]+'</div>';
 }
 html+='</div>';
 html+='<div class="calendar-grid">';
-for(var w=0;w<weeks.length;w++){
+for(w=0;w<weeks.length;w++){
 html+='<div class="calendar-week">';
-for(var d=0;d<7;d++){
+for(d=0;d<7;d++){
 var cell=weeks[w][d];
 if(cell){
 var intensity=maxCount>0?cell.count/maxCount:0;

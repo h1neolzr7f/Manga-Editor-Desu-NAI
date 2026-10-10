@@ -206,7 +206,7 @@ createPreviewImage(layer,previewDiv);
 var fullText=layer.text;
 nameTextArea.value=fullText.substring(0,20);
 } else if (isVerticalText(layer)) {
-var fullText=layer.name;
+fullText=layer.name;
 if (fullText) {
 nameTextArea.value=fullText.substring(0,15);
 } else {
@@ -409,9 +409,9 @@ var pathBounds=layer.getBoundingRect();
 var pathWidth=pathBounds.width;
 var pathHeight=pathBounds.height;
 
-var scale=Math.min(canvasSize/pathWidth,canvasSize/pathHeight);
-var offsetX=(canvasSize-pathWidth*scale)/2;
-var offsetY=(canvasSize-pathHeight*scale)/2;
+scale=Math.min(canvasSize/pathWidth,canvasSize/pathHeight);
+offsetX=(canvasSize-pathWidth*scale)/2;
+offsetY=(canvasSize-pathHeight*scale)/2;
 
 tempCtx.save();
 tempCtx.translate(offsetX,offsetY);
@@ -425,12 +425,12 @@ var imgElement=layer.getElement();
 var imgWidth=imgElement.width;
 var imgHeight=imgElement.height;
 
-var scale=Math.min(canvasSize/imgWidth,canvasSize/imgHeight);
+scale=Math.min(canvasSize/imgWidth,canvasSize/imgHeight);
 var drawWidth=imgWidth*scale;
 var drawHeight=imgHeight*scale;
 
-var offsetX=(canvasSize-drawWidth)/2;
-var offsetY=(canvasSize-drawHeight)/2;
+offsetX=(canvasSize-drawWidth)/2;
+offsetY=(canvasSize-drawHeight)/2;
 
 tempCtx.drawImage(imgElement,offsetX,offsetY,drawWidth,drawHeight);
 } else if (isPanelType(layer)) {

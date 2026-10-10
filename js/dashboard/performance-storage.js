@@ -321,7 +321,7 @@ checkDate.setDate(checkDate.getDate()-1);
 break;
 }
 }
-var longestStreak=(await timeStore.getItem('longestStreak'))||0;
+longestStreak=(await timeStore.getItem('longestStreak'))||0;
 if(currentStreak>longestStreak){
 longestStreak=currentStreak;
 await timeStore.setItem('longestStreak',longestStreak);

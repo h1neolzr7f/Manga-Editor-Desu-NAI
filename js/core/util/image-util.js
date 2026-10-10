@@ -119,7 +119,7 @@ var left=layer.left;
 var top=layer.top;
 var pixelRatio=window.devicePixelRatio||1;
 var enhancedScaleFactor=scaleFactor*2*pixelRatio;
-var offscreenCanvas=HtmlCanvasUtil.createOffscreenCanvas(
+offscreenCanvas=HtmlCanvasUtil.createOffscreenCanvas(
 Math.ceil(width*scaleX*enhancedScaleFactor),
 Math.ceil(height*scaleY*enhancedScaleFactor)
 );
@@ -758,7 +758,7 @@ var match=hex.match(/\d+/g);
 return 'rgba('+match[0]+', '+match[1]+', '+match[2]+', '+opacity+')';
 }
 if(hex.startsWith('rgb')){
-var match=hex.match(/\d+/g);
+match=hex.match(/\d+/g);
 return 'rgba('+match[0]+', '+match[1]+', '+match[2]+', '+opacity+')';
 }
 hex=hex.replace('#','');

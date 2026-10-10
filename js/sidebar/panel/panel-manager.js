@@ -53,7 +53,7 @@ panelLogger.error("Failed to convert to WebP",error);
 return;
 }
 
-var reader=new FileReader();
+reader=new FileReader();
 reader.onload=function (f) {
 var data=f.target.result;
 
@@ -311,8 +311,8 @@ if (xDiff<threshold&&yDiff<threshold) {
 return false;
 }
 
-var xDiff=Math.abs(point.x-startX);
-var yDiff=Math.abs(point.y-startY);
+xDiff=Math.abs(point.x-startX);
+yDiff=Math.abs(point.y-startY);
 if (xDiff<threshold&&yDiff<threshold) {
 return false;
 }

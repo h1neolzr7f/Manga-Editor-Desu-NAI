@@ -249,7 +249,7 @@ obj.src=hash;
 }
 if(obj.speechBubbleGrid&&typeof obj.speechBubbleGrid==='object'){
 var gridStr=JSON.stringify(obj.speechBubbleGrid);
-var hash=generateHash(gridStr);
+hash=generateHash(gridStr);
 if(!localImageMap.has(hash)){
 localImageMap.set(hash,gridStr);
 }

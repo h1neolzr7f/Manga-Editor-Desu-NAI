@@ -663,7 +663,7 @@ targetObject:bubble
 var initialText=Math.round(rectWidth)+"x"+Math.round(rectHeight);
 newTextbox=new VerticalTextbox(initialText,style);
 } else {
-var initialText=Math.round(rectWidth)+"x"+Math.round(rectHeight);
+initialText=Math.round(rectWidth)+"x"+Math.round(rectHeight);
 newTextbox=new fabric.Textbox(initialText,{
 left:rectX+rectWidth/2,
 top:rectY+rectHeight/2,

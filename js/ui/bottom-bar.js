@@ -148,7 +148,7 @@ var targetGuid=btmGetGuidByIndex(targetIndex);
 await chengeCanvasByGuid(targetGuid);
 }
 }else{
-var isCurrentPage=(getCanvasGUID()===guid);
+isCurrentPage=(getCanvasGUID()===guid);
 btmProjectsMap.delete(guid);
 imageWrapper.remove();
 if(isCurrentPage&&getObjectCount()===0){

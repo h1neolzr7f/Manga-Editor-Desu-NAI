@@ -238,7 +238,7 @@ menuItems.push(createObjectMenuGroupHeader('menuGroupOperation'));
 menuItems.push(visible,movement,duplicate);
 menuItems.push(createObjectMenuGroupHeader('menuGroupCutout'));
 menuItems.push(rembg,cutoutRegion,cropImage);
-var aiItems=[];
+aiItems=[];
 if(hasRole(AI_ROLES.Image2Image))aiItems.push(generate);
 if(aiItems.length>0){
 menuItems.push(createObjectMenuGroupHeader('menuGroupAI'));
@@ -527,8 +527,8 @@ putImageInFrame(activeObject,canvasX,canvasY,true,true);
 updateLayerPanel();
 break;
 case 'panelInNotFit':
-var canvasX=activeObject.left+(activeObject.width*activeObject.scaleX)/2;
-var canvasY=activeObject.top+(activeObject.height*activeObject.scaleY)/2;
+canvasX=activeObject.left+(activeObject.width*activeObject.scaleX)/2;
+canvasY=activeObject.top+(activeObject.height*activeObject.scaleY)/2;
 putImageInFrame(activeObject,canvasX,canvasY,true,true,false);
 updateLayerPanel();
 break;
@@ -576,7 +576,7 @@ if(isPanel(activeObject)){
 var spinner=createSpinner(getGUID(activeObject),'T2I');
 T2I(activeObject,spinner);
 }else if(isImage(activeObject)){
-var spinner=createSpinner(getGUID(activeObject),'I2I');
+spinner=createSpinner(getGUID(activeObject),'I2I');
 I2I(activeObject,spinner);
 }
 break;

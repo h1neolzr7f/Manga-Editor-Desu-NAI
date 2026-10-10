@@ -31,7 +31,7 @@ gridCtx.fillText((i*gridSize).toString(),i*gridSize+2,10);
 }
 }
 
-for (var i=0;i<=canvas.height/gridSize;i++) {
+for (i=0;i<=canvas.height/gridSize;i++) {
 if (i%(50/gridSize)===0) {
 gridCtx.strokeStyle=fiftyPxColor;
 } else {

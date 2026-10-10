@@ -4,7 +4,7 @@
 
 - 抽出対象: `root.X=` / `window.X=` / `globalThis.X=`、行頭の `function X` / `var X` / `let X` / `const X`
 - 抽出範囲: js / cjs / mjs と、html のインライン `<script>`（行番号は元ファイル基準）
-- 合計 10135 件 / ユニーク名 5433 件
+- 合計 10084 件 / ユニーク名 5433 件
 
 ## シンボル → 定義
 
@@ -607,7 +607,6 @@
 | `afterPlaced` | function | js/simulator/simulator-studio.js:133 |
 | `afterTemplateApplied` | function | js/sidebar/speechBubble/speech-bubble-effect.js:183 |
 | `aiItems` | var | js/ui/canvas-object-menu.js:223 |
-| `aiItems` | var | js/ui/canvas-object-menu.js:241 |
 | `aiProgressState` | var | js/ai/queue/spinner.js:3 |
 | `aiTaskMap` | var | js/ai/queue/generation-task-manager.js:3 |
 | `aiTaskOrderCounter` | var | js/ai/queue/generation-task-manager.js:4 |
@@ -899,7 +898,6 @@
 | `b` | var | js/core/util/image-util.js:767 |
 | `b` | var | js/core/util/image-util.js:800 |
 | `b` | var | js/dashboard/dashboard-ui.js:417 |
-| `b` | var | js/dashboard/dashboard-ui.js:423 |
 | `b` | var | js/sidebar/tone/snow-tone.js:113 |
 | `b` | var | js/ui/visual-ps-tools.js:193 |
 | `b1` | var | js/panel/layout-templates.js:233 |
@@ -1533,7 +1531,6 @@
 | `canvasX` | var | js/sidebar/tone/tone.js:15 |
 | `canvasX` | var | js/sidebar/tone/tone.js:183 |
 | `canvasX` | var | js/ui/canvas-object-menu.js:524 |
-| `canvasX` | var | js/ui/canvas-object-menu.js:530 |
 | `canvasY` | var | js/canvas-manager.js:664 |
 | `canvasY` | var | js/sidebar/panel/panel-manager.js:32 |
 | `canvasY` | var | js/sidebar/panel/panel-manager.js:65 |
@@ -1549,7 +1546,6 @@
 | `canvasY` | var | js/sidebar/tone/tone.js:16 |
 | `canvasY` | var | js/sidebar/tone/tone.js:184 |
 | `canvasY` | var | js/ui/canvas-object-menu.js:525 |
-| `canvasY` | var | js/ui/canvas-object-menu.js:531 |
 | `canvases` | var | js/layer/blend/blend.js:238 |
 | `cap` | var | js/core/manga-page-size.js:211 |
 | `capGroup` | var | js/assets/asset-library-controller.js:102 |
@@ -2054,7 +2050,6 @@
 | `coordinates` | var | js/sidebar/speechBubble/speech-bubble-freehand.js:197 |
 | `coords` | var | js/core/util/image-util.js:50 |
 | `coords` | var | js/sidebar/panel/knife/knife-split-engine.js:169 |
-| `coords` | var | js/sidebar/panel/knife/knife-split-engine.js:207 |
 | `copy` | var | js/ai/manga-importer.js:312 |
 | `copy` | var | js/ai/manga-importer.js:364 |
 | `copy` | function | js/core/util/fabric-util.js:141 |
@@ -2074,7 +2069,6 @@
 | `count` | var | js/core/util/png-bit-depth.js:374 |
 | `count` | var | js/core/util/png-bit-depth.js:416 |
 | `count` | var | js/dashboard/dashboard-ui.js:386 |
-| `count` | var | js/dashboard/dashboard-ui.js:401 |
 | `count` | var | js/dashboard/performance-storage.js:148 |
 | `count` | var | js/local-tools/background-removal-client.js:505 |
 | `count` | var | js/panel/layout-templates.js:295 |
@@ -2212,7 +2206,6 @@
 | `ctx` | var | js/core/util/image-util.js:110 |
 | `ctx` | var | js/core/util/image-util.js:359 |
 | `ctx` | var | js/dashboard/dashboard-ui.js:563 |
-| `ctx` | var | js/dashboard/dashboard-ui.js:580 |
 | `ctx` | var | js/dashboard/dashboard-ui.js:703 |
 | `ctx` | var | js/dashboard/dashboard-ui.js:760 |
 | `ctx` | var | js/dashboard/dashboard-ui.js:842 |
@@ -3619,7 +3612,6 @@
 | `full` | var | scripts/gen-project-index.cjs:695 |
 | `fullPath` | var | scripts/remove-spaces.cjs:64 |
 | `fullText` | var | js/layer/layer-management.js:206 |
-| `fullText` | var | js/layer/layer-management.js:209 |
 | `fullTrace` | var | js/core/logger.js:42 |
 | `funcSpan` | var | js/shortcut.js:344 |
 | `functionName` | var | js/core/logger.js:23 |
@@ -3631,7 +3623,6 @@
 | `g` | var | js/core/util/image-util.js:766 |
 | `g` | var | js/core/util/image-util.js:799 |
 | `g` | var | js/dashboard/dashboard-ui.js:416 |
-| `g` | var | js/dashboard/dashboard-ui.js:422 |
 | `g` | var | js/sidebar/tone/snow-tone.js:112 |
 | `g` | var | js/ui/visual-ps-tools.js:192 |
 | `gaInput` | var | scripts/png-bit-depth-smoke-test.cjs:302 |
@@ -4030,7 +4021,6 @@
 | `hasUrl` | var | js/ui/imagePromptHelper/image-prompt-helper.js:327 |
 | `hash` | var | js/ai/queue/generation-task-manager.js:226 |
 | `hash` | var | js/ai/queue/generation-task-manager.js:244 |
-| `hash` | var | js/ai/queue/generation-task-manager.js:252 |
 | `hash` | var | js/assets/asset-scanner.js:8 |
 | `hash` | var | js/core/auto-save.js:65 |
 | `hash` | var | js/core/compression/project-compression.js:88 |
@@ -4450,7 +4440,6 @@
 | `initialIcons` | var | js/core/svg/google-icon-names.js:2 |
 | `initialPutImage` | function | js/sidebar/panel/panel-manager.js:84 |
 | `initialText` | var | js/sidebar/speechBubble/speech-bubble-freehand.js:663 |
-| `initialText` | var | js/sidebar/speechBubble/speech-bubble-freehand.js:666 |
 | `initialTopOffset` | var | js/sidebar/text/vertical-textbox.js:398 |
 | `initialValue` | var | js/core/settings.js:126 |
 | `initialValue` | var | js/core/settings.js:148 |
@@ -4623,7 +4612,6 @@
 | `isChildOfAnotherLayer` | var | js/layer/layer-management.js:157 |
 | `isClosed` | var | js/ui/bottom-bar.js:31 |
 | `isCurrentPage` | var | js/ui/bottom-bar.js:141 |
-| `isCurrentPage` | var | js/ui/bottom-bar.js:151 |
 | `isCustomSet` | var | js/ui/imagePromptHelper/image-prompt-helper.js:513 |
 | `isDarkMode` | var | js/ui/util/mode-change.js:41 |
 | `isDragging` | var | js/layer/floating-window-management.js:3 |
@@ -4631,7 +4619,6 @@
 | `isDrawingFL` | var | js/sidebar/tone/focusline.js:3 |
 | `isDrawingRainTone` | var | js/sidebar/tone/rain-tone.js:3 |
 | `isDrawingSnowTone` | var | js/sidebar/tone/snow-tone.js:3 |
-| `isDrawingSnowTone` | var | js/sidebar/tone/snow-tone.js:146 |
 | `isDrawingSpeedLine` | var | js/sidebar/tone/speedline.js:3 |
 | `isDrawingTone` | var | js/sidebar/tone/tone.js:7 |
 | `isDrawingToneNoise` | var | js/sidebar/tone/tone-noise.js:4 |
@@ -5282,7 +5269,6 @@
 | `longSide` | var | js/core/manga-page-size.js:139 |
 | `longest` | var | js/core/manga-page-size.js:26 |
 | `longestStreak` | var | js/dashboard/performance-storage.js:309 |
-| `longestStreak` | var | js/dashboard/performance-storage.js:324 |
 | `lookup` | var | js/core/util/png-bit-depth.js:106 |
 | `lossless` | var | js/canvas-manager.js:525 |
 | `low` | var | js/core/util/image-util.js:577 |
@@ -5424,7 +5410,6 @@
 | `match` | var | js/ai/prompt/novelai-composition-director.js:414 |
 | `match` | var | js/core/util/image-util.js:441 |
 | `match` | var | js/core/util/image-util.js:757 |
-| `match` | var | js/core/util/image-util.js:761 |
 | `match` | var | js/core/util/image-util.js:781 |
 | `match` | var | js/core/util/image-util.js:796 |
 | `match` | var | js/local-tools/background-removal-client.js:352 |
@@ -5520,7 +5505,6 @@
 | `merged` | var | js/ai/manga-importer.js:1997 |
 | `merged` | var | js/core/util/png-bit-depth.js:69 |
 | `merged` | var | js/fabric/fabric-management.js:510 |
-| `merged` | var | js/fabric/fabric-management.js:536 |
 | `merged` | var | scripts/gpt-panel-i18n-test.cjs:31 |
 | `mergedGeometry` | var | js/sidebar/speechBubble/speech-bubble-freehand.js:251 |
 | `mergedImage` | var | js/sidebar/pen/original-brush.js:208 |
@@ -5613,7 +5597,6 @@
 | `minX` | var | js/core/util/html-canvas-util.js:24 |
 | `minX` | var | js/sidebar/panel/knife/knife-geometry.js:66 |
 | `minX` | var | js/sidebar/panel/knife/knife-split-engine.js:237 |
-| `minX` | var | js/sidebar/panel/knife/knife-split-engine.js:254 |
 | `minX` | var | js/sidebar/panel/knife/knife-split-engine.js:380 |
 | `minX` | var | js/sidebar/panel/knife/knife-split-engine.js:405 |
 | `minX` | var | js/sidebar/panel/panel-template.js:250 |
@@ -5627,7 +5610,6 @@
 | `minY` | var | js/core/util/html-canvas-util.js:25 |
 | `minY` | var | js/sidebar/panel/knife/knife-geometry.js:67 |
 | `minY` | var | js/sidebar/panel/knife/knife-split-engine.js:238 |
-| `minY` | var | js/sidebar/panel/knife/knife-split-engine.js:255 |
 | `minY` | var | js/sidebar/panel/knife/knife-split-engine.js:382 |
 | `minY` | var | js/sidebar/panel/knife/knife-split-engine.js:407 |
 | `minY` | var | js/sidebar/panel/panel-template.js:252 |
@@ -5731,7 +5713,6 @@
 | `n` | var | js/ai/prompt/auto/auto-generation.js:4 |
 | `n` | var | js/assets/github-free-pack.js:20 |
 | `n` | var | js/sidebar/page/page-studio.js:80 |
-| `n` | var | js/sidebar/page/page-studio.js:115 |
 | `n` | var | js/sidebar/pen/fabric/brushes/stroke.js:40 |
 | `n` | var | js/ui/visual-ps-tools.js:330 |
 | `nai` | var | js/ai/prompt/director-safety.js:24 |
@@ -6016,7 +5997,6 @@
 | `nowPencil` | var | js/ui/util/mode-change.js:24 |
 | `nowRainTone` | var | js/sidebar/tone/rain-tone.js:4 |
 | `nowSnowTone` | var | js/sidebar/tone/snow-tone.js:4 |
-| `nowSnowTone` | var | js/sidebar/tone/snow-tone.js:147 |
 | `nowSpeedLine` | var | js/sidebar/tone/speedline.js:4 |
 | `nowText2` | var | js/sidebar/text/text-2-manager.js:35 |
 | `nowTone` | var | js/sidebar/tone/tone-manager.js:45 |
@@ -6116,7 +6096,6 @@
 | `ochiPages` | var | js/ai/prompt/auto/auto-prompt-util.js:92 |
 | `offCanvas` | var | js/ai/queue/generation-task-manager.js:167 |
 | `offscreenCanvas` | var | js/core/util/image-util.js:109 |
-| `offscreenCanvas` | var | js/core/util/image-util.js:122 |
 | `offset` | var | js/core/compression/lz4.js:131 |
 | `offset` | var | js/core/compression/lz4.js:185 |
 | `offset` | var | js/core/font/font-dropdown.js:166 |
@@ -6134,15 +6113,11 @@
 | `offsetVerticalX` | var | js/sidebar/panel/panel-manager.js:278 |
 | `offsetVerticalY` | var | js/sidebar/panel/panel-manager.js:276 |
 | `offsetX` | var | js/layer/layer-management.js:394 |
-| `offsetX` | var | js/layer/layer-management.js:413 |
-| `offsetX` | var | js/layer/layer-management.js:432 |
 | `offsetX` | var | js/sidebar/panel/knife/knife-geometry.js:16 |
 | `offsetX` | var | js/sidebar/panel/knife/knife-line-renderer.js:71 |
 | `offsetX` | var | js/sidebar/panel/knife/knife-split-engine.js:140 |
 | `offsetX` | var | js/sidebar/pen/pen-tools.js:421 |
 | `offsetY` | var | js/layer/layer-management.js:395 |
-| `offsetY` | var | js/layer/layer-management.js:414 |
-| `offsetY` | var | js/layer/layer-management.js:433 |
 | `offsetY` | var | js/sidebar/panel/knife/knife-geometry.js:17 |
 | `offsetY` | var | js/sidebar/panel/knife/knife-line-renderer.js:72 |
 | `offsetY` | var | js/sidebar/panel/knife/knife-split-engine.js:141 |
@@ -6682,7 +6657,6 @@
 | `pb` | var | scripts/png-bit-depth-smoke-test.cjs:38 |
 | `pc` | var | js/sidebar/tone/snow-tone.js:84 |
 | `pc` | var | js/sidebar/tone/speedline.js:58 |
-| `pc` | var | js/sidebar/tone/speedline.js:63 |
 | `pc` | var | js/sidebar/tone/tone.js:55 |
 | `pc` | var | js/ui/bottom-bar.js:443 |
 | `pc` | var | scripts/png-bit-depth-smoke-test.cjs:39 |
@@ -6849,7 +6823,6 @@
 | `polygon2MinY` | var | js/sidebar/panel/knife/knife-split-engine.js:268 |
 | `polygonPositionHandler` | function | js/sidebar/panel/panel-manager.js:571 |
 | `polygonTemp` | var | js/sidebar/panel/knife/knife-split-engine.js:168 |
-| `polygonTemp` | var | js/sidebar/panel/knife/knife-split-engine.js:206 |
 | `polygonizer` | var | js/sidebar/panel/knife/knife-split-engine.js:161 |
 | `polygons` | var | js/sidebar/panel/knife/knife-split-engine.js:164 |
 | `populateImageList` | function | js/layer/blend/blend.js:413 |
@@ -7090,7 +7063,6 @@
 | `r` | var | js/core/util/image-util.js:765 |
 | `r` | var | js/core/util/image-util.js:798 |
 | `r` | var | js/dashboard/dashboard-ui.js:415 |
-| `r` | var | js/dashboard/dashboard-ui.js:421 |
 | `r` | var | js/sidebar/pen/original-brush.js:306 |
 | `r` | var | js/sidebar/tone/snow-tone.js:111 |
 | `r` | var | js/ui/visual-ps-tools.js:59 |
@@ -7117,13 +7089,9 @@
 | `rainToneStart` | function | js/sidebar/tone/rain-tone.js:12 |
 | `rainToneWidth` | var | js/sidebar/tone/rain-tone.js:7 |
 | `raisedHeight` | var | js/ai/prompt/novelai-composition-director.js:223 |
-| `raisedHeight` | var | js/ai/prompt/novelai-composition-director.js:230 |
 | `raisedHeight` | var | js/ai/provider/novelai-provider.js:197 |
-| `raisedHeight` | var | js/ai/provider/novelai-provider.js:204 |
 | `raisedWidth` | var | js/ai/prompt/novelai-composition-director.js:222 |
-| `raisedWidth` | var | js/ai/prompt/novelai-composition-director.js:231 |
 | `raisedWidth` | var | js/ai/provider/novelai-provider.js:196 |
-| `raisedWidth` | var | js/ai/provider/novelai-provider.js:205 |
 | `randomIndex` | var | js/core/util/fabric-util.js:781 |
 | `randomInt` | var | js/sidebar/panel/knife/knife-split-engine.js:84 |
 | `randomSenario` | var | js/ai/prompt/auto/auto-prompt-util.js:636 |
@@ -7134,7 +7102,6 @@
 | `ratio` | var | js/core/manga-page-size.js:141 |
 | `ratio` | var | js/panel/layout-templates.js:122 |
 | `ratio` | var | js/sidebar/panel/knife/knife-split-engine.js:449 |
-| `ratio` | var | js/sidebar/panel/knife/knife-split-engine.js:455 |
 | `ratios` | var | js/panel/layout-templates.js:119 |
 | `raw` | var | js/assets/asset-store.js:68 |
 | `raw` | var | js/canvas-manager.js:270 |
@@ -7208,7 +7175,6 @@
 | `reader` | var | js/sidebar/page/page-studio.js:543 |
 | `reader` | var | js/sidebar/panel/knife/knife-split-engine.js:154 |
 | `reader` | var | js/sidebar/panel/panel-manager.js:25 |
-| `reader` | var | js/sidebar/panel/panel-manager.js:56 |
 | `reader` | var | js/sidebar/pen/pen-tools.js:600 |
 | `reader` | var | js/sidebar/text/custom/optimized-aurora-text.js:107 |
 | `reader` | var | js/sidebar/text/custom/optimized-broken-text.js:117 |
@@ -7838,8 +7804,6 @@
 | `scale` | var | js/core/util/html-canvas-util.js:46 |
 | `scale` | var | js/core/util/image-analyzer-util.js:11 |
 | `scale` | var | js/layer/layer-management.js:392 |
-| `scale` | var | js/layer/layer-management.js:412 |
-| `scale` | var | js/layer/layer-management.js:428 |
 | `scale` | var | js/sidebar/page/page-studio.js:376 |
 | `scale` | var | js/sidebar/panel/panel-template.js:260 |
 | `scale` | var | js/sidebar/pen/custom-brush.js:217 |
@@ -7884,7 +7848,6 @@
 | `scaleX` | var | js/sidebar/panel/knife/knife-geometry.js:13 |
 | `scaleX` | var | js/sidebar/panel/knife/knife-line-renderer.js:74 |
 | `scaleX` | var | js/sidebar/panel/knife/knife-split-engine.js:143 |
-| `scaleX` | var | js/sidebar/panel/knife/knife-split-engine.js:273 |
 | `scaleX` | var | js/sidebar/panel/knife/knife-split-engine.js:499 |
 | `scaleX` | var | js/sidebar/panel/panel-template.js:258 |
 | `scaleX` | var | js/sidebar/pen/original-brush.js:292 |
@@ -7904,7 +7867,6 @@
 | `scaleY` | var | js/sidebar/panel/knife/knife-geometry.js:14 |
 | `scaleY` | var | js/sidebar/panel/knife/knife-line-renderer.js:75 |
 | `scaleY` | var | js/sidebar/panel/knife/knife-split-engine.js:144 |
-| `scaleY` | var | js/sidebar/panel/knife/knife-split-engine.js:274 |
 | `scaleY` | var | js/sidebar/panel/knife/knife-split-engine.js:500 |
 | `scaleY` | var | js/sidebar/panel/panel-template.js:259 |
 | `scaleY` | var | js/sidebar/pen/original-brush.js:293 |
@@ -8339,8 +8301,6 @@
 | `social` | var | scripts/story-engine-smoke-test.cjs:89 |
 | `sortBoxesForReading` | function | js/ai/manga-importer.js:571 |
 | `sorted` | var | js/dashboard/dashboard-ui.js:449 |
-| `sorted` | var | js/dashboard/dashboard-ui.js:455 |
-| `sorted` | var | js/dashboard/dashboard-ui.js:461 |
 | `sorted` | var | js/dashboard/dashboard-ui.js:777 |
 | `sortedAllKeys` | var | scripts/check-translations.cjs:124 |
 | `sortedByX` | var | js/core/util/fabric-util.js:349 |
@@ -8419,7 +8379,6 @@
 | `spinner` | var | js/layer/layer-management.js:287 |
 | `spinner` | var | js/ui/ai/auto-prompt-ui.js:121 |
 | `spinner` | var | js/ui/canvas-object-menu.js:576 |
-| `spinner` | var | js/ui/canvas-object-menu.js:579 |
 | `spinnerLogger` | var | js/core/logger.js:192 |
 | `split` | var | js/ai/manga-importer.js:1242 |
 | `split` | var | scripts/png-bit-depth-smoke-test.cjs:84 |
@@ -8839,11 +8798,8 @@
 | `t` | var | js/sidebar/pen/custom-brush.js:214 |
 | `t` | function | js/simulator/simulator-studio.js:90 |
 | `t0` | var | js/fabric/fabric-management.js:502 |
-| `t0` | var | js/fabric/fabric-management.js:529 |
 | `t1` | var | js/fabric/fabric-management.js:506 |
-| `t1` | var | js/fabric/fabric-management.js:532 |
 | `t2` | var | js/fabric/fabric-management.js:508 |
-| `t2` | var | js/fabric/fabric-management.js:534 |
 | `t2_align_c` | var | js/sidebar/text/text-2-manager.js:27 |
 | `t2_align_l` | var | js/sidebar/text/text-2-manager.js:26 |
 | `t2_align_r` | var | js/sidebar/text/text-2-manager.js:28 |
@@ -8931,9 +8887,7 @@
 | `t2iBasePromptStr` | var | js/core/compression/project-compression.js:63 |
 | `t2iInit` | var | js/core/settings.js:51 |
 | `t3` | var | js/fabric/fabric-management.js:511 |
-| `t3` | var | js/fabric/fabric-management.js:537 |
 | `t4` | var | js/fabric/fabric-management.js:513 |
-| `t4` | var | js/fabric/fabric-management.js:539 |
 | `tab` | var | js/assets/asset-library-controller.js:216 |
 | `tab` | var | js/sidebar/sidebar.js:43 |
 | `table` | var | js/ai/novelai-only-mode.js:51 |
@@ -9318,13 +9272,11 @@
 | `tmpCanvasFL` | var | js/sidebar/tone/focusline.js:1 |
 | `tmpCanvasRainTone` | var | js/sidebar/tone/rain-tone.js:1 |
 | `tmpCanvasSnowTone` | var | js/sidebar/tone/snow-tone.js:1 |
-| `tmpCanvasSnowTone` | var | js/sidebar/tone/snow-tone.js:144 |
 | `tmpCanvasTone` | var | js/sidebar/tone/tone.js:3 |
 | `tmpCanvasToneNoise` | var | js/sidebar/tone/tone-noise.js:1 |
 | `tmpCtxFL` | var | js/sidebar/tone/focusline.js:2 |
 | `tmpCtxRainTone` | var | js/sidebar/tone/rain-tone.js:2 |
 | `tmpCtxSnowTone` | var | js/sidebar/tone/snow-tone.js:2 |
-| `tmpCtxSnowTone` | var | js/sidebar/tone/snow-tone.js:145 |
 | `tmpCtxTone` | var | js/sidebar/tone/tone.js:4 |
 | `tmpCtxToneNoise` | var | js/sidebar/tone/tone-noise.js:2 |
 | `to` | var | js/core/util/png-bit-depth.js:149 |
@@ -10005,7 +9957,6 @@
 | `woman` | var | scripts/manga-edit-planner-test.cjs:39 |
 | `word` | var | js/sidebar/panel/panel-manager.js:725 |
 | `word` | var | js/ui/util/ui-util.js:22 |
-| `word` | var | js/ui/util/ui-util.js:28 |
 | `wordList` | var | js/dashboard/dashboard-ui.js:576 |
 | `wordcloudCanvas` | var | js/dashboard/dashboard-ui.js:208 |
 | `wordcloudColors` | var | js/dashboard/dashboard-ui.js:552 |
@@ -10072,7 +10023,6 @@
 | `x2` | var | js/ai/manga-importer.js:1321 |
 | `xBands` | var | js/ai/manga-importer.js:422 |
 | `xDiff` | var | js/sidebar/panel/panel-manager.js:307 |
-| `xDiff` | var | js/sidebar/panel/panel-manager.js:314 |
 | `xPos` | var | js/sidebar/text/vertical-textbox.js:524 |
 | `xSum` | var | js/sidebar/panel/knife/knife-geometry.js:238 |
 | `xhr` | var | js/ai/provider/novelai-provider.js:92 |
@@ -10116,7 +10066,6 @@
 | `y2` | var | js/sidebar/panel/knife/knife-split-engine.js:186 |
 | `yBands` | var | js/ai/manga-importer.js:423 |
 | `yDiff` | var | js/sidebar/panel/panel-manager.js:308 |
-| `yDiff` | var | js/sidebar/panel/panel-manager.js:315 |
 | `yPos` | var | js/sidebar/text/vertical-textbox.js:519 |
 | `ySum` | var | js/sidebar/panel/knife/knife-geometry.js:239 |
 | `yesterdayKey` | var | js/dashboard/performance-storage.js:307 |

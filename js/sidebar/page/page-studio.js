@@ -84,8 +84,8 @@ ctx.fillRect(hash(i*3.1)*width,hash(i*5.7)*height,1+n*2,1+n*2);
 }
 if(preset.id==='halftone'){
 ctx.fillStyle='rgba(20,20,20,0.08)';
-for(var y=6;y<height;y+=10){
-for(var x=6;x<width;x+=10){
+for(y=6;y<height;y+=10){
+for(x=6;x<width;x+=10){
 ctx.beginPath();
 ctx.arc(x+(y/10)%2*4,y,1.1,0,Math.PI*2);
 ctx.fill();
@@ -112,7 +112,7 @@ for(y=4;y<height;y+=5){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y);ctx.s
 }
 if(preset.id==='graphite'){
 for(i=0;i<Math.floor(width*height/70);i++){
-var n=hash(i*11.7);
+n=hash(i*11.7);
 ctx.fillStyle='rgba(220,230,240,'+(0.02+n*0.05)+')';
 ctx.fillRect(hash(i*2.4)*width,hash(i*6.1)*height,1+n*2,1+n*2);
 }

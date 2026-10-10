@@ -25,7 +25,7 @@ headerElement.textContent=word;
 } else {
 el.style.display='none';
 if(hiddenTextKey!==null){
-var word=getText(hiddenTextKey);
+word=getText(hiddenTextKey);
 headerElement.textContent=word;
 }
 }

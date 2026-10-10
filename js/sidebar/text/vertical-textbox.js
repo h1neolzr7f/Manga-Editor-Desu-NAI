@@ -373,7 +373,7 @@ charIndex=cursorPosition.charIndex;
 lineIndex=cursorPosition.lineIndex;
 !this.__charBounds[lineIndex]&&this.measureLine(lineIndex);
 for(var i=0;i<lineIndex;i++){leftOffset+=this.getHeightOfLine(i)};
-for(var i=0;i<charIndex;i++){charBox=this.__charBounds[lineIndex][i];
+for(i=0;i<charIndex;i++){charBox=this.__charBounds[lineIndex][i];
 if(this._isRotatedChar(this._textLines[lineIndex][i])){topOffset+=charBox.width}else{topOffset+=charBox.height}};
 lineLeftOffset=this._getLineLeftOffset(lineIndex);
 if(this.charSpacing!==0&&charIndex===this._textLines[lineIndex].length){leftOffset-=this._getWidthOfCharSpacing()};

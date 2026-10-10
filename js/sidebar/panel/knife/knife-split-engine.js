@@ -202,9 +202,9 @@ polygonizer.add(union);
 
 polygons=polygonizer.getPolygons();
 resultLine=[];
-for (var i=polygons.iterator();i.hasNext();) {
-var polygonTemp=i.next();
-var coords=polygonTemp
+for (i=polygons.iterator();i.hasNext();) {
+polygonTemp=i.next();
+coords=polygonTemp
 .getCoordinates()
 .map((coord)=>({x: coord.x,y: coord.y}));
 resultLine.push(coords);
@@ -251,8 +251,8 @@ y: point.y-offsetY-minY,
 };
 });
 
-var minX=Math.min(...adjustedPolygon2Points.map((v)=>v.x));
-var minY=Math.min(...adjustedPolygon2Points.map((v)=>v.y));
+minX=Math.min(...adjustedPolygon2Points.map((v)=>v.x));
+minY=Math.min(...adjustedPolygon2Points.map((v)=>v.y));
 
 var adjustedPolygon2Points2=adjustedPolygon2Points.map(function (point) {
 return {
@@ -270,8 +270,8 @@ var polygon2MinY=Math.min(...newPolygon2Points.map((point)=>point.y));
 var left=0;
 var top=0;
 
-var scaleX=getScaleX();
-var scaleY=getScaleY();
+scaleX=getScaleX();
+scaleY=getScaleY();
 var scaleX2=getScaleX();
 var scaleY2=getScaleY();
 
@@ -452,7 +452,7 @@ return {dx: unitX*ratio,dy: moveDistance};
 if (Math.abs(unitX)<KNIFE_CONSTANTS.GEOMETRY.MIN_LENGTH) {
 return {dx: moveDistance,dy: 0};
 }
-var ratio=moveDistance/unitX;
+ratio=moveDistance/unitX;
 return {dx: moveDistance,dy: unitY*ratio};
 }
 }

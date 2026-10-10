@@ -60,7 +60,7 @@ gradient.addColorStop(0,`rgba(${pc.r},${pc.g},${pc.b},${gradientStart*pc.a})`);
 gradient.addColorStop(1,`rgba(${pc.r},${pc.g},${pc.b},${gradientEnd*pc.a})`);
 tempCtxSpeedLine.strokeStyle=gradient;
 } else {
-var pc=parseColor(lineColor);
+pc=parseColor(lineColor);
 tempCtxSpeedLine.strokeStyle=`rgb(${pc.r},${pc.g},${pc.b})`;
 tempCtxSpeedLine.globalAlpha=pc.a;
 }

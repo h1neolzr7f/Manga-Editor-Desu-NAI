@@ -201,8 +201,8 @@ targetHeight=Math.max(64,raisedHeight);
 }
 }
 if(targetHeight<minEdge&&targetWidth<maxEdge){
-var raisedHeight=minEdge;
-var raisedWidth=this._round64(raisedHeight*aspect);
+raisedHeight=minEdge;
+raisedWidth=this._round64(raisedHeight*aspect);
 if(raisedWidth*raisedHeight<=maxPixels&&raisedWidth<=maxEdge){
 targetHeight=raisedHeight;
 targetWidth=Math.max(64,raisedWidth);
