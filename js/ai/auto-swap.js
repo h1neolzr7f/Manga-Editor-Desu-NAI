@@ -514,17 +514,18 @@
     clearTimeout(prefetchTimer);
     prefetchTimer = setTimeout(async () => {
       try {
-        if (!gpt() || !gpt().pageImage || S) return;
+        // stay out of the way: no prefetch while any wizard or smart-select is open
+        if (!gpt() || !gpt().pageImage || S || document.querySelector('.sam-select, #taskWizardCard, #mangaGptTaskHead')) return;
         const st = await post('/manga-smart/status', {});
         const ch = st && st.characters;
         if (!(ch && ch.cached && ch.identityCached && st.samSelect && st.samSelect.cached)) return;
         const pg = gpt().pageImage(false);
         if (!pg || !pg.image) return;
         root.__autoSwapPrefetch = 'running';
-        const r = await post('/manga-smart/characters', { image: pg.image });
+        const r = await post('/manga-smart/characters', { image: pg.image, background: true });
         root.__autoSwapPrefetch = r && r.ok ? 'done' : 'failed';
       } catch (_) { root.__autoSwapPrefetch = 'failed'; }
-    }, 1500);
+    }, 6000);
   }
 
   root.AutoSwap = Object.assign(api, { start, stop, prefetch, swapOne, applyResult,

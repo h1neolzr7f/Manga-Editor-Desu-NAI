@@ -1523,7 +1523,7 @@ async function main() {
     } finally { await ctx.close(); }
   });
 
-  await flow('35 换角色 v2（全自动）：自动找人物 → 点一下选目标 → 参考图 → 生成（擦原角色补背景 + 同姿势新角色）→ 对比 → 应用为两个图层（一步撤销）→ 其他格同一角色一键换', async () => {
+  await flow('35 换角色（原位重画）：自动找人物 → 点一下选目标（可拖框调整范围）→ 参考图 → 一次 GPT 编辑 → 对比 → 应用为一个图层（可撤销）→ 存档后重开仍在 → 其他格同一角色（脸部比对）一键换', async () => {
     const st = await (await fetch(SERVER + '/manga-smart/status', { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: SERVER }, body: '{}' })).json().catch(() => ({}));
     if (!(st.samSelect && st.samSelect.ready && st.samSelect.cached && st.characters && st.characters.cached)) return { pass: true, detail: { skipped: 'isnet-anime / SAM not installed (CI): 换角色 falls back to the manual GPT-panel wizard', st: st.characters } };
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'zh-CN', acceptDownloads: true });

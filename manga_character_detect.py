@@ -42,7 +42,7 @@ EXTRA = {
 FACE_THRESHOLD = 0.307      # model's own F1-optimal threshold
 CCIP_SAME = 0.178           # model's own F1-optimal difference threshold
 _extra = {}
-_cache = {}                 # sha1(image) -> result (last 6 pages)
+_cache = {}                 # sha1(image) -> result (last 3 pages)
 
 
 def seg_path():
@@ -548,7 +548,8 @@ def detect(payload):
     rgb = np.array(Image.open(io.BytesIO(raw)).convert("RGB"))
     predictor = None
     face_boxes = faces(rgb, extra["face"]) if extra else []
-    with exclusive("sam2", wait=90):
+    # a background prefetch never queues behind (or blocks) a user action: busy → 429, the client just skips it
+    with exclusive("sam2", wait=0 if payload.get("background") is True else 90):
         if payload.get("refine", True) is not False:
             try:
                 from manga_sam_select import _get_predictor, _embeds
@@ -577,7 +578,7 @@ def detect(payload):
     res = {"ok": True, "width": int(rgb.shape[1]), "height": int(rgb.shape[0]), "panels": pans, "faces": face_boxes,
            "characters": chars, "refined": predictor is not None, "identity": identity}
     _cache[key] = res
-    while len(_cache) > 6:
+    while len(_cache) > 3:
         _cache.pop(next(iter(_cache)))
     return res
 
