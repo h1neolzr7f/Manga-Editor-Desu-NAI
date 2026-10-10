@@ -39,7 +39,7 @@ el.innerHTML="";
 }
 
 function toggleMode() {
-const isDarkMode=document.body.classList.toggle('dark-mode');
+document.body.classList.toggle('dark-mode');
 const logo=$('navbar-logo');
 
 document.documentElement.classList.remove('light-mode');

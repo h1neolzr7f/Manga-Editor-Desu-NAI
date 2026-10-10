@@ -1,6 +1,4 @@
 /* exported alignText, changeFontSize, changeOutlineTextColor, changeStrokeWidthSize, changeTextBgColor, changeTextColor, createTextbox, toggleBoldWithUI, updateTextControls */
-var neonIntensity=2;
-var isNeonEnabled=false;
 var textControlsSyncing=false;
 
 function resolveTextControlObject(object) {
@@ -137,21 +135,6 @@ updateBoldToggleUI();
 }
 
 
-
-function applyInnerShadow() {
-const activeObject=canvas.getActiveObject();
-if (isText(activeObject)) {
-activeObject.set({
-shadow: {
-color: "rgba(0, 0, 0, 0.8)",
-blur: 10,
-offsetX: 5,
-offsetY: 5,
-},
-});
-canvas.renderAll();
-}
-}
 
 function alignText(alignment,button) {
 var textAlignment=getSelectedValueByButton(button);

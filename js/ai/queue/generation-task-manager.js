@@ -63,15 +63,6 @@ refreshAiTaskIndicator(taskId);
 }
 }
 
-function updateAiTaskProgress(taskId,value,max){
-var task=aiTaskMap.get(taskId);
-if(task){
-task.stepValue=value;
-task.stepMax=max;
-refreshAiTaskIndicator(taskId);
-}
-}
-
 function getAiTasksForLayer(layerGuid,canvasGuid){
 var tasks=[];
 aiTaskMap.forEach(function(task){

@@ -263,13 +263,6 @@ return textOf(prompt)
 .filter(Boolean);
 }
 
-function splitUserPrompt(prompt){
-return textOf(prompt)
-.split(/[,，、;；\n]+/)
-.map(function(part){return part.trim();})
-.filter(Boolean);
-}
-
 function isHonorCharacterCardsEnabled(){
 return isChecked('naiDirectorHonorCharacterCards',true);
 }

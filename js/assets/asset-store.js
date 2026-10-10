@@ -2,7 +2,6 @@
 "use strict";
 
 var manifest=root.NaiComicAssetManifest;
-var IMPORTED_PREFIX='user_data/asset_packs/imported/';
 
 function safeStorage(){
 try{return typeof localStorage!=='undefined'?localStorage:null;}catch(error){return null;}
