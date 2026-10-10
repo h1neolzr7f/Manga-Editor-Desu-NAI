@@ -1110,7 +1110,8 @@ async function main() {
       if (body.operation === 'models') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, models: ['gpt-4o', 'gpt-image-2', 'gpt-image-2.5'], imageModels: ['gpt-image-2', 'gpt-image-2.5'] }) });
       const image = await p.evaluate(async ({ src, size }) => {
         const [w, h] = (size === 'auto' ? '1024x1024' : size).split('x').map(Number); const c = document.createElement('canvas'); c.width = w; c.height = h;
-        const g = c.getContext('2d'); const i = new Image(); i.src = src; await i.decode(); g.drawImage(i, 0, 0, w, h);
+        const g = c.getContext('2d'); g.fillStyle = '#ddd'; g.fillRect(0, 0, w, h);
+        if (src) { const i = new Image(); i.src = src; await i.decode(); g.drawImage(i, 0, 0, w, h); }
         g.fillStyle = 'rgba(60,120,230,.35)'; g.fillRect(w * .2, h * .2, w * .6, h * .6); return c.toDataURL('image/png');
       }, { src: body.image, size: body.size });
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, image }) });
@@ -1119,7 +1120,9 @@ async function main() {
     await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0 && !!document.getElementById('taskBar'), null, { timeout: 60000 });
     if (await p.locator('#tutorialSkipBtn').waitFor({ state: 'visible', timeout: 5000 }).then(() => true, () => false)) await p.keyboard.press('Escape');
     await p.locator('.tutorial-overlay').waitFor({ state: 'detached', timeout: 3000 }).catch(() => {});
-    const homeShown = await p.locator('#taskHome').isVisible();
+    const homeShown = await p.locator('#taskHome').waitFor({ state: 'visible', timeout: 5000 }).then(() => true, async () => {
+      errors.push('home hidden: ' + JSON.stringify(await p.evaluate(() => ({ imgs: canvas.getObjects().filter(o => o.type === 'image').length, dismissed: (document.getElementById('taskHome') || {}).dataset, mode: document.body.className, active: TaskLauncher.active() }))));
+      return false; });
     if (opts.noImport) return { ctx, p, errors, homeShown };
     await op.files(p.locator('#taskHomeImport'), opts.pages || PAGES[0], '导入漫画页');
     await p.waitForFunction(() => canvas.getObjects().some(o => o.type === 'image'), null, { timeout: 60000 });
@@ -1175,8 +1178,8 @@ async function main() {
       await p.keyboard.press('Escape');
       const proAfterReload = await p.evaluate(() => document.body.classList.contains('ui-pro'));
       await op.click(p.locator('#uiModeToggle'), '新手模式');
-      const backToBeginner = (await p.locator('#taskBar .task-btn:visible').count()) === 6;
-      return { pass: homeShown && afterImportHidden && tasks === 6 && proEntriesHidden && pro.gptOpen && pro.smartOpen && pro.tasksHidden && proAfterReload && backToBeginner && !errors.length,
+      const backToBeginner = (await p.locator('#taskBar .task-btn:visible').count()) === 7;
+      return { pass: homeShown && afterImportHidden && tasks === 7 && proEntriesHidden && pro.gptOpen && pro.smartOpen && pro.tasksHidden && proAfterReload && backToBeginner && !errors.length,
         detail: { homeShown, afterImportHidden, tasks, proEntriesHidden, pro, proAfterReload, backToBeginner, errors } };
     } finally { await ctx.close(); }
   });
@@ -1302,9 +1305,44 @@ async function main() {
       const gptErr = await f.p.locator('#svcGptStatus').innerText(); const errCls = await f.p.locator('#svcGptStatus').getAttribute('class');
       await f.ctx.close();
       return { pass: fields.every(Boolean) && panelDupes.every(n => n === 1) && keyMasked === 'password' && /已连接/.test(gptOk) && /文字识别 ✓/.test(local) && /还没填/.test(nai) && closed &&
-        urlKept === 'https://relay.example.com/v1' && /Invalid API key/.test(gptErr) && /is-error/.test(errCls) && !/undefined|\[object/.test(gptErr) && !errors.length,
+        urlKept === 'https://relay.example.com/v1' && /Invalid API key/.test(gptErr) && /API Key 被拒绝/.test(gptErr) && !/暂时不可用/.test(gptErr) && /is-error/.test(errCls) && !/undefined|\[object/.test(gptErr) && !errors.length,
         detail: { fields, panelDupes, keyMasked, gptOk, local, nai, closed, urlKept, gptErr, errors } };
     } finally { await ctx.close().catch(() => {}); }
+  });
+
+  await flow('31 画一页漫画向导：选 3 格→写画面/对白→生成整页（每格画面裁进格子、气泡带对白、页面栏有缩略图，可撤销）', async () => {
+    const { ctx, p, errors } = await beginnerEditor({ noImport: true });
+    try {
+      const before = wizCalls.length;
+      await op.click(p.locator('#taskBtn-page'), '画一页漫画');
+      await op.click(p.locator('#taskPage3'), '3 格');
+      const cost = await p.locator('#taskPageCost').innerText();
+      await op.click(p.locator('#taskPageGo'), '生成整页（未写画面）');
+      const emptyMsg = await p.locator('#taskPageStatus').innerText();
+      const scenes = ['少女在车站等车', '列车进站', '少女挥手'], lines = ['今天也要加油！', '', '再见啦，明天见！'];
+      for (let k = 0; k < 3; k++) { await p.locator(`[data-scene="${k}"]`).fill(scenes[k]); cur.ops.push('画面' + (k + 1)); if (lines[k]) { await p.locator(`[data-line="${k}"]`).fill(lines[k]); cur.ops.push('对白' + (k + 1)); } }
+      await op.click(p.locator('#taskPageGo'), '生成整页');
+      await p.waitForFunction(() => /整页完成|没成功/.test(document.getElementById('taskPageStatus').textContent) && !document.getElementById('taskPageGo').disabled, null, { timeout: 60000 });
+      const status = await p.locator('#taskPageStatus').innerText();
+      const st = await p.evaluate(() => {
+        const o = canvas.getObjects();
+        return { panels: o.filter(x => x.isPanel && x.type === 'polygon').length, images: o.filter(x => x.type === 'image').length,
+          clipped: o.filter(x => x.type === 'image' && x.clipPath).length, texts: o.filter(x => x.type === 'textbox').map(x => x.text),
+          bubbles: o.filter(x => x.type === 'ellipse').length, thumbs: document.querySelectorAll('#btm-image-container .btm-image').length };
+      });
+      const calls = wizCalls.slice(before);
+      await snap('wizard-page');
+      // the text sits inside its bubble
+      const inside = await p.evaluate(() => canvas.getObjects().filter(x => x.type === 'textbox').every(t => { const e = canvas.getObjects().find(x => x.type === 'ellipse' && x.name === '对白气泡 ' + t.name.split(' ')[1]); const a = t.getBoundingRect(true), b = e.getBoundingRect(true); return a.left >= b.left && a.top >= b.top && a.left + a.width <= b.left + b.width && a.top + a.height <= b.top + b.height; }));
+      await p.locator('#taskWizardClose').click();
+      await p.evaluate(() => document.activeElement && document.activeElement.blur());
+      await op.key('Control+z', '撤销');
+      await p.waitForTimeout(1200);
+      const afterUndo = await p.evaluate(() => canvas.getObjects().filter(x => x.type === 'image').length);
+      return { pass: /3 次/.test(cost) && /第 1 格还没写画面/.test(emptyMsg) && /整页完成/.test(status) && st.panels === 3 && st.images === 3 && st.clipped === 3 &&
+        st.bubbles === 2 && st.texts.join('|') === '今天也要加油！|再见啦，明天见！' && inside && st.thumbs >= 1 && calls.length === 3 && calls.every(c => c.op === 'generate' && /漫画分镜/.test(c.prompt)) && afterUndo === 0 && !errors.length,
+        detail: { cost, emptyMsg, status, st, inside, calls: calls.map(c => c.op + ':' + c.prompt.slice(0, 30)), afterUndo, errors } };
+    } finally { await ctx.close(); }
   });
 
   await endSession('final');

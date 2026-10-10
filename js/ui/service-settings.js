@@ -235,8 +235,6 @@ restoreGpt();
 addPanelSummary();
 addNaiPointer();
 renderSummary();
-// the token badge and every "去设置" path land here
-window.openNovelaiSettings=function(){open('novelai');};
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(init,0);});
 else setTimeout(init,0);

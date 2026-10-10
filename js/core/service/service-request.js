@@ -25,6 +25,8 @@ return VIA_LOCAL_PROXY[service]?
 name+'没有启动。可以在「服务设置」里查看状态，或先用浏览器内的替代功能。';
 }
 var status=Number(info.status)||0;
+var up=/上游 HTTP (\d{3})/.exec(serverMessage(info.body));
+if(up)status=Number(up[1]);   // the local proxy wraps upstream failures as 502; judge by the upstream code
 var hint='';
 if(status===401||status===403){
 hint=service==='novelai'?'NovelAI Token 无效或已过期，请到「服务设置」重新粘贴。':

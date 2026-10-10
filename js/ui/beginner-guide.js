@@ -341,6 +341,10 @@ badge.title=ok?'已填写访问令牌。点这里打开 NovelAI 设置。':'还�
 }
 
 function openNovelaiSettings(){
+if(window.ServiceSettings&&typeof window.ServiceSettings.open==='function'){
+window.ServiceSettings.open('novelai');   // the token lives in 服务设置 (one place for every service)
+return;
+}
 if(window.unifiedSettingsWindow&&typeof window.unifiedSettingsWindow.open==='function'){
 window.unifiedSettingsWindow.open();
 return;

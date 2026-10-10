@@ -62,3 +62,8 @@ body.ui-beginner #mangaPageOpen, body.ui-beginner #mangaCharacterOpen { display:
 .svc-summary { display: flex; align-items: center; justify-content: space-between; gap: var(--ui-space-2); font-size: 12px; color: var(--ui-text-muted); margin: 4px 0 6px; }
 .svc-summary .ui-btn { min-height: 24px; padding: 0 8px; font-size: 12px; }
 @media (max-width: 900px) { .task-grid { grid-template-columns: repeat(2, 1fr); } }
+.task-card { max-height: calc(100vh - 110px); overflow-y: auto; }
+.task-card .ui-btn.is-active { background: var(--ui-accent); border-color: var(--ui-accent); color: var(--ui-accent-text); }
+.task-page-panel { border: 1px solid var(--ui-border); border-radius: var(--ui-radius-sm); margin: var(--ui-space-2) 0; padding: var(--ui-space-1) var(--ui-space-2) var(--ui-space-2); display: grid; gap: 4px; }
+.task-page-panel legend { color: var(--ui-text-muted); padding: 0 4px; }
+.task-card-body .ui-textarea { resize: vertical; }

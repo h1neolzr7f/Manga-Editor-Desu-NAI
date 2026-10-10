@@ -19,6 +19,7 @@ assert.match(d('gpt', { status: 403 }), /API Key 被拒绝/);
 assert.match(d('gpt', { status: 429 }), /太频繁或额度不足/);
 assert.match(d('gpt', { status: 530 }), /暂时不可用（HTTP 530）/);
 assert.match(d('local', { status: 404 }), /HTTP 404/);
+assert.equal(d('gpt', { status: 502, body: { ok: false, error: '上游 HTTP 401：Invalid API key' } }), '上游 HTTP 401：Invalid API key。API Key 被拒绝，请到「服务设置」检查 Key 和地址。');
 assert.equal(d('gpt', { aborted: true }), '已取消请求。');
 assert.match(d('novelai', { timeout: true }), /超时/);
 assert.equal(d('gpt', { status: 400, body: { ok: false, error: '模型不能为空' } }), '模型不能为空');

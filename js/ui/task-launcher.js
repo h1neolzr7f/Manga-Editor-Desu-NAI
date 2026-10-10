@@ -25,6 +25,8 @@ fix:'Remove the unwanted object, mark or blemish inside the selected area and re
 };
 
 var TASKS=[
+{id:'page',icon:'auto_stories',title:'画一页漫画',desc:'选格子数，写每格画面和对白，一键生成整页',kind:'page',
+steps:['选 3 格或 4 格','写每格的画面（和对白，可不填）','点「生成整页」：AI 画好每一格并放好对白气泡']},
 {id:'swap',icon:'switch_account',title:'换角色',desc:'把画里的人换成你的角色',kind:'gpt',
 steps:['在画布上拖一个框，框住要换的人物','上传新角色的参考图（推荐）','点「生成预览」，可用「对比原图」看前后','满意就点「作为新图层应用」'],
 placeholder:'补充要求（可不填），例如：表情改成微笑',preset:GPT_PRESETS.swap},
@@ -46,6 +48,8 @@ function task(id){return TASKS.filter(function(t){return t.id===id;})[0];}
 // ---------- mode ----------
 function mode(){try{return localStorage.getItem(MODE_KEY)==='pro'?'pro':'beginner';}catch(e){return 'beginner';}}
 function applyMode(m){
+var bar=$('taskBar');
+if(bar){var hd=bar.parentNode;if(m==='pro')hd.appendChild(bar);else hd.insertBefore(bar,hd.firstChild);}   // pro: tools first, task bar last
 document.body.classList.toggle('ui-beginner',m==='beginner');
 document.body.classList.toggle('ui-pro',m==='pro');
 var t=$('uiModeToggle');
@@ -146,7 +150,7 @@ return body;
 function start(id){
 var t=task(id);if(!t)return;
 stop(false);
-if(t.kind!=='nai'&&!hasPage()){
+if(t.kind!=='nai'&&t.kind!=='page'&&!hasPage()){
 toast('先导入漫画页','点「导入漫画页」选一张或多张图片，然后再选任务。');
 var home=$('taskHome');if(home){home.dataset.dismissed='';updateHome();}
 return;
@@ -157,6 +161,7 @@ document.querySelectorAll('.task-btn').forEach(function(b){b.classList.toggle('i
 if(t.kind==='gpt')startGpt(t);
 else if(t.kind==='caption')startCaption(t);
 else if(t.kind==='layer')startLayer(t);
+else if(t.kind==='page')startPage(t);
 else startNai(t);
 timer=setInterval(tick,400);
 }
@@ -268,6 +273,132 @@ setLayerStatus('完成：已放到新图层，原图不变（Ctrl+Z 可撤销）
 }).catch(function(error){setLayerStatus('没抠成：'+(error&&error.message||error),true);});
 }
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&pick){e.preventDefault();cancelPick();setLayerStatus('已取消框选。');}},true);
+
+// 画一页漫画: layout + batch panel generation + automatic dialogue bubbles (one click instead of
+// ~10 per panel: new page, template, open GPT, switch mode, prompt, generate, apply, fit into panel, bubble, text)
+var LAYOUTS={
+3:[[0,0,1,.42],[0,.42,.5,.58],[.5,.42,.5,.58]],
+4:[[0,0,1,.3],[0,.3,.55,.35],[.55,.3,.45,.35],[0,.65,1,.35]]
+};
+function layoutRects(n,w,h){
+var m=.04*Math.min(w,h),g=.012*Math.min(w,h);
+var iw=w-2*m,ih=h-2*m;
+return (LAYOUTS[n]||LAYOUTS[3]).map(function(c){
+return {left:Math.round(m+c[0]*iw+g/2),top:Math.round(m+c[1]*ih+g/2),width:Math.round(c[2]*iw-g),height:Math.round(c[3]*ih-g)};
+});
+}
+function sizeFor(r){var a=r.width/r.height;return a>1.2?'1536x1024':a<.83?'1024x1536':'1024x1024';}
+var pageJob=null;
+function startPage(t){
+var body=card(t);
+markStep(0);
+body.innerHTML='<div class="svc-row" role="radiogroup" aria-label="格子数">'+
+'<button type="button" class="ui-btn" data-panels="3" id="taskPage3">3 格</button>'+
+'<button type="button" class="ui-btn" data-panels="4" id="taskPage4">4 格</button></div>'+
+'<label class="ui-field"><span>统一画风 / 角色（每格都会用）</span><input id="taskPageStyle" type="text" value="黑白日式漫画，清晰线稿，网点阴影，安全健康内容"></label>'+
+'<div id="taskPagePanels"></div>'+
+'<p class="ui-muted" id="taskPageCost"></p>'+
+'<div class="svc-row"><button type="button" class="ui-btn ui-btn-primary" id="taskPageGo" disabled>生成整页</button>'+
+'<button type="button" class="ui-btn" id="taskPageCancel" hidden>停止</button></div>'+
+'<p id="taskPageStatus" role="status" class="ui-muted"></p>';
+body.querySelectorAll('[data-panels]').forEach(function(b){b.addEventListener('click',function(){choosePanels(Number(b.dataset.panels));});});
+$('taskPageGo').addEventListener('click',runPage);
+$('taskPageCancel').addEventListener('click',function(){if(pageJob)pageJob.cancel=true;if(pageJob&&pageJob.ctl)pageJob.ctl.abort();});
+}
+function choosePanels(n){
+document.querySelectorAll('#taskWizardBody [data-panels]').forEach(function(b){b.classList.toggle('is-active',Number(b.dataset.panels)===n);b.setAttribute('aria-pressed',String(Number(b.dataset.panels)===n));});
+var box=$('taskPagePanels');box.innerHTML='';
+for(var i=0;i<n;i++){
+var f=el('fieldset',{class:'task-page-panel'});
+f.innerHTML='<legend>第 '+(i+1)+' 格</legend>'+
+'<textarea class="ui-textarea" rows="2" data-scene="'+i+'" placeholder="画面，例如：清晨，少女在车站等车"></textarea>'+
+'<input class="ui-textarea" type="text" data-line="'+i+'" placeholder="对白（可不填）">';
+box.appendChild(f);
+}
+$('taskPageGo').disabled=false;
+$('taskPageCost').textContent='会调用 GPT 图像 '+n+' 次（每格一次）。生成的每一格、气泡和文字都是独立图层，可单独修改或撤销。';
+markStep(1);
+}
+function pageStatus(t,isError){var s=$('taskPageStatus');if(s){s.textContent=t;s.classList.toggle('is-error',!!isError);}}
+// Frames must be polygons: image clipping (updateClipPath) follows polygon points, a Rect is not clipped.
+function makePanel(r,index){
+var p=new fabric.Polygon([{x:r.left,y:r.top},{x:r.left+r.width,y:r.top},{x:r.left+r.width,y:r.top+r.height},{x:r.left,y:r.top+r.height}],{
+fill:'#ffffff',stroke:'#000000',strokeWidth:3,strokeUniform:true,objectCaching:false,isPanel:true,name:'分镜 '+index});
+if(typeof setText2ImageInitPrompt==='function')setText2ImageInitPrompt(p);
+if(typeof setPanelValue==='function')setPanelValue(p);
+if(typeof getGUID==='function')getGUID(p);
+return p;
+}
+function addBubble(rect,text,index){
+var w=Math.max(150,Math.min(rect.width*.42,380));
+var fontSize=Math.max(20,Math.round(Math.min(rect.width,rect.height)*.06));
+// splitByGrapheme: Chinese has no spaces, so wrap per character; .66 keeps lines inside the ellipse
+var tb=new fabric.Textbox(text,{width:w*.66,fontSize:fontSize,textAlign:'center',fill:'#111',splitByGrapheme:true,
+fontFamily:'"Noto Sans SC","Microsoft YaHei",sans-serif',name:'对白 '+index});
+var bh=Math.max(tb.height*1.75,fontSize*2.6);
+var left=rect.left+rect.width-w-rect.width*.04,top=rect.top+rect.height*.05;
+var bubble=new fabric.Ellipse({left:left,top:top,rx:w/2,ry:bh/2,fill:'#fff',stroke:'#111',strokeWidth:3,name:'对白气泡 '+index});
+tb.set({left:left+(w-tb.width)/2,top:top+(bh-tb.height)/2});
+canvas.add(bubble);canvas.add(tb);
+return [bubble,tb];
+}
+function loadFabricImage(url){return new Promise(function(res,rej){fabric.Image.fromURL(url,function(img){if(img&&img.width)res(img);else rej(new Error('图片读取失败。'));});});}
+async function runPage(){
+if(pageJob)return;
+var scenes=Array.prototype.map.call(document.querySelectorAll('#taskPagePanels [data-scene]'),function(x){return x.value.trim();});
+var lines=Array.prototype.map.call(document.querySelectorAll('#taskPagePanels [data-line]'),function(x){return x.value.trim();});
+if(!scenes.length)return pageStatus('先选 3 格或 4 格。',true);
+var empty=scenes.indexOf('');
+if(empty>=0)return pageStatus('第 '+(empty+1)+' 格还没写画面。',true);
+var style=($('taskPageStyle').value||'').trim();
+pageJob={cancel:false,ctl:null};
+$('taskPageGo').disabled=true;$('taskPageCancel').hidden=false;
+markStep(2);
+try{
+var W=canvas.getWidth()/(canvas.getZoom()||1),H=canvas.getHeight()/(canvas.getZoom()||1);
+if(!(W>200&&H>200)){W=1200;H=1700;}
+if(canvas.getObjects().length&&typeof loadBookSize==='function'){
+pageStatus('正在新建一页…');
+await loadBookSize(1200,1700,false,true);
+W=1200;H=1700;
+}else if(!canvas.getObjects().length&&typeof resizeCanvasToObject==='function'){W=1200;H=1700;resizeCanvasToObject(W,H);}
+var rects=layoutRects(scenes.length,W,H);
+// the whole generated page is ONE history step: one Ctrl+Z takes it all back
+if(typeof changeDoNotSaveHistory==='function'){changeDoNotSaveHistory();pageJob.historyPaused=true;}
+var panels=rects.map(function(r,i){var p=makePanel(r,i+1);canvas.add(p);return p;});
+canvas.renderAll();
+var key=(($('mangaGptKey')||{}).value||'').trim().replace(/^Bearer\s+/i,'');
+var done=0,failed=[];
+for(var i=0;i<rects.length;i++){
+if(pageJob.cancel)break;
+pageStatus('正在画第 '+(i+1)+' / '+rects.length+' 格…');
+pageJob.ctl=new AbortController();
+try{
+var data=await ServiceRequest.request('gpt','/gpt-image-proxy',{signal:pageJob.ctl.signal,timeoutMs:300000,headers:key?{Authorization:'Bearer '+key}:{},
+body:{operation:'generate',baseUrl:$('mangaGptUrl').value.trim(),model:$('mangaGptModel').value.trim(),size:sizeFor(rects[i]),
+prompt:(style?style+'。':'')+'漫画分镜画面（不要画对白框和文字）：'+scenes[i]}});
+var img=await loadFabricImage(data.image);
+img.name='第'+(i+1)+'格画面';
+putImageInFrame(img,rects[i].left+rects[i].width/2,rects[i].top+rects[i].height/2,true,false,true,panels[i]);
+done++;
+}catch(error){failed.push(i+1);pageStatus('第 '+(i+1)+' 格没画成：'+(error.userMessage||error.message),true);if(error.status===401||error.network)break;}
+if(lines[i])addBubble(rects[i],lines[i],i+1);
+canvas.renderAll();
+}
+if(typeof updateLayerPanel==='function')updateLayerPanel();
+if(pageJob.historyPaused&&typeof changeDoSaveHistory==='function'){changeDoSaveHistory();pageJob.historyPaused=false;}
+if(typeof saveStateByManual==='function')saveStateByManual();
+// register/refresh this page in the page bar now (otherwise it only appears once another page is made)
+if(typeof btmSaveProjectFile==='function'){try{await btmSaveProjectFile(null,false);}catch(e){/* thumbnail is best-effort */}}
+if(pageJob.cancel)pageStatus('已停止：画好 '+done+' 格。');
+else if(failed.length)pageStatus('画好 '+done+' 格；第 '+failed.join('、')+' 格没成功，可以用「自定义修改」重画那一格。',true);
+else{pageStatus('整页完成：'+done+' 格画面和对白气泡都是独立图层，可直接拖动或修改（Ctrl+Z 可撤销）。');markStep(3,true);}
+}finally{
+if(pageJob&&pageJob.historyPaused&&typeof changeDoSaveHistory==='function'){changeDoSaveHistory();if(typeof saveStateByManual==='function')saveStateByManual();}
+pageJob=null;
+if($('taskPageGo')){$('taskPageGo').disabled=false;$('taskPageCancel').hidden=true;}
+}
+}
 
 // ---------- progress ----------
 function tick(){
