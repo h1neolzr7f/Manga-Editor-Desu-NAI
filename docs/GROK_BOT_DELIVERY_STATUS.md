@@ -15,11 +15,11 @@
 | 4 撤销/重做/切页/保存/关闭/重开 | PASS（重开后两页 0 像素差，字幕仍可编辑，可继续撤销） | 12 | 原版仅能做部分 |
 | 5 未框选/HTTP 530/再试/超长提示词 | PASS（可读错误，0 次静默重试计费） | 6 | 无 |
 | 7 生成中切页 | PASS（结果不会贴到别页） | 14 | 无 |
-| 6 1024×700、1.5x 缩放 | PASS（无横向溢出，生成按钮可达） | 0 | PASS |
+| 6 1440×900 / 1280×800@1.5x / 1024×700，GPT 面板打开与收起 | PASS（无横向溢出；画布 100% 在视口内、中心点命中画布、与面板重叠 0px；收起后画布变大） | 0 | PASS（原版无 GPT 面板） |
 
 证据：`docs/acceptance/novice-20261010/{new,original}/`（截图 + report.json）；CI 作业 “Novice full task” 上传完整截图和 Playwright trace（artifact `manga-novice-task`）。
 
-本轮实测发现并修复的 bug：多图导入只进 1 页且顺序颠倒；默认 OCR 把竖排气泡识别成乱码（新增气泡优先 auto OCR）；替换字幕挤在旧字列/字号过大；状态栏底图尺寸过期；GPT 结果可被贴到别的页；自动框选遮住面板按钮。新增：套索、笔刷选区（只改圈内/涂到的像素）。
+本轮实测发现并修复的 bug：多图导入只进 1 页且顺序颠倒；默认 OCR 把竖排气泡识别成乱码（新增气泡优先 auto OCR）；替换字幕挤在旧字列/字号过大；状态栏底图尺寸过期；GPT 结果可被贴到别的页；GPT 面板遮住画布（改为停靠右侧 + “–”收起按钮，4cef9c0）；自动框选遮住面板按钮。新增：套索、笔刷选区（只改圈内/涂到的像素）。
 
 ## 5. 门槛
 - Linux：npm test、真实浏览器 GPT 验收 78 项、全功能 E2E 25 项、新手脚本 7 流程、OCR/LaMa 实模型：PASS；CI 全绿。
@@ -27,7 +27,9 @@
 - Windows：**实机未验收**（仅 CI 便携 ZIP 检查通过）。
 - 请所有者轮换旧 NovelAI Token。
 
+## 最新提交
+- 4cef9c0 GPT 面板停靠/收起；f1cae99 新手脚本断言画布可见。CI cc44c10：16/16 绿。
+
 ## 未完成
-- 真实 GPT 跑新手流程（等中转恢复：`NOVICE_REAL_GPT=1 GPT_TEST_ENV_FILE=… GPT_REAL_BASE_URL=…/v1 node scripts/novice-task-e2e.cjs`，约 2 次计费）。
+- 真实 GPT 跑新手流程（2026-10-10 11:05 单次 /v1/models 检查 HTTP 530，未跑；等中转恢复：`NOVICE_REAL_GPT=1 GPT_TEST_ENV_FILE=… GPT_REAL_BASE_URL=…/v1 node scripts/novice-task-e2e.cjs`，约 2 次计费）。
 - Windows 实机全流程；操作录屏（现有 Playwright trace 代替）。
-- GPT 面板在 1440 宽下仍遮住画布右半，可再做可停靠/折叠。
