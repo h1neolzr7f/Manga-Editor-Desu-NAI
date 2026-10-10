@@ -400,6 +400,45 @@ async function main() {
     return { pass: !!found && /未填 token/i.test(toast) && !/MISSING AUTHORIZATION/i.test(toast) && sent.length === 0, detail: { toast: toast.slice(0, 160), requests: sent } };
   });
 
+  await flow('11 字幕图层：点眼睛隐藏后导出不含字幕；刷新恢复后字幕仍可编辑', async () => {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort());
+    const ready = () => p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 });
+    await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' }); await ready();
+    await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {}); await p.keyboard.press('Escape');
+    if (!(await p.locator('#mangaSmartOpen').count())) { await ctx.close(); return { pass: false, detail: { unavailable: 'no smart captions' } }; }
+    await p.locator('#imageInput').setInputFiles(PAGES[0]);
+    await p.waitForFunction(() => canvas.getObjects().some(o => o.type === 'image'), null, { timeout: 30000 });
+    await p.locator('#mangaSmartOpen').click(); await p.locator('#mangaSmartDetect').click();
+    await p.waitForSelector('.manga-smart-item textarea', { timeout: 120000 });
+    await p.locator('.manga-smart-item textarea').first().fill('谢谢你'); await p.locator('#mangaSmartApply').click();
+    await p.waitForFunction(() => canvas.getObjects().some(o => o.mangaSmartText === 'editable-subtitle'), null, { timeout: 30000 });
+    await p.locator('#mangaSmartClose').click().catch(() => {}); await p.waitForTimeout(800);
+    const exportDark = () => p.evaluate(async () => { const t = canvas.getObjects().find(o => o.mangaSmartText === 'editable-subtitle'); t.setCoords(); const r = t.getBoundingRect(true, true);
+      const i = new Image(); i.src = ImageUtil.exportCanvasDataURL(1, 'png'); await i.decode();
+      const cv = document.createElement('canvas'); cv.width = i.width; cv.height = i.height; const x = cv.getContext('2d'); x.drawImage(i, 0, 0);
+      const d = x.getImageData(Math.round(r.left), Math.round(r.top), Math.max(1, Math.round(r.width)), Math.max(1, Math.round(r.height))).data; let dark = 0;
+      for (let k = 0; k < d.length; k += 4) if (d[k] + d[k + 1] + d[k + 2] < 300) dark++; return dark; });
+    const shown = await exportDark();
+    // the eye button of the top layer row (the caption) in the layer panel
+    const eye = p.locator('#layer-panel').getByText('visibility', { exact: true }).first();
+    await eye.click(); await p.waitForTimeout(500);
+    const hiddenState = await p.evaluate(() => canvas.getObjects().find(o => o.mangaSmartText === 'editable-subtitle').visible);
+    const hidden = await exportDark();
+    // after hiding, that row's icon reads 'visibility_off' (the next 'visibility' is a different layer)
+    await p.locator('#layer-panel').getByText('visibility_off', { exact: true }).first().click(); await p.waitForTimeout(500);
+    await p.evaluate(() => AutoSaveManager.save()); await p.waitForTimeout(500);
+    await p.reload({ waitUntil: 'domcontentloaded' }); await ready();
+    const dialog = await p.locator('#autoSaveRecoverBtn').waitFor({ timeout: 15000 }).then(() => true).catch(() => false);
+    if (dialog) await p.locator('#autoSaveRecoverBtn').click();
+    await p.waitForFunction(() => canvas.getObjects().some(o => o.mangaSmartText === 'editable-subtitle'), null, { timeout: 30000 }).catch(() => {});
+    const after = await p.evaluate(() => { const t = canvas.getObjects().find(o => o.mangaSmartText === 'editable-subtitle');
+      return t ? { type: t.type, text: t.text, editable: t.editable !== false, visible: t.visible !== false } : null; });
+    await ctx.close();
+    return { pass: shown > 200 && hiddenState === false && hidden === 0 && dialog && !!after && after.type === 'vertical-textbox' && after.text === '谢谢你' && after.editable && after.visible,
+      detail: { exportDarkShown: shown, eyeHid: hiddenState === false, exportDarkHidden: hidden, dialog, after } };
+  });
+
   await flow('7 生成中切页→结果不得贴到别的页→切回后再应用', async () => {
     if (!(await has('mangaGptOpen'))) return { pass: false, detail: { unavailable: 'no GPT region edit in this version' } };
     if (REAL_GPT) return { pass: true, detail: { skipped: 'mock-only timing test' } };

@@ -1,5 +1,5 @@
 {
-  "when": "2026-10-10T04:21:53.933Z",
+  "when": "2026-10-10T04:29:01.817Z",
   "gpt": "MOCK",
   "flows": [
     {
@@ -12,7 +12,7 @@
         "Import image",
         "page 1"
       ],
-      "seconds": 17.7,
+      "seconds": 17.6,
       "screenshot": "artifacts/novice/01-1_首次启动并导入_2_页漫画.png",
       "notes": [],
       "detail": {
@@ -40,7 +40,7 @@
         "生成",
         "应用为图层"
       ],
-      "seconds": 2.7,
+      "seconds": 2.9,
       "screenshot": "artifacts/novice/03-2_框选人物_参考图_描述_生成_预览_应用.png",
       "notes": [],
       "detail": {
@@ -72,7 +72,7 @@
         "识别",
         "应用字幕"
       ],
-      "seconds": 2.4,
+      "seconds": 2.3,
       "screenshot": "artifacts/novice/04-3_识别日文气泡_修正_去字_替换中文字幕.png",
       "notes": [
         "OCR: [\"ありがとう\"]"
@@ -117,7 +117,7 @@
         "page 1",
         "Ctrl+Z after reopen"
       ],
-      "seconds": 16.2,
+      "seconds": 15.9,
       "screenshot": "artifacts/novice/05-4_撤销_重做_切页_保存_关闭_重开.png",
       "notes": [],
       "detail": {
@@ -147,7 +147,7 @@
         "生成（失败）",
         "再试一次"
       ],
-      "seconds": 2.9,
+      "seconds": 2.8,
       "screenshot": "artifacts/novice/06-5_错误_API_失败后再试_超长提示词_空选区.png",
       "notes": [],
       "detail": {
@@ -164,7 +164,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 8.2,
+      "seconds": 7.7,
       "screenshot": "artifacts/novice/07-8_导入含坏文件的一批图_立刻刷新_恢复对话框找回全部页.png",
       "notes": [],
       "detail": {
@@ -184,7 +184,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 6.4,
+      "seconds": 6,
       "screenshot": "artifacts/novice/08-9_导入超大图_提示已自动缩小_中文_8_语言文案_.png",
       "notes": [],
       "detail": {
@@ -207,12 +207,33 @@
         "未填 Token",
         "生成 5 页样稿"
       ],
-      "seconds": 3.6,
+      "seconds": 3.5,
       "screenshot": "artifacts/novice/09-10_没填_NovelAI_Token_就点_生成_5_页样稿_看得懂的提示_不.png",
       "notes": [],
       "detail": {
         "toast": "5 页漫画样稿\n还没填 NOVELAI TOKEN：点顶部「未填 TOKEN」按钮，在「访问令牌」里粘贴后再试。没有 TOKEN 时不会发出请求，也不会扣 ANLAS。",
         "requests": []
+      }
+    },
+    {
+      "name": "11 字幕图层：点眼睛隐藏后导出不含字幕；刷新恢复后字幕仍可编辑",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 11.2,
+      "screenshot": "artifacts/novice/10-11_字幕图层_点眼睛隐藏后导出不含字幕_刷新恢复后字幕仍可编辑.png",
+      "notes": [],
+      "detail": {
+        "exportDarkShown": 1663,
+        "eyeHid": true,
+        "exportDarkHidden": 0,
+        "dialog": true,
+        "after": {
+          "type": "vertical-textbox",
+          "text": "谢谢你",
+          "editable": true,
+          "visible": true
+        }
       }
     },
     {
@@ -235,8 +256,8 @@
         "page 1",
         "应用（回到第 1 页）"
       ],
-      "seconds": 41.2,
-      "screenshot": "artifacts/novice/10-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
+      "seconds": 41.3,
+      "screenshot": "artifacts/novice/11-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
       "notes": [],
       "detail": {
         "applyEnabledOnPage2": true,
@@ -251,8 +272,8 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 16.8,
-      "screenshot": "artifacts/novice/11-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
+      "seconds": 17.8,
+      "screenshot": "artifacts/novice/12-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
       "notes": [],
       "detail": {
         "1440x900@1": {
