@@ -104,5 +104,17 @@ class SmartOcrTests(unittest.TestCase):
         self.assertEqual(results[0][1], 403)
         self.assertTrue(handler.close_connection)
 
+    def test_local_status_is_cheap_and_shaped(self):
+        import manga_smart_ocr as m
+        from unittest import mock
+        with mock.patch.object(m, "find_tesseract", return_value=None):
+            status = m.local_model_status()
+        self.assertTrue(status["ok"])
+        self.assertFalse(status["ocr"]["ready"])
+        self.assertEqual(status["ocr"]["languages"], [])
+        for key in ("lama", "mangaOcr"):
+            self.assertIsInstance(status[key]["ready"], bool)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

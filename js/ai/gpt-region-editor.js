@@ -6,6 +6,8 @@
   'use strict';
 
   const state = {
+    task: null,          // wizard task {id, preset} while a beginner task wizard drives the panel
+    appliedCount: 0,
     region: null,
     result: '',
     pending: false,
@@ -1079,7 +1081,8 @@
     }
     const apiKey = $g('mangaGptKey').value.trim().replace(/^Bearer\s+/i, '');
     // An empty input lets the localhost relay use optional GPT_IMAGE_API_KEY from .env.
-    const prompt = $g('mangaGptPrompt').value.trim();
+    // A wizard task adds its hidden preset instruction; the user's own words come after it.
+    const prompt = [state.task && state.task.preset, $g('mangaGptPrompt').value.trim()].filter(Boolean).join('\n').slice(0, 4000);
     if (!prompt) return feedback(tr('mgpt_prompt_required', '请先描述想要的画面修改。'), true);
     state.pending = true;
     state.result = '';
@@ -1268,6 +1271,7 @@
       state.result = '';
       state.region = null;
       if ($g('mangaGptExpand')) $g('mangaGptExpand').hidden = true;
+      state.appliedCount++;
       feedback(tr('mgpt_applied', '已添加独立图层：取回选区对应部分并等比例缩放（不拉伸、不裁头）。原图和画布尺寸未改变，可撤销。') +
         (alphaRestored ? tr('mgpt_alpha_restored', '已按原选区的透明区域恢复透明。') : '') +
         (linesKept ? tr('mgpt_lines_kept', '已保留选区内原有的分格线/边框。') : ''));
@@ -1385,6 +1389,7 @@
     ].join('');
     document.body.appendChild(panel);
     button.addEventListener('click', () => {
+      if (panel.hidden && state.task) exitTask();   // the pro entry always shows the full panel
       panel.hidden = !panel.hidden;
       if (!panel.hidden && panel.classList.contains('is-collapsed')) {
         // reopening from the toolbar always shows the full panel (a bare header looks empty to a beginner)
@@ -1401,7 +1406,7 @@
         feedback(tr('mgpt_drag_now', '直接在画布上拖动鼠标，框出要修改的区域（Esc 取消）。'));
       }
     });
-    $g('mangaGptClose').addEventListener('click', () => { panel.hidden = true; cancelSelection(); dock(); });
+    $g('mangaGptClose').addEventListener('click', () => { panel.hidden = true; cancelSelection(); exitTask(); dock(); });
     const collapseBtn = $g('mangaGptCollapse');
     if (collapseBtn) collapseBtn.addEventListener('click', () => {
       const collapsed = panel.classList.toggle('is-collapsed');
@@ -1462,7 +1467,56 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render);
   else render();
 
-  window.MangaGPTRegionEditor = { normalizeRegion, startSelection, cancelSelection, selectRegionForTextRemoval, selectRegionForPanel, prepareManualEdit, useCharacterCard, referenceSummary,
+  // ---- Beginner task wizard hooks. The task launcher owns all wizard text; this only switches modes.
+  const KEEP_IDS = ['mangaGptPrompt', 'mangaGptReferences', 'mangaGptGenerate', 'mangaGptCancel', 'mangaGptApply',
+    'mangaGptPreview', 'mangaGptCompare', 'mangaGptStatus', 'mangaGptExpand', 'mangaGptClose', 'mangaGptCollapse',
+    'mangaGptServiceSummary', 'mangaGptTaskHead'];
+  function tagAdvanced(el) {
+    const keeps = KEEP_IDS.some(id => el.id === id || el.querySelector('#' + id));
+    if (!keeps) { el.classList.add('mgpt-adv'); return; }
+    if (KEEP_IDS.includes(el.id)) return;
+    Array.from(el.children).forEach(tagAdvanced);
+  }
+  function openTask(task) {
+    const panel = $g('mangaGptPanel');
+    if (!panel) return false;
+    cancelSelection();
+    state.task = { id: task.id, preset: String(task.preset || '') };
+    panel.querySelectorAll('.mgpt-adv').forEach(e => e.classList.remove('mgpt-adv'));
+    Array.from(panel.children).forEach(tagAdvanced);
+    panel.classList.toggle('is-simple', task.simple !== false);
+    panel.dataset.task = task.id;
+    if ($g('mangaGptMode')) { $g('mangaGptMode').value = task.operation || 'edit'; $g('mangaGptMode').dispatchEvent(new Event('change')); }
+    if ($g('mangaGptShape')) { $g('mangaGptShape').value = 'rect'; $g('mangaGptShape').dispatchEvent(new Event('change')); }
+    $g('mangaGptPrompt').value = task.prompt || '';
+    if (task.placeholder) $g('mangaGptPrompt').placeholder = task.placeholder;
+    panel.hidden = false;
+    panel.classList.remove('is-collapsed');
+    dock();
+    if ((task.operation || 'edit') === 'edit' && !state.pending) startSelection({ auto: true });
+    return true;
+  }
+  function setSimple(on) {
+    const panel = $g('mangaGptPanel');
+    if (panel) panel.classList.toggle('is-simple', !!on);
+  }
+  function exitTask() {
+    const panel = $g('mangaGptPanel');
+    state.task = null;
+    if (!panel) return;
+    panel.classList.remove('is-simple');
+    delete panel.dataset.task;
+    panel.querySelectorAll('.mgpt-adv').forEach(e => e.classList.remove('mgpt-adv'));
+    const head = $g('mangaGptTaskHead');
+    if (head) head.remove();
+  }
+  function wizardState() {
+    return { task: state.task && state.task.id, region: !!state.region, references: state.references.length,
+      pending: !!state.pending, result: !!state.result, applied: state.appliedCount,
+      open: !!($g('mangaGptPanel') && !$g('mangaGptPanel').hidden) };
+  }
+
+  window.MangaGPTRegionEditor = { openTask, exitTask, setSimple, wizardState, normalizeRegion, startSelection, cancelSelection, selectRegionForTextRemoval, selectRegionForPanel, prepareManualEdit, useCharacterCard, referenceSummary,
     letterboxPlan, resultCropRect, letteringInsertIndex, isLettering, contextRect, featherPlan, featherAlpha, seamDiffs, applySeamMatch, estimateDrift, aspectMismatch,
     findCutBoxes, expandRegion, effectiveSize, bakePatch, panelLineAlpha, combineAlpha, tr,
     GPT_MODEL_PRESETS, GPT_DEFAULT_MODEL, modelPresetFor };

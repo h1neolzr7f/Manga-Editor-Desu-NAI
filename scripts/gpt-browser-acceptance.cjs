@@ -9,6 +9,26 @@ const net = require('node:net');
 const path = require('node:path');
 const { chromium } = require('playwright');
 
+// GPT URL / Key / Model live in 服务设置 (one place for every service): set them the way a user does.
+async function setGptService(pg, cfg) {
+  await pg.locator('#taskServiceSettings').click();
+  if (cfg.url !== undefined) await pg.locator('#mangaGptUrl').fill(cfg.url);
+  if (cfg.model !== undefined) await pg.locator('#mangaGptModel').fill(cfg.model);
+  if (cfg.key !== undefined) await pg.locator('#mangaGptKey').fill(cfg.key);
+  await pg.locator('#svcDone').click();
+}
+// These suites exercise the full (pro) UI; a user who picked 专业模式 keeps it across reloads.
+function proMode(browser) {
+  const make = browser.newContext.bind(browser);
+  browser.newContext = async (opts = {}) => {
+    const { beginner, ...rest } = opts;
+    const c = await make(rest);
+    if (!beginner) await c.addInitScript(() => { try { if (!localStorage.getItem('mnai.uiMode')) localStorage.setItem('mnai.uiMode', 'pro'); } catch (e) { /* storage blocked */ } });
+    return c;
+  };
+  return browser;
+}
+
 const ROOT = path.resolve(__dirname, '..');
 const SERVER = 'http://127.0.0.1:8000';
 const OUT = path.join(ROOT, 'artifacts', 'gpt-browser');
@@ -236,7 +256,7 @@ async function patchInfo(page) {
 
 async function run() {
   await startServer();
-  browser = await chromium.launch({ headless: true });
+  browser = proMode(await chromium.launch({ headless: true }));
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const page = await openEditor(context);
   const cdp = await context.newCDPSession(page);
@@ -265,7 +285,7 @@ async function run() {
   await installMockModel(page, mock);
   await buildScene(page);
   await page.locator('#mangaGptOpen').click();
-  await page.locator('#mangaGptKey').fill('fake-ephemeral-test-key');
+  await setGptService(page, { key: 'fake-ephemeral-test-key' });
   await page.locator('#mangaGptPrompt').fill('identity test');
 
   // 1. Selection interactions: left / right button, reversed drag, beyond-edge clamping, Esc.

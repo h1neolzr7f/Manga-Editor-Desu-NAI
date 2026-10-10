@@ -249,9 +249,33 @@ def _run_tesseract(executable, image, language, psm):
     return stdout
 
 
+def local_model_status():
+    """Cheap readiness check for the settings page: no model is loaded or downloaded."""
+    import importlib.util
+    executable = find_tesseract()
+    langs = []
+    if executable:
+        try:
+            out = subprocess.run([executable, "--list-langs"], capture_output=True, text=True, timeout=10).stdout
+            langs = [x.strip() for x in out.splitlines()[1:] if x.strip()]
+        except (OSError, subprocess.SubprocessError):
+            langs = []
+    def has(name):
+        try:
+            return importlib.util.find_spec(name) is not None
+        except (ImportError, ValueError):
+            return False
+    lama = any(has(m) for m in ("simple_lama_inpainting", "simple_lama")) and has("torch")
+    return {"ok": True,
+            "ocr": {"ready": bool(executable) and ("jpn" in langs or "jpn_vert" in langs), "tesseract": bool(executable),
+                    "languages": [x for x in langs if x in ("jpn", "jpn_vert", "eng", "chi_sim", "chi_tra")]},
+            "lama": {"ready": lama},
+            "mangaOcr": {"ready": has("manga_ocr")}}
+
+
 def handle_smart_ocr_post(handler):
     route = handler.path.split("?", 1)[0]
-    if route not in ("/manga-smart/ocr", "/manga-smart/manga-ocr", "/manga-smart/lama-inpaint"):
+    if route not in ("/manga-smart/ocr", "/manga-smart/manga-ocr", "/manga-smart/lama-inpaint", "/manga-smart/status"):
         return False
     if not _authorized_local_request(handler):
         handler.close_connection = True
@@ -267,7 +291,9 @@ def handle_smart_ocr_post(handler):
         if not isinstance(data, dict):
             raise SmartOcrError("OCR 请求必须是对象。")
         allow_download = data.get("allow_download") is True
-        if route == "/manga-smart/lama-inpaint":
+        if route == "/manga-smart/status":
+            result = local_model_status()
+        elif route == "/manga-smart/lama-inpaint":
             from manga_lama_inpaint import inpaint
             result = inpaint(data.get("image"), data.get("mask"), allow_download)
         elif route == "/manga-smart/manga-ocr":

@@ -200,5 +200,20 @@ class UpstreamHtmlErrorSuite(unittest.TestCase):
         self.assertEqual(proxy.readable_upstream_message(429, "a < b"), "a < b")
 
 
+    @mock.patch.object(proxy.socket, "getaddrinfo", side_effect=public_dns)
+    def test_models_listing_for_connection_test(self, _dns):
+        upstream = json.dumps({"data": [{"id": "gpt-image-2.5"}, {"id": "gpt-image-2"}, {"id": "gpt-4o"}]}).encode()
+        opener = FakeOpener(upstream)
+        with mock.patch.object(proxy, "_opener", return_value=opener):
+            result = proxy.list_models({"baseUrl": "https://relay.example.com/v1/"}, "fake-key-never-persisted")
+        self.assertEqual(opener.request.full_url, "https://relay.example.com/v1/models")
+        self.assertEqual(opener.request.get_method(), "GET")
+        self.assertEqual(result["imageModels"], ["gpt-image-2", "gpt-image-2.5"])
+        with self.assertRaises(proxy.ImageProxyError):
+            proxy.list_models({"baseUrl": "https://relay.example.com/v1"}, "")
+        with self.assertRaises(proxy.ImageProxyError):
+            proxy.list_models({"baseUrl": "http://127.0.0.1:9/v1"}, "k")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

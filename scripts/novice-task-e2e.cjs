@@ -12,6 +12,26 @@ const net = require('node:net');
 const path = require('node:path');
 const { chromium } = require('playwright');
 
+// GPT URL / Key / Model live in 服务设置 (one place for every service): set them the way a user does.
+async function setGptService(pg, cfg) {
+  await pg.locator('#taskServiceSettings').click();
+  if (cfg.url !== undefined) await pg.locator('#mangaGptUrl').fill(cfg.url);
+  if (cfg.model !== undefined) await pg.locator('#mangaGptModel').fill(cfg.model);
+  if (cfg.key !== undefined) await pg.locator('#mangaGptKey').fill(cfg.key);
+  await pg.locator('#svcDone').click();
+}
+// These suites exercise the full (pro) UI; a user who picked 专业模式 keeps it across reloads.
+function proMode(browser) {
+  const make = browser.newContext.bind(browser);
+  browser.newContext = async (opts = {}) => {
+    const { beginner, ...rest } = opts;
+    const c = await make(rest);
+    if (!beginner) await c.addInitScript(() => { try { if (!localStorage.getItem('mnai.uiMode')) localStorage.setItem('mnai.uiMode', 'pro'); } catch (e) { /* storage blocked */ } });
+    return c;
+  };
+  return browser;
+}
+
 const ROOT = path.resolve(__dirname, '..');
 const SERVER = 'http://127.0.0.1:8000';
 const OUT = path.join(ROOT, 'artifacts', process.env.NOVICE_BASELINE === '1' ? 'novice-baseline' : 'novice');
@@ -173,7 +193,7 @@ async function endSession(name) {
 
 async function main() {
   await startServer();
-  browser = await chromium.launch({ headless: true });
+  browser = proMode(await chromium.launch({ headless: true }));
   await newSession();
   const pageShots = {};
 
@@ -207,7 +227,7 @@ async function main() {
     if (!(await has('mangaGptOpen'))) return { pass: false, detail: { unavailable: 'no GPT region edit in this version' } };
     const before = await pageImage(); const size0 = await canvasSize();
     await op.click(page.locator('#mangaGptOpen'), 'GPT 改图');
-    if (REAL_GPT) { await page.locator('#mangaGptUrl').fill(BASE_URL); }
+    if (REAL_GPT) { await setGptService(page, { url: BASE_URL }); }
     const selecting = await page.evaluate(() => !!document.querySelector('.manga-gpt-selection'));
     if (!selecting) await op.click(page.locator('#mangaGptSelect'), '框选区域');
     await op.drag(await toScreen([200, 60]), await toScreen([780, 1000]), 'drag selection');
@@ -402,13 +422,15 @@ async function main() {
     await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
     await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 });
     await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {}); await p.keyboard.press('Escape');
-    await p.locator('#naiTokenBadge').click(); cur.ops.push('未填 Token');   // the badge opens NovelAI settings
+    await p.locator('#naiTokenBadge').click(); cur.ops.push('未填 Token');   // the badge opens 服务设置 → NovelAI
+    const tokenField = await p.locator('#serviceSettings #novelaiApiKey').isVisible().catch(() => false);
+    await p.locator('#svcNaiAdvanced').click(); cur.ops.push('NovelAI 高级设置');
     const btn = p.locator('#naiGenerateComicDemo:visible');
     const found = await btn.count();
     if (found) { await btn.click(); cur.ops.push('生成 5 页样稿'); }
     const toast = await p.waitForFunction(() => { const t = document.getElementById('sp-manga-toastContainer'); return t && /token/i.test(t.innerText) && t.innerText; }, null, { timeout: 15000 }).then(h => h.jsonValue()).catch(() => '');
     await ctx.close();
-    return { pass: !!found && /未填 token/i.test(toast) && !/MISSING AUTHORIZATION/i.test(toast) && sent.length === 0, detail: { toast: toast.slice(0, 160), requests: sent } };
+    return { pass: tokenField && !!found && /未填 token/i.test(toast) && !/MISSING AUTHORIZATION/i.test(toast) && sent.length === 0, detail: { toast: toast.slice(0, 160), requests: sent } };
   });
 
   await flow('11 字幕图层：点眼睛隐藏→导出不含字幕→Ctrl+Z 恢复显示；刷新恢复后字幕仍可编辑', async () => {
@@ -932,7 +954,7 @@ async function main() {
     for (const mode of ['cancel', 'reload', 'offline']) {
       const { ctx, p, errors } = await freshEditor();
       await p.locator('#mangaGptOpen').click();
-      await p.locator('#mangaGptUrl').fill(BASE_URL);
+      await setGptService(p, { url: BASE_URL });
       const selecting = await p.evaluate(() => !!document.querySelector('.manga-gpt-selection'));
       if (!selecting) await p.locator('#mangaGptSelect').click();
       const scr = (x, y) => p.evaluate(([x, y]) => { const v = canvas.viewportTransform, r = canvas.upperCanvasEl.getBoundingClientRect();
@@ -1069,6 +1091,220 @@ async function main() {
     }
     return { pass: Object.values(out).every(m => m.hasImage !== false && !m.hScroll && m.gptOpen !== false && m.file && m.generateReachable !== false &&
       (!m.open || [m.open, m.collapsed].every(c => c.overlapPx === 0 && c.visibleRatio >= 0.9 && c.centerOnCanvas && c.canvasW >= 200) && m.collapsed.canvasW >= m.open.canvasW - 2 && m.collapsed.reopenExpanded)), detail: out };
+  });
+
+  // ===== 新手任务 (beginner mode, the default for a new user): launcher + one wizard per task, mock GPT =====
+  const wizCalls = [];
+  const beginnerEditor = async (opts = {}) => {
+    const ctx = await browser.newContext({ beginner: true, viewport: { width: 1440, height: 900 }, locale: 'zh-CN', acceptDownloads: true });
+    const p = await ctx.newPage(); global.__novicePage = p; page = p;   // op.* drives this page
+    const errors = [];
+    p.on('pageerror', e => errors.push((p.__cur || '') + ' :: ' + e.message.slice(0, 160)));
+    p.on('console', m => { if (m.type() === 'error' && !/net::ERR_FAILED|Failed to load resource/.test(m.text())) errors.push((p.__cur || '') + ' :: ' + m.text().slice(0, 160)); });
+    p.on('dialog', d => d.accept());
+    await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort());
+    if (!REAL_GPT || opts.mock) await p.route('**/gpt-image-proxy', async route => {
+      const body = route.request().postDataJSON();
+      wizCalls.push({ op: body.operation, prompt: (body.prompt || '').slice(0, 80), refs: (body.references || []).length, model: body.model });
+      if (opts.fail) return route.fulfill({ status: opts.fail.status, contentType: 'application/json', body: JSON.stringify({ ok: false, error: opts.fail.error }) });
+      if (body.operation === 'models') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, models: ['gpt-4o', 'gpt-image-2', 'gpt-image-2.5'], imageModels: ['gpt-image-2', 'gpt-image-2.5'] }) });
+      const image = await p.evaluate(async ({ src, size }) => {
+        const [w, h] = (size === 'auto' ? '1024x1024' : size).split('x').map(Number); const c = document.createElement('canvas'); c.width = w; c.height = h;
+        const g = c.getContext('2d'); const i = new Image(); i.src = src; await i.decode(); g.drawImage(i, 0, 0, w, h);
+        g.fillStyle = 'rgba(60,120,230,.35)'; g.fillRect(w * .2, h * .2, w * .6, h * .6); return c.toDataURL('image/png');
+      }, { src: body.image, size: body.size });
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, image }) });
+    });
+    await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
+    await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0 && !!document.getElementById('taskBar'), null, { timeout: 60000 });
+    if (await p.locator('#tutorialSkipBtn').waitFor({ state: 'visible', timeout: 5000 }).then(() => true, () => false)) await p.keyboard.press('Escape');
+    await p.locator('.tutorial-overlay').waitFor({ state: 'detached', timeout: 3000 }).catch(() => {});
+    const homeShown = await p.locator('#taskHome').isVisible();
+    if (opts.noImport) return { ctx, p, errors, homeShown };
+    await op.files(p.locator('#taskHomeImport'), opts.pages || PAGES[0], '导入漫画页');
+    await p.waitForFunction(() => canvas.getObjects().some(o => o.type === 'image'), null, { timeout: 60000 });
+    await p.waitForTimeout(800);
+    return { ctx, p, errors, homeShown };
+  };
+  // screen rectangle of the page image (where a person drags)
+  const pageRect = p => p.evaluate(() => {
+    const img = canvas.getObjects().find(o => o.type === 'image'); const b = img.getBoundingRect(); const r = canvas.upperCanvasEl.getBoundingClientRect();
+    const sx = r.width / canvas.getWidth(), sy = r.height / canvas.getHeight();
+    return { x: r.left + b.left * sx, y: r.top + b.top * sy, w: b.width * sx, h: b.height * sy };
+  });
+  const dragBox = async (p, fx0, fy0, fx1, fy1, label) => {
+    const r = await pageRect(p);
+    await op.drag({ x: r.x + r.w * fx0, y: r.y + r.h * fy0 }, { x: r.x + r.w * fx1, y: r.y + r.h * fy1 }, label);
+  };
+  const steps = p => p.evaluate(() => Array.from(document.querySelectorAll('#mangaGptTaskHead li')).map(li => li.classList.contains('is-done') ? 'done' : li.classList.contains('is-current') ? 'cur' : '-'));
+  const shown = (p, sel) => p.locator(sel).isVisible().catch(() => false);
+  const gptWizard = async (taskId, extra) => {
+    const { ctx, p, errors } = await beginnerEditor();
+    try {
+      const before = wizCalls.length;
+      await op.click(p.locator('#taskBtn-' + taskId), '任务按钮');
+      await p.waitForSelector('#mangaGptTaskHead', { timeout: 5000 });
+      const simple = { sizeHidden: !(await shown(p, '#mangaGptSize')), modeHidden: !(await shown(p, '#mangaGptMode')), keyHidden: !(await shown(p, '#mangaGptKey')) };
+      const step0 = await steps(p);
+      await dragBox(p, 0.25, 0.08, 0.7, 0.55, '框选');
+      const ex = extra ? await extra(p) : {};
+      await op.click(p.locator('#mangaGptGenerate'), '生成预览');
+      await p.waitForFunction(() => !document.getElementById('mangaGptCompare').hidden, null, { timeout: 30000 });
+      const n0 = await p.evaluate(() => canvas.getObjects().length);
+      await op.click(p.locator('#mangaGptApply'), '应用');
+      await p.waitForFunction(n => canvas.getObjects().length > n, n0, { timeout: 15000 });
+      await p.waitForTimeout(600);
+      const stepEnd = await steps(p);
+      await p.locator('#taskAdvanced').check(); await p.waitForTimeout(200);
+      const advancedShowsSize = await shown(p, '#mangaGptSize');
+      await snap('wizard-' + taskId);
+      const calls = wizCalls.slice(before);
+      return { simple, step0, stepEnd, advancedShowsSize, calls, errors, ...ex };
+    } finally { await ctx.close(); }
+  };
+
+  await flow('23 新手首页：首次打开就是任务入口；导入后首页让位；专业模式可切换且刷新后保持', async () => {
+    const { ctx, p, errors, homeShown } = await beginnerEditor();
+    try {
+      const afterImportHidden = !(await shown(p, '#taskHome'));
+      const tasks = await p.locator('#taskBar .task-btn:visible').count();
+      const proEntriesHidden = !(await shown(p, '#mangaGptOpen')) && !(await shown(p, '#mangaSmartOpen'));
+      await op.click(p.locator('#uiModeToggle'), '专业模式');
+      const pro = { gptOpen: await shown(p, '#mangaGptOpen'), smartOpen: await shown(p, '#mangaSmartOpen'), tasksHidden: (await p.locator('#taskBar .task-btn:visible').count()) === 0 };
+      await p.reload({ waitUntil: 'domcontentloaded' }); await p.waitForFunction(() => !!document.getElementById('taskBar'), null, { timeout: 60000 });
+      await p.keyboard.press('Escape');
+      const proAfterReload = await p.evaluate(() => document.body.classList.contains('ui-pro'));
+      await op.click(p.locator('#uiModeToggle'), '新手模式');
+      const backToBeginner = (await p.locator('#taskBar .task-btn:visible').count()) === 6;
+      return { pass: homeShown && afterImportHidden && tasks === 6 && proEntriesHidden && pro.gptOpen && pro.smartOpen && pro.tasksHidden && proAfterReload && backToBeginner && !errors.length,
+        detail: { homeShown, afterImportHidden, tasks, proEntriesHidden, pro, proAfterReload, backToBeginner, errors } };
+    } finally { await ctx.close(); }
+  });
+
+  await flow('24 换角色向导：框选→上传参考图→生成预览→应用（预设提示词，参数隐藏，高级可展开）', async () => {
+    const r = await gptWizard('swap', async p => {
+      await op.files(p.locator('#mangaGptReferences'), REFERENCE, '上传参考图');
+      await p.waitForTimeout(500);
+      return { stepAfterRef: await steps(p) };
+    });
+    const call = r.calls.find(c => c.op === 'edit') || {};
+    return { pass: r.simple.sizeHidden && r.simple.modeHidden && r.simple.keyHidden && r.step0[0] === 'cur' && r.stepAfterRef[2] === 'cur' &&
+      r.stepEnd.every(x => x === 'done') && r.advancedShowsSize && /^Replace the character/.test(call.prompt || '') && call.refs === 1 && call.model === 'gpt-image-2.5' && !r.errors.length, detail: r };
+  });
+
+  await flow('25 修瑕疵/去杂物向导：框选→生成预览→应用（去除预设，无需写字）', async () => {
+    const r = await gptWizard('fix');
+    const call = r.calls.find(c => c.op === 'edit') || {};
+    return { pass: r.simple.sizeHidden && r.stepEnd.every(x => x === 'done') && /^Remove the unwanted/.test(call.prompt || '') && call.refs === 0 && !r.errors.length, detail: r };
+  });
+
+  await flow('26 自定义修改向导：没写描述就点生成→提示要写；写一句→生成→应用', async () => {
+    const r = await gptWizard('custom', async p => {
+      await op.click(p.locator('#mangaGptGenerate'), '直接生成（未写描述）');
+      await p.waitForTimeout(300);
+      const empty = { status: await p.locator('#mangaGptStatus').innerText(), error: await p.locator('#mangaGptStatus').getAttribute('data-error') };
+      await p.locator('#mangaGptPrompt').fill('把背景改成黄昏的天空'); cur.ops.push('写描述');
+      await p.waitForTimeout(500);
+      return { empty, stepAfterPrompt: await steps(p) };
+    });
+    const call = r.calls.find(c => c.op === 'edit') || {};
+    return { pass: r.empty.error === 'true' && /描述/.test(r.empty.status) && r.stepAfterPrompt[2] === 'cur' && r.stepEnd.every(x => x === 'done') && call.prompt === '把背景改成黄昏的天空' && !r.errors.length, detail: r };
+  });
+
+  await flow('27 改字幕向导：检测本页文字→改台词→应用（语言/精修等参数隐藏，高级可展开）', async () => {
+    const { ctx, p, errors } = await beginnerEditor();
+    try {
+      await op.click(p.locator('#taskBtn-caption'), '改字幕');
+      await p.waitForSelector('#mangaGptTaskHead', { timeout: 5000 });
+      const simple = { langHidden: !(await shown(p, '#mangaSmartLanguage')), detect: await shown(p, '#mangaSmartDetect') };
+      await op.click(p.locator('#mangaSmartDetect'), '检测本页文字');
+      await p.waitForFunction(() => document.querySelectorAll('.manga-smart-item textarea').length > 0, null, { timeout: 60000 });
+      await p.waitForTimeout(500);
+      const stepDetected = await steps(p);
+      const advHidden = !(await p.locator('.manga-smart-item [data-adv]').first().isVisible());
+      await p.locator('.manga-smart-item textarea').first().fill('谢谢你'); cur.ops.push('改台词');
+      const n0 = await p.evaluate(() => canvas.getObjects().length);
+      await op.click(p.locator('#mangaSmartApply'), '应用');
+      await p.waitForFunction(n => canvas.getObjects().length > n, n0, { timeout: 30000 });
+      await p.waitForTimeout(600);
+      const stepEnd = await steps(p);
+      const text = await p.evaluate(() => canvas.getObjects().filter(o => /text/i.test(o.type)).map(o => o.text).join('|'));
+      await p.locator('#taskAdvanced').check(); await p.waitForTimeout(200);
+      const advancedShowsLang = await shown(p, '#mangaSmartLanguage');
+      await snap('wizard-caption');
+      return { pass: simple.langHidden && simple.detect && stepDetected[1] === 'cur' && advHidden && stepEnd.every(x => x === 'done') && /谢谢你/.test(text) && advancedShowsLang && !errors.length,
+        detail: { simple, stepDetected, advHidden, stepEnd, text, advancedShowsLang, errors } };
+    } finally { await ctx.close(); }
+  });
+
+  await flow('28 分层向导：开始框选→拖框→新图层（原图不变，可撤销）', async () => {
+    const { ctx, p, errors } = await beginnerEditor();
+    try {
+      await op.click(p.locator('#taskBtn-layer'), '分层');
+      await op.click(p.locator('#taskLayerPick'), '开始框选');
+      const before = await p.evaluate(() => ({ n: canvas.getObjects().length, src: canvas.getObjects().find(o => o.type === 'image').getSrc().length }));
+      await dragBox(p, 0.2, 0.1, 0.75, 0.6, '框选');
+      await p.waitForFunction(n => canvas.getObjects().length > n, before.n, { timeout: 30000 });
+      await p.waitForTimeout(500);
+      const after = await p.evaluate(() => ({ n: canvas.getObjects().length, src: canvas.getObjects().find(o => o.type === 'image').getSrc().length }));
+      const status = await p.locator('#taskLayerStatus').innerText();
+      const stepEnd = await steps(p);
+      await snap('wizard-layer');
+      await op.key('Control+z', '撤销');
+      await p.waitForTimeout(800);
+      const undone = await p.evaluate(() => canvas.getObjects().length);
+      return { pass: after.n === before.n + 1 && after.src === before.src && /完成/.test(status) && stepEnd.every(x => x === 'done') && undone === before.n && !errors.length,
+        detail: { before, after, status, stepEnd, undone, errors } };
+    } finally { await ctx.close(); }
+  });
+
+  await flow('29 AI 生图向导（未填 Token）：提示去填 Token → 直接打开服务设置的 NovelAI 一栏，不发任何请求', async () => {
+    const { ctx, p, errors } = await beginnerEditor();
+    const naiCalls = []; p.on('request', r => { if (/nai-proxy|novelai/.test(r.url())) naiCalls.push(r.url()); });
+    try {
+      await op.click(p.locator('#taskBtn-nai'), 'AI 生图');
+      const text = await p.locator('#taskWizardBody').innerText();
+      await op.click(p.locator('#taskNaiSettings'), '去填 Token');
+      const tokenVisible = await shown(p, '#serviceSettings #novelaiApiKey');
+      const focused = await p.evaluate(() => document.activeElement && document.activeElement.id);
+      await op.key('Escape', '关闭设置');
+      const closed = !(await shown(p, '#serviceSettings'));
+      return { pass: /Token/.test(text) && tokenVisible && focused === 'novelaiApiKey' && closed && naiCalls.length === 0 && !errors.length, detail: { text, tokenVisible, focused, closed, naiCalls, errors } };
+    } finally { await ctx.close(); }
+  });
+
+  await flow('30 服务设置：一个页面管所有服务；测试连接（GPT/本机）；错误统一可读；地址刷新后保留；Esc 关闭', async () => {
+    const { ctx, p, errors } = await beginnerEditor({ noImport: true, mock: true });
+    try {
+      await op.click(p.locator('#taskServiceSettings'), '服务设置');
+      const fields = await p.evaluate(() => ['mangaGptUrl', 'mangaGptKey', 'mangaGptModel', 'novelaiApiKey'].map(id => !!document.getElementById(id).closest('#serviceSettings')));
+      const panelDupes = await p.evaluate(() => ['mangaGptUrl', 'mangaGptKey', 'novelaiApiKey'].map(id => document.querySelectorAll('#' + id).length));
+      const keyMasked = await p.locator('#mangaGptKey').getAttribute('type');
+      await p.locator('#mangaGptUrl').fill('https://relay.example.com/v1'); cur.ops.push('填地址');
+      await op.click(p.locator('#svcGptTest'), 'GPT 测试连接');
+      await p.waitForFunction(() => !/正在/.test(document.getElementById('svcGptStatus').textContent), null, { timeout: 15000 });
+      const gptOk = await p.locator('#svcGptStatus').innerText();
+      await op.click(p.locator('#svcLocalTest'), '本机检查状态');
+      await p.waitForFunction(() => !/正在|未检查/.test(document.getElementById('svcLocalStatus').textContent), null, { timeout: 30000 });
+      const local = await p.locator('#svcLocalStatus').innerText();
+      await op.click(p.locator('#svcNaiTest'), 'NovelAI 测试连接（未填）');
+      const nai = await p.locator('#svcNaiStatus').innerText();
+      await snap('service-settings');
+      await op.key('Escape', '关闭');
+      const closed = !(await shown(p, '#serviceSettings'));
+      await p.reload({ waitUntil: 'domcontentloaded' }); await p.waitForFunction(() => !!document.getElementById('serviceSettings'), null, { timeout: 60000 });
+      const urlKept = await p.evaluate(() => document.getElementById('mangaGptUrl').value);
+      await ctx.close();
+      // the same request layer turns an upstream 401 into one readable sentence
+      const f = await beginnerEditor({ noImport: true, mock: true, fail: { status: 502, error: '上游 HTTP 401：Invalid API key' } });
+      await f.p.locator('#taskServiceSettings').click(); await f.p.locator('#svcGptTest').click();
+      await f.p.waitForFunction(() => !/正在|未测试/.test(document.getElementById('svcGptStatus').textContent), null, { timeout: 15000 });
+      const gptErr = await f.p.locator('#svcGptStatus').innerText(); const errCls = await f.p.locator('#svcGptStatus').getAttribute('class');
+      await f.ctx.close();
+      return { pass: fields.every(Boolean) && panelDupes.every(n => n === 1) && keyMasked === 'password' && /已连接/.test(gptOk) && /文字识别 ✓/.test(local) && /还没填/.test(nai) && closed &&
+        urlKept === 'https://relay.example.com/v1' && /Invalid API key/.test(gptErr) && /is-error/.test(errCls) && !/undefined|\[object/.test(gptErr) && !errors.length,
+        detail: { fields, panelDupes, keyMasked, gptOk, local, nai, closed, urlKept, gptErr, errors } };
+    } finally { await ctx.close().catch(() => {}); }
   });
 
   await endSession('final');

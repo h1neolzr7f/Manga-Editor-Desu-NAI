@@ -289,7 +289,13 @@ def request_image_edit(payload, key):
         if len(raw) > MAX_RESULT_BYTES:
             raise ImageProxyError("上游响应超过 20MB。", 502)
         return _extract_image(raw, opener)
-    except urllib.error.HTTPError as exc:
+    except (urllib.error.URLError, TimeoutError) as exc:
+        _raise_upstream(exc, key, timeout)
+
+
+def _raise_upstream(exc, key, timeout):
+    """One mapping from upstream failures to readable Chinese errors (image calls and 测试连接)."""
+    if isinstance(exc, urllib.error.HTTPError):
         raw = exc.read(2048).decode("utf-8", "replace")
         try:
             parsed_error = json.loads(raw)
@@ -298,14 +304,36 @@ def request_image_edit(payload, key):
         # Gateways return {"error":{...}}, {"error":"..."}, lists or plain text.
         error = parsed_error.get("error", raw) if isinstance(parsed_error, dict) else raw
         message = error.get("message", raw) if isinstance(error, dict) else str(error)
-        message = readable_upstream_message(exc.code, str(message)).replace(key, "[redacted]")[:300]
-        raise ImageProxyError("上游 HTTP " + str(exc.code) + "：" + message, 502) from exc
-    except TimeoutError as exc:
+        message = readable_upstream_message(exc.code, str(message))
+        if key:
+            message = message.replace(key, "[redacted]")
+        raise ImageProxyError("上游 HTTP " + str(exc.code) + "：" + message[:300], 502) from exc
+    if isinstance(exc, TimeoutError) or isinstance(getattr(exc, "reason", None), TimeoutError):
         raise ImageProxyError("上游图像接口超时（" + str(timeout) + " 秒），可稍后重试或调大 GPT_IMAGE_TIMEOUT。", 504) from exc
-    except urllib.error.URLError as exc:
-        if isinstance(exc.reason, TimeoutError):
-            raise ImageProxyError("上游图像接口超时（" + str(timeout) + " 秒），可稍后重试或调大 GPT_IMAGE_TIMEOUT。", 504) from exc
-        raise ImageProxyError("无法连接图像接口，请检查地址、网络代理与模型支持情况。", 502) from exc
+    raise ImageProxyError("无法连接图像接口，请检查地址、网络代理与模型支持情况。", 502) from exc
+
+
+def list_models(payload, key):
+    """测试连接: GET <base>/models with the same URL guard and key rules as image calls.
+    Returns every model id plus the image-capable ones (no image is generated, nothing is billed)."""
+    if not key:
+        raise ImageProxyError("请填写 GPT 图像接口密钥。", 401)
+    images_url = _endpoint(payload.get("baseUrl"), "generate")
+    models_url = images_url[:-len("/images/generations")] + "/models"
+    request = urllib.request.Request(models_url, headers={
+        "Authorization": "Bearer " + key, "Accept": "application/json", "User-Agent": UPSTREAM_USER_AGENT}, method="GET")
+    timeout = min(_upstream_timeout(), 30)
+    try:
+        with _opener().open(request, timeout=timeout) as response:
+            raw = response.read(2_000_000)
+    except (urllib.error.URLError, TimeoutError) as exc:
+        _raise_upstream(exc, key, timeout)
+    try:
+        data = json.loads(raw.decode("utf-8-sig") or "{}")
+    except ValueError as exc:
+        raise ImageProxyError("接口返回的不是 JSON，请检查 API 地址是否以 /v1 结尾。", 502) from exc
+    ids = sorted({str(item.get("id")) for item in (data.get("data") or []) if isinstance(item, dict) and item.get("id")})
+    return {"ok": True, "models": ids[:500], "imageModels": [m for m in ids if "image" in m.lower()][:50]}
 
 
 def readable_upstream_message(status, message):
@@ -383,7 +411,7 @@ def handle_gpt_image_post(handler):
         if header and not header.lower().startswith("bearer "):
             raise ImageProxyError("Authorization 必须使用 Bearer Key。", 401)
         key = header[7:].strip() if header else _env_key_for_destination(payload)
-        result = request_image_edit(payload, key)
+        result = list_models(payload, key) if payload.get("operation") == "models" else request_image_edit(payload, key)
         handler._send_json(result)
     except ImageProxyError as exc:
         handler._send_json({"ok": False, "error": str(exc)}, exc.status)

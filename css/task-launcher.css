@@ -1,0 +1,64 @@
+/* 新手任务: task bar, home card, wizard heads/cards and 服务设置. Uses only css/ui-theme.css tokens. */
+.task-bar { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--ui-space-1); margin-right: var(--ui-space-2); }
+.task-bar .ui-btn { min-height: 28px; padding: 2px 10px; }
+.task-bar .material-icons { font-size: 17px; }
+.task-btn.is-active { background: var(--ui-accent); border-color: var(--ui-accent); color: var(--ui-accent-text); }
+body.ui-pro .task-btn, body.ui-pro #taskHome { display: none !important; }
+/* beginner mode: the task bar replaces the pro-only entry buttons in the canvas header */
+body.ui-beginner #mangaGptOpen, body.ui-beginner #mangaSmartOpen,
+body.ui-beginner #mangaPageOpen, body.ui-beginner #mangaCharacterOpen { display: none !important; }
+
+.task-home {
+  position: absolute; z-index: 30; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: min(640px, calc(100% - 40px)); padding: var(--ui-space-4) var(--ui-space-4) var(--ui-space-3);
+}
+.task-home[hidden] { display: none; }
+.task-home h2 { margin: 0 0 var(--ui-space-1); font: var(--ui-font-title); font-size: 20px; }
+.task-home .task-import { width: 100%; min-height: 42px; font-size: 15px; margin: var(--ui-space-2) 0 var(--ui-space-3); }
+.task-home-close { position: absolute; top: 8px; right: 8px; min-height: 26px; padding: 0 8px; }
+.task-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--ui-space-2); }
+.task-tile {
+  display: grid; gap: 2px; justify-items: start; text-align: left; padding: var(--ui-space-3);
+  border-radius: var(--ui-radius); border: 1px solid var(--ui-border); background: var(--ui-surface-2);
+  color: var(--ui-text); font: var(--ui-font); cursor: pointer;
+}
+.task-tile:hover, .task-tile:focus-visible { border-color: var(--ui-accent); outline: none; }
+.task-tile .material-icons { color: var(--ui-accent); font-size: 24px; }
+.task-tile strong { font-size: 15px; }
+.task-tile span { color: var(--ui-text-muted); font-size: 12px; }
+
+.task-head { border: 1px solid var(--ui-border); border-radius: var(--ui-radius); background: var(--ui-surface-2); padding: var(--ui-space-2) var(--ui-space-3); margin: var(--ui-space-2) 0; }
+.task-head-top { display: flex; align-items: baseline; justify-content: space-between; }
+.task-head-top strong { font: var(--ui-font-title); }
+.task-steps { margin: var(--ui-space-1) 0; padding-left: 20px; }
+.task-steps li { color: var(--ui-text-muted); margin: 2px 0; }
+.task-steps li.is-current { color: var(--ui-text); font-weight: 600; }
+.task-steps li.is-current::marker { color: var(--ui-accent); }
+.task-steps li.is-done { color: var(--ui-ok); }
+.task-steps li.is-done::after { content: " ✓"; }
+.task-head-row { display: flex; align-items: center; justify-content: space-between; gap: var(--ui-space-2); }
+.task-adv { display: inline-flex; align-items: center; gap: 4px; color: var(--ui-text-muted); cursor: pointer; }
+
+/* simple (wizard) views of existing panels: preset parameters hidden until 高级 */
+.manga-gpt-panel.is-simple .mgpt-adv { display: none !important; }
+.manga-smart-panel.is-simple [data-adv] { display: none !important; }
+
+.task-card { position: fixed; z-index: 12002; top: 92px; right: 18px; width: min(360px, calc(100vw - 28px)); padding: var(--ui-space-3); }
+.task-card > header { display: flex; justify-content: space-between; align-items: center; }
+.task-card > header strong { font: var(--ui-font-title); font-size: 16px; }
+.task-card-body p { margin: var(--ui-space-2) 0; }
+.task-card-body .is-error { color: var(--ui-danger); }
+.task-pick { z-index: 12003; cursor: crosshair; background: rgba(0,0,0,.08); }
+.task-pick-box { position: absolute; display: none; border: 2px dashed var(--ui-accent); background: rgba(194,65,58,.12); pointer-events: none; }
+
+.svc-modal { width: min(760px, calc(100vw - 32px)); }
+.svc-section { border-top: 1px solid var(--ui-border); padding: var(--ui-space-3) 0; }
+.svc-section h3 { margin: 0; font: var(--ui-font-title); }
+.svc-section p { margin: 2px 0 var(--ui-space-1); }
+.svc-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ui-space-2); margin-top: var(--ui-space-1); }
+.svc-row select, .svc-row input[type=text] { flex: 1 1 180px; }
+.svc-modal .ui-badge { max-width: 100%; white-space: normal; }
+.svc-foot { display: flex; justify-content: flex-end; border-top: 1px solid var(--ui-border); padding-top: var(--ui-space-3); }
+.svc-summary { display: flex; align-items: center; justify-content: space-between; gap: var(--ui-space-2); font-size: 12px; color: var(--ui-text-muted); margin: 4px 0 6px; }
+.svc-summary .ui-btn { min-height: 24px; padding: 0 8px; font-size: 12px; }
+@media (max-width: 900px) { .task-grid { grid-template-columns: repeat(2, 1fr); } }

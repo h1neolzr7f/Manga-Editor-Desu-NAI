@@ -12,6 +12,26 @@ const net = require('node:net');
 const path = require('node:path');
 const { chromium } = require('playwright');
 
+// GPT URL / Key / Model live in 服务设置 (one place for every service): set them the way a user does.
+async function setGptService(pg, cfg) {
+  await pg.locator('#taskServiceSettings').click();
+  if (cfg.url !== undefined) await pg.locator('#mangaGptUrl').fill(cfg.url);
+  if (cfg.model !== undefined) await pg.locator('#mangaGptModel').fill(cfg.model);
+  if (cfg.key !== undefined) await pg.locator('#mangaGptKey').fill(cfg.key);
+  await pg.locator('#svcDone').click();
+}
+// These suites exercise the full (pro) UI; a user who picked 专业模式 keeps it across reloads.
+function proMode(browser) {
+  const make = browser.newContext.bind(browser);
+  browser.newContext = async (opts = {}) => {
+    const { beginner, ...rest } = opts;
+    const c = await make(rest);
+    if (!beginner) await c.addInitScript(() => { try { if (!localStorage.getItem('mnai.uiMode')) localStorage.setItem('mnai.uiMode', 'pro'); } catch (e) { /* storage blocked */ } });
+    return c;
+  };
+  return browser;
+}
+
 const ROOT = path.resolve(__dirname, '..');
 const SERVER = 'http://127.0.0.1:8000';
 const OUT = path.join(ROOT, 'artifacts', 'e2e');
@@ -87,7 +107,7 @@ async function main() {
     try { if ((await fetch(SERVER + '/index.html')).ok) break; } catch {}
     if (i > 150) throw new Error('server not ready'); await new Promise(r => setTimeout(r, 200));
   }
-  browser = await chromium.launch({ headless: true });
+  browser = proMode(await chromium.launch({ headless: true }));
   const context = await browser.newContext({ viewport: { width: 1600, height: 1000 }, acceptDownloads: true });
   page = await context.newPage();
   page.on('dialog', d => { dialogs.push(d.type() + ': ' + d.message().slice(0, 120)); d.accept(); });
@@ -367,9 +387,7 @@ async function main() {
   await step('GPT region edit: character swap with the character card (' + gptKind + ')', gptKind, async () => {
     await page.evaluate(() => { document.getElementById('mangaGptPanel').hidden = false; });
     await page.locator('#mangaGptMode').selectOption('edit');
-    await page.locator('#mangaGptUrl').fill(BASE_URL);
-    await page.locator('#mangaGptModel').fill(MODEL);
-    await page.locator('#mangaGptKey').fill('');
+    await setGptService(page, { url: BASE_URL, model: MODEL, key: '' });
     const before = await pageImage();
     await page.locator('#mangaGptSelect').click();
     const a = await toCanvasPoint([top.left + top.width * 0.2, Math.max(2, top.top - 8)]);
@@ -413,13 +431,12 @@ async function main() {
 
   await step('GPT error is readable (unreachable API address, no charge)', 'UI', async () => {
     await page.locator('#mangaGptMode').selectOption('generate');
-    await page.locator('#mangaGptUrl').fill('http://127.0.0.1:9/v1');
-    await page.locator('#mangaGptKey').fill('sk-test-not-a-real-key');
+    await setGptService(page, { url: 'http://127.0.0.1:9/v1', key: 'sk-test-not-a-real-key' });
     await page.locator('#mangaGptGenerate').click();
     await page.waitForFunction(() => !document.getElementById('mangaGptGenerate').disabled, null, { timeout: 60000 });
     const status = await page.locator('#mangaGptStatus').textContent();
     const isError = await page.locator('#mangaGptStatus').getAttribute('data-error');
-    await page.locator('#mangaGptKey').fill(''); await page.locator('#mangaGptUrl').fill(BASE_URL);
+    await setGptService(page, { url: BASE_URL, key: '' });
     return { pass: isError === 'true' && /[\u4e00-\u9fff]/.test(status) && !/undefined|\[object|TypeError|Traceback/.test(status), detail: { isError, status: status.slice(0, 200) } };
   });
 

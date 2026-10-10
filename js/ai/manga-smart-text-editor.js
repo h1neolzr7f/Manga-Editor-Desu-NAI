@@ -149,12 +149,14 @@
         $('mangaSmartTextPanel').hidden = true;
         message('已把区域送到 GPT 改图。请在 GPT 面板确认提示词后手动生成，完成后重新检测字幕。');
       });
+      ai.dataset.adv = '1';
       first.append(ai);
       const refine=make('button','Manga OCR 精修','manga-smart-small');
       refine.type='button';
       refine.title='仅重新识别此候选文字区域，不直接修改画布。需本机安装 manga-ocr；首次点击可能下载约 400MB 模型。';
       refine.disabled=state.busy;
       refine.addEventListener('click',()=>refineWithMangaOCR(draft,i));
+      refine.dataset.adv = '1';
       first.append(refine);
       const lama=make('button','本地 LaMa 去字','manga-smart-small');
       lama.type='button';
@@ -180,6 +182,7 @@
           }
         });
       });
+      lama.dataset.adv = '1';
       first.append(lama);
       const input = document.createElement('textarea');
       input.rows = 2;
@@ -200,6 +203,7 @@
       verticalCheck.addEventListener('change', () => { draft.vertical = verticalCheck.checked; });
       vertical.append(verticalCheck, document.createTextNode('竖排'));
       choices.append(erase, vertical);
+      choices.dataset.adv = '1';
       row.append(first, input, choices);
       list.appendChild(row);
     });
@@ -455,6 +459,7 @@
       if (typeof saveStateByManual === 'function') saveStateByManual();
       if (typeof updateLayerPanel === 'function') updateLayerPanel();
       state.drafts = [];
+      state.appliedCount = (state.appliedCount || 0) + 1;
       state.sourceImage = '';
       renderDrafts();
       if (window.MangaPageStructureUI) window.MangaPageStructureUI.invalidate(
@@ -483,8 +488,8 @@
     panel.hidden = true;
     panel.innerHTML = [
       '<header><strong>智能漫画字幕</strong><button id="mangaSmartClose" type="button">×</button></header>',
-      '<p>本地 OCR → 文字修改 → 原生图层。不会消耗 GPT 生图额度。</p>',
-      '<label>识别语言 <select id="mangaSmartLanguage" title="自动：先找白色对话气泡，竖排和横排都试一遍，取更可信的结果。识别不准时再换成具体语言。"><option value="auto" selected>自动（推荐：日漫气泡，竖排/横排）</option><option value="jpn+eng">日语＋英语（横排）</option>',
+      '<p data-adv="1">本地 OCR → 文字修改 → 原生图层。不会消耗 GPT 生图额度。</p>',
+      '<label data-adv="1">识别语言 <select id="mangaSmartLanguage" title="自动：先找白色对话气泡，竖排和横排都试一遍，取更可信的结果。识别不准时再换成具体语言。"><option value="auto" selected>自动（推荐：日漫气泡，竖排/横排）</option><option value="jpn+eng">日语＋英语（横排）</option>',
       '<option value="jpn_vert+eng">日语竖排＋英语</option><option value="eng">英语</option>',
       '<option value="chi_sim+eng">简体中文＋英语</option><option value="chi_tra+eng">繁体中文＋英语</option>',
       '<option value="kor+eng">韩语＋英语</option></select></label>',
@@ -493,13 +498,13 @@
       '<button id="mangaSmartCancel" type="button" hidden>取消识别</button></div>',
       '<div id="mangaSmartRegions" class="manga-smart-regions"></div>',
       '<button id="mangaSmartApply" type="button" disabled>应用为可编辑图层</button>',
-      '<p class="manga-smart-hint">自动去字仅适合纯色气泡。复杂背景请先用 GPT 改图擦字，或取消勾选仅插入文字。',
+      '<p class="manga-smart-hint" data-adv="1">自动去字仅适合纯色气泡。复杂背景请先用 GPT 改图擦字，或取消勾选仅插入文字。',
       '基础 OCR 需要本机 Tesseract 及所选语言包。复杂背景可点击本地 LaMa 去字，先预览后确认，模型为可选依赖。Manga OCR 精修为可选依赖，首次点击可能联网下载约 400MB 模型；成功后可用缓存离线运行。精修结果须人工确认。</p>',
       '<div id="mangaSmartStatus" role="status"></div>'
     ].join('');
     document.body.appendChild(panel);
-    open.addEventListener('click', () => { panel.hidden = !panel.hidden; });
-    $('mangaSmartClose').addEventListener('click', () => { panel.hidden = true; stopSelection(); });
+    open.addEventListener('click', () => { panel.classList.remove('is-simple'); panel.hidden = !panel.hidden; });
+    $('mangaSmartClose').addEventListener('click', () => { panel.hidden = true; panel.classList.remove('is-simple'); stopSelection(); });
     $('mangaSmartDetect').addEventListener('click', detect);
     $('mangaSmartCancel').addEventListener('click', cancelRequest);
     $('mangaSmartManual').addEventListener('click', beginManual);
@@ -510,6 +515,10 @@
   else render();
   window.MangaSmartTextEditor = {
     detect, apply, beginManual, stopSelection,
+    open: simple => { const p = $('mangaSmartTextPanel'); if (!p) return false; p.hidden = false; p.classList.toggle('is-simple', !!simple); return true; },
+    setSimple: on => { const p = $('mangaSmartTextPanel'); if (p) p.classList.toggle('is-simple', !!on); },
+    progress: () => ({ drafts: state.drafts.length, busy: !!state.busy, applied: state.appliedCount || 0,
+      open: !!($('mangaSmartTextPanel') && !$('mangaSmartTextPanel').hidden) }),
     getDrafts: () => state.drafts.map(d => ({ ...d })),
     setPanelAssignments: assignments => {
       const map = new Map((assignments || []).map(x => [x.sourceIndex, x.panelId]));

@@ -13,6 +13,26 @@ const net = require('node:net');
 const path = require('node:path');
 const { chromium } = require('playwright');
 
+// GPT URL / Key / Model live in 服务设置 (one place for every service): set them the way a user does.
+async function setGptService(pg, cfg) {
+  await pg.locator('#taskServiceSettings').click();
+  if (cfg.url !== undefined) await pg.locator('#mangaGptUrl').fill(cfg.url);
+  if (cfg.model !== undefined) await pg.locator('#mangaGptModel').fill(cfg.model);
+  if (cfg.key !== undefined) await pg.locator('#mangaGptKey').fill(cfg.key);
+  await pg.locator('#svcDone').click();
+}
+// These suites exercise the full (pro) UI; a user who picked 专业模式 keeps it across reloads.
+function proMode(browser) {
+  const make = browser.newContext.bind(browser);
+  browser.newContext = async (opts = {}) => {
+    const { beginner, ...rest } = opts;
+    const c = await make(rest);
+    if (!beginner) await c.addInitScript(() => { try { if (!localStorage.getItem('mnai.uiMode')) localStorage.setItem('mnai.uiMode', 'pro'); } catch (e) { /* storage blocked */ } });
+    return c;
+  };
+  return browser;
+}
+
 const ROOT = path.resolve(__dirname, '..');
 const SERVER = 'http://127.0.0.1:8000';
 const REPLAY = process.env.GPT_REAL_REPLAY || ''; // dir with <case>-result.png from an earlier real run (free)
@@ -207,9 +227,7 @@ async function runCase(context, id) {
   if (spec.transparentPage) await page.evaluate(() => { canvas.backgroundColor = ''; canvas.renderAll(); });
   await page.locator('#mangaGptOpen').click();
   await page.locator('#mangaGptMode').selectOption('edit');
-  await page.locator('#mangaGptUrl').fill(BASE_URL);
-  await page.locator('#mangaGptModel').fill(MODEL);
-  await page.locator('#mangaGptKey').fill(''); // relay uses the server-side env key (pinned base URL)
+  await setGptService(page, { url: BASE_URL, model: MODEL, key: '' }); // relay uses the server-side env key (pinned base URL)
   await page.locator('#mangaGptSize').selectOption(spec.size);
   await page.locator('#mangaGptPrompt').fill(spec.prompt);
   if (spec.ref) await page.locator('#mangaGptReferences').setInputFiles(REFERENCE);
@@ -302,7 +320,7 @@ async function runCase(context, id) {
   if (ids.some(id => !CASES[id])) throw new Error('unknown case');
   if (ids.some(id => CASES[id].ref) && !fs.existsSync(REFERENCE)) throw new Error('GPT_REAL_REFERENCE missing');
   await startServer();
-  const browser = await chromium.launch({ headless: true });
+  const browser = proMode(await chromium.launch({ headless: true }));
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const all = [];
   try {

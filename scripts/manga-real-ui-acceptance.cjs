@@ -33,6 +33,7 @@ async function main() {
     await new Promise(r => setTimeout(r, 200));
   }
   browser = await chromium.launch({ headless: true });
+  { const make = browser.newContext.bind(browser); browser.newContext = async o => { const c = await make(o); await c.addInitScript(() => { try { if (!localStorage.getItem('mnai.uiMode')) localStorage.setItem('mnai.uiMode', 'pro'); } catch (e) { /* storage blocked */ } }); return c; }; } // full (pro) UI
   page = await (await browser.newContext({ viewport: { width: 1600, height: 1000 } })).newPage();
   page.on('dialog', d => { dialogs.push(d.message()); d.accept(); });
   page.on('request', r => { if (r.url().endsWith('/manga-smart/ocr')) fs.writeFileSync(path.join(OUT, 'ocr-request.json'), r.postData() || ''); });
