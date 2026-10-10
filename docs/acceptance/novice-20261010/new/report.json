@@ -1,5 +1,5 @@
 {
-  "when": "2026-10-10T05:06:26.391Z",
+  "when": "2026-10-10T05:16:53.291Z",
   "gpt": "MOCK",
   "flows": [
     {
@@ -40,7 +40,7 @@
         "生成",
         "应用为图层"
       ],
-      "seconds": 2.8,
+      "seconds": 2.9,
       "screenshot": "artifacts/novice/03-2_框选人物_参考图_描述_生成_预览_应用.png",
       "notes": [],
       "detail": {
@@ -117,7 +117,7 @@
         "page 1",
         "Ctrl+Z after reopen"
       ],
-      "seconds": 15.7,
+      "seconds": 15.9,
       "screenshot": "artifacts/novice/05-4_撤销_重做_切页_保存_关闭_重开.png",
       "notes": [],
       "detail": {
@@ -164,7 +164,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 7.8,
+      "seconds": 7.7,
       "screenshot": "artifacts/novice/07-8_导入含坏文件的一批图_立刻刷新_恢复对话框找回全部页.png",
       "notes": [],
       "detail": {
@@ -184,7 +184,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 6.4,
+      "seconds": 5.9,
       "screenshot": "artifacts/novice/08-9_导入超大图_提示已自动缩小_中文_8_语言文案_.png",
       "notes": [],
       "detail": {
@@ -220,7 +220,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 10.6,
+      "seconds": 10.4,
       "screenshot": "artifacts/novice/10-11_字幕图层_点眼睛隐藏_导出不含字幕_Ctrl_Z_恢复显示_刷新恢复后字幕.png",
       "notes": [],
       "detail": {
@@ -242,7 +242,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 5.7,
+      "seconds": 5.5,
       "screenshot": "artifacts/novice/11-12_从页面外开始拖_手动框选字幕_贴边框选_贴边气泡用_LaMa_去字不越界.png",
       "notes": [],
       "detail": {
@@ -251,14 +251,14 @@
         "lama": {
           "left": 0,
           "top": 0,
-          "right": 372,
-          "bottom": 337,
+          "right": 373,
+          "bottom": 338,
           "W": 1200,
           "H": 1700,
           "ink": "无法安全提取深色文字：文字框附近缺少完整的外缘背景采样；请手动编辑蒙版。 原蒙版保持不变。",
           "sent": {
-            "w": 372,
-            "h": 337
+            "w": 373,
+            "h": 338
           }
         }
       }
@@ -268,7 +268,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 5.4,
+      "seconds": 5.6,
       "screenshot": "artifacts/novice/12-13_误点页面缩略图的_撤销删除_一键找回_位置和内容不变_.png",
       "notes": [],
       "detail": {
@@ -276,11 +276,37 @@
         "barText": "已删除第 1 页。撤销删除",
         "restoredOrder": true,
         "content": {
-          "guid": "1b2f16a8-ddf3-4ba2-abf4-74a67f718151",
+          "guid": "75e60c09-3ad2-4a23-976b-59d9c743a62e",
           "images": 1,
           "w": 1200,
           "h": 1700
         }
+      }
+    },
+    {
+      "name": "14 复制本页 ⧉ / 页面左右挪动：副本插在原页后、互不影响，缩略图按钮都有提示",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 8.8,
+      "screenshot": "artifacts/novice/13-14_复制本页_页面左右挪动_副本插在原页后_互不影响_缩略图按钮都有提示.png",
+      "notes": [],
+      "detail": {
+        "untitled": [],
+        "order": [
+          0,
+          -1,
+          1
+        ],
+        "st": {
+          "cur": "745b4804-8ea2-4e79-ad21-0bdf7e912dc8",
+          "imgs": 1,
+          "nums": "1,2,3"
+        },
+        "origMarkers": 0,
+        "copyMarkers": 1,
+        "moved": true,
+        "errors": []
       }
     },
     {
@@ -303,8 +329,8 @@
         "page 1",
         "应用（回到第 1 页）"
       ],
-      "seconds": 41.4,
-      "screenshot": "artifacts/novice/13-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
+      "seconds": 41.1,
+      "screenshot": "artifacts/novice/14-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
       "notes": [],
       "detail": {
         "applyEnabledOnPage2": true,
@@ -319,8 +345,8 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 16.4,
-      "screenshot": "artifacts/novice/14-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
+      "seconds": 16.3,
+      "screenshot": "artifacts/novice/15-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
       "notes": [],
       "detail": {
         "1440x900@1": {

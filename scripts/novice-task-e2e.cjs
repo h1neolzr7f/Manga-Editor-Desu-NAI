@@ -516,6 +516,45 @@ async function main() {
       detail: { afterDelete, barText, restoredOrder: JSON.stringify(after) === JSON.stringify(before), content } };
   });
 
+  await flow('14 复制本页 ⧉ / 页面左右挪动：副本插在原页后、互不影响，缩略图按钮都有提示', async () => {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort());
+    const errors = []; p.on('pageerror', e => errors.push(e.message));
+    await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
+    await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 });
+    await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {}); await p.keyboard.press('Escape');
+    await p.locator('#imageInput').setInputFiles(PAGES);
+    await p.waitForFunction(() => btmGetGuids().length === 2, null, { timeout: 60000 });
+    await p.waitForTimeout(1000);
+    const offscreen = await p.evaluate(() => document.querySelector('#btm-image-container > *').getBoundingClientRect().top >= innerHeight - 5);
+    if (offscreen) { await p.locator('#btm-drawer-handle').click(); await p.waitForTimeout(800); }
+    const g0 = await p.evaluate(() => btmGetGuids());
+    const thumb = i => p.locator('#btm-image-container > *').nth(i);
+    const untitled = await p.evaluate(() => [...document.querySelectorAll('#btm-image-container button')].filter(b => !b.title).map(b => b.className));
+    await thumb(0).hover(); await thumb(0).locator('.btm-dup-btn').click();
+    await p.waitForFunction(() => btmGetGuids().length === 3, null, { timeout: 20000 }).catch(() => {});
+    await p.waitForTimeout(1000);
+    const g1 = await p.evaluate(() => btmGetGuids());
+    const copy = g1[1];
+    const st = await p.evaluate(() => ({ cur: getCanvasGUID(), imgs: canvas.getObjects().filter(o => o.type === 'image').length, nums: [...document.querySelectorAll('.btm-page-number')].map(e => e.textContent).join(',') }));
+    // edit the copy only
+    await p.evaluate(() => { canvas.add(new fabric.Rect({ left: 10, top: 10, width: 50, height: 50, fill: 'red', name: 'dupMarker' })); canvas.renderAll(); saveStateByManual(); });
+    await p.evaluate(g => chengeCanvasByGuid(g, true), g0[0]);
+    await p.waitForTimeout(800);
+    const origMarkers = await p.evaluate(() => canvas.getObjects().filter(o => o.name === 'dupMarker').length);
+    await p.evaluate(g => chengeCanvasByGuid(g, true), copy);
+    await p.waitForTimeout(800);
+    const copyMarkers = await p.evaluate(() => canvas.getObjects().filter(o => o.name === 'dupMarker').length);
+    // move page 1 right by one
+    await thumb(0).hover(); await thumb(0).locator('.btm-move-right').click({ force: true });
+    await p.waitForTimeout(800);
+    const g2 = await p.evaluate(() => btmGetGuids());
+    await ctx.close();
+    return { pass: untitled.length === 0 && g1.length === 3 && g1[0] === g0[0] && g1[2] === g0[1] && st.cur === copy && st.imgs >= 1 &&
+      st.nums === '1,2,3' && origMarkers === 0 && copyMarkers === 1 && g2[0] === copy && g2[1] === g0[0] && errors.length === 0,
+      detail: { untitled, order: g1.map(g => g0.indexOf(g)), st, origMarkers, copyMarkers, moved: g2[1] === g0[0], errors } };
+  });
+
   await flow('7 生成中切页→结果不得贴到别的页→切回后再应用', async () => {
     if (!(await has('mangaGptOpen'))) return { pass: false, detail: { unavailable: 'no GPT region edit in this version' } };
     if (REAL_GPT) return { pass: true, detail: { skipped: 'mock-only timing test' } };

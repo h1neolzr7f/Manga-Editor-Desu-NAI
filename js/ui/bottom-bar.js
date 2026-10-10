@@ -94,6 +94,7 @@ pageNumber.textContent=index+1;
 const moveLeftBtn=document.createElement("button");
 moveLeftBtn.innerHTML="←";
 moveLeftBtn.className="btm-move-btn btm-move-left";
+moveLeftBtn.title="把这一页往前挪一位";
 moveLeftBtn.addEventListener("click",(e)=>{
 e.stopPropagation();
 const currentIndex=btmGetGuidIndex(guid);
@@ -116,6 +117,7 @@ btmUpdateHandleText();
 const moveRightBtn=document.createElement("button");
 moveRightBtn.innerHTML="→";
 moveRightBtn.className="btm-move-btn btm-move-right";
+moveRightBtn.title="把这一页往后挪一位";
 moveRightBtn.addEventListener("click",(e)=>{
 e.stopPropagation();
 const currentIndex=btmGetGuidIndex(guid);
@@ -165,6 +167,7 @@ btmOfferPageRestore(removedPage);
 var addBtn=document.createElement("button");
 addBtn.textContent="+";
 addBtn.className="btm-add-btn";
+addBtn.title="在这一页后面新建空白页";
 addBtn.addEventListener("click",function(e){
 e.stopPropagation();
 btmShowAddPageDialog(guid);
@@ -174,6 +177,16 @@ imageWrapper.appendChild(pageNumber);
 imageWrapper.appendChild(moveLeftBtn);
 imageWrapper.appendChild(image);
 imageWrapper.appendChild(moveRightBtn);
+const dupBtn=document.createElement("button");
+dupBtn.className="btm-dup-btn";
+dupBtn.textContent="⧉";
+dupBtn.title="复制这一页（副本插在它后面）";
+dupBtn.addEventListener("click",async (e)=>{
+e.stopPropagation();
+if(window.NaiPageLoading||window.NaiHistoryLoading)return;
+await btmDuplicatePage(guid);
+});
+imageWrapper.appendChild(dupBtn);
 imageWrapper.appendChild(deleteBtn);
 imageWrapper.appendChild(addBtn);
 btmImageContainer.appendChild(imageWrapper);
@@ -417,6 +430,22 @@ return guids[index];
 // Create an empty w x h page right after `guid` and switch to it. Caller holds window.NaiPageLoading.
 // "Undo delete" bar for a page removed from the page bar (20 s). Restores thumbnail, saved
 // content and position, then opens the page.
+// Copy a page (content and thumbnail) right after itself under a new guid and open the copy.
+async function btmDuplicatePage(guid){
+if(getCanvasGUID()===guid)await btmSaveProjectFile(null,false);
+var src=btmProjectsMap.get(guid);
+if(!src||!src.blob){if(typeof createToastError==='function')createToastError('无法复制','这一页还没有保存内容，先画点东西再复制。');return null;}
+var newGuid=generateGUID();
+btmAddImage(src.imageLink?{href:src.imageLink.href}:src.imageLink,src.blob,newGuid,true);
+var idx=btmGetGuidIndex(guid)+1;
+if(idx<btmGetGuidsSize()-1)reorderImages(idx,newGuid);
+updateAllPageNumbers();
+btmUpdateScrollButtons();
+btmUpdateHandleText();
+await chengeCanvasByGuid(newGuid,true);
+return newGuid;
+}
+
 function btmOfferPageRestore(removed){
 if(!removed||!removed.data)return;
 var old=document.getElementById('btmPageRestoreBar');
