@@ -1,5 +1,5 @@
 {
-  "when": "2026-10-10T05:50:37.122Z",
+  "when": "2026-10-10T06:00:47.211Z",
   "gpt": "MOCK",
   "flows": [
     {
@@ -12,7 +12,7 @@
         "Import image",
         "page 1"
       ],
-      "seconds": 17.6,
+      "seconds": 17.8,
       "screenshot": "artifacts/novice/01-1_首次启动并导入_2_页漫画.png",
       "notes": [],
       "detail": {
@@ -40,7 +40,7 @@
         "生成",
         "应用为图层"
       ],
-      "seconds": 2.7,
+      "seconds": 2.9,
       "screenshot": "artifacts/novice/03-2_框选人物_参考图_描述_生成_预览_应用.png",
       "notes": [],
       "detail": {
@@ -72,7 +72,7 @@
         "识别",
         "应用字幕"
       ],
-      "seconds": 2.2,
+      "seconds": 2.5,
       "screenshot": "artifacts/novice/04-3_识别日文气泡_修正_去字_替换中文字幕.png",
       "notes": [
         "OCR: [\"ありがとう\"]"
@@ -147,7 +147,7 @@
         "生成（失败）",
         "再试一次"
       ],
-      "seconds": 2.8,
+      "seconds": 2.9,
       "screenshot": "artifacts/novice/06-5_错误_API_失败后再试_超长提示词_空选区.png",
       "notes": [],
       "detail": {
@@ -164,7 +164,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 7.7,
+      "seconds": 7.9,
       "screenshot": "artifacts/novice/07-8_导入含坏文件的一批图_立刻刷新_恢复对话框找回全部页.png",
       "notes": [],
       "detail": {
@@ -184,7 +184,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 6,
+      "seconds": 6.3,
       "screenshot": "artifacts/novice/08-9_导入超大图_提示已自动缩小_中文_8_语言文案_.png",
       "notes": [],
       "detail": {
@@ -220,7 +220,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 10.5,
+      "seconds": 10.7,
       "screenshot": "artifacts/novice/10-11_字幕图层_点眼睛隐藏_导出不含字幕_Ctrl_Z_恢复显示_刷新恢复后字幕.png",
       "notes": [],
       "detail": {
@@ -242,7 +242,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 5.4,
+      "seconds": 5.6,
       "screenshot": "artifacts/novice/11-12_从页面外开始拖_手动框选字幕_贴边框选_贴边气泡用_LaMa_去字不越界.png",
       "notes": [],
       "detail": {
@@ -268,7 +268,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 5.2,
+      "seconds": 5.4,
       "screenshot": "artifacts/novice/12-13_误点页面缩略图的_撤销删除_一键找回_位置和内容不变_.png",
       "notes": [],
       "detail": {
@@ -276,7 +276,7 @@
         "barText": "已删除第 1 页。撤销删除",
         "restoredOrder": true,
         "content": {
-          "guid": "5e5a3b4b-1f87-4b0e-bbfb-ce4e24785a2a",
+          "guid": "f4418b6a-bd7b-4fb1-b3b6-b31a34265f30",
           "images": 1,
           "w": 1200,
           "h": 1700
@@ -288,7 +288,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 8.7,
+      "seconds": 8.8,
       "screenshot": "artifacts/novice/13-14_复制本页_页面左右挪动_副本插在原页后_互不影响_缩略图按钮都有提示.png",
       "notes": [],
       "detail": {
@@ -299,7 +299,7 @@
           1
         ],
         "st": {
-          "cur": "dbc0f46a-6d3d-449d-bb67-bd6ffecdf006",
+          "cur": "c3f38db8-c0d7-42d5-b0aa-d8a1eb019a34",
           "imgs": 1,
           "nums": "1,2,3"
         },
@@ -314,7 +314,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 6.1,
+      "seconds": 5.9,
       "screenshot": "artifacts/novice/14-15_气泡模板_横排字_加粗_居中_菜单_文件_下载图片_导出真实_PNG.png",
       "notes": [],
       "detail": {
@@ -346,7 +346,7 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 8.7,
+      "seconds": 8.9,
       "screenshot": "artifacts/novice/15-16_竖排字_默认中文占位_换字体_自由气泡手绘.png",
       "notes": [],
       "detail": {
@@ -378,22 +378,65 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 8.2,
+      "seconds": 8.3,
       "screenshot": "artifacts/novice/16-17_自由气泡_竖排文字_加点画形_移点_删点.png",
       "notes": [],
       "detail": {
         "made": {
           "n": 22,
-          "textType": "vertical-textbox"
+          "textType": "vertical-textbox",
+          "label": "台词"
         },
         "ctlCount": 20,
         "movedChanged": true,
         "deletedN": 21,
         "movedN": 22,
         "warns": [
-          "🟧 13:49:33 WARN [perf] [fabric-management.js:532 r.<anonymous>] [PERF:point mouse:up] processPoints:1ms JSTS:8ms merge:2ms createBubble:96m",
+          "🟧 13:59:12 WARN [perf] [fabric-management.js:532 r.<anonymous>] [PERF:point mouse:up] processPoints:0ms JSTS:6ms merge:1ms createBubble:91m",
           "hitCenter=vertical-textbox hitEdge=image"
         ],
+        "errors": []
+      }
+    },
+    {
+      "name": "18 自由气泡「不显示文字」+ 手绘时按住 Shift 临时变选择",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 10.6,
+      "screenshot": "artifacts/novice/17-18_自由气泡_不显示文字_手绘时按住_Shift_临时变选择.png",
+      "notes": [],
+      "detail": {
+        "noText": {
+          "types": [
+            "path",
+            "rect"
+          ],
+          "bubble": true,
+          "text": false
+        },
+        "modeShift": "select",
+        "shiftDrawAdded": 0,
+        "modeAfter": "freehand",
+        "afterReleaseAdded": 1,
+        "errors": []
+      }
+    },
+    {
+      "name": "19 新手把每个顶部菜单项点一遍：无控制台报错，网格线可开关",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 21.2,
+      "screenshot": "artifacts/novice/18-19_新手把每个顶部菜单项点一遍_无控制台报错_网格线可开关.png",
+      "notes": [],
+      "detail": {
+        "clicked": 23,
+        "skipped": 13,
+        "grid": {
+          "before": false,
+          "after": true
+        },
         "errors": []
       }
     },
@@ -417,8 +460,8 @@
         "page 1",
         "应用（回到第 1 页）"
       ],
-      "seconds": 41.5,
-      "screenshot": "artifacts/novice/17-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
+      "seconds": 41.2,
+      "screenshot": "artifacts/novice/19-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
       "notes": [],
       "detail": {
         "applyEnabledOnPage2": true,
@@ -433,8 +476,8 @@
       "pass": true,
       "keyOps": 0,
       "ops": [],
-      "seconds": 16.6,
-      "screenshot": "artifacts/novice/18-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
+      "seconds": 16.2,
+      "screenshot": "artifacts/novice/20-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
       "notes": [],
       "detail": {
         "1440x900@1": {

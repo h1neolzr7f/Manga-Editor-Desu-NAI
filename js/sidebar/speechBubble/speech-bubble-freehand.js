@@ -651,11 +651,14 @@ lockRotation:true
 });
 let newTextbox=null;
 const selectedValue=getSelectedValueByGroup("sbFreehandTextGroup");
+const sbNoText=selectedValue==="Nothing";
 const isSbVerticalText=selectedValue!=="Horizontal";
 var selectedFont=fontManager.getSelectedFont("fontSelector");
 var fontsize=$("fontSizeSlider").value;
 var fontStrokeWidth=$("fontStrokeWidthSlider").value;
-if(isSbVerticalText) {
+if(sbNoText) {
+// 「不显示文字」: bubble only (it used to fall through to the vertical branch and add text anyway)
+} else if(isSbVerticalText) {
 let style={
 left:rectX+rectWidth/2,
 top:rectY+rectHeight/2,
@@ -681,10 +684,10 @@ evented:true,
 renderOnAddRemove:true,
 targetObject:bubble
 };
-var initialText=Math.round(rectWidth)+"x"+Math.round(rectHeight);
+var initialText="台词";
 newTextbox=new VerticalTextbox(initialText,style);
 } else {
-initialText=Math.round(rectWidth)+"x"+Math.round(rectHeight);
+initialText="台词";
 newTextbox=new fabric.Textbox(initialText,{
 left:rectX+rectWidth/2,
 top:rectY+rectHeight/2,
@@ -712,21 +715,25 @@ targetObject:bubble
 });
 }
 bubble.guid=generateGUID();
-newTextbox.guid=generateGUID();
 newRect.guid=generateGUID();
+if(newTextbox){
+newTextbox.guid=generateGUID();
 setGUID(bubble,newTextbox);
+newTextbox.customType="freehandBubbleText";
+}
 setGUID(bubble,newRect);
 bubble.customType="freehandBubblePath";
 bubble.set({selectable:true,evented:true});
-newTextbox.customType="freehandBubbleText";
 newRect.customType="freehandBubbleRect";
 bubble.lastLeft=bubble.left;
 bubble.lastTop=bubble.top;
 bubble.baseScaleX=bubble.scaleX||1;
 bubble.baseScaleY=bubble.scaleY||1;
 canvas.add(newRect);
+if(newTextbox){
 canvas.add(newTextbox);
 newTextbox.bringToFront();
+}
 canvas.renderAll();
 }
 

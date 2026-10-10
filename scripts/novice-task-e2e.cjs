@@ -658,7 +658,7 @@ async function main() {
     await p.waitForTimeout(800);
     const bubbleInfo = () => p.evaluate(() => { const b = canvas.getObjects().filter(o => o.isSpeechBubble).pop(); if (!b) return null;
       const t = canvas.getObjects().find(o => o.targetObject === b && /text/i.test(o.type));
-      return { n: b.path.length, sig: JSON.stringify(b.path).length + ':' + b.path.map(q => q.slice(1).join(',')).join(';').slice(0, 400), textType: t && t.type, left: b.left, top: b.top }; });
+      return { label: t && t.text, n: b.path.length, sig: JSON.stringify(b.path).length + ':' + b.path.map(q => q.slice(1).join(',')).join(';').slice(0, 400), textType: t && t.type, left: b.left, top: b.top }; });
     const made = await bubbleInfo();
     // 移点: select the bubble, drag its first control point outwards
     await p.locator('#sbMoveButton').click();
@@ -684,10 +684,83 @@ async function main() {
     if (c2) { const [sx, sy] = await scr(c2.x, c2.y); await p.mouse.click(sx, sy); await p.waitForTimeout(600); deleted = await bubbleInfo(); }
     await p.screenshot({ path: path.join(OUT, 'flow17-point-bubble.png') });
     await ctx.close();
-    return { pass: !!made && made.n >= 5 && /vertical/i.test(made.textType || '') && !!c1 && !!moved && moved.sig !== made.sig &&
+    return { pass: !!made && made.n >= 5 && /vertical/i.test(made.textType || '') && made.label === '台词' && !!c1 && !!moved && moved.sig !== made.sig &&
       !!c2 && !!deleted && deleted.n < moved.n && errors.length === 0,
-      detail: { made: made && { n: made.n, textType: made.textType }, ctlCount: c1 && c1.count, movedChanged: !!moved && moved.sig !== made.sig,
+      detail: { made: made && { n: made.n, textType: made.textType, label: made.label }, ctlCount: c1 && c1.count, movedChanged: !!moved && moved.sig !== made.sig,
         deletedN: deleted && deleted.n, movedN: moved && moved.n, warns: warns.slice(-2), errors } };
+  });
+
+  const freshEditor = async (ctxOpts = {}) => {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true, ...ctxOpts });
+    const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort());
+    const errors = [];
+    p.on('pageerror', e => errors.push((p.__cur || '') + ' :: ' + e.message.slice(0, 160)));
+    p.on('console', m => { if (m.type() === 'error' && !/net::ERR_FAILED|Failed to load resource/.test(m.text())) errors.push((p.__cur || '') + ' :: ' + m.text().replace(/\u001b\[[0-9;]*m/g, '').slice(0, 160)); });
+    await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
+    await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0, null, { timeout: 60000 });
+    await p.locator('#tutorialSkipBtn').click({ timeout: 5000 }).catch(() => {}); await p.keyboard.press('Escape');
+    await p.locator('#imageInput').setInputFiles(PAGES[0]);
+    await p.waitForFunction(() => canvas.getObjects().some(o => o.type === 'image'), null, { timeout: 60000 });
+    return { ctx, p, errors };
+  };
+
+  await flow('18 自由气泡「不显示文字」+ 手绘时按住 Shift 临时变选择', async () => {
+    const { ctx, p, errors } = await freshEditor();
+    await p.locator('[data-target="speech-bubble-area"]').click();
+    await p.locator('[data-bubble-tab="free"]').click();
+    await p.locator('#sbFreehandNothingText').click();
+    await p.locator('#sbFreehandButton').click();
+    const box = await p.locator('.upper-canvas').first().boundingBox();
+    const draw = async (fx, fy) => { const cx = box.x + box.width * fx, cy = box.y + box.height * fy;
+      await p.mouse.move(cx + 60, cy); await p.mouse.down();
+      for (let k = 1; k <= 24; k++) { const t = k / 24 * Math.PI * 2; await p.mouse.move(cx + Math.cos(t) * 60, cy + Math.sin(t) * 40); await p.waitForTimeout(25); }
+      await p.mouse.up(); await p.waitForTimeout(900); };
+    const n0 = await p.evaluate(() => canvas.getObjects().length);
+    await draw(0.35, 0.3);
+    const noText = await p.evaluate(n => { const added = canvas.getObjects().slice(n); return { types: added.map(o => o.type), bubble: added.some(o => o.isSpeechBubble), text: added.some(o => /text/i.test(o.type)) }; }, n0);
+    // Shift held: temporarily select mode, drawing a loop must not create a bubble; release restores 手绘
+    await p.keyboard.down('Shift');
+    const modeShift = await p.evaluate(() => currentMode);
+    const n1 = await p.evaluate(() => canvas.getObjects().filter(o => o.isSpeechBubble).length);
+    await draw(0.6, 0.6);
+    const n2 = await p.evaluate(() => canvas.getObjects().filter(o => o.isSpeechBubble).length);
+    await p.keyboard.up('Shift'); await p.waitForTimeout(200);
+    const modeAfter = await p.evaluate(() => currentMode);
+    await p.evaluate(() => { canvas.discardActiveObject(); canvas.requestRenderAll(); });
+    await draw(0.6, 0.65);
+    const n3 = await p.evaluate(() => canvas.getObjects().filter(o => o.isSpeechBubble).length);
+    await ctx.close();
+    return { pass: noText.bubble && !noText.text && modeShift === 'select' && n2 === n1 && modeAfter === 'freehand' && n3 === n1 + 1 && errors.length === 0,
+      detail: { noText, modeShift, shiftDrawAdded: n2 - n1, modeAfter, afterReleaseAdded: n3 - n1, errors } };
+  });
+
+  await flow('19 新手把每个顶部菜单项点一遍：无控制台报错，网格线可开关', async () => {
+    const { ctx, p, errors } = await freshEditor();
+    p.on('dialog', d => d.dismiss());
+    const toggles = await p.$$eval('#desu-nav .nav-link.dropdown-toggle', ts => ts.map(t => t.id));
+    const clicked = [], skipped = [];
+    let grid = null;
+    for (const tid of toggles) {
+      const items = await p.$$eval(`[aria-labelledby="${tid}"] .dropdown-item`, es => es.map((e, i) => ({ i, id: e.id, txt: e.textContent.replace(/\s+/g, ' ').trim().slice(0, 30),
+        action: !!(e.tagName === 'A' || e.getAttribute('onclick') || e.id) && !e.querySelector('input,select') })));
+      for (const it of items) {
+        // file pickers / destructive resets / non-action rows are not part of a click sweep
+        if (!it.action || /重置|打开项目|导入|预计导出/.test(it.txt)) { skipped.push(it.txt); continue; }
+        p.__cur = tid + ' > ' + it.txt;
+        const open = await p.locator(`[aria-labelledby="${tid}"]`).isVisible();
+        if (!open) await p.locator('#' + tid).click({ timeout: 5000 });
+        const g0 = it.id === 'toggleGridButton' ? await p.evaluate(() => isGridVisible) : null;
+        await p.locator(`[aria-labelledby="${tid}"] .dropdown-item`).nth(it.i).click({ timeout: 5000 });
+        await p.waitForTimeout(600);
+        if (it.id === 'toggleGridButton') grid = { before: g0, after: await p.evaluate(() => isGridVisible) };
+        for (let k = 0; k < 2; k++) await p.keyboard.press('Escape');
+        await p.evaluate(() => document.querySelectorAll('.modal.show .btn-close').forEach(b => b.click()));
+        clicked.push(it.txt);
+      }
+    }
+    await ctx.close();
+    return { pass: clicked.length >= 20 && errors.length === 0 && !!grid && grid.before !== grid.after,
+      detail: { clicked: clicked.length, skipped: skipped.length, grid, errors: errors.slice(0, 5) } };
   });
 
   await flow('7 生成中切页→结果不得贴到别的页→切回后再应用', async () => {
