@@ -51,36 +51,86 @@ function applyMode(m){
 var bar=$('taskBar');
 if(bar){var hd=bar.parentNode;if(m==='pro')hd.appendChild(bar);else hd.insertBefore(bar,hd.firstChild);}   // pro: tools first, task bar last
 document.body.classList.toggle('ui-beginner',m==='beginner');
+groupSidebar(m==='beginner');if(m==='beginner')collapseSidePanel();
 document.body.classList.toggle('ui-pro',m==='pro');
 var t=$('uiModeToggle');
-if(t){t.textContent=m==='beginner'?'专业模式':'新手模式';t.title=m==='beginner'?'显示全部工具和参数（原版界面）':'回到按任务操作的简洁界面';t.setAttribute('aria-pressed',String(m==='pro'));}
+if(t){t.querySelector('span').textContent=m==='beginner'?'专业模式（全部工具和参数）':'新手模式（按任务操作）';t.title=m==='beginner'?'显示全部工具和参数（原版界面）':'回到按任务操作的简洁界面';t.setAttribute('aria-pressed',String(m==='pro'));}
 updateHome();
 }
 function setMode(m){try{localStorage.setItem(MODE_KEY,m);}catch(e){}if(m==='pro')stop();applyMode(m);}
 
 // ---------- task bar + home ----------
+// Layout by usage frequency (report §11): tasks left; the actions used on every page (undo/redo, page nav,
+// save, export all) as large targets at a fixed spot on the right; rare things (service settings, theme,
+// pro mode, open project, shortcuts) in the ⋯ menu. Shortcuts are in each tooltip.
+function iconBtn(id,icon,label,title,cls){return el('button',{type:'button',class:'ui-btn task-quick '+(cls||''),id:id,title:title,'aria-label':title},'<i class="material-icons" aria-hidden="true">'+icon+'</i><span class="task-quick-label">'+label+'</span>');}
+function call(fn){return function(){try{if(typeof window[fn]==='function')window[fn]();}catch(e){}};}
 function buildBar(){
 var header=document.querySelector('#canvas-area .area-header');
 if(!header||$('taskBar'))return;
 var bar=el('div',{id:'taskBar',class:'task-bar',role:'toolbar','aria-label':'新手任务'});
+var tasks=el('div',{class:'task-group task-group-tasks'});
 TASKS.forEach(function(t){
 var b=el('button',{type:'button',class:'ui-btn task-btn','data-task':t.id,id:'taskBtn-'+t.id,title:t.desc},'<i class="material-icons" aria-hidden="true">'+t.icon+'</i>'+t.title);
 b.addEventListener('click',function(){start(t.id);});
-bar.appendChild(b);
+tasks.appendChild(b);
 });
-var gear=el('button',{type:'button',class:'ui-btn task-util',id:'taskServiceSettings',title:'GPT / NovelAI / 本机服务的地址和 Key'},'<i class="material-icons" aria-hidden="true">settings</i>服务设置');
-gear.addEventListener('click',function(){if(window.ServiceSettings)ServiceSettings.open('gpt');});
-bar.appendChild(gear);
-var theme=el('button',{type:'button',class:'ui-btn ui-btn-ghost task-util',id:'themeToggle',title:'切换浅色 / 深色界面','aria-label':'切换浅色 / 深色界面'},'<i class="material-icons" aria-hidden="true">contrast</i>');
-theme.addEventListener('click',function(){var box=$('mode-toggle');if(!box)return;box.checked=!box.checked;box.dispatchEvent(new Event('change'));});
-var expAll=el('button',{type:'button',class:'ui-btn ui-btn-ghost task-util',id:'taskExportAll',title:'把所有页面导出为 PNG，并附上项目文件，打包成一个 zip'},'<i class="material-icons" aria-hidden="true">download</i>导出全部');
-expAll.addEventListener('click',function(){exportAll();});
-bar.appendChild(expAll);
-bar.appendChild(theme);
-var toggle=el('button',{type:'button',class:'ui-btn ui-btn-ghost task-util',id:'uiModeToggle'},'专业模式');
-toggle.addEventListener('click',function(){setMode(mode()==='beginner'?'pro':'beginner');});
-bar.appendChild(toggle);
+bar.appendChild(tasks);
+var quick=el('div',{id:'taskQuickBar',class:'task-group task-group-quick',role:'group','aria-label':'常用操作'});
+var undoB=iconBtn('taskUndo','undo','撤销','撤销 (Ctrl+Z)');undoB.addEventListener('click',call('undo'));
+var redoB=iconBtn('taskRedo','redo','重做','重做 (Ctrl+Y)');redoB.addEventListener('click',call('redo'));
+var prev=iconBtn('taskPagePrev','chevron_left','上一页','上一页 (Alt+←)','task-icon-only');prev.addEventListener('click',function(){if(typeof btmNavigatePage==='function')btmNavigatePage(-1).then(updatePageNav);});
+var label=el('span',{id:'taskPageLabel',class:'task-page-label','aria-live':'polite'},'–');
+var next=iconBtn('taskPageNext','chevron_right','下一页','下一页 (Alt+→)','task-icon-only');next.addEventListener('click',function(){if(typeof btmNavigatePage==='function')btmNavigatePage(1).then(updatePageNav);});
+var save=iconBtn('taskSave','save','保存','保存项目 (Ctrl+S)');save.addEventListener('click',function(){var s=$('projectSave');if(s)s.click();});
+var expAll=iconBtn('taskExportAll','download','导出全部','导出全部页面：每页 PNG + 项目文件，打成一个 zip','ui-btn-primary');expAll.addEventListener('click',function(){exportAll();});
+[undoB,redoB,el('span',{class:'task-sep'}),prev,label,next,el('span',{class:'task-sep'}),save,expAll].forEach(function(n){quick.appendChild(n);});
+bar.appendChild(quick);
+var moreWrap=el('div',{class:'task-more-wrap'});
+var more=el('button',{type:'button',class:'ui-btn ui-btn-ghost task-quick task-icon-only',id:'taskMore',title:'更多：服务设置、浅色/深色、专业模式…','aria-label':'更多','aria-haspopup':'menu','aria-expanded':'false'},'<i class="material-icons" aria-hidden="true">more_horiz</i>');
+var menu=el('div',{id:'taskMoreMenu',class:'ui-card task-more-menu',role:'menu',hidden:''});
+function item(id,icon,text,fn){var b=el('button',{type:'button',class:'task-menu-item',role:'menuitem',id:id},'<i class="material-icons" aria-hidden="true">'+icon+'</i><span>'+text+'</span>');b.addEventListener('click',function(){closeMenu();fn();});menu.appendChild(b);return b;}
+item('taskServiceSettings','settings','服务设置（GPT / NovelAI / 本机）',function(){if(window.ServiceSettings)ServiceSettings.open('gpt');});
+item('themeToggle','contrast','浅色 / 深色界面',function(){var box=$('mode-toggle');if(!box)return;box.checked=!box.checked;box.dispatchEvent(new Event('change'));});
+item('taskOpenProject','folder_open','打开项目 (Ctrl+O)',function(){var l=$('projectLoad');if(l)l.click();});
+item('taskShortcuts','keyboard','快捷键一览 (F1)',call('openShortcutModal'));
+item('uiModeToggle','tune','专业模式',function(){setMode(mode()==='beginner'?'pro':'beginner');});
+function closeMenu(){menu.hidden=true;more.setAttribute('aria-expanded','false');}
+more.addEventListener('click',function(e){e.stopPropagation();menu.hidden=!menu.hidden;more.setAttribute('aria-expanded',String(!menu.hidden));if(!menu.hidden){var f=menu.querySelector('button');if(f)f.focus();}});
+document.addEventListener('click',function(e){if(!menu.hidden&&!moreWrap.contains(e.target))closeMenu();});
+menu.addEventListener('keydown',function(e){if(e.key==='Escape'){closeMenu();more.focus();}});
+moreWrap.appendChild(more);moreWrap.appendChild(menu);bar.appendChild(moreWrap);
 header.insertBefore(bar,header.firstChild);
+setInterval(updatePageNav,700);
+}
+function updatePageNav(){
+var lab=$('taskPageLabel');if(!lab)return;
+try{
+var n=typeof btmGetGuidsSize==='function'?btmGetGuidsSize():0;
+var i=n&&typeof btmGetGuidIndex==='function'?btmGetGuidIndex(getCanvasGUID()):-1;
+lab.textContent=n?((i>=0?i+1:'–')+' / '+n):'– / –';
+$('taskPagePrev').disabled=!(i>0);$('taskPageNext').disabled=!(i>=0&&i<n-1);
+}catch(e){/* page bar not ready */}
+}
+// Beginner sidebar: rarely used tools move into 更多 (pro mode puts them back where they were).
+var RARE_TOOLS=['simulator-chat-area','auto-generate-area','prompt-manager-area','ps-tools-area','manga-tone-area','shape-area','cutout-area'];
+var RARE_LABELS=['模拟器','刀'];
+var movedTools=[];
+function rareWrappers(){return Array.from(document.querySelectorAll('#sidebar > .icon-wrapper')).filter(function(w){return RARE_TOOLS.indexOf(w.dataset.target||'')>=0||RARE_LABELS.indexOf((w.innerText||'').trim().split(/\s+/).pop())>=0;});}
+function groupSidebar(beginner){
+var more=$('sidebarMore');if(!more)return;
+if(beginner&&!movedTools.length){
+rareWrappers().forEach(function(w){var mark=document.createComment('tool-slot');w.parentNode.insertBefore(mark,w);movedTools.push([w,mark]);more.appendChild(w);});
+}else if(!beginner&&movedTools.length){
+movedTools.forEach(function(x){x[1].parentNode.insertBefore(x[0],x[1]);x[1].remove();});movedTools=[];
+}
+}
+// The side panel is opened on demand in beginner mode (sidebar icon toggles it); start with the canvas wide.
+var panelCollapsedOnce=false;
+function collapseSidePanel(){
+if(panelCollapsedOnce)return;panelCollapsedOnce=true;
+var t=$('svg-container-template');
+if(t&&t.style.display!=='none'&&typeof toggleVisibility==='function')toggleVisibility('svg-container-template');
 }
 function buildHome(){
 if($('taskHome'))return;

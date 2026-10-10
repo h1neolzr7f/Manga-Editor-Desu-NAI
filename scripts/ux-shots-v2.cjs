@@ -38,7 +38,7 @@ async function open(browser, opts = {}) {
   await p.waitForFunction(() => typeof canvas !== 'undefined' && canvas.getWidth() > 0 && !!document.getElementById('taskBar'), null, { timeout: 60000 });
   if (await p.locator('#tutorialSkipBtn').waitFor({ state: 'visible', timeout: 5000 }).then(() => true, () => false)) await p.keyboard.press('Escape');
   await p.waitForTimeout(1200);
-  if (REAL) { await p.locator('#taskServiceSettings').click(); await p.locator('#mangaGptUrl').fill(RELAY); await p.locator('#mangaGptKey').fill(''); await p.locator('#svcDone').click(); }
+  if (REAL) { await p.locator('#taskMore').click(); await p.locator('#taskServiceSettings').click(); await p.locator('#mangaGptUrl').fill(RELAY); await p.locator('#mangaGptKey').fill(''); await p.locator('#svcDone').click(); }
   if (opts.import !== false) {
     const fc = p.waitForEvent('filechooser'); await p.locator('#taskHomeImport').click(); await (await fc).setFiles(path.join(FIX, 'page1.png'));
     await p.waitForFunction(() => canvas.getObjects().some(o => o.type === 'image'), null, { timeout: 60000 }); await p.waitForTimeout(1200);
@@ -93,13 +93,13 @@ async function shotsMock(browser) {
   await p.waitForFunction(() => /整页完成|没成功/.test(document.getElementById('taskPageStatus').textContent) && !document.getElementById('taskPageGo').disabled, null, { timeout: 120000 });
   await shot(p, '12-wizard-page-done', '画一页漫画向导（mock 画面）：每格画面裁进格子，对白气泡自动放在右上角');
   await p.locator('#taskWizardClose').click();
-  await p.locator('#taskServiceSettings').click(); await p.locator('#svcLocalTest').click();
+  await p.locator('#taskMore').click(); await p.locator('#taskServiceSettings').click(); await p.locator('#svcLocalTest').click();
   await p.waitForFunction(() => !/正在|未检查/.test(document.getElementById('svcLocalStatus').textContent), null, { timeout: 30000 });
   await p.locator('#mangaGptUrl').fill('https://relay.example.com/v1'); await p.locator('#svcGptTest').click();
   await p.waitForFunction(() => !/正在|未测试/.test(document.getElementById('svcGptStatus').textContent), null, { timeout: 30000 });
   await shot(p, '13-service-settings', '服务设置：GPT / NovelAI / 本机 OCR·LaMa / 抠图 都在一页，每项一个「测试连接」');
   await p.keyboard.press('Escape');
-  await p.locator('#uiModeToggle').click(); await p.waitForTimeout(500);
+  await p.locator('#taskMore').click(); await p.locator('#uiModeToggle').click(); await p.waitForTimeout(500);
   await shot(p, '14-pro-mode', '专业模式：原有完整界面（GPT 改图、智能字幕等入口回到顶栏）');
   await s.ctx.close();
   s = await open(browser, { import: false, light: true });

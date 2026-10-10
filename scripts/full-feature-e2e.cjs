@@ -14,7 +14,7 @@ const { chromium } = require('playwright');
 
 // GPT URL / Key / Model live in 服务设置 (one place for every service): set them the way a user does.
 async function setGptService(pg, cfg) {
-  await pg.locator('#taskServiceSettings').click();
+  await pg.locator('#taskMore').click(); await pg.locator('#taskServiceSettings').click();
   if (cfg.url !== undefined) await pg.locator('#mangaGptUrl').fill(cfg.url);
   if (cfg.model !== undefined) await pg.locator('#mangaGptModel').fill(cfg.model);
   if (cfg.key !== undefined) await pg.locator('#mangaGptKey').fill(cfg.key);

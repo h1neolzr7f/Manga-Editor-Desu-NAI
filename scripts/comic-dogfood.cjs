@@ -104,7 +104,7 @@ async function after(browser) {
   try {
     if (!MOCK) {
       ops = [];
-      await click(p, '#taskServiceSettings', '服务设置');
+      await click(p, '#taskMore', '更多'); await click(p, '#taskServiceSettings', '服务设置');
       await type(p, '#mangaGptUrl', RELAY, '填中转地址');
       await click(p, '#svcGptTest', '测试连接');
       await p.waitForFunction(() => !/正在|未测试/.test(document.getElementById('svcGptStatus').textContent), null, { timeout: 40000 });

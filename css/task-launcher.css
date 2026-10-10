@@ -74,3 +74,25 @@ body.ui-beginner #mangaPageOpen, body.ui-beginner #mangaCharacterOpen { display:
 #taskServiceSettings, #uiModeToggle { font-size: 12px; }
 .task-card > .task-head { margin-top: var(--ui-space-2); }
 .task-card > header.task-card-close { justify-content: flex-end; padding: 2px 4px 0; min-height: 0; border: 0; background: transparent; }
+
+/* ── v3 layout by usage frequency ─────────────────────────────── */
+.task-bar { display: flex; align-items: center; gap: var(--ui-space-2); flex-wrap: wrap; width: 100%; }
+.task-group { display: flex; align-items: center; gap: var(--ui-space-1); flex-wrap: wrap; }
+.task-group-tasks { flex: 1 1 auto; min-width: 0; }
+.task-group-quick { flex: 0 0 auto; margin-left: auto; }
+.task-quick { min-height: 34px; min-width: 34px; padding: 4px 10px !important; font-size: 13px !important; justify-content: center; }
+.task-quick .material-icons { font-size: 20px; }
+.task-icon-only { padding: 4px 6px !important; }
+.task-icon-only .task-quick-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.task-quick:disabled { opacity: .4; cursor: default; }
+.task-sep { width: 1px; align-self: stretch; margin: 4px 2px; background: var(--ui-border); }
+.task-page-label { min-width: 46px; text-align: center; font-size: 13px; color: var(--ui-text); font-variant-numeric: tabular-nums; }
+.task-more-wrap { position: relative; flex: 0 0 auto; }
+.task-more-menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 2600; min-width: 240px; padding: var(--ui-space-1); display: flex; flex-direction: column; box-shadow: var(--ui-shadow, 0 8px 24px rgba(0,0,0,.35)); }
+.task-more-menu[hidden] { display: none; }
+.task-menu-item { display: flex; align-items: center; gap: var(--ui-space-2); width: 100%; padding: 8px 10px; border: 0; border-radius: calc(var(--ui-radius) - 4px); background: transparent; color: var(--ui-text); font-size: 13px; text-align: left; cursor: pointer; }
+.task-menu-item:hover, .task-menu-item:focus-visible { background: var(--ui-surface-2, rgba(127,127,127,.15)); outline: none; }
+.task-menu-item .material-icons { font-size: 18px; opacity: .85; }
+/* narrow screens: quick actions keep icons only, labels in tooltip */
+@media (max-width: 1360px) { .task-quick:not(.ui-btn-primary) .task-quick-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } .task-quick:not(.ui-btn-primary) { padding: 4px 6px !important; } }
+.task-bar .ui-btn.task-quick { height: 34px; min-height: 34px; box-sizing: border-box; }

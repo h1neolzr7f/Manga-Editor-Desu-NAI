@@ -14,7 +14,7 @@ const { chromium } = require('playwright');
 
 // GPT URL / Key / Model live in 服务设置 (one place for every service): set them the way a user does.
 async function setGptService(pg, cfg) {
-  await pg.locator('#taskServiceSettings').click();
+  await pg.locator('#taskMore').click(); await pg.locator('#taskServiceSettings').click();
   if (cfg.url !== undefined) await pg.locator('#mangaGptUrl').fill(cfg.url);
   if (cfg.model !== undefined) await pg.locator('#mangaGptModel').fill(cfg.model);
   if (cfg.key !== undefined) await pg.locator('#mangaGptKey').fill(cfg.key);
@@ -1172,23 +1172,43 @@ async function main() {
       const afterImportHidden = !(await shown(p, '#taskHome'));
       const tasks = await p.locator('#taskBar .task-btn:visible').count();
       const proEntriesHidden = !(await shown(p, '#mangaGptOpen')) && !(await shown(p, '#mangaSmartOpen'));
-      await op.click(p.locator('#uiModeToggle'), '专业模式');
-      const pro = { gptOpen: await shown(p, '#mangaGptOpen'), smartOpen: await shown(p, '#mangaSmartOpen'), tasksHidden: (await p.locator('#taskBar .task-btn:visible').count()) === 0 };
+      // v3 layout: frequent actions in the bar (shortcut in tooltip), rare ones in ⋯, rare sidebar tools in 更多, canvas not covered
+      const layoutAt = () => p.evaluate(() => {
+        const vis = id => { const e = document.getElementById(id); if (!e) return false; const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== 'hidden'; };
+        const quick = ['taskUndo', 'taskRedo', 'taskPagePrev', 'taskPageLabel', 'taskPageNext', 'taskSave', 'taskExportAll', 'taskMore'].filter(vis).length;
+        const tips = ['taskUndo:Ctrl+Z', 'taskRedo:Ctrl+Y', 'taskSave:Ctrl+S', 'taskPagePrev:Alt+'].every(x => { const [id, k] = x.split(':'); return (document.getElementById(id).title || '').includes(k); });
+        const big = ['taskUndo', 'taskSave', 'taskExportAll'].every(id => document.getElementById(id).getBoundingClientRect().height >= 32);
+        const sideMain = Array.from(document.querySelectorAll('#sidebar > .icon-wrapper')).map(w => (w.innerText || '').trim().split(/\s+/).pop());
+        const inMore = Array.from(document.querySelectorAll('#sidebarMore .icon-wrapper')).map(w => (w.innerText || '').trim().split(/\s+/).pop());
+        const c = canvas.upperCanvasEl.getBoundingClientRect(); const ov = [];
+        for (const sel of ['#taskBar', '#taskQuickBar', '.area-header']) { const e = document.querySelector(sel); const r = e.getBoundingClientRect(); if (r.bottom > c.top + 1 && r.top < c.bottom && r.left < c.right && r.right > c.left) ov.push(sel); }
+        const bar = document.getElementById('taskBar').getBoundingClientRect(), q = document.getElementById('taskQuickBar').getBoundingClientRect();
+        return { quick, tips, big, menuClosed: document.getElementById('taskMoreMenu').hidden, sideMain, inMore, panelOpen: getComputedStyle(document.getElementById('svg-container-template')).display !== 'none', overlap: ov, barRows: Math.round(bar.height / q.height) };
+      });
+      const lay1440 = await layoutAt();
+      await p.setViewportSize({ width: 1280, height: 800 }); await p.waitForTimeout(600);
+      const lay1280 = await layoutAt();
+      await p.setViewportSize({ width: 1440, height: 900 }); await p.waitForTimeout(400);
+      await op.click(p.locator('#taskMore'), '更多菜单'); const menuOpen = await p.locator('#taskMoreMenu').isVisible(); await p.keyboard.press('Escape'); const menuEsc = await p.locator('#taskMoreMenu').isHidden();
+      const layoutOk = l => l.quick === 8 && l.tips && l.big && l.menuClosed && !l.sideMain.includes('网点') && !l.sideMain.includes('剧情') && l.inMore.includes('网点') && l.sideMain.includes('气泡') && l.sideMain.includes('文本') && !l.panelOpen && !l.overlap.length && l.barRows <= 2;
+      await p.locator('#taskMore').click(); await op.click(p.locator('#uiModeToggle'), '专业模式');
+      const pro = { gptOpen: await shown(p, '#mangaGptOpen'), smartOpen: await shown(p, '#mangaSmartOpen'), tasksHidden: (await p.locator('#taskBar .task-btn:visible').count()) === 0,
+        toolsBack: await p.evaluate(() => Array.from(document.querySelectorAll('#sidebar > .icon-wrapper')).some(w => /网点/.test(w.innerText))) };
       await p.reload({ waitUntil: 'domcontentloaded' }); await p.waitForFunction(() => !!document.getElementById('taskBar'), null, { timeout: 60000 });
       await p.keyboard.press('Escape');
       const proAfterReload = await p.evaluate(() => document.body.classList.contains('ui-pro'));
-      await op.click(p.locator('#uiModeToggle'), '新手模式');
+      await p.locator('#taskMore').click(); await op.click(p.locator('#uiModeToggle'), '新手模式');
       const backToBeginner = (await p.locator('#taskBar .task-btn:visible').count()) === 7;
       const surface = () => p.evaluate(() => getComputedStyle(document.body).getPropertyValue('--ui-surface').trim());
       const darkSurface = await surface();
-      await op.click(p.locator('#themeToggle'), '浅色/深色');
+      await p.locator('#taskMore').click(); await op.click(p.locator('#themeToggle'), '浅色/深色');
       const light = { cls: await p.evaluate(() => document.documentElement.classList.contains('light-mode') && !document.body.classList.contains('dark-mode')), changed: (await surface()) !== darkSurface };
       await p.reload({ waitUntil: 'domcontentloaded' }); await p.waitForFunction(() => !!document.getElementById('taskBar'), null, { timeout: 60000 });
       light.kept = await p.evaluate(() => document.body.classList.contains('light-mode'));
-      await p.keyboard.press('Escape'); await op.click(p.locator('#themeToggle'), '切回深色');
+      await p.keyboard.press('Escape'); await p.locator('#taskMore').click(); await op.click(p.locator('#themeToggle'), '切回深色');
       light.back = await p.evaluate(() => document.body.classList.contains('dark-mode') && !document.documentElement.classList.contains('light-mode'));
-      return { pass: homeShown && afterImportHidden && tasks === 7 && proEntriesHidden && pro.gptOpen && pro.smartOpen && pro.tasksHidden && proAfterReload && backToBeginner && light.cls && light.changed && light.kept && light.back && !errors.length,
-        detail: { homeShown, afterImportHidden, tasks, proEntriesHidden, pro, proAfterReload, backToBeginner, light, errors } };
+      return { pass: homeShown && afterImportHidden && tasks === 7 && proEntriesHidden && pro.gptOpen && pro.smartOpen && pro.tasksHidden && pro.toolsBack && layoutOk(lay1440) && layoutOk(lay1280) && menuOpen && menuEsc && proAfterReload && backToBeginner && light.cls && light.changed && light.kept && light.back && !errors.length,
+        detail: { lay1440, lay1280, menuOpen, menuEsc, homeShown, afterImportHidden, tasks, proEntriesHidden, pro, proAfterReload, backToBeginner, light, errors } };
     } finally { await ctx.close(); }
   });
 
@@ -1287,7 +1307,7 @@ async function main() {
   await flow('30 服务设置：一个页面管所有服务；测试连接（GPT/本机）；错误统一可读；地址刷新后保留；Esc 关闭', async () => {
     const { ctx, p, errors } = await beginnerEditor({ noImport: true, mock: true });
     try {
-      await op.click(p.locator('#taskServiceSettings'), '服务设置');
+      await p.locator('#taskMore').click(); await op.click(p.locator('#taskServiceSettings'), '服务设置');
       const fields = await p.evaluate(() => ['mangaGptUrl', 'mangaGptKey', 'mangaGptModel', 'novelaiApiKey'].map(id => !!document.getElementById(id).closest('#serviceSettings')));
       const panelDupes = await p.evaluate(() => ['mangaGptUrl', 'mangaGptKey', 'novelaiApiKey'].map(id => document.querySelectorAll('#' + id).length));
       const keyMasked = await p.locator('#mangaGptKey').getAttribute('type');
@@ -1308,7 +1328,7 @@ async function main() {
       await ctx.close();
       // the same request layer turns an upstream 401 into one readable sentence
       const f = await beginnerEditor({ noImport: true, mock: true, fail: { status: 502, error: '上游 HTTP 401：Invalid API key' } });
-      await f.p.locator('#taskServiceSettings').click(); await f.p.locator('#svcGptTest').click();
+      await f.p.locator('#taskMore').click(); await f.p.locator('#taskServiceSettings').click(); await f.p.locator('#svcGptTest').click();
       await f.p.waitForFunction(() => !/正在|未测试/.test(document.getElementById('svcGptStatus').textContent), null, { timeout: 15000 });
       const gptErr = await f.p.locator('#svcGptStatus').innerText(); const errCls = await f.p.locator('#svcGptStatus').getAttribute('class');
       await f.ctx.close();
