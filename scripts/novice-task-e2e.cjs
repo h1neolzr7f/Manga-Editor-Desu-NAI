@@ -1686,6 +1686,40 @@ async function main() {
   });
 
 
+  await flow('37 改字幕按页缓存：导入后后台识别 → 打开即有（不再请求）→ 换页显示该页自己的文字 → 换回来即时恢复', async () => {
+    const { ctx, p, errors } = await beginnerEditor({ noImport: true });
+    const ocr = []; p.on('requestfinished', r => { if (r.url().includes('/manga-smart/ocr')) ocr.push(Date.now()); });
+    try {
+      await op.files(p.locator('#taskHomeImport'), PAGES, '导入两页');
+      await p.waitForFunction(() => canvas.getObjects().some(o => o.type === 'image'), null, { timeout: 60000 });
+      // background read of the open page (no click)
+      const t0 = Date.now(); while (!ocr.length && Date.now() - t0 < 60000) await p.waitForTimeout(250);
+      const prefetched = ocr.length; await p.waitForTimeout(300);
+      const texts = () => p.evaluate(() => Array.from(document.querySelectorAll('.manga-smart-item textarea')).map(x => x.value).join('|'));
+      const gid = () => p.evaluate(() => getCanvasGUID());
+      const g1 = await gid();
+      const n0 = ocr.length, t1 = Date.now();
+      await op.click(p.locator('#taskBtn-caption'), '改字幕');
+      await p.waitForFunction(() => document.querySelectorAll('.manga-smart-item textarea').length > 0, null, { timeout: 30000 });
+      const openMs = Date.now() - t1, openReq = ocr.length - n0, A = await texts();
+      // switch page with the wizard open
+      const nav = await p.locator('#taskPageNext').isEnabled() ? '#taskPageNext' : '#taskPagePrev';
+      await op.click(p.locator(nav), '换页');
+      await p.waitForFunction(g => getCanvasGUID() !== g, g1, { timeout: 15000 });
+      const g2 = await gid();
+      await p.waitForFunction(a => { const t = Array.from(document.querySelectorAll('.manga-smart-item textarea')).map(x => x.value).join('|'); return t && t !== a; }, A, { timeout: 60000 });
+      const B = await texts();
+      const n1 = ocr.length, t2 = Date.now();
+      await op.click(p.locator(nav === '#taskPageNext' ? '#taskPagePrev' : '#taskPageNext'), '换回来');
+      await p.waitForFunction(g => getCanvasGUID() === g, g1, { timeout: 15000 });
+      await p.waitForFunction(a => Array.from(document.querySelectorAll('.manga-smart-item textarea')).map(x => x.value).join('|') === a, A, { timeout: 10000 });
+      const backMs = Date.now() - t2, backReq = ocr.length - n1;
+      await snap('caption-page-cache');
+      return { pass: prefetched >= 1 && openReq === 0 && openMs < 1500 && g2 !== g1 && B !== A && backReq === 0 && backMs < 3000 && !errors.length,
+        detail: { prefetched, openReq, openMs, A: A.slice(0, 60), B: B.slice(0, 60), backReq, backMs, errors } };
+    } finally { await ctx.close(); }
+  });
+
   await endSession('final');
   const summary = { when: new Date().toISOString(), gpt: REAL_GPT ? 'REAL' : 'MOCK', flows, pageErrors, consoleErrors: consoleErrors.slice(0, 20), dialogs };
   fs.writeFileSync(path.join(OUT, 'report.json'), JSON.stringify(summary, null, 2));

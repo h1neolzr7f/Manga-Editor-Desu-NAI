@@ -210,6 +210,60 @@
     $('mangaSmartApply').disabled = state.busy || !state.drafts.length;
   }
 
+  // ---- per-page OCR cache: drafts belong to a page (canvas GUID); switching pages swaps them, and a page that
+  // was read in the background (on import) opens 改字幕 instantly. An entry is reused only while the page's
+  // pixels (without lettering) are unchanged.
+  const pageCache = new Map();
+  let prefetching = null;   // { id, promise }
+  function pageId() { try { return typeof getCanvasGUID === 'function' ? getCanvasGUID() : 'page'; } catch (_) { return 'page'; } }
+  function remember(id, entry) { pageCache.delete(id); pageCache.set(id, entry); while (pageCache.size > 30) pageCache.delete(pageCache.keys().next().value); }
+  function syncPage() {
+    const id = pageId();
+    if (id === state.pageId) return false;
+    if (state.pageId != null && state.drafts.length && !state.busy) remember(state.pageId, { sourceImage: state.sourceImage, drafts: state.drafts, canvas: state.canvas });
+    state.pageId = id;
+    const hit = pageCache.get(id), c = getCanvas();
+    if (hit && c && snapshot(c) === hit.sourceImage) { state.drafts = hit.drafts; state.sourceImage = hit.sourceImage; state.canvas = c; }
+    else { state.drafts = []; state.sourceImage = ''; }
+    renderDrafts();
+    return true;
+  }
+  /** Background OCR of the open page (silent; result goes to the cache). */
+  function prefetch() {
+    const c = getCanvas();
+    if (!c || state.busy || !c.getObjects().some(o => o.type === 'image')) return null;
+    const id = pageId();
+    if (pageCache.has(id) || (id === state.pageId && state.drafts.length)) return null;
+    if (prefetching && prefetching.id === id) return prefetching.promise;
+    const image = snapshot(c), language = ($('mangaSmartLanguage') || {}).value || 'jpn+eng';
+    const promise = window.MangaModelRequest.post('/manga-smart/ocr', { image, language }).then(result => {
+      if (!result || !result.ok || result.width !== c.getWidth() || result.height !== c.getHeight()) return;
+      if (pageId() === id && snapshot(c) !== image) return;   // page edited meanwhile
+      const drafts = core.mapDetections(result.regions, c.getWidth(), c.getHeight()).map(d => ({ ...d, active: true }));
+      remember(id, { sourceImage: image, drafts, canvas: c });
+      if (state.pageId === id && !state.drafts.length && !state.busy) { state.drafts = drafts; state.sourceImage = image; state.canvas = c; renderDrafts(); }
+    }).catch(() => {}).finally(() => { if (prefetching && prefetching.id === id) prefetching = null; });
+    prefetching = { id, promise };
+    return promise;
+  }
+  /** 改字幕 opened / page switched: cached drafts at once, else wait for a running prefetch, else read now. */
+  async function ensure() {
+    syncPage();
+    if (state.drafts.length || state.busy) return 'cached';
+    const c = getCanvas();
+    if (!c || !c.getObjects().some(o => o.type === 'image')) return 'empty';
+    const id = pageId();
+    if (prefetching && prefetching.id === id) {
+      message('正在读取本页文字……');
+      await prefetching.promise;
+      syncPage();
+      if (state.pageId === id && !state.drafts.length) { const hit = pageCache.get(id); if (hit) { state.drafts = hit.drafts; state.sourceImage = hit.sourceImage; state.canvas = hit.canvas; } }
+      if (state.drafts.length) { renderDrafts(); message('识别到 ' + state.drafts.length + ' 条候选文字。可逐条修改后一次应用。'); return 'prefetched'; }
+    }
+    await detect();
+    return 'detected';
+  }
+
   async function detect() {
     const c = getCanvas();
     if (!c) return message('请先打开一页漫画。', true);
@@ -230,6 +284,8 @@
       state.sourceImage = image;
       state.drafts = core.mapDetections(result.regions, c.getWidth(), c.getHeight())
         .map(d => ({ ...d, active: true }));
+      state.pageId = pageId();
+      remember(state.pageId, { sourceImage: image, drafts: state.drafts, canvas: c });
       message(state.drafts.length ? '识别到 ' + state.drafts.length + ' 条候选文字。可逐条修改后一次应用。'
         : '这一页没有识别到文字。如果其实有字，可以点「手动框选字幕」把文字区域框出来再识别。');
       renderDrafts();
@@ -459,6 +515,7 @@
       if (typeof saveStateByManual === 'function') saveStateByManual();
       if (typeof updateLayerPanel === 'function') updateLayerPanel();
       state.drafts = [];
+      pageCache.delete(pageId());
       state.appliedCount = (state.appliedCount || 0) + 1;
       state.sourceImage = '';
       renderDrafts();
@@ -514,10 +571,10 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render);
   else render();
   window.MangaSmartTextEditor = {
-    detect, apply, beginManual, stopSelection,
+    detect, apply, beginManual, stopSelection, ensure, prefetch, syncPage,
     open: simple => { const p = $('mangaSmartTextPanel'); if (!p) return false; p.hidden = false; p.classList.toggle('is-simple', !!simple); return true; },
     setSimple: on => { const p = $('mangaSmartTextPanel'); if (p) p.classList.toggle('is-simple', !!on); },
-    progress: () => ({ drafts: state.drafts.length, busy: !!state.busy, applied: state.appliedCount || 0,
+    progress: () => ({ page: state.pageId, drafts: state.drafts.length, busy: !!state.busy, applied: state.appliedCount || 0,
       open: !!($('mangaSmartTextPanel') && !$('mangaSmartTextPanel').hidden) }),
     getDrafts: () => state.drafts.map(d => ({ ...d })),
     setPanelAssignments: assignments => {

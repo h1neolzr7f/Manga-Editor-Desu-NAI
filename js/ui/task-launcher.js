@@ -297,8 +297,8 @@ var panel=$('mangaSmartTextPanel');
 head(t,panel,panel.querySelector('header')?panel.querySelector('header').nextSibling:null);
 markStep(0);
 // no click needed: a page without drafts is read right away (「检测本页文字」 stays for re-reading)
-var pr=api.progress();
-if(!pr.drafts&&!pr.busy&&api.detect&&typeof canvas!=='undefined'&&canvas.getObjects().some(function(o){return o.type==='image';}))api.detect();
+// pages read in the background on import open instantly (per-page cache); switching pages follows in tick()
+if(api.ensure){active.captionPage=null;api.ensure().then(function(){if(active)active.captionPage=(typeof getCanvasGUID==='function'?getCanvasGUID():null);});}
 }
 function startNai(t){
 var body=card(t);
@@ -554,6 +554,9 @@ if(n<0)markStep(0,true);else markStep(n);
 }else if(active.kind==='caption'&&window.MangaSmartTextEditor){
 var p=MangaSmartTextEditor.progress();
 if(!p.open){stop(false);return;}
+// page switched with 改字幕 open: that page's own drafts (cached, or read now)
+var gid=typeof getCanvasGUID==='function'?getCanvasGUID():null;
+if(active.captionPage&&gid&&gid!==active.captionPage&&!p.busy&&MangaSmartTextEditor.ensure){active.captionPage=null;var a0=active;MangaSmartTextEditor.ensure().then(function(){if(active===a0)active.captionPage=getCanvasGUID();});}
 if(p.applied>active.startApplied)markStep(0,true);else markStep(p.drafts?1:0);
 }
 }
@@ -606,7 +609,7 @@ setInterval(function(){
 if(typeof canvas==='undefined'||!window.AutoSwap||!AutoSwap.prefetch||mode()!=='beginner')return;
 var img=canvas.getObjects().filter(function(o){return o.type==='image'&&!o.autoSwap;})[0];
 var sig=img?(img.width+'x'+img.height+':'+((img._element&&img._element.src)||'').length):'';
-if(sig&&sig!==lastPageSig){lastPageSig=sig;AutoSwap.prefetch();if(window.PanelAuto)setTimeout(function(){PanelAuto.get().catch(function(){});},1500);}
+if(sig&&sig!==lastPageSig){lastPageSig=sig;AutoSwap.prefetch();if(window.MangaSmartTextEditor&&MangaSmartTextEditor.prefetch)setTimeout(function(){if(!document.querySelector('#taskWizardCard'))MangaSmartTextEditor.prefetch();},2500);if(window.PanelAuto)setTimeout(function(){PanelAuto.get().catch(function(){});},1500);}
 },2000);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(init,0);});
