@@ -1,0 +1,70 @@
+{
+  "when": "2026-10-10T06:39:01.088Z",
+  "gpt": "REAL",
+  "flows": [
+    {
+      "name": "1 首次启动并导入 2 页漫画",
+      "pass": true,
+      "keyOps": 4,
+      "ops": [
+        "skip tutorial",
+        "File menu",
+        "Import image",
+        "page 1"
+      ],
+      "seconds": 17.6,
+      "screenshot": "artifacts/novice/01-1_首次启动并导入_2_页漫画.png",
+      "notes": [],
+      "detail": {
+        "tutorialShown": true,
+        "pages": 2,
+        "size1": [
+          1200,
+          1700
+        ],
+        "size2": [
+          1200,
+          1700
+        ],
+        "page1VsFile": 0,
+        "page2VsFile": 0
+      }
+    },
+    {
+      "name": "2 框选人物+参考图+描述→生成→预览→应用",
+      "pass": true,
+      "keyOps": 4,
+      "ops": [
+        "GPT 改图",
+        "drag selection",
+        "生成",
+        "应用为图层"
+      ],
+      "seconds": 35.4,
+      "screenshot": "artifacts/novice/03-2_框选人物_参考图_描述_生成_预览_应用.png",
+      "notes": [],
+      "detail": {
+        "selection": "已选中原始画布区域：581 × 941 像素。",
+        "preview": false,
+        "status": "图像已生成，请检查预览后点击“作为新图层应用”。",
+        "rect": {
+          "left": 199,
+          "top": 60,
+          "width": 581,
+          "height": 941
+        },
+        "size": [
+          1200,
+          1700
+        ],
+        "changed": 366034,
+        "outside": 0,
+        "calls": "real",
+        "model": null
+      }
+    }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "dialogs": []
+}

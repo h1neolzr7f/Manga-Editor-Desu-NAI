@@ -1,3 +1,4 @@
+/* exported addToneNoiseEventListener, toneNoiseEnd, toneNoiseStart */
 var tmpCanvasToneNoise=null;
 var tmpCtxToneNoise=null;
 var nowToneNoise=null;

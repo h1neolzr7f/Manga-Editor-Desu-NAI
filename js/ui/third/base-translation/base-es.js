@@ -392,6 +392,7 @@ const base_es = {
 "imageDownload":"Descargar imagen",
 "imageCopy":"Copiar imagen",
 "allRemove":"Eliminar todo",
+"allRemoveConfirm":"¿Borrar todo en esta página? No se puede deshacer. Guarda antes el proyecto (Ctrl+S) si quieres conservarlo.",
 "prompt":"Prompt",
 "searchReplace":"Buscar y reemplazar",
 "sdWebUI":"SD WebUI",

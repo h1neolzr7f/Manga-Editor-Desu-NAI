@@ -1,3 +1,4 @@
+/* exported glfxAddEvent, glfxApplyNoReset */
 var glfxOriginalImage=null;
 var glfxCopiedImage=null;
 

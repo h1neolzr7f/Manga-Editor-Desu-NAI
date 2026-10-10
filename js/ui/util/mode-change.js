@@ -1,6 +1,6 @@
+/* exported MODE_PEN_CIRCLE, MODE_PEN_CRAYON, MODE_PEN_CUSTOM, MODE_PEN_ERASER, MODE_PEN_HLINE, MODE_PEN_INK, MODE_PEN_MARKER, MODE_PEN_MOSAIC, MODE_PEN_OUTLINE, MODE_PEN_PENCIL, MODE_PEN_TEXTURE, MODE_PEN_VLINE, completeCrop, getCssValue, hideCanvasHelpText, isKnifeDrawing, isKnifeMode, isMosaicBrushActive, nowPencil, startCutoutRegionMode */
 // mode-change.js - グローバル変数、ダークモード切替、cropモードUI
 
-var nowMode="";
 
 var isKnifeDrawing=false;
 var isKnifeMode=false;
@@ -8,7 +8,6 @@ var isKnifeMode=false;
 const MODE_PEN_PENCIL='Pencil';
 const MODE_PEN_OUTLINE='OutlinePen';
 const MODE_PEN_CIRCLE='Circle';
-const MODE_PEN_SQUARE='Square';
 const MODE_PEN_TEXTURE='Texture';
 const MODE_PEN_CRAYON='Crayon';
 const MODE_PEN_INK='Ink';
@@ -39,20 +38,23 @@ el.classList.remove("active");
 el.innerHTML="";
 }
 
+// Dark/light theme: the checkbox is checked for dark. Both html and body carry the class so every
+// css/ui-theme.css token switches; the choice is remembered (it used to always force dark).
+function applyColorMode(mode){
+var other=mode==='light-mode'?'dark-mode':'light-mode';
+[document.documentElement,document.body].forEach(function(el){el.classList.remove(other);el.classList.add(mode);});
+var logo=$('navbar-logo');
+if(logo)logo.src=mode==='dark-mode'?'02_images_svg/Logo/black_mode_logo.webp':'02_images_svg/Logo/light_mode_logo.webp';
+var box=$('mode-toggle');
+if(box)box.checked=mode==='dark-mode';
+}
+
 function toggleMode() {
-const isDarkMode=document.body.classList.toggle('dark-mode');
-const logo=$('navbar-logo');
-
-document.documentElement.classList.remove('light-mode');
-document.documentElement.classList.add('dark-mode');
-document.body.classList.remove('light-mode');
-document.body.classList.add('dark-mode');
-document.documentElement.classList.remove('light-mode');
-document.documentElement.classList.add('dark-mode');
-localStorage.setItem('mode','dark-mode');
-logo.src='02_images_svg/Logo/black_mode_logo.webp';
-
-updateLayerPanel();
+var box=$('mode-toggle');
+var mode=box&&!box.checked?'light-mode':'dark-mode';
+applyColorMode(mode);
+try{localStorage.setItem('mode',mode);}catch(e){/* storage blocked */}
+if(typeof updateLayerPanel==='function')updateLayerPanel();
 }
 
 document.addEventListener('DOMContentLoaded',function() {
@@ -60,17 +62,9 @@ $('mode-toggle').addEventListener('change',toggleMode);
 });
 
 function initializeMode() {
-const mode='dark-mode';
-document.documentElement.classList.add(mode);
-document.body.classList.add(mode);
-document.documentElement.classList.add(mode);
-const logo=$('navbar-logo');
-if (mode==='dark-mode') {
-$('mode-toggle').checked=true;
-logo.src='02_images_svg/Logo/black_mode_logo.webp';
-} else {
-logo.src='02_images_svg/Logo/light_mode_logo.webp';
-}
+var mode='dark-mode';
+try{if(localStorage.getItem('mode')==='light-mode')mode='light-mode';}catch(e){/* storage blocked */}
+applyColorMode(mode);
 }
 
 document.addEventListener('DOMContentLoaded',function() {

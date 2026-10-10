@@ -1,3 +1,4 @@
+/* exported createClippedCanvas, createOffscreenCanvas, createScaledCanvas, enhanceDarkRegionsCPU, findNonTransparentBounds, renderLayerToCanvas */
 // html-canvas-util.js - HTMLキャンバスに対する低レベル操作（境界検出、スケーリング、ピクセル処理）
 
 var HtmlCanvasUtil={

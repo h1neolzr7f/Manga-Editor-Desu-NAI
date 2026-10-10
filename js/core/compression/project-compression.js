@@ -1,3 +1,4 @@
+/* exported btmSaveProjectFile, loadLz4BlobProjectFile, multiLoadLz4, multiLoadZip, openFirstLoadedPageIfCanvasEmpty, processZip */
 
 async function generateProjectFileBufferListCore(stateStackParam,imageMapParam,canvasInfoParam,basePromptParam,previewDataUrl){
 var fileBufferList=[];
@@ -29,13 +30,8 @@ return fileBufferList;
 }
 
 async function generateProjectFileBufferList() {
-if(currentStateIndex<stateStack.length-1){
-stateStack.splice(currentStateIndex+1);
-}
-var state=customToJSON();
-var json=JSON.stringify(state);
-stateStack.push(json);
-currentStateIndex++;
+if(window.NaiHistoryLoading||notSave())throw new Error('画布正在载入，请等待完成后再保存。');
+saveState();
 await convertImageMapBlobUrls();
 removeGrid();
 var previewLink=await getCropAndDownloadLinkByMultiplier(1,'jpeg',0.8);
@@ -44,16 +40,20 @@ if(isGridVisible){
 drawGrid();
 isGridVisible=true;
 }
-var canvasInfo={width:canvas.width,height:canvas.height};
+var canvasInfo={width:canvas.width,height:canvas.height,historyIndex:currentStateIndex};
 var fileBufferList=await generateProjectFileBufferListCore(stateStack,imageMap,canvasInfo,basePrompt,previewDataUrl);
 return {fileBufferList,previewDataUrl};
 }
 
 
 
-async function loadLz4BlobProjectFile(lz4Blob,guid=null){
-stateStack=[];
-imageMap.clear();
+async function loadLz4BlobProjectFile(lz4Blob,guid=null,pageLockHeld=false){
+if(window.NaiHistoryLoading||(window.NaiPageLoading&&!pageLockHeld))return false;
+window.NaiPageLoading=true;
+const wasSaving=isSaveHistory;
+changeDoNotSaveHistory();
+try{
+const loadedImages=new Map();
 
 let files=await lz4Compressor.unLz4Files(lz4Blob);
 
@@ -65,8 +65,6 @@ let canvasInfoStr=ArrayBufferUtils.fromArrayBufferToString(canvasInfoBuffer);
 
 if (t2iBasePromptStr) {
 var loadedBasePrompt=JSON.parse(t2iBasePromptStr);
-Object.assign(basePrompt,loadedBasePrompt);
-if(!Array.isArray(loadedBasePrompt.naiCharacterCards))basePrompt.naiCharacterCards=[];
 }
 
 var canvasInfo=canvasInfoStr ? JSON.parse(canvasInfoStr) : {width: 750,height: 850};
@@ -86,7 +84,7 @@ if (file.name.endsWith(".img")) {
 let imgDataUrlStr=ArrayBufferUtils.fromArrayBufferToString(file.data);
 
 let hash=file.name.split('.')[0];
-imageMap.set(hash,imgDataUrlStr);
+loadedImages.set(hash,imgDataUrlStr);
 }
 } catch (error) {
 compressionLogger.error("Failed to load file:",file.name,error);
@@ -107,17 +105,33 @@ compressionLogger.error("Failed to load file:",file.name,error);
 });
 
 const jsonResults=await Promise.all(jsonLoadPromises);
-stateStack=jsonResults.filter(data=>data!==undefined);
+const loadedStates=jsonResults.filter(data=>data!==undefined);
+if(!loadedStates.length)throw new Error('Project contains no canvas history');
+// Parse before replacing the current page so malformed history cannot clear it.
+loadedStates.forEach(state=>JSON.parse(state));
+stateStack=loadedStates;
+imageMap.clear();
+loadedImages.forEach((value,key)=>imageMap.set(key,value));
+if(loadedBasePrompt){
+Object.assign(basePrompt,loadedBasePrompt);
+if(!Array.isArray(loadedBasePrompt.naiCharacterCards))basePrompt.naiCharacterCards=[];
+}
+basePrompt.gptVisualProfiles=loadedBasePrompt&&Array.isArray(loadedBasePrompt.gptVisualProfiles)?loadedBasePrompt.gptVisualProfiles:[];
 
-currentStateIndex=stateStack.length-1;
+currentStateIndex=Number.isInteger(canvasInfo.historyIndex)&&canvasInfo.historyIndex>=0&&canvasInfo.historyIndex<stateStack.length?canvasInfo.historyIndex:stateStack.length-1;
 resizeCanvasByNum(canvasInfo.width,canvasInfo.height);
-lastRedo(guid);
+await restoreHistoryState(currentStateIndex,guid,true);
 
 if(guid){
 setCanvasGUID(guid);
 }
 if(window.NaiCharacterCards&&typeof window.NaiCharacterCards.load==='function'){
 window.NaiCharacterCards.load({preferProject:true});
+}
+return true;
+}finally{
+isSaveHistory=wasSaving;
+if(!pageLockHeld)window.NaiPageLoading=false;
 }
 }
 
@@ -150,6 +164,7 @@ throw error;
 
 
 async function multiLoadLz4(bufferFileLz4List) {
+const loadedGuids=[];
 for (const file of bufferFileLz4List) {
 let projectFileList=await lz4Compressor.unLz4FilesByBuffer(file.data.buffer);
 const previewBlobBuffer=projectFileList.find(file=>file.name==="preview-image.jpeg");
@@ -194,6 +209,7 @@ canvasGuid=findCanvasGuid(state);
 if (canvasGuid) {
 const lz4Blob=new Blob([file.data]);
 btmAddImage({href: previewImageUrl},lz4Blob,canvasGuid);
+loadedGuids.push(canvasGuid);
 break;
 }
 } catch (error) {
@@ -205,12 +221,15 @@ if (!canvasGuid) {
 let guid=generateGUID();
 const blob=new Blob([file.data]);
 btmAddImage({href: previewImageUrl},blob,guid);
+loadedGuids.push(guid);
 }
 }
+return loadedGuids;
 }
 
 
 async function multiLoadZip(zip) {
+const loadedGuids=[];
 const zipFiles=Object.keys(zip.files).filter(filename=>filename.endsWith('.zip'));
 
 for (let i=0;i<zipFiles.length;i++) {
@@ -236,6 +255,7 @@ canvasGuid=findCanvasGuid(state);
 
 if (canvasGuid) {
 btmAddImage({href: previewImageUrl},zipContent,canvasGuid);
+loadedGuids.push(canvasGuid);
 break;
 }
 } catch (error) {
@@ -248,8 +268,32 @@ if(canvasGuid){
 }else{
 let guid=generateGUID();
 btmAddImage({href: previewImageUrl},zipContent,guid);
+loadedGuids.push(guid);
 }
 }
+return loadedGuids;
+}
+
+// After "Load project" the pages only appear as thumbnails. When the canvas the
+// user is looking at has nothing of their own on it (fresh start, or just
+// cleared), open the first loaded page so the load is visibly effective.
+// A page with user content is never replaced.
+function countUserObjectsForLoad(){
+if(typeof userObjectCount==='function')return userObjectCount();
+return (typeof getObjectCount==='function')?getObjectCount():0;
+}
+// 打开项目 must show what was opened. It used to switch only when the canvas was empty, so opening a
+// project over a non-empty page (or re-opening the page you just saved: same guid, its page-bar data
+// silently replaced) looked like nothing happened, and the next save of the visible page overwrote
+// the loaded data. The caller saves the current page before loading, so switching is safe.
+async function openFirstLoadedPageIfCanvasEmpty(loadedGuids,alwaysOpen){
+if(!Array.isArray(loadedGuids)||loadedGuids.length===0)return false;
+if(!alwaysOpen&&countUserObjectsForLoad()>0)return false;
+const guid=loadedGuids[0];
+if(typeof btmProjectsMap==='undefined'||!btmProjectsMap.get(guid))return false;
+await chengeCanvasByGuid(guid);
+if(typeof btmUpdateHandleText==='function')btmUpdateHandleText();
+return true;
 }
 
 
@@ -299,69 +343,3 @@ btmAddImage({href: previewImageUrl},zipContent,guid);
 }
 }
 
-//This is not recommended as it has been changed from Zip management to Lz4 management.
-async function loadZip(zip,guid=null){
-stateStack=[];
-imageMap.clear();
-
-var text2imgBasePromptFile=zip.file("text2img_basePrompt.json");
-if (text2imgBasePromptFile) {
-const content=await text2imgBasePromptFile.async("string");
-var loadedBasePrompt=JSON.parse(content);
-Object.assign(basePrompt,loadedBasePrompt);
-if(!Array.isArray(loadedBasePrompt.naiCharacterCards))basePrompt.naiCharacterCards=[];
-}
-
-var canvasInfoFile=zip.file("canvas_info.json");
-var canvasInfo=canvasInfoFile
-? JSON.parse(await canvasInfoFile.async("string"))
-: {width: 750,height: 850};
-
-var sortedFiles=Object.keys(zip.files).sort((a,b)=>{
-const numA=a.match(/(\d+)/) ? parseInt(a.match(/(\d+)/)[0]) :-1;
-const numB=b.match(/(\d+)/) ? parseInt(b.match(/(\d+)/)[0]) :-1;
-if (numA===numB) {
-return a.localeCompare(b);
-}
-return numA-numB;
-});
-
-await Promise.all(sortedFiles.map(async (fileName)=>{
-try {
-const content=await zip.file(fileName).async("string");
-if (fileName.endsWith(".img")) {
-let hash=fileName.split('.')[0];
-imageMap.set(hash,content);
-}
-} catch (error) {
-compressionLogger.error("Failed to load file:",fileName,error);
-}
-}));
-
-const jsonLoadPromises=sortedFiles.map(async (fileName)=>{
-try {
-if (fileName.endsWith(".json")&&
-fileName!=="text2img_basePrompt.json"&&
-fileName!=="canvas_info.json") {
-const content=await zip.file(fileName).async("string");
-return JSON.parse(content);
-}
-} catch (error) {
-compressionLogger.error("Failed to load file:",fileName,error);
-}
-});
-
-const jsonResults=await Promise.all(jsonLoadPromises);
-stateStack=jsonResults.filter(data=>data!==undefined);
-
-currentStateIndex=stateStack.length-1;
-resizeCanvasByNum(canvasInfo.width,canvasInfo.height);
-lastRedo(guid);
-
-if(guid){
-setCanvasGUID(guid);
-}
-if(window.NaiCharacterCards&&typeof window.NaiCharacterCards.load==='function'){
-window.NaiCharacterCards.load({preferProject:true});
-}
-}

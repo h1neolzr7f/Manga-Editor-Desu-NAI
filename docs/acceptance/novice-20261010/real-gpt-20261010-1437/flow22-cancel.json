@@ -1,0 +1,9 @@
+{
+ "busyAt4s": true,
+ "status": "已取消请求。",
+ "generateEnabled": true,
+ "applyEnabled": false,
+ "ok": true,
+ "seconds": 4,
+ "errors": []
+}

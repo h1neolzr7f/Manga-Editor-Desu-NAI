@@ -1,0 +1,661 @@
+{
+  "when": "2026-10-10T07:38:15.068Z",
+  "gpt": "MOCK",
+  "flows": [
+    {
+      "name": "1 首次启动并导入 2 页漫画",
+      "pass": true,
+      "keyOps": 4,
+      "ops": [
+        "skip tutorial",
+        "File menu",
+        "Import image",
+        "page 1"
+      ],
+      "seconds": 17.7,
+      "screenshot": "artifacts/novice/01-1_首次启动并导入_2_页漫画.png",
+      "notes": [],
+      "detail": {
+        "tutorialShown": true,
+        "pages": 2,
+        "size1": [
+          1200,
+          1700
+        ],
+        "size2": [
+          1200,
+          1700
+        ],
+        "page1VsFile": 0,
+        "page2VsFile": 0
+      }
+    },
+    {
+      "name": "2 框选人物+参考图+描述→生成→预览→应用",
+      "pass": true,
+      "keyOps": 4,
+      "ops": [
+        "GPT 改图",
+        "drag selection",
+        "生成",
+        "应用为图层"
+      ],
+      "seconds": 3,
+      "screenshot": "artifacts/novice/03-2_框选人物_参考图_描述_生成_预览_应用.png",
+      "notes": [],
+      "detail": {
+        "selection": "已选中原始画布区域：581 × 941 像素。",
+        "preview": false,
+        "compare": {
+          "visible": true,
+          "flipped": true,
+          "back": true,
+          "pressed": "true",
+          "label": "看生成结果"
+        },
+        "seam": {
+          "seamMatch": {
+            "left": 0,
+            "right": 4,
+            "top": 1,
+            "bottom": 1
+          },
+          "feather": 17
+        },
+        "status": "图像已生成，请检查预览后点击“作为新图层应用”。",
+        "rect": {
+          "left": 199,
+          "top": 60,
+          "width": 581,
+          "height": 941
+        },
+        "size": [
+          1200,
+          1700
+        ],
+        "changed": 274566,
+        "outside": 0,
+        "calls": 1,
+        "model": "gpt-image-2.5"
+      }
+    },
+    {
+      "name": "3 识别日文气泡→修正→去字→替换中文字幕",
+      "pass": true,
+      "keyOps": 3,
+      "ops": [
+        "智能字幕",
+        "识别",
+        "应用字幕"
+      ],
+      "seconds": 2.3,
+      "screenshot": "artifacts/novice/04-3_识别日文气泡_修正_去字_替换中文字幕.png",
+      "notes": [
+        "OCR: [\"ありがとう\"]"
+      ],
+      "detail": {
+        "ocr": [
+          "ありがとう"
+        ],
+        "text": "谢谢你",
+        "type": "vertical-textbox",
+        "fontSize": 45,
+        "rect": {
+          "x": 1000,
+          "y": 232,
+          "w": 60,
+          "h": 136
+        },
+        "box": {
+          "x": 902,
+          "y": 157,
+          "w": 157,
+          "h": 286
+        },
+        "erase": true
+      }
+    },
+    {
+      "name": "4 撤销/重做/切页/保存/关闭/重开",
+      "pass": true,
+      "keyOps": 12,
+      "ops": [
+        "Ctrl+Z",
+        "Ctrl+Y",
+        "展开页面",
+        "page 2",
+        "page 1",
+        "File menu",
+        "保存项目",
+        "File menu",
+        "打开项目",
+        "page 2",
+        "page 1",
+        "Ctrl+Z after reopen"
+      ],
+      "seconds": 15.4,
+      "screenshot": "artifacts/novice/05-4_撤销_重做_切页_保存_关闭_重开.png",
+      "notes": [],
+      "detail": {
+        "undoChanged": 6216,
+        "redoChanged": 0,
+        "page2Intact": 0,
+        "backToPage1": 0,
+        "reopenPage1": 0,
+        "reopenPage2": 0,
+        "editable": {
+          "type": "vertical-textbox",
+          "editable": true,
+          "text": "谢谢你"
+        },
+        "undoAfterReopen": 6216,
+        "project": "artifacts/novice/project-DESU-nai学长魔改.lz4"
+      }
+    },
+    {
+      "name": "5 错误 API/失败后再试/超长提示词/空选区",
+      "pass": true,
+      "keyOps": 5,
+      "ops": [
+        "GPT 改图",
+        "生成（未框选）",
+        "drag selection",
+        "生成（失败）",
+        "再试一次"
+      ],
+      "seconds": 2.8,
+      "screenshot": "artifacts/novice/06-5_错误_API_失败后再试_超长提示词_空选区.png",
+      "notes": [],
+      "detail": {
+        "noRegion": "请先在当前画布框选需要修改的区域。",
+        "failMsg": "上游 HTTP 530：图像服务（或其网关）暂时不可用，本次没有生成图片，请稍后重试。",
+        "silentRetries": 0,
+        "okAfterRetry": true,
+        "longPromptChars": 3300,
+        "lastPromptLen": 3300
+      }
+    },
+    {
+      "name": "8 导入含坏文件的一批图→立刻刷新→恢复对话框找回全部页",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 7.9,
+      "screenshot": "artifacts/novice/07-8_导入含坏文件的一批图_立刻刷新_恢复对话框找回全部页.png",
+      "notes": [],
+      "detail": {
+        "before": {
+          "pages": 2,
+          "page1HasImage": true,
+          "toast": true
+        },
+        "dialog": true,
+        "after": {
+          "pages": 2
+        }
+      }
+    },
+    {
+      "name": "9 导入超大图→提示已自动缩小（中文 + 8 语言文案）",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 6,
+      "screenshot": "artifacts/novice/08-9_导入超大图_提示已自动缩小_中文_8_语言文案_.png",
+      "notes": [],
+      "detail": {
+        "zh": "图片过大，已自动缩小\n原图 5000×3000 → 页面 4096×2458（长边上限 4096 像素）。原文件不受影响。",
+        "en": {
+          "langs": 8,
+          "zhResolved": true
+        },
+        "size": [
+          4096,
+          2458
+        ]
+      }
+    },
+    {
+      "name": "10 没填 NovelAI Token 就点「生成 5 页样稿」→看得懂的提示、不发请求",
+      "pass": true,
+      "keyOps": 2,
+      "ops": [
+        "未填 Token",
+        "生成 5 页样稿"
+      ],
+      "seconds": 3.5,
+      "screenshot": "artifacts/novice/09-10_没填_NovelAI_Token_就点_生成_5_页样稿_看得懂的提示_不.png",
+      "notes": [],
+      "detail": {
+        "toast": "5 页漫画样稿\n还没填 NOVELAI TOKEN：点顶部「未填 TOKEN」按钮，在「访问令牌」里粘贴后再试。没有 TOKEN 时不会发出请求，也不会扣 ANLAS。",
+        "requests": []
+      }
+    },
+    {
+      "name": "11 字幕图层：点眼睛隐藏→导出不含字幕→Ctrl+Z 恢复显示；刷新恢复后字幕仍可编辑",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 10.4,
+      "screenshot": "artifacts/novice/10-11_字幕图层_点眼睛隐藏_导出不含字幕_Ctrl_Z_恢复显示_刷新恢复后字幕.png",
+      "notes": [],
+      "detail": {
+        "exportDarkShown": 1663,
+        "eyeHid": true,
+        "exportDarkHidden": 0,
+        "undoShows": true,
+        "dialog": true,
+        "after": {
+          "type": "vertical-textbox",
+          "text": "谢谢你",
+          "editable": true,
+          "visible": true
+        }
+      }
+    },
+    {
+      "name": "12 从页面外开始拖「手动框选字幕」→贴边框选；贴边气泡用 LaMa 去字不越界",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 5.5,
+      "screenshot": "artifacts/novice/11-12_从页面外开始拖_手动框选字幕_贴边框选_贴边气泡用_LaMa_去字不越界.png",
+      "notes": [],
+      "detail": {
+        "items": 1,
+        "status": "已添加手动字幕区。修改文字后点击「应用」。",
+        "lama": {
+          "left": 0,
+          "top": 0,
+          "right": 372,
+          "bottom": 337,
+          "W": 1200,
+          "H": 1700,
+          "ink": "无法安全提取深色文字：文字框附近缺少完整的外缘背景采样；请手动编辑蒙版。 原蒙版保持不变。",
+          "sent": {
+            "w": 372,
+            "h": 337
+          }
+        }
+      }
+    },
+    {
+      "name": "13 误点页面缩略图的 🗑 → 「撤销删除」一键找回（位置和内容不变）",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 5.5,
+      "screenshot": "artifacts/novice/12-13_误点页面缩略图的_撤销删除_一键找回_位置和内容不变_.png",
+      "notes": [],
+      "detail": {
+        "afterDelete": 1,
+        "barText": "已删除第 1 页。撤销删除",
+        "restoredOrder": true,
+        "content": {
+          "guid": "6a9f49c8-39af-4484-a9a9-47576d090a6f",
+          "images": 1,
+          "w": 1200,
+          "h": 1700
+        }
+      }
+    },
+    {
+      "name": "14 复制本页 ⧉ / 页面左右挪动：副本插在原页后、互不影响，缩略图按钮都有提示",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 8.7,
+      "screenshot": "artifacts/novice/13-14_复制本页_页面左右挪动_副本插在原页后_互不影响_缩略图按钮都有提示.png",
+      "notes": [],
+      "detail": {
+        "untitled": [],
+        "order": [
+          0,
+          -1,
+          1
+        ],
+        "st": {
+          "cur": "675cef92-8c83-430f-888f-63d5a34ed767",
+          "imgs": 1,
+          "nums": "1,2,3"
+        },
+        "origMarkers": 0,
+        "copyMarkers": 1,
+        "moved": true,
+        "errors": []
+      }
+    },
+    {
+      "name": "15 气泡模板 + 横排字 + 加粗/居中 → 菜单「文件 › 下载图片」导出真实 PNG",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 5.9,
+      "screenshot": "artifacts/novice/14-15_气泡模板_横排字_加粗_居中_菜单_文件_下载图片_导出真实_PNG.png",
+      "notes": [],
+      "detail": {
+        "bubble": {
+          "name": "组合 1",
+          "imgName": "图片 1"
+        },
+        "icons": [
+          "加粗 / 取消加粗",
+          "左对齐",
+          "居中对齐",
+          "右对齐"
+        ],
+        "text": {
+          "type": "textbox",
+          "fw": "bold",
+          "align": "center"
+        },
+        "sizeToast": "已下载图片\n        2476×3508 像素 PNG（300 DPI）。想改大小：菜单「画布 › 下载 DPI」。",
+        "file": "artifacts/novice/flow15-menu-export.png",
+        "png": true,
+        "w": 2476,
+        "h": 3508,
+        "errors": []
+      }
+    },
+    {
+      "name": "16 竖排字（默认中文占位）+ 换字体 + 自由气泡手绘",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 8.7,
+      "screenshot": "artifacts/novice/15-16_竖排字_默认中文占位_换字体_自由气泡手绘.png",
+      "notes": [],
+      "detail": {
+        "vert": {
+          "type": "vertical-textbox",
+          "font": "Klee One",
+          "text": "台词"
+        },
+        "optCount": 50,
+        "chosen": "DotGothic16",
+        "afterFont": {
+          "type": "vertical-textbox",
+          "font": "DotGothic16",
+          "text": "台词"
+        },
+        "free": {
+          "delta": 3,
+          "types": [
+            "path",
+            "rect",
+            "textbox"
+          ]
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "17 自由气泡：竖排文字 + 加点画形 + 移点 + 删点",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 8.3,
+      "screenshot": "artifacts/novice/16-17_自由气泡_竖排文字_加点画形_移点_删点.png",
+      "notes": [],
+      "detail": {
+        "made": {
+          "n": 22,
+          "textType": "vertical-textbox",
+          "label": "台词"
+        },
+        "ctlCount": 20,
+        "movedChanged": true,
+        "deletedN": 21,
+        "movedN": 22,
+        "warns": [
+          "🟧 15:35:18 WARN [perf] [fabric-management.js:532 r.<anonymous>] [PERF:point mouse:up] processPoints:0ms JSTS:5ms merge:1ms createBubble:79m",
+          "hitCenter=vertical-textbox hitEdge=image"
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "18 自由气泡「不显示文字」+ 手绘时按住 Shift 临时变选择",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 36.3,
+      "screenshot": "artifacts/novice/17-18_自由气泡_不显示文字_手绘时按住_Shift_临时变选择.png",
+      "notes": [],
+      "detail": {
+        "noText": {
+          "types": [
+            "path",
+            "rect"
+          ],
+          "bubble": true,
+          "text": false
+        },
+        "modeShift": "select",
+        "shiftDrawAdded": 0,
+        "modeAfter": "freehand",
+        "afterReleaseAdded": 1,
+        "errors": []
+      }
+    },
+    {
+      "name": "19 新手把每个顶部菜单项点一遍：无控制台报错，网格线可开关",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 22,
+      "screenshot": "artifacts/novice/18-19_新手把每个顶部菜单项点一遍_无控制台报错_网格线可开关.png",
+      "notes": [],
+      "detail": {
+        "clicked": 23,
+        "skipped": 13,
+        "grid": {
+          "before": false,
+          "after": true
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "20 左侧工具栏：笔记本屏幕上主要工具不用滚动就能点到；逐个面板点一遍无控制台报错",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 42,
+      "screenshot": "artifacts/novice/19-20_左侧工具栏_笔记本屏幕上主要工具不用滚动就能点到_逐个面板点一遍无控制台报.png",
+      "notes": [],
+      "detail": {
+        "reach": {
+          "1440x900": [],
+          "1366x768": []
+        },
+        "swept": {
+          "svg-container-template": "0/0",
+          "simulator-chat": "8/12",
+          "asset-library": "12/12",
+          "auto-generate": "12/12",
+          "tool": "12/12",
+          "ps-tools": "9/9",
+          "speech-bubble": "9/9",
+          "text": "12/12",
+          "manga-tone": "6/6",
+          "shape": "12/12",
+          "cutout": "2/2"
+        },
+        "deadPanels": [],
+        "covered": [],
+        "sweepFails": {},
+        "gallery": {
+          "opened": 1,
+          "afterEsc": 0
+        },
+        "fontEsc": {
+          "opened": 1,
+          "afterEsc": 0
+        },
+        "tutorialEsc": true,
+        "errors": []
+      }
+    },
+    {
+      "name": "21 文件菜单：保存项目 → 打开项目（文件选择框）往返；导入图片；重置设置可取消/Esc",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 13.7,
+      "screenshot": "artifacts/novice/20-21_文件菜单_保存项目_打开项目_文件选择框_往返_导入图片_重置设置可取消_.png",
+      "notes": [],
+      "detail": {
+        "project": "flow21-project.lz4",
+        "restored": {
+          "marker": true,
+          "images": 1,
+          "objs": [
+            "image:图片 1",
+            "textbox:往返标记"
+          ],
+          "pages": 1
+        },
+        "imported": true,
+        "shown": true,
+        "a11y": true,
+        "escClosed": true,
+        "cancelClosed": true,
+        "kept": true,
+        "cleared": true,
+        "errors": []
+      }
+    },
+    {
+      "name": "22 真实生成中途：取消 / 刷新页面 / 断网（仅 NOVICE_REAL_GPT=1）",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 0.1,
+      "screenshot": "artifacts/novice/21-22_真实生成中途_取消_刷新页面_断网_仅_NOVICE_REAL_GPT_1.png",
+      "notes": [],
+      "detail": {
+        "skipped": "real-only: mid-generation interrupts need a slow real request"
+      }
+    },
+    {
+      "name": "7 生成中切页→结果不得贴到别的页→切回后再应用",
+      "pass": true,
+      "keyOps": 14,
+      "ops": [
+        "展开页面",
+        "page 1",
+        "page 2",
+        "page 1",
+        "GPT 改图",
+        "框选区域",
+        "drag selection",
+        "生成",
+        "展开页面",
+        "page 2",
+        "应用（在第 2 页）",
+        "展开页面",
+        "page 1",
+        "应用（回到第 1 页）"
+      ],
+      "seconds": 41.1,
+      "screenshot": "artifacts/novice/22-7_生成中切页_结果不得贴到别的页_切回后再应用.png",
+      "notes": [],
+      "detail": {
+        "applyEnabledOnPage2": true,
+        "onPage2Status": "这个结果是为第 1 页生成的，当前在第 2 页。请切回第 1 页再点“应用”（不用重新生成）。",
+        "page2Changed": 0,
+        "page1Changed": 51337,
+        "page1Outside": 0
+      }
+    },
+    {
+      "name": "6 1440/1280/1024 宽与 1.5x 缩放：面板不遮画布、可收起",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 16.2,
+      "screenshot": "artifacts/novice/23-6_1440_1280_1024_宽与_1_5x_缩放_面板不遮画布_可收起.png",
+      "notes": [],
+      "detail": {
+        "1440x900@1": {
+          "hScroll": false,
+          "gptOpen": true,
+          "file": true,
+          "generateReachable": true,
+          "hasImage": true,
+          "open": {
+            "overlapPx": 0,
+            "canvasW": 496,
+            "canvasH": 703,
+            "visibleRatio": 1,
+            "centerOnCanvas": true,
+            "centerHit": "upper-canvas "
+          },
+          "collapsed": {
+            "overlapPx": 0,
+            "canvasW": 527,
+            "canvasH": 747,
+            "visibleRatio": 1,
+            "centerOnCanvas": true,
+            "centerHit": "upper-canvas ",
+            "reopenExpanded": true
+          }
+        },
+        "1280x800@1.5": {
+          "hScroll": false,
+          "gptOpen": true,
+          "file": true,
+          "generateReachable": true,
+          "hasImage": true,
+          "open": {
+            "overlapPx": 0,
+            "canvasW": 423,
+            "canvasH": 599,
+            "visibleRatio": 1,
+            "centerOnCanvas": true,
+            "centerHit": "upper-canvas "
+          },
+          "collapsed": {
+            "overlapPx": 0,
+            "canvasW": 423,
+            "canvasH": 599,
+            "visibleRatio": 1,
+            "centerOnCanvas": true,
+            "centerHit": "upper-canvas ",
+            "reopenExpanded": true
+          }
+        },
+        "1024x700@1": {
+          "hScroll": false,
+          "gptOpen": true,
+          "file": true,
+          "generateReachable": true,
+          "hasImage": true,
+          "open": {
+            "overlapPx": 0,
+            "canvasW": 304,
+            "canvasH": 431,
+            "visibleRatio": 1,
+            "centerOnCanvas": true,
+            "centerHit": "upper-canvas "
+          },
+          "collapsed": {
+            "overlapPx": 0,
+            "canvasW": 352,
+            "canvasH": 499,
+            "visibleRatio": 1,
+            "centerOnCanvas": true,
+            "centerHit": "upper-canvas ",
+            "reopenExpanded": true
+          }
+        }
+      }
+    }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+  ],
+  "dialogs": []
+}

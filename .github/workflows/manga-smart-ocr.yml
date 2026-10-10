@@ -1,0 +1,61 @@
+name: Manga Smart OCR native test
+
+on:
+  pull_request:
+    paths:
+      - "manga_smart_ocr.py"
+      - "manga_ocr_preclean.py"
+      - "manga_bubble_ocr.py"
+      - "scripts/fixtures/novice/**"
+      - "manga_model_guard.py"
+      - "scripts/manga-model-guard-test.py"
+      - "scripts/manga-ocr-preclean-test.py"
+      - "scripts/manga-bubble-ocr-test.py"
+      - "manga_ocr_refiner.py"
+      - "manga_lama_inpaint.py"
+      - "manga_text_detector.py"
+      - "manga_sam_select.py"
+      - "scripts/manga-sam-select-test.py"
+      - "scripts/manga-character-detect-test.py"
+      - "manga_character_detect.py"
+      - "scripts/manga-text-detector-test.py"
+      - "scripts/fixtures/ctd/**"
+      - "scripts/manga-lama-inpaint-test.py"
+      - "scripts/manga-lama-pixel-test.py"
+      - "scripts/manga-ocr-refiner-test.py"
+      - "scripts/manga-smart-ocr-*.py"
+      - "99_server.py"
+      - ".github/workflows/manga-smart-ocr.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ocr-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Tesseract and English/Japanese language packs
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-eng tesseract-ocr-jpn tesseract-ocr-jpn-vert fonts-dejavu-core fonts-noto-cjk
+          python -m pip install --disable-pip-version-check "Pillow>=11,<13"
+          tesseract --list-langs
+      - name: Run mocked parser/endpoint and native OCR recognition
+        run: |
+          python scripts/manga-smart-ocr-test.py
+          python scripts/manga-ocr-refiner-test.py
+          python scripts/manga-lama-inpaint-test.py
+          python scripts/manga-lama-pixel-test.py
+          python scripts/manga-smart-ocr-runtime-test.py
+          python scripts/manga-ocr-preclean-test.py
+          python scripts/manga-bubble-ocr-test.py
+          python scripts/manga-model-guard-test.py
+          python scripts/manga-text-detector-test.py
+          python scripts/manga-sam-select-test.py
+          python scripts/manga-character-detect-test.py

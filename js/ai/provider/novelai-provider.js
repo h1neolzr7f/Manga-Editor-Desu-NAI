@@ -201,8 +201,8 @@ targetHeight=Math.max(64,raisedHeight);
 }
 }
 if(targetHeight<minEdge&&targetWidth<maxEdge){
-var raisedHeight=minEdge;
-var raisedWidth=this._round64(raisedHeight*aspect);
+raisedHeight=minEdge;
+raisedWidth=this._round64(raisedHeight*aspect);
 if(raisedWidth*raisedHeight<=maxPixels&&raisedWidth<=maxEdge){
 targetHeight=raisedHeight;
 targetWidth=Math.max(64,raisedWidth);
@@ -218,6 +218,9 @@ var safeSize=this._aspectSafeSize(params.width,params.height);
 params.width=safeSize.width;
 params.height=safeSize.height;
 params.n_samples=1;
+// Opus free generation: <=1024x1024 pixels, <=28 steps, one image. More steps cost Anlas.
+var steps=parseInt(params.steps,10);
+params.steps=Math.max(1,Math.min(NovelAIProvider.FREE_MAX_STEPS,isFinite(steps)?steps:NovelAIProvider.FREE_MAX_STEPS));
 return params;
 }
 _layerTargetSize(layer){
@@ -303,7 +306,7 @@ width:base.width,
 height:base.height,
 scale:this._getParamNumber('novelaiScale',base.cfg_scale,1,30),
 sampler:$('novelaiSampler')&&$('novelaiSampler').value?$('novelaiSampler').value:'k_euler_ancestral',
-steps:this._getParamInt('novelaiSteps',base.steps,1,50),
+steps:this._getParamInt('novelaiSteps',base.steps,1,NovelAIProvider.FREE_MAX_STEPS),
 n_samples:1,
 ucPreset:this._getParamInt('novelaiUcPreset',2,0,4),
 qualityToggle:qualityToggle?qualityToggle.checked:true,
@@ -373,6 +376,18 @@ parameters:this._buildParameters(base,type,extra),
 _directorPlan:base.directorPlan
 };
 }
+static readableError(status,errorText){
+var text=(errorText===undefined||errorText===null)?'':String(errorText);
+var message='';var detail='';
+try{var parsed=JSON.parse(text);if(parsed&&typeof parsed==='object'){message=parsed.error&&parsed.detail!==undefined?String(parsed.error):'';detail=String(parsed.detail!==undefined?parsed.detail:(parsed.message||parsed.error||''));}}catch(e){}
+if(!message){
+var known={400:'NovelAI 拒绝了请求参数（400），请检查尺寸、步数、模型或提示词。',401:'NovelAI Token 无效、已过期或未填写（401）。请在设置里重新填写 Persistent API Token。',402:'NovelAI 需要有效订阅或 Anlas 不足（402）。',403:'NovelAI 拒绝访问（403），可能是账号权限、地区或代理被拦截。',429:'NovelAI 请求过于频繁或并发受限（429），请稍后重试。'};
+message=known[status]||((status>=500&&status<600)?'NovelAI 服务暂时不可用（'+status+'），请稍后重试。':'NovelAI 返回错误（'+status+'）。');
+if(!detail)detail=text.replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi,' ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+}
+detail=detail.slice(0,300);
+return 'NovelAI failed: '+status+' '+message+(detail?' — '+detail:'');
+}
 _isRetryableNovelAiError(status,errorText){
 errorText=(errorText===undefined||errorText===null)?'':String(errorText);
 if(status===429)return true;
@@ -402,7 +417,8 @@ if(response.ok){
 return this._parseGenerateResponse(response);
 }
 var errorText=await response.text();
-lastError=new Error('NovelAI failed: '+response.status+' '+errorText);
+lastError=new Error(NovelAIProvider.readableError(response.status,errorText));
+lastError.status=response.status;
 if(attempt>=maxAttempts||!this._isRetryableNovelAiError(response.status,errorText)){
 throw lastError;
 }
@@ -483,7 +499,7 @@ if(isPageChanged(canvasGuid)){
 return applyGeneratedImageToOriginalPage(canvasGuid,result).then(applied=>{
 if(!applied){
 removeGenerationTask(canvasGuid);
-this._placeOnCanvas(result,layer,type);
+throw new Error('原页面不可用，生图结果未回贴；不会写入当前页。');
 }
 });
 }
@@ -502,9 +518,10 @@ layer.saveHistory=false;
 canvas.remove(layer);
 putImageInFrame(result,cc.centerX,cc.centerY,false,false,true,targetParent);
 }else{
+var layerIndex=canvas.getObjects().indexOf(layer);
 layer.saveHistory=false;
 canvas.remove(layer);
-replaceImageObject(layer,result,type);
+replaceImageObject(layer,result,type,layerIndex);
 }
 }
 _handleError(error,type,canvasGuid){
@@ -538,10 +555,10 @@ img.naiDirectorPlan=payload._directorPlan;
 return {img:img,payload:payload};
 });
 updateAiTaskCancelInfo(spinnerId,{queueName:'novelai',queueItemId:p._queueItemId});
-return p.then(result=>{
+return p.then(async result=>{
 if(result&&result.img){
 DashboardUI.recordGeneration(type,Date.now()-startTime,result.payload.input,result.payload.model);
-this._placeResult(result.img,layer,canvasGuid,type);
+await this._placeResult(result.img,layer,canvasGuid,type);
 if(isPanel(layer)&&window.NaiPanelPipelineReview&&typeof window.NaiPanelPipelineReview.onPanelGenerationSuccess==='function'){
 window.NaiPanelPipelineReview.onPanelGenerationSuccess(layer,type);
 }
@@ -562,3 +579,4 @@ async executeI2I(layer,spinnerId){
 return this._execute(layer,spinnerId,'I2I');
 }
 }
+NovelAIProvider.FREE_MAX_STEPS=28;

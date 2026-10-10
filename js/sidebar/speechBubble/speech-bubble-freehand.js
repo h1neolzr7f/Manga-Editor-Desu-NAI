@@ -1,3 +1,4 @@
+/* exported activePoint, clearJSTSGeometry, createJSTSPolygon, createSpeechBubble, deletePoint, freehandBubbleTextChanged, isDrawing, isNearStartPoint, lastRenderTime, mergeOverlappingShapes, processPoints, sbFreehandTextChange, selectedObject, updateFreehandBubblePositions, updateJSTSGeometry, updateShape, updateTemporaryShapes */
 function sbFreehandTextChange(alignment,button) {
 changeSelected(button);
 }
@@ -203,7 +204,27 @@ coordinates[0].y!==coordinates[coordinates.length-1].y) {
 coordinates.push(new jsts.geom.Coordinate(coordinates[0].x,coordinates[0].y));
 }
 if (coordinates.length<4) return null;
-return geometryFactory.createPolygon(geometryFactory.createLinearRing(coordinates));
+var polygon=geometryFactory.createPolygon(geometryFactory.createLinearRing(coordinates));
+return repairFreehandPolygon(polygon);
+}
+
+// A hand-drawn loop that crosses itself (figure-8, a stroke that starts inside the loop, a wobbly
+// close) is an invalid polygon; it used to be dropped silently ("jsts up error") and nothing appeared.
+// buffer(0) untangles it; keep the largest piece, which is the bubble the user meant.
+function repairFreehandPolygon(polygon){
+if(!polygon||polygon.isValid())return polygon;
+try{
+var fixed=polygon.buffer(0);
+var best=null;
+for(var i=0;i<fixed.getNumGeometries();i++){
+var g=fixed.getGeometryN(i);
+if(g.getGeometryType()==='Polygon'&&(!best||g.getArea()>best.getArea()))best=g;
+}
+if(best&&best.isValid()&&best.getArea()>0)return geometryFactory.createPolygon(best.getExteriorRing().getCoordinates().length?geometryFactory.createLinearRing(best.getExteriorRing().getCoordinates()):null);
+}catch(e){
+freehandBubbleLogger.debug('repairFreehandPolygon failed: '+(e&&e.message));
+}
+return polygon;
 }
 
 function unionGeometries(geometry1,geometry2) {
@@ -630,11 +651,14 @@ lockRotation:true
 });
 let newTextbox=null;
 const selectedValue=getSelectedValueByGroup("sbFreehandTextGroup");
+const sbNoText=selectedValue==="Nothing";
 const isSbVerticalText=selectedValue!=="Horizontal";
 var selectedFont=fontManager.getSelectedFont("fontSelector");
 var fontsize=$("fontSizeSlider").value;
 var fontStrokeWidth=$("fontStrokeWidthSlider").value;
-if(isSbVerticalText) {
+if(sbNoText) {
+// 「不显示文字」: bubble only (it used to fall through to the vertical branch and add text anyway)
+} else if(isSbVerticalText) {
 let style={
 left:rectX+rectWidth/2,
 top:rectY+rectHeight/2,
@@ -660,10 +684,10 @@ evented:true,
 renderOnAddRemove:true,
 targetObject:bubble
 };
-var initialText=Math.round(rectWidth)+"x"+Math.round(rectHeight);
+var initialText="台词";
 newTextbox=new VerticalTextbox(initialText,style);
 } else {
-var initialText=Math.round(rectWidth)+"x"+Math.round(rectHeight);
+initialText="台词";
 newTextbox=new fabric.Textbox(initialText,{
 left:rectX+rectWidth/2,
 top:rectY+rectHeight/2,
@@ -691,21 +715,25 @@ targetObject:bubble
 });
 }
 bubble.guid=generateGUID();
-newTextbox.guid=generateGUID();
 newRect.guid=generateGUID();
+if(newTextbox){
+newTextbox.guid=generateGUID();
 setGUID(bubble,newTextbox);
+newTextbox.customType="freehandBubbleText";
+}
 setGUID(bubble,newRect);
 bubble.customType="freehandBubblePath";
 bubble.set({selectable:true,evented:true});
-newTextbox.customType="freehandBubbleText";
 newRect.customType="freehandBubbleRect";
 bubble.lastLeft=bubble.left;
 bubble.lastTop=bubble.top;
 bubble.baseScaleX=bubble.scaleX||1;
 bubble.baseScaleY=bubble.scaleY||1;
 canvas.add(newRect);
+if(newTextbox){
 canvas.add(newTextbox);
 newTextbox.bringToFront();
+}
 canvas.renderAll();
 }
 
@@ -732,8 +760,6 @@ const textbox=getFreehandBubbleTextByPath(pathObj);
 if(!rect||!textbox) return;
 if(pathObj.freehandBubbleRectX===undefined) return;
 const boundingRect=pathObj.getBoundingRect(true,true);
-const scaleX=pathObj.scaleX||1;
-const scaleY=pathObj.scaleY||1;
 const viewBoxW=pathObj.freehandBubbleViewBoxWidth||boundingRect.width;
 const viewBoxH=pathObj.freehandBubbleViewBoxHeight||boundingRect.height;
 const scaleW=boundingRect.width/viewBoxW;

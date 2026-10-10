@@ -1,3 +1,4 @@
+/* exported updateControls */
 function attachControlEvents() {
 ["angle-control",'scale-control','top-control','left-control','skewX-control','skewY-control','opacity-control'].forEach(function(id) {
 $(id).oninput=function() {

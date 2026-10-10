@@ -1,3 +1,4 @@
+/* exported addSppedLineEventListener, speedLineEnd, speedLineStart */
 var tempCanvasSpeedLine=null;
 var tempCtxSpeedLine=null;
 var isDrawingSpeedLine=false;
@@ -60,7 +61,7 @@ gradient.addColorStop(0,`rgba(${pc.r},${pc.g},${pc.b},${gradientStart*pc.a})`);
 gradient.addColorStop(1,`rgba(${pc.r},${pc.g},${pc.b},${gradientEnd*pc.a})`);
 tempCtxSpeedLine.strokeStyle=gradient;
 } else {
-var pc=parseColor(lineColor);
+pc=parseColor(lineColor);
 tempCtxSpeedLine.strokeStyle=`rgb(${pc.r},${pc.g},${pc.b})`;
 tempCtxSpeedLine.globalAlpha=pc.a;
 }
@@ -136,23 +137,6 @@ updateDrawingSpeedlines();
 }
 );
 $(MODE_SPEED_LINE+'-grad-check').addEventListener("input",updateDrawingSpeedlines);
-}
-
-function removeSppedLineEventListener() {
-const updateSpeedLineValueAndDrawing=(id)=>{
-updateSpeedLineValue(id);
-updateDrawingSpeedlines();
-};
-
-[MODE_SPEED_LINE+'-density',MODE_SPEED_LINE+'-grad-start',MODE_SPEED_LINE+'-grad-end',MODE_SPEED_LINE+'-color'].forEach(
-(id)=>{
-const inputElement=$(id);
-const listener=updateSpeedLineValueAndDrawing.bind(null,id);
-inputElement.removeEventListener("input",listener);
-}
-);
-
-$(MODE_SPEED_LINE+'-grad-check').removeEventListener("input",updateDrawingSpeedlines);
 }
 
 function updateSpeedLineCanvas() {

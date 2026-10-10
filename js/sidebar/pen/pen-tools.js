@@ -1,3 +1,4 @@
+/* exported finalizeGroup, selectEraserTool, selectMarqueeTool */
 canvas.isDrawingMode=false;
 let currentPaths=[];
 

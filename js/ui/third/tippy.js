@@ -1,3 +1,4 @@
+/* exported addTooltipByElement, setLanguage */
 // Tooltip initialization using Tippy.js
 var tippyInstances=[];
 

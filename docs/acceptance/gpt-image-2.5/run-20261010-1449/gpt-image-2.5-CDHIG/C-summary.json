@@ -1,0 +1,75 @@
+{
+  "id": "C",
+  "title": "横选区 1000×570 → 3:2 补白 + 参考图",
+  "region": [
+    1001,
+    571
+  ],
+  "selStatus": "已选中原始画布区域：1001 × 571 像素。注意：选区只框到了 1 个对象的一部分（如“pose”），模型只看到半个人物时容易接不上身体。可点“扩展到完整对象”。",
+  "size": "auto",
+  "ref": true,
+  "cutWarning": null,
+  "httpStatus": 200,
+  "elapsedS": 31.3,
+  "resultFile": "/workspace/mnai-repo/artifacts/gpt-real/C-result.png",
+  "uiStatus": "图像已生成，请检查预览后点击“作为新图层应用”。",
+  "requests": 1,
+  "request": {
+    "operation": "edit",
+    "model": "gpt-image-2.5",
+    "size": "1536x1024",
+    "baseUrl": "https://litangking.12gg.workers.dev/v1",
+    "references": 1,
+    "authorizationHeader": false
+  },
+  "resultSize": [
+    1536,
+    1024
+  ],
+  "applyStatus": "已添加独立图层：取回选区对应部分并等比例缩放（不拉伸、不裁头）。原图和画布尺寸未改变，可撤销。",
+  "patch": {
+    "index": 4,
+    "vtextIndex": 5,
+    "left": 330,
+    "top": 329,
+    "w": 1001,
+    "h": 571,
+    "scaleX": 0.6516927083333334,
+    "scaleY": 0.6518264840182648,
+    "srcW": 1536,
+    "srcH": 876,
+    "crop": {
+      "x": 0,
+      "y": 73.91,
+      "w": 1536,
+      "h": 876.18,
+      "resultWidth": 1536,
+      "resultHeight": 1024,
+      "feather": 17,
+      "toneOffset": [
+        0,
+        0,
+        0
+      ],
+      "keepAlpha": false,
+      "keepLines": false
+    }
+  },
+  "metrics": {
+    "outsideChanged": 0,
+    "seamBefore": 1.47,
+    "seamAfter": 2.6,
+    "insideMeanDiff": 33.47
+  },
+  "saveReload": {
+    "objects": [
+      6,
+      6
+    ],
+    "name": "GPT 局部改图",
+    "source": "openai-compatible-image",
+    "bytes": 3234643,
+    "pixelsEqual": true
+  },
+  "pageErrors": []
+}

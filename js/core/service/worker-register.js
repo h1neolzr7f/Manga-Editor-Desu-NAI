@@ -1,3 +1,4 @@
+/* exported clearCache */
 const isPWAEligible=()=>{
 if (typeof window==="undefined") return false;
 const isSecureContext=

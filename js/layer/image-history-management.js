@@ -1,7 +1,9 @@
+/* exported confirmAllRemove, convertImageMapBlobUrls, initImageHistory, jumpToHistoryIndex, lastRedo, redo, removeByNotSave, saveStateByListener, setNotSave, setSave, undo */
 const imageMap=new Map();
 var stateStack=[];
 var currentStateIndex=-1;
 var isSaveHistory=true;
+window.NaiHistoryLoading=false;
 
 
 fabric.Object.prototype.toObject=(function (toObject) {
@@ -26,8 +28,6 @@ function setSave(activeObject){
 activeObject.saveHistory=true;
 return activeObject;
 }
-
-
 function isSaveObject(activeObject){
 if(activeObject){
 if(activeObject.saveHistory==true){
@@ -65,14 +65,6 @@ function removeByNotSave(obj){
 if (obj) {
 changeDoNotSaveHistory();
 canvas.remove(obj);
-changeDoSaveHistory();
-}
-}
-
-function addByNotSave(obj){
-if (obj) {
-changeDoNotSaveHistory();
-canvas.add(obj);
 changeDoSaveHistory();
 }
 }
@@ -189,20 +181,27 @@ return obj;
 return parsedJson;
 }
 
+// UI hydration assigns these fields without changing the visible document.
+function historyVisualSignature(state){
+return JSON.stringify(state,function(key,value){return key==='name'||key==='guid'||key==='guids'?undefined:value;});
+}
+
 function saveState() {
 if(notSave()){
 return ;
 }
-if (currentStateIndex<stateStack.length-1) {
-stateStack.splice(currentStateIndex+1);
-}
 canvas.renderAll();
 const state=customToJSON();
 const json=JSON.stringify(state);
-
+if(currentStateIndex>=0&&historyVisualSignature(JSON.parse(stateStack[currentStateIndex]))===historyVisualSignature(state)){
+stateStack[currentStateIndex]=json;
+return false;
+}
+if (currentStateIndex<stateStack.length-1)stateStack.splice(currentStateIndex+1);
 stateStack.push(json);
 currentStateIndex++;
 updateLayerPanel();
+return true;
 }
 
 function hydratePageStudioAfterLoad(){
@@ -211,91 +210,61 @@ window.NaiPageStudio.hydrateAll();
 }
 }
 
-function undo() {
-if (currentStateIndex>=1) {
+function restoreHistoryState(index,guid=null,allowPageLoad=false){
+if(window.NaiHistoryLoading||(window.NaiPageLoading&&!allowPageLoad))return false;
+if(!Number.isInteger(index)||index<0||index>=stateStack.length)return false;
+const state=restoreImage(stateStack[index]);
+const wasSaving=isSaveHistory;
+window.NaiHistoryLoading=true;
 changeDoNotSaveHistory();
-currentStateIndex--;
-
-let state=restoreImage(stateStack[currentStateIndex]);
-canvas.loadFromJSON(state,function () {
-
-state.objects.forEach((stateObj,index)=>{
-const canvasObj=canvas.getObjects()[index];
-if (canvasObj) {
-canvasObj.selectable=stateObj.selectable;
-}
+return new Promise((resolve,reject)=>{
+try{
+clearJSTSGeometry();
+canvas.loadFromJSON(state,function(){
+try{
+currentStateIndex=index;
+state.objects.forEach((stateObj,objectIndex)=>{
+const canvasObj=canvas.getObjects()[objectIndex];
+if(canvasObj&&stateObj.selectable!==undefined)canvasObj.selectable=stateObj.selectable;
 });
 reSetSpeechBubbleText();
-setCanvasGUID(state.canvasGuid);
+setCanvasGUID(guid||state.canvasGuid);
 hydratePageStudioAfterLoad();
 canvas.renderAll();
 updateLayerPanel();
 resetEventHandlers();
 customSpeechBubbleAllRelocation();
-changeDoSaveHistory();
-});
-clearJSTSGeometry();
+resolve(true);
+}catch(error){
+reject(error);
+}finally{
+isSaveHistory=wasSaving;
+window.NaiHistoryLoading=false;
 }
+});
+}catch(error){
+isSaveHistory=wasSaving;
+window.NaiHistoryLoading=false;
+reject(error);
+}
+});
+}
+
+function undo(){
+if(currentStateIndex>=1)return restoreHistoryState(currentStateIndex-1);
+return false;
 }
 
 function jumpToHistoryIndex(index){
-if(index<0||index>=stateStack.length)return;
-changeDoNotSaveHistory();
-currentStateIndex=index;
-let state=restoreImage(stateStack[currentStateIndex]);
-canvas.loadFromJSON(state,function(){
-reSetSpeechBubbleText();
-setCanvasGUID(state.canvasGuid);
-hydratePageStudioAfterLoad();
-canvas.renderAll();
-updateLayerPanel();
-resetEventHandlers();
-customSpeechBubbleAllRelocation();
-changeDoSaveHistory();
-});
-clearJSTSGeometry();
+return restoreHistoryState(index);
 }
 
-function redo() {
-if (currentStateIndex<stateStack.length-1) {
-changeDoNotSaveHistory();
-currentStateIndex++;
-
-let state=restoreImage(stateStack[currentStateIndex]);
-canvas.loadFromJSON(state,function () {
-reSetSpeechBubbleText();
-setCanvasGUID(state.canvasGuid);
-hydratePageStudioAfterLoad();
-canvas.renderAll();
-updateLayerPanel();
-resetEventHandlers();
-customSpeechBubbleAllRelocation();
-changeDoSaveHistory();
-});
-clearJSTSGeometry();
-}
+function redo(){
+return restoreHistoryState(currentStateIndex+1);
 }
 
-function lastRedo(guid=null) {
-changeDoNotSaveHistory();
-currentStateIndex=stateStack.length-1;
-
-let state=restoreImage(stateStack[stateStack.length-1]);
-canvas.loadFromJSON(state,function () {
-reSetSpeechBubbleText();
-if(guid){
-setCanvasGUID(guid);
-}else{
-setCanvasGUID(state.canvasGuid);
-}
-hydratePageStudioAfterLoad();
-canvas.renderAll();
-updateLayerPanel();
-resetEventHandlers();
-customSpeechBubbleAllRelocation();
-changeDoSaveHistory();
-});
-clearJSTSGeometry();
+function lastRedo(guid=null,allowPageLoad=false){
+return restoreHistoryState(stateStack.length-1,guid,allowPageLoad);
 }
 
 function reSetSpeechBubbleText(){
@@ -323,6 +292,19 @@ currentImage=null;
 imageMap.clear();
 stateStack=[];
 currentStateIndex=-1;
+}
+// Menu entry "清空画布": allRemove() also wipes the undo history, so a misclick
+// would lose the page for good. Ask first when the page holds user content.
+function confirmAllRemove(){
+var hasContent=(typeof pageHasUserContent==='function')?pageHasUserContent():
+(typeof canvas!=='undefined'&&canvas&&canvas.getObjects().length>0);
+if(hasContent){
+var message=(typeof getText==='function'&&getText('allRemoveConfirm')&&getText('allRemoveConfirm')!=='allRemoveConfirm')?
+getText('allRemoveConfirm'):'清空当前页上的全部内容？此操作无法撤销。需要保留的话请先「保存项目」(Ctrl+S)。';
+if(!window.confirm(message))return false;
+}
+allRemove();
+return true;
 }
 function initImageHistory(){
 allRemove();

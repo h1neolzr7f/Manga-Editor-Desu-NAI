@@ -1,3 +1,4 @@
+/* exported changeHiddenById, changeSelected, getSelectedValueByButton, getSelectedValueByGroup, hideById, selectedById, showById, unSelectedById */
 function hideById(id) {
 const el=$(id);
 if (el) {
@@ -25,7 +26,7 @@ headerElement.textContent=word;
 } else {
 el.style.display='none';
 if(hiddenTextKey!==null){
-var word=getText(hiddenTextKey);
+word=getText(hiddenTextKey);
 headerElement.textContent=word;
 }
 }

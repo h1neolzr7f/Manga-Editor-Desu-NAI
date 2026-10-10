@@ -5,8 +5,8 @@
   "description": "Manga Editor Desu · nai学长魔改版 — unofficial NovelAI one-click fork",
   "type": "module",
   "scripts": {
-    "test": "node scripts/layout-smoke-test.cjs",
-    "lint": "eslint js/ --ext .js",
+    "test": "node scripts/layout-smoke-test.cjs && npm run test:editor-regressions && npm run test:gpt-region && npm run test:gpt-i18n && npm run test:nai-status && npm run test:smart-text && npm run test:page-structure && npm run test:edit-planner && npm run test:bubble && npm run test:character-bible && npm run test:ink-mask && node scripts/manga-model-request-test.cjs && node scripts/tone-target-apply-test.cjs && node scripts/service-request-test.cjs && node scripts/cjk-break-test.cjs && node scripts/auto-swap-test.cjs",
+    "lint": "eslint js --max-warnings 0",
     "lint:fix": "eslint js/ --ext .js --fix",
     "format": "node scripts/remove-spaces.cjs",
     "check-translations": "node scripts/check-translations.cjs",
@@ -24,15 +24,43 @@
     "test:timeline": "node scripts/simulator-timeline-smoke-test.cjs",
     "test:image2": "node scripts/image2-interface-smoke-test.cjs",
     "test:scene-plan": "node scripts/scene-plan-smoke-test.cjs",
-    "test:proxy-guards": "python scripts/proxy-guard-smoke-test.py",
+    "test:proxy-guards": "node scripts/run-python.cjs scripts/proxy-guard-smoke-test.py && npm run test:smart-ocr && npm run test:manga-ocr-refinement && npm run test:lama-inpaint",
+    "test:secret-guard": "node scripts/run-python.cjs scripts/local-secret-guard-test.py",
+    "test:gpt-proxy": "node scripts/run-python.cjs scripts/gpt-image-proxy-smoke-test.py",
+    "test:gpt-network-guard": "node scripts/run-python.cjs scripts/gpt-proxy-network-guard-test.py",
+    "test:gpt-http": "node scripts/run-python.cjs scripts/gpt-http-integration-test.py",
+    "test:nai-status": "node scripts/nai-status-format-test.cjs",
+    "test:gpt-region": "node scripts/gpt-region-editor-smoke-test.cjs && node scripts/gpt-panel-line-protect-test.cjs",
+    "test:gpt-browser": "node scripts/gpt-browser-acceptance.cjs",
+    "test:portability": "node scripts/portability-smoke-test.cjs",
+    "test:port-conflict": "node scripts/run-python.cjs scripts/server-port-conflict-test.py",
+    "test:nai-errors": "node scripts/run-python.cjs scripts/nai-error-readable-test.py && node scripts/novelai-readable-error-test.cjs",
+    "test:local-tools-origin": "node scripts/run-python.cjs scripts/local-tools-origin-test.py",
+    "test:no-third-party-director": "node scripts/run-python.cjs scripts/no-third-party-director-test.py",
+    "test:proxy-chain": "node scripts/run-python.cjs scripts/proxy-chain-negative-test.py",
+    "test:gpt-i18n": "node scripts/gpt-panel-i18n-test.cjs",
+    "test:nai-credentials": "node scripts/nai-pipeline-credentials-test.cjs",
     "test:layout": "node scripts/layout-smoke-test.cjs",
-    "test:page-size": "node scripts/manga-page-size-smoke-test.cjs"
-    ,"test:fabric-text-focus": "node scripts/fabric-text-focus-smoke-test.cjs"
-    ,"test:image-export": "node scripts/image-export-smoke-test.cjs"
-    ,"test:png-bit-depth": "node scripts/png-bit-depth-smoke-test.cjs"
-    ,"test:image-export-integration": "node scripts/image-export-integration-test.cjs"
-    ,"index": "node scripts/gen-project-index.cjs"
-    ,"check:index": "node scripts/gen-project-index.cjs --check"
+    "test:page-size": "node scripts/manga-page-size-smoke-test.cjs",
+    "test:fabric-text-focus": "node scripts/fabric-text-focus-smoke-test.cjs",
+    "test:image-export": "node scripts/image-export-smoke-test.cjs",
+    "test:png-bit-depth": "node scripts/png-bit-depth-smoke-test.cjs",
+    "test:image-export-integration": "node scripts/image-export-integration-test.cjs",
+    "index": "node scripts/gen-project-index.cjs",
+    "check:index": "node scripts/gen-project-index.cjs --check",
+    "test:smart-text": "node scripts/manga-smart-text-test.cjs",
+    "test:smart-ocr": "node scripts/run-python.cjs scripts/manga-smart-ocr-test.py && node scripts/run-python.cjs scripts/manga-ocr-preclean-test.py",
+    "test:page-structure": "node scripts/manga-page-structure-test.cjs && node scripts/panel-auto-test.cjs",
+    "test:edit-planner": "node scripts/manga-edit-planner-test.cjs",
+    "test:bubble": "node scripts/manga-bubble-detector-test.cjs",
+    "test:character-bible": "node scripts/manga-character-bible-test.cjs",
+    "test:manga-ocr-refinement": "node scripts/run-python.cjs scripts/manga-ocr-refiner-test.py",
+    "test:lama-inpaint": "node scripts/run-python.cjs scripts/manga-lama-inpaint-test.py",
+    "test:ink-mask": "node scripts/manga-text-ink-mask-test.cjs",
+    "test:editor-regressions": "node scripts/history-panel-regression-test.cjs && node scripts/panel-pipeline-review-smoke-test.cjs && node scripts/image2-persistence-regression-test.cjs && node scripts/novelai-page-result-test.cjs && node scripts/project-load-open-page-test.cjs && node scripts/import-image-keeps-page-test.cjs && node scripts/offline-icon-fonts-test.cjs && node scripts/beginner-ux-guards-test.cjs && node scripts/tone-target-click-test.cjs && node scripts/no-duplicate-globals-test.cjs",
+    "lint:sync-exported": "node scripts/sync-eslint-exported.cjs",
+    "test:novice": "node scripts/novice-task-e2e.cjs",
+    "test:bubble-ocr": "python3 scripts/manga-bubble-ocr-test.py"
   },
   "devDependencies": {
     "eslint": "^8.57.0",

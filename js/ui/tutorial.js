@@ -79,18 +79,20 @@ self.showQuickStartPrompt();
 }
 },300);
 },
-showQuickStartPrompt:function(){
+showQuickStartPrompt:function(force){
 var self=this;
+// beginner mode opens on the task home card, which already is the guide: no second overlapping welcome
+if(!force){try{if(localStorage.getItem('mnai.uiMode')!=='pro')return;}catch(e){}}
 var overlay=document.createElement('div');
 overlay.className='tutorial-overlay';
 overlay.innerHTML='<div class="tutorial-prompt">'+
 '<div class="tutorial-prompt-title">四步开始画漫画</div>'+
 '<div class="tutorial-prompt-body">'+
 '<ol class="tutorial-beginner-steps">'+
-'<li>左侧点「模板」，选一个分镜放到画布。</li>'+
-'<li>点「剧情」写对白，再「打开对应模拟器」。假网页、聊天、手机在左侧「模拟器」里单开。要出图用「生成漫画分镜」或左侧「模板」。</li>'+
-'<li>要出图再到「自动生成」。生成会花 NovelAI 积分，不会偷偷扣。</li>'+
-'<li>要自定义底图自己切格子：左侧「页面」→「自定义页面」（会铺满整页格子），再点「切割格子」画线切开。</li>'+
+'<li>左侧点「模板」，选一个分镜放到画布（默认替换当前页，可在上方改成「加为新页」）。</li>'+
+'<li>「文件 → 导入图片」或把图片拖进格子；左侧「气泡」「文本」加对白。</li>'+
+'<li>要 AI 出图：「自动生成」用 NovelAI（默认只按免费额度的尺寸/步数发送）；顶部「GPT 改图」可框选局部修改（需填自己的 API）。</li>'+
+'<li>随时「文件 → 保存项目」(Ctrl+S) 存档，「下载图片」(Ctrl+D) 导出 PNG。</li>'+
 '</ol>'+
 '<p>画完按 Esc 或点「移动」，才能再选中图层。笔刷都在左侧「笔刷」里。空画布上的提示可随时关掉，之后在「帮助 → 新手教程」里还能再看。</p>'+
 '</div>'+
@@ -107,10 +109,19 @@ self.startQuickStart();
 });
 document.getElementById('tutorialSkipBtn').addEventListener('click',function(){
 overlay.remove();
+document.removeEventListener('keydown',onEsc,true);
 self.state.quickStartCompleted=true;
 self.saveState();
 self.dismissEmptyCanvasHint();
 });
+// Esc = 跳过 (the welcome overlay blocks every click; a beginner's reflex Esc did nothing)
+function onEsc(e){
+if(e.key!=='Escape'||!document.body.contains(overlay))return;
+e.preventDefault();
+e.stopPropagation();
+document.getElementById('tutorialSkipBtn').click();
+}
+document.addEventListener('keydown',onEsc,true);
 },
 startQuickStart:function(){
 var self=this;

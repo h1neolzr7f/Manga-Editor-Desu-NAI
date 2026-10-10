@@ -4,10 +4,13 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - "99_server.py"
-      - "gpt_image_proxy.py"
-      - "js/ai/gpt-region-editor.js"
-      - "scripts/gpt-*"
+      - "*.py"
+      - "index.html"
+      - "service-worker.js"
+      - "package.json"
+      - "js/**"
+      - "css/**"
+      - "scripts/**"
       - "start_manga_editor_nai.ps1"
       - ".github/workflows/manga-full-acceptance.yml"
   push:
@@ -105,6 +108,35 @@ jobs:
         with:
           name: manga-gpt-browser-screenshots
           path: artifacts/gpt-browser/
+          if-no-files-found: ignore
+
+  novice:
+    name: Novice full task (real Chromium clicks, real Tesseract, mock GPT)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Tesseract (jpn, jpn_vert), Pillow, Playwright
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-eng tesseract-ocr-jpn tesseract-ocr-jpn-vert fonts-noto-cjk
+          python -m pip install --disable-pip-version-check "Pillow>=11,<13"
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Import 2 pages -> GPT swap -> captions -> undo/redo/page/save/reopen -> errors -> layouts
+        run: node scripts/novice-task-e2e.cjs
+      - name: Upload novice report, screenshots and Playwright traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manga-novice-task
+          path: artifacts/novice/
           if-no-files-found: ignore
 
   windows-portable:

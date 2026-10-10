@@ -1,9 +1,9 @@
-/* fallback */
+/* Bundled locally so icons work offline and where Google Fonts is unreachable; remote copy is only a fallback. */
 @font-face {
  font-family: 'Material Icons';
  font-style: normal;
  font-weight: 400;
- src: url(https://fonts.gstatic.com/s/materialicons/v142/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2) format('woff2');
+ src: url(../assets/fonts/material/material-icons.woff2) format('woff2'), url(https://fonts.gstatic.com/s/materialicons/v142/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2) format('woff2');
 }
 
 .material-icons {

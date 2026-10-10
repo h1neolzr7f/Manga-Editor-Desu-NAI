@@ -1,0 +1,17 @@
+{
+ "C": {
+  "original_page": 4.55,
+  "before_fix_1449": 9.03,
+  "with_seam_match_1512": 5.82
+ },
+ "D": {
+  "original_page": 14.16,
+  "before_fix_1449": 22.22,
+  "with_seam_match_1512": 15.77
+ },
+ "G": {
+  "original_page": 0.04,
+  "before_fix_1449": 7.15,
+  "with_seam_match_1512": 2.59
+ }
+}

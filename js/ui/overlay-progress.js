@@ -1,3 +1,4 @@
+/* exported OP_hideLoading, OP_isCancelled, OP_showLoading */
 const OP_ICONS={
 file: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="op-icon-spin"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>`,
 process: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="op-icon-spin"><path d="M12 3v3m6.366-.366-2.12 2.12M21 12h-3m.366 6.366-2.12-2.12M12 21v-3m-6.366.366 2.12-2.12M3 12h3m-.366-6.366 2.12 2.12"/></svg>`,
@@ -83,12 +84,3 @@ OP_updateLoadingState(overlay,options);
 return overlay;
 }
 
-function OP_showLoadingWithIcon(icon) {
-const overlay=OP_showLoading({
-icon: icon,
-step: '处理中',
-substep: '请稍候…',
-progress: 50
-});
-setTimeout(()=>OP_hideLoading(overlay),1000*30);
-}

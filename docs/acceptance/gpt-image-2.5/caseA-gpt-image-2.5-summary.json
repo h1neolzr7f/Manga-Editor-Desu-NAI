@@ -1,0 +1,75 @@
+{
+  "id": "A",
+  "title": "竖选区≈2:3 + 参考图（角色替换 A）",
+  "region": [
+    802,
+    1240
+  ],
+  "selStatus": "已选中原始画布区域：802 × 1240 像素。注意：选区只框到了 1 个对象的一部分（如“pose”），模型只看到半个人物时容易接不上身体。可点“扩展到完整对象”。",
+  "size": "auto",
+  "ref": true,
+  "cutWarning": null,
+  "httpStatus": 200,
+  "elapsedS": 35,
+  "resultFile": "/workspace/mnai-repo/artifacts/gpt-real/A-result.png",
+  "uiStatus": "图像已生成，请检查预览后点击“作为新图层应用”。",
+  "requests": 1,
+  "request": {
+    "operation": "edit",
+    "model": "gpt-image-2.5",
+    "size": "1024x1536",
+    "baseUrl": "https://litangking.12gg.workers.dev/v1",
+    "references": 1,
+    "authorizationHeader": false
+  },
+  "resultSize": [
+    1024,
+    1535
+  ],
+  "applyStatus": "已添加独立图层：取回选区对应部分并等比例缩放（不拉伸、不裁头）。原图和画布尺寸未改变，可撤销。已保留选区内原有的分格线/边框。",
+  "patch": {
+    "index": 4,
+    "vtextIndex": 5,
+    "left": 429,
+    "top": 320,
+    "w": 802,
+    "h": 1240,
+    "scaleX": 0.8076535750251762,
+    "scaleY": 0.8078175895765473,
+    "srcW": 993,
+    "srcH": 1535,
+    "crop": {
+      "x": 15.6,
+      "y": 0,
+      "w": 992.8,
+      "h": 1535,
+      "resultWidth": 1024,
+      "resultHeight": 1535,
+      "feather": 24,
+      "toneOffset": [
+        6,
+        6,
+        7
+      ],
+      "keepAlpha": false,
+      "keepLines": true
+    }
+  },
+  "metrics": {
+    "outsideChanged": 0,
+    "seamBefore": 0.24,
+    "seamAfter": 1.09,
+    "insideMeanDiff": 29.82
+  },
+  "saveReload": {
+    "objects": [
+      6,
+      6
+    ],
+    "name": "GPT 局部改图",
+    "source": "openai-compatible-image",
+    "bytes": 3134284,
+    "pixelsEqual": true
+  },
+  "pageErrors": []
+}

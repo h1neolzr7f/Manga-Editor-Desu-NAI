@@ -1,8 +1,8 @@
+/* exported aspectRatio, changeView, forcedAdjustCanvasSize, initResizeCanvas, inputImageFile, resizeCanvas, resizeCanvasToObject */
 var initialCanvasWidth=0;
 var initialCanvasHeight=0;
 var aspectRatio=0;
 var viewUserScale=1;
-var resizableContainer=0;
 
 let resizeTimer;
 function initResizeCanvas(event) {
@@ -159,16 +159,32 @@ window.addEventListener("resize",function(){
 adjustCanvasSize(true);
 });
 
-function adjustCanvasSizeWithContainer(windowWidth,windowHeight) {
-fitCanvasViewToContainer(true);
+// True when the page holds anything the user placed (panels, images, text, shapes).
+// Template placeholders such as "拖放或生成图片" do not count. An image imported or
+// dropped onto an empty page sets the page size; on a page with content it is fitted.
+function pageHasUserContent() {
+if(typeof canvas==="undefined"||!canvas||typeof canvas.getObjects!=="function")return false;
+return canvas.getObjects().some(function(obj){
+return !(typeof isPlaceholderCanvasObject==="function"&&isPlaceholderCanvasObject(obj));
+});
 }
 
 function addInitialImageToCanvas(img) {
 resizeCanvasByNum(img.width,img.height);
+notifyImportDownscaled(img.width,img.height);
 initialPutImage(img);
 fitCanvasViewToContainer(true);
 }
 
+
+// Beginners otherwise never learn their 9000px scan was reduced to the 4096px page limit.
+function notifyImportDownscaled(ow,oh){
+if(Math.max(ow,oh)<=4096||typeof createToast!=='function')return;
+var tr=function(k,f){return (typeof getText==='function'&&getText(k)!==k)?getText(k):f;};
+var msg=tr('importDownscaled','原图 {ow}×{oh} → 页面 {w}×{h}（长边上限 4096 像素）。原文件不受影响。')
+.replace('{ow}',ow).replace('{oh}',oh).replace('{w}',canvas.getWidth()).replace('{h}',canvas.getHeight());
+createToast(tr('importDownscaledTitle','图片过大，已自动缩小'),msg,8000);
+}
 
 function resizeCanvasToObject(objectWidth,objectHeight) {
 var size=resolvePagePixels(objectWidth,objectHeight);
@@ -190,10 +206,6 @@ var color=event.target.value;
 canvas.setBackgroundColor(color,canvas.renderAll.bind(canvas));
 syncExportBackgroundLabel();
 });
-$('bg-color').addEventListener('input',function (event) {
-resizableContainer=getCanvasViewParent();
-});
-resizableContainer=getCanvasViewParent();
 bindExportBackgroundButton();
 syncExportBackgroundLabel();
 syncExportBitDepthState();
@@ -966,31 +978,80 @@ $('imageInput').click();
 
 document.addEventListener('DOMContentLoaded',function() {
 $('imageInput').addEventListener('change',function(e) {
-var files=e.target.files;
-for (var i=0;i<files.length;i++) {
-(function(file) {
-var reader=new FileReader();
-reader.onload=function(f) {
-var data=f.target.result;
-fabric.Image.fromURL(data,function(img) {
+var files=Array.from(e.target.files||[]);
+e.target.value='';
+importImageFiles(files);
+});
+});
 
-if (stateStack.length>2) {
-canvasLogger.debug("imageInput stateStack.length > 2");
+function readImageFile(file){
+return new Promise(function(resolve,reject){
+var reader=new FileReader();
+reader.onerror=function(){reject(reader.error||new Error('读取图片失败：'+file.name));};
+reader.onload=function(f){
+fabric.Image.fromURL(f.target.result,function(img){
+if(!img||!img.width)reject(new Error('无法识别的图片：'+file.name));else resolve(img);
+});
+};
+reader.readAsDataURL(file);
+});
+}
+
+function putImportedImage(img){
+if (pageHasUserContent()) {
+// The page already has panels, art or text: keep the page size and fit the
+// image inside it. (Using the history length here resized an A4 template page
+// to the imported picture and pushed the panels off the page.)
+canvasLogger.debug("imageInput page has content: fit image into the page");
 var scaleFactor=Math.min(canvas.width/img.width,canvas.height/img.height);
 img.scale(scaleFactor);
+img.set({left:(canvas.width-img.getScaledWidth())/2,top:(canvas.height-img.getScaledHeight())/2});
 canvas.add(img);
 canvas.renderAll();
 }else{
 canvasLogger.debug("imageInput resizeCanvasByNum ");
 addInitialImageToCanvas(img);
 }
-});
-};
-reader.readAsDataURL(file);
-})(files[i]);
 }
-});
-});
+
+// Several pictures at once = several manga pages: the first goes on the current page,
+// every further one gets its own new page at the picture's own resolution (in order).
+async function importImageFiles(files){
+if(!files.length)return;
+var imported=0;
+for(var i=0;i<files.length;i++){
+try{
+var img=await readImageFile(files[i]);
+if(imported===0||typeof btmCreatePageAfter!=='function'){
+putImportedImage(img);
+}else{
+if(window.NaiPageLoading||window.NaiHistoryLoading){
+createToastError('导入图片','页面正在切换，剩余 '+(files.length-i)+' 张未导入，请稍后再导入。');
+break;
+}
+window.NaiPageLoading=true;
+try{
+await btmCreatePageAfter(getCanvasGUID(),img.width,img.height);
+}finally{
+window.NaiPageLoading=false;
+}
+addInitialImageToCanvas(img);
+await btmSaveProjectFile(getCanvasGUID(),false);
+}
+imported++;
+}catch(error){
+createToastError('导入图片',(error&&error.message)||String(error));
+}
+}
+if(files.length>1&&typeof createToast==='function'){
+createToast('导入图片','已导入 '+imported+' 页，每张图片一页、保持原分辨率。可在底部页面栏切换。');
+}
+// Imported pages lived only in memory until the 60s auto-save tick: a reload right after
+// importing lost them all. Save now so the recovery dialog can bring them back.
+if(imported>0&&typeof AutoSaveManager!=='undefined'&&AutoSaveManager.save){
+try{await AutoSaveManager.save();}catch(e){canvasLogger.warn('auto-save after import failed',e);}
+}
+}
 
 
 

@@ -1,3 +1,4 @@
+/* exported blobUrlToDataUrl, clipCopy, createCanvasFromFabricImage, cropAndDownload, cropImage, enhanceDarkImage, estimateExportSize, exportCanvasDataURL, exportDataUrlByteLength, flipHorizontally, flipVertically, formatByteSize, getCropAndDownloadLink, getCropAndDownloadLinkByMultiplier, getHeight, getLink, getWidth, hexToRgba, imageObject2Base64ImageEffectKeep, imageObject2DataURL, imageObject2DataURLByCrop, imgFile2webpFile, normalizeExportQuality, resolveExportBackground, resolveExportBitDepth, resolveExportFormat, resolveExportMultiplier, resolveExportMultiplierForDpi, rgbToHex, rgbaToHex, sendHtmlCanvas2FabricCanvas */
 // image-util.js - Fabric.js画像オブジェクトの処理（変換、WebP、クロップ、反転、色変換など）
 
 // 导出上限は manga-page-size.js の NaiMangaPageSize を唯一の来源とする
@@ -10,7 +11,6 @@ var EXPORT_MAX_PIXELS=typeof NaiMangaPageSize!=="undefined"&&NaiMangaPageSize.EX
 ?NaiMangaPageSize.EXPORT_MAX_PIXELS
 :40*1000*1000;
 var EXPORT_FORMATS=['png','jpeg','webp'];
-var EXPORT_BIT_DEPTHS=['gray','rgb','argb'];
 var EXPORT_BIT_DEPTH_DEFAULT='argb';
 var EXPORT_QUALITY_MIN=0.5;
 var EXPORT_QUALITY_MAX=0.98;
@@ -120,7 +120,7 @@ var left=layer.left;
 var top=layer.top;
 var pixelRatio=window.devicePixelRatio||1;
 var enhancedScaleFactor=scaleFactor*2*pixelRatio;
-var offscreenCanvas=HtmlCanvasUtil.createOffscreenCanvas(
+offscreenCanvas=HtmlCanvasUtil.createOffscreenCanvas(
 Math.ceil(width*scaleX*enhancedScaleFactor),
 Math.ceil(height*scaleY*enhancedScaleFactor)
 );
@@ -712,11 +712,26 @@ removeGrid();
 return ImageUtil.getCropAndDownloadLink().then(function(link){
 link.click();
 ImageUtil.notifyExportLimitReached();
+ImageUtil.notifyExportSize(link);
 restoreGridAfterExport();
 }).catch(function(error){
 restoreGridAfterExport();
 createToastError('导出失败',(error&&error.message)||'无法生成导出图片。',5000);
 });
+},
+
+// Beginners could not tell what resolution 下载图片 produced (a 1200px page comes out ~2480px at
+// 300 DPI). Read the real pixel size of what was downloaded and say where to change it.
+notifyExportSize:function(link){
+if(!link||!link.href||typeof createToast!=='function')return;
+var img=new Image();
+img.onload=function(){
+var dpiInput=document.getElementById('outputDpi');
+var dpi=dpiInput&&dpiInput.value?dpiInput.value:'300';
+var ext=String(link.download||'').split('.').pop().toUpperCase()||'PNG';
+createToast('已下载图片',img.naturalWidth+'\u00d7'+img.naturalHeight+' 像素 '+ext+'（'+dpi+' DPI）。想改大小：菜单「画布 › 下载 DPI」。',5000);
+};
+img.src=link.href;
 },
 
 getLink:function(dataURL){
@@ -759,7 +774,7 @@ var match=hex.match(/\d+/g);
 return 'rgba('+match[0]+', '+match[1]+', '+match[2]+', '+opacity+')';
 }
 if(hex.startsWith('rgb')){
-var match=hex.match(/\d+/g);
+match=hex.match(/\d+/g);
 return 'rgba('+match[0]+', '+match[1]+', '+match[2]+', '+opacity+')';
 }
 hex=hex.replace('#','');
@@ -808,12 +823,9 @@ return '#'+toHex(r)+toHex(g)+toHex(b);
 };
 
 var createCanvasFromFabricImage=ImageUtil.createCanvasFromFabricImage;
-var fabricImage2ImageData=ImageUtil.fabricImage2ImageData;
-var imageObject2Base64Image=ImageUtil.imageObject2Base64Image;
 var imageObject2Base64ImageEffectKeep=ImageUtil.imageObject2Base64ImageEffectKeep;
 var imageObject2DataURL=ImageUtil.imageObject2DataURL;
 var imageObject2DataURLByCrop=ImageUtil.imageObject2DataURLByCrop;
-var img2webp=ImageUtil.img2webp;
 var imgFile2webpFile=ImageUtil.imgFile2webpFile;
 var cropImage=ImageUtil.cropImage;
 var flipHorizontally=ImageUtil.flipHorizontally;
@@ -821,14 +833,12 @@ var flipVertically=ImageUtil.flipVertically;
 var enhanceDarkImage=ImageUtil.enhanceDarkImage;
 var sendHtmlCanvas2FabricCanvas=ImageUtil.sendHtmlCanvas2FabricCanvas;
 var blobUrlToDataUrl=ImageUtil.blobUrlToDataUrl;
-var canvas2DataURL=ImageUtil.canvas2DataURL;
 var resolveExportFormat=ImageUtil.resolveExportFormat;
 var normalizeExportQuality=ImageUtil.normalizeExportQuality;
 var resolveExportMultiplier=ImageUtil.resolveExportMultiplier;
 var resolveExportMultiplierForDpi=ImageUtil.resolveExportMultiplierForDpi;
 var resolveExportBitDepth=ImageUtil.resolveExportBitDepth;
 var resolveExportBackground=ImageUtil.resolveExportBackground;
-var encodeExportPng=ImageUtil.encodeExportPng;
 var exportDataUrlByteLength=ImageUtil.exportDataUrlByteLength;
 var formatByteSize=ImageUtil.formatByteSize;
 var estimateExportSize=ImageUtil.estimateExportSize;
@@ -838,8 +848,6 @@ var getCropAndDownloadLink=ImageUtil.getCropAndDownloadLink;
 var clipCopy=ImageUtil.clipCopy;
 var cropAndDownload=ImageUtil.cropAndDownload;
 var getLink=ImageUtil.getLink;
-var getObjLeft=ImageUtil.getObjLeft;
-var getObjTop=ImageUtil.getObjTop;
 var getWidth=ImageUtil.getWidth;
 var getHeight=ImageUtil.getHeight;
 var hexToRgba=ImageUtil.hexToRgba;

@@ -5,8 +5,11 @@ This deliberately does not share the AI director's model normalization logic.
 """
 import base64
 import binascii
+import http.client
 import ipaddress
 import json
+import html
+import re
 import os
 import socket
 import urllib.error
@@ -19,6 +22,19 @@ MAX_IMAGE_BYTES = 12 * 1024 * 1024
 MAX_RESULT_BYTES = 20 * 1024 * 1024
 CLASH_FAKE_IP = ipaddress.ip_network("198.18.0.0/15")
 OFFICIAL_API = "https://api.openai.com/v1"
+DEFAULT_UPSTREAM_TIMEOUT = 300  # gpt-image edits with references often take 1-3+ minutes
+
+
+def _upstream_timeout(environ=None):
+    """Seconds to wait for the image API (GPT_IMAGE_TIMEOUT, clamped to 30..900)."""
+    raw = (environ if environ is not None else os.environ).get("GPT_IMAGE_TIMEOUT", "")
+    try:
+        value = int(float(raw)) if str(raw).strip() else DEFAULT_UPSTREAM_TIMEOUT
+    except ValueError:
+        value = DEFAULT_UPSTREAM_TIMEOUT
+    return max(30, min(900, value))
+
+
 UPSTREAM_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
 
 
@@ -33,33 +49,101 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         raise ImageProxyError("上游重定向已被拒绝，请填写最终 HTTPS API 地址。", 502)
 
 
-def _valid_public_url(value, allow_query=False):
-    parsed = urllib.parse.urlsplit(str(value or "").strip())
-    if (parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password
-            or (parsed.query and not allow_query) or parsed.fragment or parsed.port not in (None, 443)):
-        raise ImageProxyError("API 地址必须是公开 HTTPS URL，不得包含凭据、查询参数或自定义端口。")
-    hostname = parsed.hostname.lower().rstrip(".")
-    if hostname == "localhost" or hostname.endswith((".localhost", ".local", ".internal")):
-        raise ImageProxyError("不允许向内网地址转发图像请求。")
+def _check_address(ip, is_literal):
+    ip = ipaddress.ip_address(str(ip).split("%", 1)[0])
+    # Clash TUN's fake-IP DNS returns 198.18.0.0/15 for otherwise public domains.
+    # Never accept direct IP literals or other private/reserved DNS results.
+    if not ip.is_global and not (not is_literal and ip in CLASH_FAKE_IP):
+        raise ImageProxyError("API 主机名解析到非公网 IP，已拒绝访问。")
+
+
+def _is_ip_literal(hostname):
     try:
-        addresses = socket.getaddrinfo(hostname, 443, type=socket.SOCK_STREAM)
+        ipaddress.ip_address(hostname)
+    except ValueError:
+        return False
+    return True
+
+
+def _resolve_checked(hostname, port=443):
+    """Resolve once and validate every address; callers connect to these exact IPs."""
+    try:
+        addresses = socket.getaddrinfo(hostname, port, type=socket.SOCK_STREAM)
     except OSError as exc:
         raise ImageProxyError("无法解析 API 主机名。", 502) from exc
     if not addresses:
         raise ImageProxyError("无法解析 API 主机名。", 502)
-    # Clash TUN's fake-IP DNS returns 198.18.0.0/15 for otherwise public domains.
-    # Never accept direct IP literals or other private/reserved DNS results.
-    try:
-        ipaddress.ip_address(hostname)
-    except ValueError:
-        is_literal = False
-    else:
-        is_literal = True
+    literal = _is_ip_literal(hostname)
     for address in addresses:
-        ip = ipaddress.ip_address(address[4][0])
-        if not ip.is_global and not (not is_literal and ip in CLASH_FAKE_IP):
-            raise ImageProxyError("API 主机名解析到非公网 IP，已拒绝访问。")
+        _check_address(address[4][0], literal)
+    return addresses
+
+
+def _https_proxy_for(hostname):
+    """Configured HTTPS proxy (env vars, or the Windows registry via urllib)."""
+    try:
+        proxies = urllib.request.getproxies()
+        if urllib.request.proxy_bypass(hostname):
+            return ""
+    except Exception:
+        return ""
+    return proxies.get("https") or ""
+
+
+def _valid_public_url(value, allow_query=False):
+    parsed = urllib.parse.urlsplit(str(value or "").strip())
+    try:
+        port = parsed.port
+    except ValueError as exc:
+        raise ImageProxyError("API 地址端口无效。") from exc
+    if (parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password
+            or (parsed.query and not allow_query) or parsed.fragment or port not in (None, 443)):
+        raise ImageProxyError("API 地址必须是公开 HTTPS URL，不得包含凭据、查询参数或自定义端口。")
+    hostname = parsed.hostname.lower().rstrip(".")
+    if hostname == "localhost" or hostname.endswith((".localhost", ".local", ".internal")):
+        raise ImageProxyError("不允许向内网地址转发图像请求。")
+    if _is_ip_literal(hostname.strip("[]")):
+        raise ImageProxyError("请填写 API 域名，不允许直接使用 IP 地址。")
+    if _https_proxy_for(hostname):
+        # The HTTP(S) proxy resolves the name; local DNS may be poisoned or empty there.
+        return parsed
+    _resolve_checked(hostname)
     return parsed
+
+
+class _PinnedHTTPSConnection(http.client.HTTPSConnection):
+    """Validates the resolved IP at connect time and connects to exactly that IP.
+
+    Closes the DNS-rebinding window between _valid_public_url() and the real
+    connection. TLS still verifies the certificate for the original hostname.
+    Through an HTTP proxy (CONNECT tunnel) the proxy performs resolution.
+    """
+
+    def connect(self):
+        if getattr(self, "_tunnel_host", None):
+            return super().connect()
+        last_error = None
+        sock = None
+        for family, socktype, proto, _, sockaddr in _resolve_checked(self.host, self.port):
+            try:
+                sock = socket.socket(family, socktype, proto)
+                if self.timeout is not socket._GLOBAL_DEFAULT_TIMEOUT:
+                    sock.settimeout(self.timeout)
+                sock.connect(sockaddr)
+                break
+            except OSError as exc:
+                last_error = exc
+                if sock is not None:
+                    sock.close()
+                sock = None
+        if sock is None:
+            raise last_error or OSError("connection failed")
+        self.sock = self._context.wrap_socket(sock, server_hostname=self.host)
+
+
+class _PinnedHTTPSHandler(urllib.request.HTTPSHandler):
+    def https_open(self, req):
+        return self.do_open(_PinnedHTTPSConnection, req, context=self._context)
 
 
 def _endpoint(base_url, operation):
@@ -124,7 +208,7 @@ def _multipart(fields, images):
 
 def _opener():
     # No redirects: upstream URLs and returned image links both must pass checks.
-    return urllib.request.build_opener(NoRedirect())
+    return urllib.request.build_opener(NoRedirect(), _PinnedHTTPSHandler())
 
 
 def _extract_image(raw, opener):
@@ -198,23 +282,81 @@ def request_image_edit(payload, key):
                "User-Agent": UPSTREAM_USER_AGENT}
     opener = _opener()
     request = urllib.request.Request(endpoint, data=body, headers=headers, method="POST")
+    timeout = _upstream_timeout()
     try:
-        with opener.open(request, timeout=120) as response:
+        with opener.open(request, timeout=timeout) as response:
             raw = response.read(MAX_RESULT_BYTES + 1)
         if len(raw) > MAX_RESULT_BYTES:
             raise ImageProxyError("上游响应超过 20MB。", 502)
         return _extract_image(raw, opener)
-    except urllib.error.HTTPError as exc:
+    except (urllib.error.URLError, TimeoutError) as exc:
+        _raise_upstream(exc, key, timeout)
+
+
+def _raise_upstream(exc, key, timeout):
+    """One mapping from upstream failures to readable Chinese errors (image calls and 测试连接)."""
+    if isinstance(exc, urllib.error.HTTPError):
         raw = exc.read(2048).decode("utf-8", "replace")
         try:
-            error = json.loads(raw).get("error", {})
-            message = error.get("message", raw) if isinstance(error, dict) else str(error)
+            parsed_error = json.loads(raw)
         except ValueError:
-            message = raw
-        message = str(message).replace(key, "[redacted]")[:300]
-        raise ImageProxyError("上游 HTTP " + str(exc.code) + "：" + message, 502) from exc
-    except urllib.error.URLError as exc:
-        raise ImageProxyError("无法连接图像接口，请检查地址、网络代理与模型支持情况。", 502) from exc
+            parsed_error = None
+        # Gateways return {"error":{...}}, {"error":"..."}, lists or plain text.
+        error = parsed_error.get("error", raw) if isinstance(parsed_error, dict) else raw
+        message = error.get("message", raw) if isinstance(error, dict) else str(error)
+        message = readable_upstream_message(exc.code, str(message))
+        if key:
+            message = message.replace(key, "[redacted]")
+        raise ImageProxyError("上游 HTTP " + str(exc.code) + "：" + message[:300], 502) from exc
+    if isinstance(exc, TimeoutError) or isinstance(getattr(exc, "reason", None), TimeoutError):
+        raise ImageProxyError("上游图像接口超时（" + str(timeout) + " 秒），可稍后重试或调大 GPT_IMAGE_TIMEOUT。", 504) from exc
+    raise ImageProxyError("无法连接图像接口，请检查地址、网络代理与模型支持情况。", 502) from exc
+
+
+def list_models(payload, key):
+    """测试连接: GET <base>/models with the same URL guard and key rules as image calls.
+    Returns every model id plus the image-capable ones (no image is generated, nothing is billed)."""
+    if not key:
+        raise ImageProxyError("请填写 GPT 图像接口密钥。", 401)
+    images_url = _endpoint(payload.get("baseUrl"), "generate")
+    models_url = images_url[:-len("/images/generations")] + "/models"
+    request = urllib.request.Request(models_url, headers={
+        "Authorization": "Bearer " + key, "Accept": "application/json", "User-Agent": UPSTREAM_USER_AGENT}, method="GET")
+    timeout = min(_upstream_timeout(), 30)
+    try:
+        with _opener().open(request, timeout=timeout) as response:
+            raw = response.read(2_000_000)
+    except (urllib.error.URLError, TimeoutError) as exc:
+        _raise_upstream(exc, key, timeout)
+    try:
+        data = json.loads(raw.decode("utf-8-sig") or "{}")
+    except ValueError as exc:
+        raise ImageProxyError("接口返回的不是 JSON，请检查 API 地址是否以 /v1 结尾。", 502) from exc
+    ids = sorted({str(item.get("id")) for item in (data.get("data") or []) if isinstance(item, dict) and item.get("id")})
+    return {"ok": True, "models": ids[:500], "imageModels": [m for m in ids if "image" in m.lower()][:50]}
+
+
+def readable_upstream_message(status, message):
+    """Gateway/CDN error pages (Cloudflare 52x/530, nginx 502...) are HTML; never show markup.
+    Return the page title plus a hint that says what the user can do. No image was produced."""
+    text = (message or "").strip()
+    if not re.search(r"<\s*(!doctype|html|head|body|title)\b", text, re.I):
+        return text
+    title = re.search(r"<title[^>]*>(.*?)</title>", text, re.I | re.S)
+    if title:
+        title = title.group(1)
+    else:  # no <title>: keep the visible text (scripts, styles and comments removed)
+        title = re.sub(r"<(script|style)\b.*?</\1\s*>|<!--.*?-->|<[^>]+>", " ", text, flags=re.I | re.S)
+    title = re.sub(r"\s+", " ", html.unescape(title)).strip()[:80]
+    if status in (401, 403):
+        hint = "接口拒绝访问，请检查 API Key 和地址。"
+    elif status == 429:
+        hint = "请求太频繁或额度不足，请稍后再试。"
+    elif status >= 500:
+        hint = "图像服务（或其网关）暂时不可用，本次没有生成图片，请稍后重试。"
+    else:
+        hint = "接口返回了网页而不是 JSON，请检查 API 地址是否以 /v1 结尾。"
+    return hint + ("（" + title + "）" if title else "")
 
 
 def _authorized_local_request(handler):
@@ -253,6 +395,7 @@ def handle_gpt_image_post(handler):
     if urllib.parse.urlsplit(handler.path).path != "/gpt-image-proxy":
         return False
     if not _authorized_local_request(handler):
+        handler.close_connection = True  # body left unread
         handler._send_json({"ok": False, "error": "只允许本机编辑器同源访问 GPT 图像代理；file:// 页面请改用本地启动器。"}, 403)
         return True
     try:
@@ -268,7 +411,7 @@ def handle_gpt_image_post(handler):
         if header and not header.lower().startswith("bearer "):
             raise ImageProxyError("Authorization 必须使用 Bearer Key。", 401)
         key = header[7:].strip() if header else _env_key_for_destination(payload)
-        result = request_image_edit(payload, key)
+        result = list_models(payload, key) if payload.get("operation") == "models" else request_image_edit(payload, key)
         handler._send_json(result)
     except ImageProxyError as exc:
         handler._send_json({"ok": False, "error": str(exc)}, exc.status)

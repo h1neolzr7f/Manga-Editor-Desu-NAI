@@ -1,3 +1,4 @@
+/* exported getSpeechBubbleTextFill, lazyLoadSvgData */
 function changeSpeechBubble() {
 // console.log("-------------");
 var bubbleStrokewidht=parseFloat($("bubbleStrokewidht").value);
@@ -152,6 +153,15 @@ var el=typeof document!=='undefined'?document.getElementById('naiTemplatePlaceMo
 return el&&el.value?el.value:'replace';
 }
 
+// The fresh-page hint text ("拖放或生成图片") is not user content: placing the first
+// template on a new page must not ask "会清掉当前页上的格子…确定吗？".
+function userObjectCount(){
+if(typeof canvas==='undefined'||!canvas||typeof canvas.getObjects!=='function')return 0;
+return canvas.getObjects().filter(function(item){
+return !(typeof isPlaceholderCanvasObject==='function'&&isPlaceholderCanvasObject(item));
+}).length;
+}
+
 async function applyMangaTemplate(item,isLand){
 var mode=templatePlaceMode();
 var overlay=mode==='overlay';
@@ -161,10 +171,10 @@ setCanvasGUID();
 loadSVGPlusReset(item.svg,!!isLand,true);
 return;
 }
-if(newpage&&typeof getObjectCount==='function'&&getObjectCount()>0&&typeof btmSaveProjectFile==='function'){
+if(newpage&&userObjectCount()>0&&typeof btmSaveProjectFile==='function'){
 await btmSaveProjectFile();
 }
-if(mode==='replace'&&typeof getObjectCount==='function'&&getObjectCount()>0){
+if(mode==='replace'&&userObjectCount()>0){
 if(!window.confirm('会清掉当前页上的格子，换成这个分镜。确定吗？要保留当前页请选「加为新页」。'))return;
 }
 setCanvasGUID();

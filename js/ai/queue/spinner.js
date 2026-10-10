@@ -1,3 +1,4 @@
+/* exported createSpinner, removeSpinner, renderAiTaskIndicators, setCurrentAiTask */
 // AI進捗表示（レイヤー上インジケータ、キャンセル）
 
 var aiProgressState={
@@ -10,9 +11,6 @@ function createSpinner(layerGuid,taskType){
 return registerAiTask(layerGuid,taskType);
 }
 
-function createSpinnerSuccess(layerGuid,taskType){
-return registerAiTask(layerGuid,taskType);
-}
 
 function removeSpinner(taskId){
 removeAiTask(taskId);
@@ -27,23 +25,7 @@ aiProgressState.currentTaskId=taskId;
 updateAiTaskStatus(taskId,'running');
 }
 
-function updateAiStepProgress(value,max,promptId){
-aiProgressState.currentPromptId=promptId;
-if(aiProgressState.currentTaskId){
-updateAiTaskProgress(aiProgressState.currentTaskId,value,max);
-}
-if(aiProgressState.onStepProgress){
-aiProgressState.onStepProgress(value,max);
-}
-}
 
-function resetAiStepProgress(){
-if(aiProgressState.currentTaskId){
-updateAiTaskProgress(aiProgressState.currentTaskId,0,0);
-}
-aiProgressState.currentPromptId=null;
-aiProgressState.currentTaskId=null;
-}
 
 function _getQueueByName(name){
 if(name==='novelai'&&typeof novelaiQueue!=='undefined')return novelaiQueue;
@@ -70,9 +52,6 @@ if(aiProgressState.currentTaskId===taskId){
 aiProgressState.currentPromptId=null;
 aiProgressState.currentTaskId=null;
 }
-}
-
-function updateAiProgressDisplay(){
 }
 
 function renderAiTaskIndicators(detailsDiv,layerGuid){

@@ -227,8 +227,8 @@ targetHeight=Math.max(64,raisedHeight);
 }
 }
 if(targetHeight<minEdge&&targetWidth<maxEdge){
-var raisedHeight=minEdge;
-var raisedWidth=round64(raisedHeight*aspect);
+raisedHeight=minEdge;
+raisedWidth=round64(raisedHeight*aspect);
 if(raisedWidth*raisedHeight<=maxPixels&&raisedWidth<=maxEdge){
 targetHeight=raisedHeight;
 targetWidth=Math.max(64,raisedWidth);
@@ -259,13 +259,6 @@ return/[.!?]$/.test(sentence)?sentence:sentence+'.';
 function splitPrompt(prompt){
 return textOf(prompt)
 .split(/[,，;；\n]+/)
-.map(function(part){return part.trim();})
-.filter(Boolean);
-}
-
-function splitUserPrompt(prompt){
-return textOf(prompt)
-.split(/[,，、;；\n]+/)
 .map(function(part){return part.trim();})
 .filter(Boolean);
 }
@@ -432,7 +425,7 @@ function getDirectorApiConfig(){
 return {
 enabled:getCheckboxValue('naiDirectorUseApi',false),
 useProxy:getCheckboxValue('naiDirectorUseProxy',true),
-apiUrl:stripTrailingSlash(getInputValue('naiDirectorApiUrl','https://tokendance.space/gateway/v1')),
+apiUrl:stripTrailingSlash(getInputValue('naiDirectorApiUrl','')),
 apiKey:getInputValue('naiDirectorApiKey',''),
 model:(getInputValue('naiDirectorModel','deepseek-v4-flash')||'deepseek-v4-flash').toLowerCase(),
 timeoutMs:clampInt(getInputValue('naiDirectorTimeout','30'),5,180,30)*1000
@@ -758,6 +751,12 @@ return {ok:true,reason:''};
 async function requestDirectorCompletion(config,messages,temperature,options){
 options=options||{};
 var upstreamUrl=getDirectorApiUrl(config);
+if(!upstreamUrl)throw new Error('未配置导演 API 地址（无默认第三方网关）');
+var directorSafety=typeof NaiDirectorSafety!=='undefined'?NaiDirectorSafety:null;
+var keyIsNai=directorSafety?directorSafety.isNovelAiToken(config.apiKey):/^(Bearer\s+)?pst-/i.test(String(config.apiKey||'').trim());
+if(keyIsNai&&!(directorSafety&&directorSafety.isNovelAiHost(upstreamUrl))){
+throw new Error('导演 key 看起来是 NovelAI 令牌，已拒绝发送到第三方网关');
+}
 var url=config.useProxy?getDirectorProxyUrl():upstreamUrl;
 var headers={
 'Content-Type':'application/json',
