@@ -8,7 +8,7 @@
 
 本项目整体为 **GPL-3.0**。下列组件均已对照来源核对许可证（GitHub license API / Hugging Face 模型卡 / 文件头）。
 
-**需要你决定的 3 项（详见文末「待决」）**：intro.js 是 AGPL-3.0；おひさまフォント 再配布需事先告知作者；851 字体缺少随附许可证文件。
+**已处理（2026-10-11）**：intro.js（AGPL-3.0）已移除，新手引导是本项目自写代码；おひさまフォント 与 851 系列字体已从仓库移除，旧项目里的这些字体名自动改用外观相近的 OFL 字体显示。
 
 ## 按需下载的模型（不进 Git，首次使用前弹窗确认 + SHA-256 校验）
 
@@ -33,7 +33,6 @@ Python 运行依赖（pip 安装，不打包）：PyTorch CPU（BSD-3）、onnxr
 | Bootstrap | 5.2.3 | MIT | https://github.com/twbs/bootstrap |
 | i18next | — | MIT | https://github.com/i18next/i18next |
 | Tippy.js + Popper | 6.x / 2.11.8 | MIT | https://github.com/atomiks/tippyjs |
-| **intro.js** | 7.2.0 | **AGPL-3.0**（或商业许可） | https://github.com/usablica/intro.js |
 | JSZip | 3.7.1 | MIT 或 GPL-3.0（双许可，选 MIT） | https://github.com/Stuk/jszip |
 | localForage | 1.10.0 | Apache-2.0 | https://github.com/localForage/localForage |
 | lodash | 4.x | MIT | https://github.com/lodash/lodash |
@@ -62,8 +61,6 @@ Python 运行依赖（pip 安装，不打包）：PyTorch CPU（BSD-3）、onnxr
 | 字体 | 许可证 | 随附文件 |
 |---|---|---|
 | Bangers、ChalkJP、DokiDokiFont2、DotGothic16、Kalam、Klee One、Rampart One、Stick、Train One | SIL OFL 1.1 | 各目录 `OFL.txt` ✅ |
-| おひさまフォント（OhisamaFont11） | 作者「ふい」自定免费许可：个人/商用自由使用；**禁止单独售卖/改造字体文件；再配布需事先告知作者** | `Readme_O.txt` ⚠️ |
-| 851チカラヅヨク、851マカポップ | 851 Fonts 自定免费许可（来自上游仓库） | **目录内没有许可证文件** ⚠️ |
 
 ## 本魔改新增代码
 
@@ -93,6 +90,15 @@ Python 运行依赖（pip 安装，不打包）：PyTorch CPU（BSD-3）、onnxr
 
 没有打包 MayerTalk、明日方舟、微信、Discord、PlayStation、Xbox 等官方或粉丝素材。
 
+## 按需下载的示例图（提示词助手，不进公开仓库）
+
+提示词助手的示例缩略图（约 167 MB）不随公开仓库分发，清单 `json_js/prompt-helper-images.json` 记录每张图的 SHA-256 和大小；用户在提示词助手里点「下载示例图」后才下载，逐张校验，存到 `user_data/prompt-helper/`。
+
+| 图包 | 数量 / 大小 | 许可 | 下载来源 |
+|---|---|---|---|
+| 上游示例图 | 446 张 / 约 30 MB | GPL-3.0（与上游项目相同） | https://github.com/new-sankaku/manga-editor-desu ，固定在提交 `04e0cf3de1f3677682f6d1831f2713db70e441ba` |
+| NovelAI 素材示例图 | 453 张 / 约 137 MB | 本魔改用 NovelAI 生成，随本项目 GPL-3.0 | **暂无公开地址**（见「待决」）；未下载时提示词助手照常可用，只是缩略图空白 |
+
 ## 分发注意
 
 如果分发修改后的程序副本，应同时提供 GPL-3.0 要求的相应源码和许可证信息。私人素材、模型权重、缓存和生成输出不属于公开源码内容。
@@ -100,7 +106,5 @@ Python 运行依赖（pip 安装，不打包）：PyTorch CPU（BSD-3）、onnxr
 
 ## 待决（需要你决定）
 
-1. **intro.js（AGPL-3.0）**：仅用于首次使用引导。与 GPL-3.0 组合是允许的（GPLv3 第 13 条），但通过网络提供服务时该部分需遵守 AGPL。建议：换成 MIT 的 driver.js 或用现有 Tippy 自己写引导（约半天）。
-2. **おひさまフォント**：公开仓库再配布前按作者要求告知一声；或从仓库移除、改为用户自行下载。
-3. **851 字体**：补上作者许可证文本（官网条款），或从仓库移除、改为用户自行下载。
-4. **CCIP（OpenRAIL）**：按需下载，不随仓库分发；README 已说明。若希望全部组件都是 OSI 许可，可改用纯人脸特征（会降低跨格匹配准确度）。
+1. **NovelAI 素材示例图（137 MB）的下载地址**：上游没有这部分，需要你决定放在哪里（例如新公开仓库的 GitHub Release 附件，或干脆不提供）。决定后把地址填进清单的 `source` 字段即可，代码不用改。
+2. **CCIP（OpenRAIL）**：按需下载，不随仓库分发；README 已说明。若希望全部组件都是 OSI 许可，可改用纯人脸特征（会降低跨格匹配准确度）。
