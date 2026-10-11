@@ -7,7 +7,7 @@ const RULES = [
   [/pst-[A-Za-z0-9]{30,}/, 'NovelAI token'], [/[a-z0-9-]+\.trycloudflare\.com/i, 'tunnel host'], [/\/home\/box\//, 'personal home path'],
   [/Bearer\s+[A-Za-z0-9._-]{30,}/, 'bearer token'],
 ];
-const hostRe = /\b[a-z0-9-]+\.[a-z0-9-]+\.workers\.dev\b/gi;
+const hostRe = /\b(?!example\.)[a-z0-9-]+\.workers\.dev\b/gi;
 const hits = [];
 for (const f of files) {
   if (f === 'scripts/privacy-guard-test.cjs') continue;
