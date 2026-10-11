@@ -109,3 +109,34 @@
 .model-download-card progress::-moz-progress-bar { background: var(--ui-accent); border-radius: 4px; }
 .model-download-card progress:not([value])::-webkit-progress-bar { background: linear-gradient(90deg, var(--ui-border) 0%, var(--ui-accent) 50%, var(--ui-border) 100%); background-size: 200% 100%; animation: mdl-indet 1.2s linear infinite; }
 @keyframes mdl-indet { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+/* ---- remaining panels on the same tokens (page structure, character bible, tool strip, tutorial, intro tips) ---- */
+.manga-page-panel, .manga-character-panel {
+  background: var(--ui-surface) !important; color: var(--ui-text) !important;
+  border-color: var(--ui-border) !important; border-radius: var(--ui-radius) !important;
+  box-shadow: var(--ui-shadow) !important; font: var(--ui-font);
+}
+.manga-page-panel button, .manga-character-panel button {
+  border-radius: var(--ui-radius-sm); border: 1px solid var(--ui-border); background: var(--ui-surface-2); color: var(--ui-text);
+}
+.manga-page-panel button:hover:not(:disabled), .manga-character-panel button:hover:not(:disabled) { background: var(--ui-surface-2); border-color: var(--ui-accent); }
+.manga-page-panel input, .manga-page-panel select, .manga-page-panel textarea,
+.manga-character-panel input:not([type=checkbox]), .manga-character-panel select, .manga-character-panel textarea {
+  background: var(--ui-bg); color: var(--ui-text); border: 1px solid var(--ui-border); border-radius: var(--ui-radius-sm);
+}
+.manga-page-entry, .manga-planner-box, .manga-character-panel .manga-character-card {
+  background: var(--ui-surface-2) !important; border-color: var(--ui-border) !important; color: var(--ui-text);
+}
+.nai-tool-options-bar { background: var(--ui-surface); color: var(--ui-text); border-bottom: 1px solid var(--ui-border); }
+.tutorial-btn-primary { background: var(--ui-accent); color: var(--ui-accent-text); }
+.tutorial-btn-primary:hover { background: var(--ui-accent-hover); }
+.introjs-tooltip { background-color: var(--ui-surface) !important; color: var(--ui-text) !important; border: 1px solid var(--ui-border); border-radius: var(--ui-radius) !important; }
+.manga-page-panel header, .manga-character-panel header { background: transparent !important; color: var(--ui-text) !important; }
+.manga-character-panel #mangaCharacterName { background: var(--ui-bg) !important; color: var(--ui-text) !important; border: 1px solid var(--ui-border) !important; }
+.manga-page-panel p, .manga-page-panel small, .manga-character-panel p, .manga-character-panel small,
+#mangaCharacterStatus, #mangaPageStatus, .manga-page-panel [class*=hint], .manga-character-panel [class*=hint] { color: var(--ui-text-muted) !important; }
+.beginner-tool-hud:not(.is-drawing) { color: var(--ui-text-muted); background: var(--ui-surface-2); }
+.manga-page-coordinates label, .manga-page-command-label, .manga-planner-box p, .manga-character-panel label { color: var(--ui-text-muted) !important; }
+#mangaPlannerPreview { color: var(--ui-text) !important; }
+#mangaPlannerStatus, .manga-page-entry-head span { color: var(--ui-text-muted) !important; }
+#mangaPageStatus[data-error=true], #mangaPlannerStatus[data-error=true], #mangaCharacterStatus[data-error=true] { color: var(--ui-danger) !important; }
