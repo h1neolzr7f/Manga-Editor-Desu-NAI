@@ -27,6 +27,36 @@
     });
     return {response,data:await readJson(response)};
   }
+  // ---- progress card while a confirmed model download runs (server reports bytes for the big ONNX/SAM
+  // downloads; library-managed downloads such as LaMa / manga-ocr only show elapsed time) ----
+  function mb(n){return (n/1048576).toFixed(n>=1048576*100?0:1);}
+  function progressText(downloads,seconds){
+    const d=(downloads||[])[0];
+    if(d&&d.total>0){const pct=Math.min(100,Math.round(d.done*100/d.total));
+      const rate=d.seconds>0?d.done/d.seconds:0,left=rate>0?Math.round((d.total-d.done)/rate):0;
+      return {pct,text:'正在下载模型 '+pct+'%（'+mb(d.done)+' / '+mb(d.total)+' MB'+(left>0&&pct<100?'，约剩 '+(left>=60?Math.round(left/60)+' 分钟':left+' 秒'):'')+'）'};}
+    if(d)return {pct:null,text:'正在下载模型…已下载 '+mb(d.done)+' MB'};
+    return {pct:null,text:'正在准备模型（下载 / 加载），已用 '+Math.round(seconds||0)+' 秒。只需这一次，请不要关闭页面。'};
+  }
+  function showProgress(url){
+    if(typeof document==='undefined')return ()=>{};
+    const card=document.createElement('div');card.id='modelDownloadProgress';card.className='ui-card model-download-card';card.setAttribute('role','status');
+    card.innerHTML='<strong>首次使用：准备本机模型</strong><progress max="100"></progress><span class="ui-muted"></span>';
+    document.body.appendChild(card);
+    const bar=card.querySelector('progress'),line=card.querySelector('span'),t0=Date.now();
+    const progressUrl=String(url).replace(/\/manga-smart\/.*$/,'/manga-smart/download-progress');
+    let alive=true;
+    const tick=async()=>{
+      let downloads=[];
+      try{const r=await send(progressUrl,{});downloads=(r.data&&r.data.downloads)||[];}catch(_){downloads=[];}
+      if(!alive)return;
+      const p=progressText(downloads,(Date.now()-t0)/1000);
+      if(p.pct===null)bar.removeAttribute('value');else bar.value=p.pct;
+      line.textContent=p.text;
+    };
+    tick();const timer=setInterval(tick,700);
+    return ()=>{alive=false;clearInterval(timer);card.remove();};
+  }
   async function post(url,body,options){
     options=options||{};
     const ask=options.confirmDownload||(text=>typeof confirm==='function'&&confirm(text));
@@ -36,7 +66,9 @@
         const text=(result.data.error||'模型尚未下载。')+
           '\n\n点击“确定”开始下载（只需一次，之后离线使用）；点击“取消”不下载。';
         if(!ask(text))return {ok:false,declined:true,error:'已取消：未下载模型，没有发出推理请求。'};
-        result=await send(url,Object.assign({},body,{allow_download:true}),options.signal);
+        const hide=showProgress(url);
+        try{result=await send(url,Object.assign({},body,{allow_download:true}),options.signal);}
+        finally{hide();}
       }
       const data=result.data||{};
       if(!result.response.ok||!data.ok){
@@ -49,5 +81,5 @@
       return {ok:false,error:'连不上本机服务 http://127.0.0.1:8000：请先运行「一键启动」，并用 http://127.0.0.1:8000 打开编辑器，然后再试。（'+((error&&error.message)||error)+'）'};
     }
   }
-  root.MangaModelRequest={post};
+  root.MangaModelRequest={post,progressText};
 })(typeof window!=='undefined'?window:globalThis);

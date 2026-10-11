@@ -157,5 +157,47 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(Constructed.count, 0)
 
 
+
+class DownloadProgress(unittest.TestCase):
+    def test_progress_reported_during_copy_and_cleared_after(self):
+        import io
+        import manga_model_guard
+        seen = []
+
+        class Resp:
+            headers = {"Content-Length": str(3 << 20)}
+            def __init__(self):
+                self.left = 3
+            def read(self, n):
+                seen.append(manga_model_guard.progress_snapshot())
+                if not self.left:
+                    return b""
+                self.left -= 1
+                return b"x" * (1 << 20)
+
+        out = io.BytesIO()
+        manga_model_guard.tracked_copy(Resp(), out, "demo.onnx")
+        self.assertEqual(len(out.getvalue()), 3 << 20)
+        self.assertEqual(seen[0][0]["name"], "demo.onnx")
+        self.assertEqual(seen[0][0]["total"], 3 << 20)
+        self.assertEqual(seen[-1][0]["done"], 3 << 20)
+        self.assertEqual(manga_model_guard.progress_snapshot(), [])
+
+    def test_unknown_size_and_mock_without_headers(self):
+        import io
+        import manga_model_guard
+
+        class Resp:
+            def __init__(self):
+                self.data = [b"ab", b""]
+            def read(self, n):
+                return self.data.pop(0)
+
+        out = io.BytesIO()
+        manga_model_guard.tracked_copy(Resp(), out, "x")
+        self.assertEqual(out.getvalue(), b"ab")
+        self.assertEqual(manga_model_guard.progress_snapshot(), [])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=1)

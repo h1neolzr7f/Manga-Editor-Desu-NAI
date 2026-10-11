@@ -63,11 +63,8 @@ def download(url=MODEL_URL, opener=urllib.request.urlopen):
     tmp = target + ".part"
     try:
         with opener(url, timeout=180) as r, open(tmp, "wb") as f:
-            while True:
-                chunk = r.read(1 << 20)
-                if not chunk:
-                    break
-                f.write(chunk)
+            from manga_model_guard import tracked_copy
+            tracked_copy(r, f, os.path.basename(target))
         if _sha256(tmp) != MODEL_SHA256:
             raise SmartOcrError("智能点选模型下载内容校验失败（SHA-256 不符），已删除，没有使用。", 502)
         os.replace(tmp, target)

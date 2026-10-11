@@ -310,7 +310,7 @@ def local_model_status():
 
 def handle_smart_ocr_post(handler):
     route = handler.path.split("?", 1)[0]
-    if route not in ("/manga-smart/ocr", "/manga-smart/manga-ocr", "/manga-smart/lama-inpaint", "/manga-smart/status", "/manga-smart/text-mask", "/manga-smart/sam-click", "/manga-smart/characters"):
+    if route not in ("/manga-smart/ocr", "/manga-smart/manga-ocr", "/manga-smart/lama-inpaint", "/manga-smart/status", "/manga-smart/text-mask", "/manga-smart/sam-click", "/manga-smart/characters", "/manga-smart/download-progress"):
         return False
     if not _authorized_local_request(handler):
         handler.close_connection = True
@@ -336,6 +336,9 @@ def handle_smart_ocr_post(handler):
                 pass
         if route == "/manga-smart/status":
             result = local_model_status()
+        elif route == "/manga-smart/download-progress":
+            from manga_model_guard import progress_snapshot
+            result = {"ok": True, "downloads": progress_snapshot()}
         elif route == "/manga-smart/characters":
             from manga_character_detect import detect as detect_characters
             result = detect_characters(data)

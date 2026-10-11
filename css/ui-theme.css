@@ -98,3 +98,14 @@
 }
 .us-window { background: var(--ui-surface) !important; color: var(--ui-text); border-color: var(--ui-border) !important; box-shadow: var(--ui-shadow) !important; }
 .us-overlay { background: var(--ui-overlay) !important; }
+
+/* first-use model download progress (js/ai/manga-model-request.js) */
+.model-download-card { position: fixed; right: 16px; bottom: 16px; z-index: 3000; width: 340px; display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; box-shadow: var(--ui-shadow, 0 6px 24px rgba(0,0,0,.25)); }
+.model-download-card progress { width: 100%; height: 8px; accent-color: var(--ui-accent); }
+.model-download-card span { font-size: 12px; line-height: 1.4; }
+.model-download-card progress { appearance: none; -webkit-appearance: none; border: 0; border-radius: 4px; background: var(--ui-border); overflow: hidden; }
+.model-download-card progress::-webkit-progress-bar { background: var(--ui-border); border-radius: 4px; }
+.model-download-card progress::-webkit-progress-value { background: var(--ui-accent); border-radius: 4px; }
+.model-download-card progress::-moz-progress-bar { background: var(--ui-accent); border-radius: 4px; }
+.model-download-card progress:not([value])::-webkit-progress-bar { background: linear-gradient(90deg, var(--ui-border) 0%, var(--ui-accent) 50%, var(--ui-border) 100%); background-size: 200% 100%; animation: mdl-indet 1.2s linear infinite; }
+@keyframes mdl-indet { from { background-position: 100% 0; } to { background-position: -100% 0; } }

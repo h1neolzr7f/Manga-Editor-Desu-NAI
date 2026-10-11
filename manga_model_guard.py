@@ -182,3 +182,51 @@ def _idle_loop():
             release_idle()
         except Exception:
             pass
+
+
+# ---- download progress (shown in the browser while a confirmed model download runs) ----
+_progress = {}
+_progress_lock = threading.Lock()
+
+
+def progress_start(name, total):
+    with _progress_lock:
+        _progress[name] = {"name": name, "done": 0, "total": int(total or 0), "since": _time.time()}
+
+
+def progress_add(name, n):
+    with _progress_lock:
+        if name in _progress:
+            _progress[name]["done"] += int(n)
+
+
+def progress_end(name):
+    with _progress_lock:
+        _progress.pop(name, None)
+
+
+def progress_snapshot():
+    """Active downloads: [{name, done, total (0 = unknown), seconds}]."""
+    now = _time.time()
+    with _progress_lock:
+        return [{"name": p["name"], "done": p["done"], "total": p["total"], "seconds": round(now - p["since"], 1)}
+                for p in _progress.values()]
+
+
+def tracked_copy(r, f, name):
+    """Copy a download response into f in 1 MB chunks, reporting progress under `name`."""
+    total = 0
+    try:
+        total = int((getattr(r, "headers", None) or {}).get("Content-Length") or 0)
+    except Exception:
+        total = 0
+    progress_start(name, total)
+    try:
+        while True:
+            chunk = r.read(1 << 20)
+            if not chunk:
+                break
+            f.write(chunk)
+            progress_add(name, len(chunk))
+    finally:
+        progress_end(name)
