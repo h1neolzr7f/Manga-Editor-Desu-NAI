@@ -82,6 +82,36 @@ class PromptHelperImages(unittest.TestCase):
         self.assertEqual(cm.exception.status, 409)
         self.assertEqual(self.urls, [])
 
+    def _zip_pack(self, member_bytes):
+        import zipfile as zf
+        b = io.BytesIO()
+        with zf.ZipFile(b, "w") as z:
+            z.writestr("novelai/c.png", member_bytes)
+        data = b.getvalue()
+        self.man["packs"]["novelai"]["archive"] = {"url": "https://example.test/r/pack.zip", "sha256": h(data), "size": len(data)}
+        with open(phi.MANIFEST, "w", encoding="utf-8") as f:
+            json.dump(self.man, f, ensure_ascii=False)
+        return data
+
+    def test_archive_pack_verified_zip_and_members(self):
+        data = self._zip_pack(C)
+        self.assertTrue({p["id"]: p for p in phi.status()["packs"]}["novelai"]["downloadable"])
+        res = phi.download("novelai", opener=self.opener({"pack.zip": data}))
+        self.assertEqual(res["failed"], 0)
+        self.assertTrue(phi.local_path("novelai/c.png"))
+
+    def test_archive_with_wrong_hash_rejected(self):
+        data = self._zip_pack(C)
+        with self.assertRaises(phi.PromptHelperError):
+            phi.download("novelai", opener=self.opener({"pack.zip": data + b"x"}))
+        self.assertIsNone(phi.local_path("novelai/c.png"))
+
+    def test_archive_member_tampered_skipped(self):
+        data = self._zip_pack(b"evil")
+        res = phi.download("novelai", opener=self.opener({"pack.zip": data}))
+        self.assertEqual(res["failed"], 1)
+        self.assertIsNone(phi.local_path("novelai/c.png"))
+
     def test_unsafe_paths_rejected(self):
         for bad in ("../x.png", "a/../../x", "/etc/passwd", ""):
             with self.assertRaises(phi.PromptHelperError):

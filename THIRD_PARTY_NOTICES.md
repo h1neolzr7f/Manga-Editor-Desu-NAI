@@ -97,7 +97,7 @@ Python 运行依赖（pip 安装，不打包）：PyTorch CPU（BSD-3）、onnxr
 | 图包 | 数量 / 大小 | 许可 | 下载来源 |
 |---|---|---|---|
 | 上游示例图 | 446 张 / 约 30 MB | GPL-3.0（与上游项目相同） | https://github.com/new-sankaku/manga-editor-desu ，固定在提交 `04e0cf3de1f3677682f6d1831f2713db70e441ba` |
-| NovelAI 素材示例图 | 453 张 / 约 137 MB | 本魔改用 NovelAI 生成，随本项目 GPL-3.0 | **暂无公开地址**（见「待决」）；未下载时提示词助手照常可用，只是缩略图空白 |
+| NovelAI 素材示例图 | 453 张 / 约 137 MB | 本魔改用 NovelAI 生成，随本项目 GPL-3.0 | https://github.com/h1neolzr7f/Manga-NAI-GPT/releases/tag/v1.0.0 的附件 `prompt-helper-novelai-v1.zip`（整包 SHA-256 + 逐张 SHA-256 校验） |
 
 ## 分发注意
 
@@ -106,5 +106,4 @@ Python 运行依赖（pip 安装，不打包）：PyTorch CPU（BSD-3）、onnxr
 
 ## 待决（需要你决定）
 
-1. **NovelAI 素材示例图（137 MB）的下载地址**：上游没有这部分，需要你决定放在哪里（例如新公开仓库的 GitHub Release 附件，或干脆不提供）。决定后把地址填进清单的 `source` 字段即可，代码不用改。
-2. **CCIP（OpenRAIL）**：按需下载，不随仓库分发；README 已说明。若希望全部组件都是 OSI 许可，可改用纯人脸特征（会降低跨格匹配准确度）。
+1. **CCIP（OpenRAIL）**：按需下载，不随仓库分发；README 已说明。若希望全部组件都是 OSI 许可，可改用纯人脸特征（会降低跨格匹配准确度）。
