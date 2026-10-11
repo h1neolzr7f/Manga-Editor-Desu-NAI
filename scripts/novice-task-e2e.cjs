@@ -1245,7 +1245,7 @@ async function main() {
     });
     const call = r.calls.find(c => c.op === 'edit') || {};
     return { pass: r.simple.filePick && r.simple.sizeHidden && r.simple.modeHidden && r.simple.keyHidden && r.step0[0] === 'cur' && r.stepAfterRef[2] === 'cur' &&
-      r.stepEnd.every(x => x === 'done') && r.advancedShowsSize && r.advGroups.n === 3 && r.advGroups.longest <= 12 && r.advGroups.tips && /^Replace the character/.test(call.prompt || '') && call.refs === 1 && call.model === 'gpt-image-2.5' && !r.errors.length, detail: r };
+      r.stepEnd.every(x => x === 'done') && r.advancedShowsSize && r.advGroups.n === 3 && r.advGroups.longest <= 12 && r.advGroups.tips && /^Replace the character/.test(call.prompt || '') && call.refs === 1 && call.model === 'gpt-image-1' && !r.errors.length, detail: r };
   });
 
   await flow('25 修瑕疵/去杂物向导：框选→生成预览→应用（去除预设，无需写字）', async () => {
@@ -1470,6 +1470,8 @@ async function main() {
     // a plain page with page-4 imported (pro mode keeps the import unclipped), then switch to 新手模式 from the ⋯ menu
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'zh-CN' });
     const p = await ctx.newPage(); await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort()); p.on('dialog', d => d.dismiss());
+    // a configured GPT service (no image calls are made here: the swap step only uses 智能点选 as the selection)
+    await p.route('**/gpt-image-proxy', r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, envKey: true, trustedBaseUrl: 'https://api.openai.com/v1' }) }));
     const errors = []; p.on('pageerror', e => errors.push(e.message));
     try {
       await p.goto(SERVER + '/index.html', { waitUntil: 'domcontentloaded' });
