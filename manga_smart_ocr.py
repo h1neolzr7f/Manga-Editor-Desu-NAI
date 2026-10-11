@@ -288,7 +288,7 @@ def local_model_status():
     langs = []
     if executable:
         try:
-            out = subprocess.run([executable, "--list-langs"], capture_output=True, text=True, timeout=10).stdout
+            out = subprocess.run([executable, "--list-langs"], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10).stdout
             langs = [x.strip() for x in out.splitlines()[1:] if x.strip()]
         except (OSError, subprocess.SubprocessError):
             langs = []

@@ -1,4 +1,4 @@
-# Build a beginner zip without git history, secrets, or machine caches.
+﻿# Build a beginner zip without git history, secrets, or machine caches.
 param(
     [string]$Version = "1.0.3",
     [switch]$SkipDesktop

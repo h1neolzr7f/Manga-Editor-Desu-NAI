@@ -64,6 +64,8 @@ $env:PYTHONUNBUFFERED = "1"
 
 function Resolve-Python {
     $candidates = @(
+        # 装了本机 AI 功能（安装AI功能.bat）时用项目里的 .venv
+        (Join-Path $Root ".venv\Scripts\python.exe"),
         (Join-Path $Root "runtime\python\python.exe"),
         (Join-Path $env:LOCALAPPDATA "Programs\Python\Python313\python.exe"),
         (Join-Path $env:LOCALAPPDATA "Programs\Python\Python312\python.exe"),
