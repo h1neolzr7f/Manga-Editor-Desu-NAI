@@ -4,6 +4,67 @@
 
 **Manga Editor Desu · nai学长魔改版** 基于 [Manga Editor Desu](https://github.com/new-sankaku/manga-editor-desu)。项目根目录保留其 GPL-3.0 许可证（`LICENSE`），并在 `NOTICE.md` 向原作者致谢。
 
+## 许可证核对结论（2026-10-11）
+
+本项目整体为 **GPL-3.0**。下列组件均已对照来源核对许可证（GitHub license API / Hugging Face 模型卡 / 文件头）。
+
+**需要你决定的 3 项（详见文末「待决」）**：intro.js 是 AGPL-3.0；おひさまフォント 再配布需事先告知作者；851 字体缺少随附许可证文件。
+
+## 按需下载的模型（不进 Git，首次使用前弹窗确认 + SHA-256 校验）
+
+| 模型 | 用途 | 来源 | 许可证 | 兼容性 |
+|---|---|---|---|---|
+| comic-text-detector（`comictextdetector.pt.onnx`，约 91 MB） | 改字幕/去字的文字蒙版 | https://github.com/dmMaze/comic-text-detector ，权重发布于 https://github.com/zyddnys/manga-image-translator/releases/tag/beta-0.3 | GPL-3.0 | ✅ 与本项目相同 |
+| SAM 2.1 hiera-tiny（`sam2.1_hiera_tiny.pt`，约 149 MB） | 智能点选 / 人物细分 | https://github.com/facebookresearch/sam2 ，权重 https://dl.fbaipublicfiles.com/segment_anything_2/092824/ | Apache-2.0（代码与权重） | ✅（Apache-2.0 可并入 GPL-3.0） |
+| isnet-anime（`isnet-anime.onnx`，约 168 MB） | 换角色：前景人物分割 | https://github.com/SkyTNT/anime-segmentation ，ONNX 由 https://github.com/danielgatis/rembg/releases 提供 | Apache-2.0（rembg 为 MIT） | ✅ |
+| 动漫人脸检测 YOLOv8 `face_detect_v1.4_s` | 换角色：找脸、跨格匹配 | https://huggingface.co/deepghs/anime_face_detection | MIT | ✅ |
+| CCIP `ccip-caformer-24-randaug-pruned`（特征 + 度量） | 换角色：同一角色识别 | https://huggingface.co/deepghs/ccip_onnx | **OpenRAIL**（带使用限制条款） | ⚠️ 不是 OSI 许可证；因为是**用户按需下载、不随仓库分发**，不影响本项目的 GPL-3.0；README 中提示其使用限制 |
+| LaMa（经 `simple-lama-inpainting`，约 200 MB） | 修瑕疵/去字 | https://github.com/advimman/lama ，https://github.com/enesmsahin/simple-lama-inpainting | Apache-2.0 | ✅ |
+| manga-ocr（`kha-white/manga-ocr-base`，约 400 MB） | 日文竖排精修识别 | https://github.com/kha-white/manga-ocr ，https://huggingface.co/kha-white/manga-ocr-base | Apache-2.0 | ✅ |
+| Tesseract OCR + tessdata | 文字识别（系统安装） | https://github.com/tesseract-ocr/tesseract ，https://github.com/tesseract-ocr/tessdata_best | Apache-2.0 | ✅（不打包，调用系统程序） |
+
+Python 运行依赖（pip 安装，不打包）：PyTorch CPU（BSD-3）、onnxruntime（MIT）、OpenCV（Apache-2.0）、NumPy（BSD-3）、Pillow（MIT-CMU）—— 均兼容。
+
+## 打包的前端库（`third/`、`cdn-local/`、`js/ui/third/`）
+
+| 组件 | 版本 | 许可证 | 来源 |
+|---|---|---|---|
+| Fabric.js（含 eraser 构建） | 5.3.0 / 5.2.1 | MIT | https://github.com/fabricjs/fabric.js |
+| Bootstrap | 5.2.3 | MIT | https://github.com/twbs/bootstrap |
+| i18next | — | MIT | https://github.com/i18next/i18next |
+| Tippy.js + Popper | 6.x / 2.11.8 | MIT | https://github.com/atomiks/tippyjs |
+| **intro.js** | 7.2.0 | **AGPL-3.0**（或商业许可） | https://github.com/usablica/intro.js |
+| JSZip | 3.7.1 | MIT 或 GPL-3.0（双许可，选 MIT） | https://github.com/Stuk/jszip |
+| localForage | 1.10.0 | Apache-2.0 | https://github.com/localForage/localForage |
+| lodash | 4.x | MIT | https://github.com/lodash/lodash |
+| hotkeys-js | 3.13.7 | MIT | https://github.com/jaywcjlove/hotkeys-js |
+| interact.js | 1.10.17 | MIT | https://github.com/taye/interact.js |
+| JSTS | — | EPL-1.0 或 EDL-1.0（双许可，选 EDL/BSD-3，兼容） | https://github.com/bjornharrtell/jsts |
+| PixiJS / pixi advanced-blend-modes | 8.3.4 | MIT | https://github.com/pixijs/pixijs |
+| glfx.js | — | MIT | https://github.com/evanw/glfx.js |
+| browser-image-compression | 2.0.2 | MIT | https://github.com/Donaldcwl/browser-image-compression |
+| crypto-js | — | MIT | https://github.com/brix/crypto-js |
+| lz4 (asm/wasm) | — | MIT | https://github.com/Benzinga/lz4js 及原项目 third/lz4 头注释 |
+| three.js | — | MIT | https://github.com/mrdoob/three.js |
+| Chart.js | 4.5.1 | MIT | https://github.com/chartjs/Chart.js |
+| Masonry | 4.2.2 | MIT | https://github.com/desandro/masonry |
+| Tagify | 4.37.1 | MIT | https://github.com/yairEO/tagify |
+| wordcloud2.js | 1.2.3 | MIT | https://github.com/timdream/wordcloud2.js |
+| stacktrace.js | — | MIT | https://github.com/stacktracejs/stacktrace.js |
+| jscolor | — | GPL-3.0（或商业） | https://jscolor.com |
+| flag-icons | — | MIT | https://github.com/lipis/flag-icons |
+| Material Icons / Symbols（`assets/fonts/material`） | — | Apache-2.0 | https://github.com/google/material-design-icons |
+
+已删除：`third/GoogleAnalytics/googleAnalytics.js`（上游的 Google Tag 脚本，内含上游跟踪 ID；本分支从未加载，属死代码且有隐私风险）。
+
+## 打包的字体（`font/`）
+
+| 字体 | 许可证 | 随附文件 |
+|---|---|---|
+| Bangers、ChalkJP、DokiDokiFont2、DotGothic16、Kalam、Klee One、Rampart One、Stick、Train One | SIL OFL 1.1 | 各目录 `OFL.txt` ✅ |
+| おひさまフォント（OhisamaFont11） | 作者「ふい」自定免费许可：个人/商用自由使用；**禁止单独售卖/改造字体文件；再配布需事先告知作者** | `Readme_O.txt` ⚠️ |
+| 851チカラヅヨク、851マカポップ | 851 Fonts 自定免费许可（来自上游仓库） | **目录内没有许可证文件** ⚠️ |
+
 ## 本魔改新增代码
 
 `js/simulator/`、`js/local-tools/`、`local_tools/`、`js/assets/`（本包增量）、一键启动脚本等为本修改版新增或改写，不复制 MayerTalk / rembg-ui 等第三方源码、模型或图片素材。
@@ -16,10 +77,6 @@
 - fabric-brush：项目原有笔刷实现，自定义印章笔沿用其 dab/spacing 思路。
 - perfect-freehand：仅参考起收笔与平滑的公开算法思路，未复制其源码。
 - Image2：当前默认不调用，也没有将生成结果加入仓库。
-
-## 现有依赖
-
-项目原有的 Fabric、Bootstrap、i18next、LZ4/CryptoJS 等第三方依赖及其许可证以项目已有的 `third/`、`cdn-local/`、`package.json` 和根目录许可证/声明为准。本魔改不把 NovelAI 令牌或模型权重打进仓库。
 
 ## Windows 安装器内置运行时
 
@@ -40,3 +97,10 @@
 
 如果分发修改后的程序副本，应同时提供 GPL-3.0 要求的相应源码和许可证信息。私人素材、模型权重、缓存和生成输出不属于公开源码内容。
 
+
+## 待决（需要你决定）
+
+1. **intro.js（AGPL-3.0）**：仅用于首次使用引导。与 GPL-3.0 组合是允许的（GPLv3 第 13 条），但通过网络提供服务时该部分需遵守 AGPL。建议：换成 MIT 的 driver.js 或用现有 Tippy 自己写引导（约半天）。
+2. **おひさまフォント**：公开仓库再配布前按作者要求告知一声；或从仓库移除、改为用户自行下载。
+3. **851 字体**：补上作者许可证文本（官网条款），或从仓库移除、改为用户自行下载。
+4. **CCIP（OpenRAIL）**：按需下载，不随仓库分发；README 已说明。若希望全部组件都是 OSI 许可，可改用纯人脸特征（会降低跨格匹配准确度）。

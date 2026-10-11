@@ -13,13 +13,13 @@
 | `GPT_IMAGE_API_KEY=` | 6 处：脚本里读取环境变量的代码（`line.slice('GPT_IMAGE_API_KEY=')`），没有值 —— 无害 |
 | **私有中转地址**（`*.12gg.workers.dev`） | **9 个提交、43 个文件**（`c540e10` 之后的验收报告和 `docs/acceptance/gpt-image-2.5/**` 的请求/摘要 JSON）。**当前分支已替换为 `https://<your-relay>`，历史里仍在** |
 | **临时隧道地址**（`*.trycloudflare.com`） | `bd311cf`：`docs/acceptance/gpt-image-2.5/caseB-…-relay530-summary.json` 的错误信息。当前已替换，历史仍在（隧道早已失效） |
-| 本机路径 `/home/box/…` | `58961a0`、`d7b4041` 的文档（虚拟机路径，不含真实用户名）。当前已替换为 `~/` |
+| 虚拟机 home 目录路径 | `58961a0`、`d7b4041` 的文档（虚拟机路径，不含真实用户名）。当前已替换为 `~/` |
 | 邮箱 | 提交作者：`grok123ding@outlook.com`（上游原作者 232 个提交，已公开在上游）、`h1neolzr7f@users.noreply.github.com`、`cursoragent@cursor.com`。文件内其他邮箱都是字体许可证 / 第三方库作者信息 |
 | 测试用 env 文件 | 历史中**从未提交**过 `.env` / `*_test_env` |
 
 新增防线：
 - `.gitignore`：`.env.*`、`*.env`、`*_test_env`、`.mnai_*`、`*.pem/*.key`、令牌文本、本地模型（`*.onnx/*.pt/*.safetensors`、`models/`）、`artifacts/`。
-- `scripts/privacy-guard-test.cjs`（在 `npm test` 第一步）：任何受版本管理的文本文件出现密钥、`*.workers.dev`、`*.trycloudflare.com`、`/home/box/` 或长 Bearer 串即失败。
+- `scripts/privacy-guard-test.cjs`（在 `npm test` 第一步）：任何受版本管理的文本文件出现密钥、`*.workers.dev`、`*.trycloudflare.com`、虚拟机 home 路径或长 Bearer 串即失败。
 
 ### 建议（需要你决定，未改写任何历史）
 
