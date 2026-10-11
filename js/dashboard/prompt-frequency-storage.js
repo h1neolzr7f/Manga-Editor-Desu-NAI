@@ -1,3 +1,4 @@
+/* exported PromptFrequencyStorage */
 // プロンプトタグ頻度のlocalforage永続化
 var PromptFrequencyStorage=(function(){
 var store=localforage.createInstance({
@@ -52,7 +53,7 @@ return a[1].count-b[1].count;
 return a[1].lastUsed-b[1].lastUsed;
 });
 var toRemove=tagList.length-MAX_TAGS;
-for(var i=0;i<toRemove;i++){
+for(i=0;i<toRemove;i++){
 delete frequencies[tagList[i][0]];
 }
 }
@@ -82,7 +83,7 @@ var entries=Object.entries(coData);
 if(entries.length>MAX_COOCCURRENCE){
 entries.sort(function(a,b){return a[1]-b[1];});
 var toRemove=entries.length-MAX_COOCCURRENCE;
-for(var i=0;i<toRemove;i++){
+for(i=0;i<toRemove;i++){
 delete coData[entries[i][0]];
 }
 }

@@ -1,3 +1,4 @@
+/* exported AutoSaveManager */
 // 自動保存機能：IndexedDBへの定期保存と起動時の復元
 var AutoSaveManager=(function(){
 var store=localforage.createInstance({name:'autoSaveStorage',storeName:'projectAutoSave'});
@@ -137,11 +138,15 @@ var recoverText=getText('autoSaveRecover')||'Recover';
 var discardText=getText('autoSaveDiscard')||'Discard';
 var overlay=document.createElement('div');
 overlay.id='autoSaveRecoveryDialog';
+overlay.setAttribute('role','dialog');
+overlay.setAttribute('aria-modal','true');
+overlay.setAttribute('aria-labelledby','autoSaveRecoveryTitle');
 overlay.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:center;z-index:10000;';
 var dialog=document.createElement('div');
 dialog.style.cssText='background:#1e1e1e;color:#fff;border-radius:8px;padding:24px;min-width:320px;max-width:400px;text-align:center;';
 var titleEl=document.createElement('h3');
 titleEl.style.cssText='margin:0 0 12px 0;font-size:16px;';
+titleEl.id='autoSaveRecoveryTitle';
 titleEl.textContent=title;
 var msgEl=document.createElement('p');
 msgEl.style.cssText='margin:0 0 20px 0;font-size:13px;white-space:pre-line;color:#ccc;';
@@ -149,9 +154,13 @@ msgEl.textContent=msg;
 var btnWrap=document.createElement('div');
 btnWrap.style.cssText='display:flex;gap:12px;justify-content:center;';
 var recoverBtn=document.createElement('button');
+recoverBtn.id='autoSaveRecoverBtn';
+recoverBtn.type='button';
 recoverBtn.textContent=recoverText;
 recoverBtn.style.cssText='padding:8px 20px;background:#ff6b00;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:14px;';
 var discardBtn=document.createElement('button');
+discardBtn.id='autoSaveDiscardBtn';
+discardBtn.type='button';
 discardBtn.textContent=discardText;
 discardBtn.style.cssText='padding:8px 20px;background:#444;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:14px;';
 btnWrap.appendChild(recoverBtn);
@@ -161,12 +170,22 @@ dialog.appendChild(msgEl);
 dialog.appendChild(btnWrap);
 overlay.appendChild(dialog);
 document.body.appendChild(overlay);
-recoverBtn.addEventListener('click',async function(){
+// Esc = decide later: close without recovering and without deleting the auto-save.
+var onKey=function(e){
+if(e.key==='Escape'){e.stopPropagation();close();}
+};
+var close=function(){
+document.removeEventListener('keydown',onKey,true);
 overlay.remove();
+};
+document.addEventListener('keydown',onKey,true);
+recoverBtn.focus();
+recoverBtn.addEventListener('click',async function(){
+close();
 await recoverPages(metadata,pages);
 });
 discardBtn.addEventListener('click',async function(){
-overlay.remove();
+close();
 await clearAutoSave();
 });
 }
@@ -207,6 +226,10 @@ await checkRecovery();
 lastSavedHash=computeStateHash();
 lastSavedGuid=(typeof getCanvasGUID==='function')?getCanvasGUID():null;
 start();
+// best effort: the tab being hidden/closed is the last chance to persist unsaved work
+document.addEventListener('visibilitychange',function(){
+if(document.visibilityState==='hidden'&&enabled)save();
+});
 var chk=$('autoSaveCheckbox');
 if(chk){
 chk.addEventListener('change',function(){

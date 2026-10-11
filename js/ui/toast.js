@@ -1,3 +1,4 @@
+/* exported checkActiveImage, createToast */
 // createToast(NieR風): success/info, createToastError(DbD風): error/warning
 function createToast(title,messages,time=4000) {
 uiLogger.debug("createToast",time);
@@ -47,7 +48,6 @@ autohide: false
 bsToast.show();
 
 const messageContainer=toast.querySelector('#sp-manga-toastMessageContainer');
-const lineHeight=24;
 
 if (typeof messages==='string') {
 const messageLine=document.createElement('div');
@@ -115,16 +115,5 @@ return true;
 }
 }
 createToastError('特效需要先选中图片','请在画布上点一张图，再点左侧效果。马上能看见变化。',2800);
-return false;
-}
-function checkPanelImage() {
-let activeObject=canvas.getActiveObject();
-if (activeObject) {
-if(isImage(activeObject)){
-return true;
-}
-}
-let text=getText("nothingPanel");
-createToastError(text,"",2000);
 return false;
 }

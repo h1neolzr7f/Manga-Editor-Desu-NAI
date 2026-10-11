@@ -1,3 +1,4 @@
+/* exported t2_mesh_updateAll */
 let t2_mesh_textSvg,t2_mesh_defs,t2_mesh_filter,t2_mesh_mainText,nowT2MeshStr=null;
 function t2_mesh_deleteSvg(){
 [t2_mesh_textSvg,t2_mesh_defs,t2_mesh_filter,t2_mesh_mainText,nowT2MeshStr]=[null,null,null,null,null];

@@ -1,3 +1,4 @@
+/* exported t2_wild_updateAll */
 
 let t2_wild_textSvg,t2_wild_defs,t2_wild_filter,t2_wild_mainText,nowT2WildStr=null;
 function t2_wild_deleteSvg(){

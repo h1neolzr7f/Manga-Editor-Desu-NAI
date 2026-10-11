@@ -1,3 +1,4 @@
+/* exported findCanvasGuid, getDataByName, localSettingsData, resetAllSettings */
 // Runtime image generation is NovelAI-only. Legacy provider modules may still
 // exist in the repository, but they are not exposed or selected by this build.
 const apis={
@@ -24,7 +25,7 @@ var loadButton=$("projectLoad");
 
 saveButton.addEventListener("click",async function () {
 if (stateStack.length===0) {
-createToastError("Save Error","Not Found.");
+createToastError("无法保存项目","画布上还没有内容。先导入图片或画点东西再保存。");
 return;
 }
 
@@ -52,7 +53,7 @@ AutoSaveManager.clearAutoSave();
 .catch((error)=>{
 projectLogger.error("error",error);
 projectLogger.error("error json,",JSON.stringify(error));
-createToastError("Save Error","Failed to save project.");
+createToastError("保存项目失败","生成项目文件时出错，请重试；多次失败可先用「文件 › 下载图片」保住画面。");
 })
 .finally(()=>{
 OP_hideLoading(loading);
@@ -74,6 +75,10 @@ const loading=OP_showLoading({icon: 'process',step: 'Step1',substep: 'Load Proje
 try {
 var file=this.files[0];
 if (file) {
+// keep unsaved edits of the visible page before the loaded pages take over
+// (only when it has user content: saving a fresh blank page would add an extra empty page in front of
+// the opened project and shift its page order)
+if(typeof btmSaveProjectFile==='function'&&typeof countUserObjectsForLoad==='function'&&countUserObjectsForLoad()>0)await btmSaveProjectFile(null,false);
 const fileBuffer=await file.arrayBuffer();
 const fileName=file.name.toLowerCase();
 const isZip=fileName.endsWith('.zip');
@@ -100,7 +105,7 @@ await processZip(zip);
 document.body.removeChild(fileInput);
 } else {
 OP_updateLoadingState(loading,{icon: 'process',step: 'Step4',substep: 'UnZip:',progress: 40});
-await multiLoadZip(zip);
+await openFirstLoadedPageIfCanvasEmpty(await multiLoadZip(zip),true);
 }
 } else if (isLz4) {
 //fileList is {name, data}
@@ -108,7 +113,7 @@ OP_updateLoadingState(loading,{icon: 'process',step: 'Step2',substep: 'UnLz4',pr
 let bufferFileLz4List=await lz4Compressor.unLz4FilesByBuffer(fileBuffer);
 
 OP_updateLoadingState(loading,{icon: 'process',step: 'Step3',substep: 'UnLz4',progress: 25});
-await multiLoadLz4(bufferFileLz4List);
+await openFirstLoadedPageIfCanvasEmpty(await multiLoadLz4(bufferFileLz4List),true);
 
 OP_updateLoadingState(loading,{icon: 'process',step: 'Step4',substep: 'UnLz4',progress: 85});
 } else {
@@ -119,7 +124,7 @@ createToastError(title,message,4000);
 }
 } catch (error) {
 projectLogger.error("error:",error);
-createToastError("Load Error","Failed to load project.");
+createToastError("打开项目失败","这个文件读不出来。请选择本软件「保存项目」得到的 .lz4 文件（旧版 .zip 也可以）。");
 } finally {
 OP_hideLoading(loading);
 }
@@ -223,7 +228,7 @@ naiBatchAutoGenerateAfterPrompts:{id:'naiBatchAutoGenerateAfterPrompts',default:
 naiDirectorStoreDrafts:{id:'naiDirectorStoreDrafts',default:true,type:'checkbox'},
 naiDirectorUseApi:{id:'naiDirectorUseApi',default:true,type:'checkbox'},
 naiDirectorUseProxy:{id:'naiDirectorUseProxy',default:true,type:'checkbox'},
-naiDirectorApiUrl:{id:'naiDirectorApiUrl',default:'https://tokendance.space/gateway/v1'},
+naiDirectorApiUrl:{id:'naiDirectorApiUrl',default:''},
 naiDirectorApiKey:{id:'naiDirectorApiKey',default:'',secret:true},
 naiDirectorModel:{id:'naiDirectorModel',default:'deepseek-v4-flash'},
 naiDirectorTimeout:{id:'naiDirectorTimeout',default:'30'},
@@ -452,6 +457,22 @@ $('naiBatchDirectorEnabled').checked=true;
 data.naiBatchDirectorEnabled=true;
 localStorage.setItem('naiBatchDirectorDefaultMigratedV4','1');
 }
+// The Director used to ship with a third-party gateway prefilled. There is no default
+// any more: a saved URL without a user-entered Director key is that old default, so
+// clear it (the Director stays off until the user configures their own gateway).
+if(localStorage.getItem('naiDirectorNoDefaultUrlV1')!=='1'){
+var dirUrlEl=$('naiDirectorApiUrl');
+if(!secrets.naiDirectorApiKey&&dirUrlEl&&dirUrlEl.value){
+dirUrlEl.value='';
+data.naiDirectorApiUrl='';
+try{
+var dirStore=JSON.parse(localStorage.getItem('localSettingsData')||'{}');
+dirStore.naiDirectorApiUrl='';
+localStorage.setItem('localSettingsData',JSON.stringify(dirStore));
+}catch(error){/* ignore */}
+}
+localStorage.setItem('naiDirectorNoDefaultUrlV1','1');
+}
 if(localStorage.getItem('naiDirectorModelMigratedV5')!=='1'){
 var modelEl=$('naiDirectorModel');
 var legacyModels={'qwen3.5-flash':1,'qwen3-flash':1};
@@ -616,7 +637,21 @@ btnRow.appendChild(cancelBtn);
 btnRow.appendChild(okBtn);
 dialog.appendChild(btnRow);
 overlay.appendChild(dialog);
+overlay.id='settingsResetDialog';
+overlay.setAttribute('role','dialog');
+overlay.setAttribute('aria-modal','true');
+title.id='settingsResetDialogTitle';
+overlay.setAttribute('aria-labelledby','settingsResetDialogTitle');
+cancelBtn.type='button';
+okBtn.type='button';
+okBtn.id='settingsResetOk';
+cancelBtn.id='settingsResetCancel';
 document.body.appendChild(overlay);
+// Esc closes without resetting; focus starts on the safe button.
+function onResetKey(e){if(e.key==='Escape'){e.preventDefault();overlay.remove();}}
+document.addEventListener('keydown',onResetKey);
+new MutationObserver(function(_,obs){if(!overlay.isConnected){document.removeEventListener('keydown',onResetKey);obs.disconnect();}}).observe(document.body,{childList:true});
+cancelBtn.focus();
 cancelBtn.addEventListener('click',function(){overlay.remove();});
 overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.remove();});
 okBtn.addEventListener('click',function(){

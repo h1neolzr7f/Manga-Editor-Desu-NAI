@@ -1,3 +1,4 @@
+/* exported C2BWStartDark, C2BWStartLight, C2BWStartRough, C2BWStartSimple */
 async function C2BWStartLight(){
 const filterValues={
 brightness: 0.35,

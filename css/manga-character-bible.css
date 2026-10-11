@@ -1,0 +1,32 @@
+/* Private character reference library. */
+#mangaCharacterOpen{margin-left:6px;font-size:12px}
+.manga-character-panel{position:fixed;z-index:12006;top:68px;right:18px;
+  width:min(430px,calc(100vw - 28px));max-height:calc(100vh - 88px);overflow-y:auto;
+  display:grid;gap:9px;padding:14px;border-radius:12px;background:#20232b;color:#f5f5f5;
+  border:1px solid #536071;box-shadow:0 14px 45px rgba(0,0,0,.45);
+  font:13px/1.5 Arial,sans-serif;}
+.manga-character-panel[hidden]{display:none!important}
+.manga-character-panel header{display:flex;align-items:center;justify-content:space-between}
+.manga-character-panel p{font-size:12px;color:#c6d0df;margin:3px 0}
+.manga-character-panel textarea,.manga-character-panel input[type=text],
+.manga-character-panel #mangaCharacterName{width:100%;box-sizing:border-box;
+  background:#141c27;color:#fff;border:1px solid #667386;border-radius:6px;padding:7px}
+.manga-character-panel textarea{resize:vertical}
+.manga-character-panel label{display:grid;gap:4px;color:#c6d0df}
+.manga-character-panel input[type=file]{max-width:100%;font-size:12px}
+.manga-character-panel button{border:1px solid #6f7d91;border-radius:6px;
+  background:#37475b;color:#fff;padding:6px 9px;cursor:pointer}
+.manga-character-panel button:hover{background:#526781}
+.manga-character-panel button:disabled{opacity:.5;cursor:default}
+.manga-character-cards{display:grid;gap:8px}
+.manga-character-card{display:flex;align-items:flex-start;gap:9px;
+  background:#2e3845;border:1px solid #4c596b;border-radius:8px;padding:8px}
+.manga-character-card img{width:82px;height:98px;object-fit:contain;border-radius:6px;
+  background:#f3f4f6;flex:none}
+.manga-character-info{display:grid;gap:7px;min-width:0}
+.manga-character-info small{color:#d3dce8;overflow-wrap:anywhere}
+.manga-character-actions{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+#mangaCharacterStatus{color:#a6d8ff}
+#mangaCharacterStatus[data-error=true]{color:#ffb4b4}
+@media(max-width:550px){.manga-character-panel{top:38px;right:8px;
+  max-height:calc(100vh - 46px)}}

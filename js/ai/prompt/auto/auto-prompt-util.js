@@ -166,7 +166,7 @@ if(!firstGuid){
 createToastError('验收格','找不到第一页画布。',4000);
 return false;
 }
-await chengeCanvasByGuid(firstGuid);
+if(await chengeCanvasByGuid(firstGuid)===false)throw new Error('页面正在切换或不可用，请等待后重试。');
 var panelList=getPanelObjectList();
 var panel=panelList[0];
 if(!panel){
@@ -599,7 +599,7 @@ pageList=pageList||generatePageList();
 for (const [index,page] of pageList.entries()) {
 let guid=btmGetGuidByIndex(index);
 if(!guid)return true;
-await chengeCanvasByGuid(guid);
+if(await chengeCanvasByGuid(guid)===false)throw new Error('页面正在切换或不可用，请等待后重试。');
 let panelList=getPanelObjectList();
 if(!panelList.length)return true;
 for (const [panelIndex,panel] of panelList.entries()) {
@@ -629,7 +629,7 @@ for (const [index,page] of pageList.entries()) {
 if(OP_isCancelled())break;
 let guid=btmGetGuidByIndex(index);
 if(!guid)continue;
-await chengeCanvasByGuid(guid);
+if(await chengeCanvasByGuid(guid)===false)throw new Error('页面正在切换或不可用，请等待后重试。');
 let panelList=getPanelObjectList();
 for (const [panelIndex,panel] of panelList.entries()) {
 if(OP_isCancelled())break;
@@ -679,7 +679,7 @@ progress:12+Math.round(((itemIndex+1)/Math.max(1,panelItems.length))*84)
 });
 await new Promise(requestAnimationFrame);
 let guid=item.guid;
-await chengeCanvasByGuid(guid);
+if(await chengeCanvasByGuid(guid)===false)throw new Error('页面正在切换或不可用，请等待后重试。');
 let currentPanelList=getPanelObjectList();
 let targetPanel=null;
 if(item.panelGuid){
@@ -746,35 +746,6 @@ throw error;
 OP_hideLoading(loading);
 }
 }
-
-async function legacyAutoMultiPromptSet(pageList,scenarioPromptSelecter){
-if(!scenarioPromptSelecter){
-createToastError("还没选场景模板","请填写 AI 导演批量需求，或在下拉里选一个场景。");
-return;
-}
-
-for (const [index,page] of pageList.entries()) {
-let guid=btmGetGuidByIndex(index);
-
-await chengeCanvasByGuid(guid);
-
-let panelList=getPanelObjectList();
-panelList.forEach((panel,panelIndex)=>{
-let randomSenario=getRandomSenario(index,scenarioPromptSelecter,page.type)
-if(randomSenario){
-panel.text2img_prompt=panel.text2img_prompt+","+randomSenario.positive;
-panel.text2img_negative=panel.text2img_negative+","+randomSenario.negative;
-// console.log("guid index:", index, ":", guid, " panelSize:", panelList.length, " positive:", randomSenario.positive);
-}
-});
-
-await btmSaveProjectFile();
-}
-}
-
-
-
-
 
 function getRandomSenario(index,scenarioName,type){
 // console.log("nowSenarioNumber scenarioName, type", scenarioName, type);

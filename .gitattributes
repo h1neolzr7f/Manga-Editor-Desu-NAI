@@ -1,0 +1,9 @@
+# Everything text is LF in every checkout (Windows included: autocrlf would otherwise turn sources into CRLF and
+# break source-matching tests and byte-exact fixtures); binary files are detected automatically.
+* text=auto eol=lf
+# Windows scripts must be CRLF in checkouts and in GitHub ZIP downloads (git archive).
+# cmd.exe mis-parses labels/blocks in LF-only batch files.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+*.iss text eol=crlf

@@ -4,7 +4,7 @@ var isMacOs=navigator.userAgent.indexOf('Mac OS')!==-1;;
 var hotkeysMap={
 toggleGrid: 'ctrl+g',
 undo:!isMacOs ? 'ctrl+z' : 'command+z',
-redo:!isMacOs ? 'ctrl+y' : 'command+y',
+redo:!isMacOs ? 'ctrl+y, ctrl+shift+z' : 'command+y, command+shift+z',
 toggleLayer: 'ctrl+l',
 toggleControls: 'ctrl+k',
 zoomIn: 'ctrl+8',
@@ -57,8 +57,10 @@ e.preventDefault();
 
 // bind redo shortcut
 hotkeys(hotkeysMap.redo,'all' ,function (e) {
+if (!isEditableTagsActive()) {
 redo();
 e.preventDefault();
+}
 });
 
 // bind toggle layer panel shortcut
@@ -256,7 +258,7 @@ var shortcutCategories=[
 ]},
 {category:'sc_cat_edit',items:[
 {win:'Ctrl + Z',mac:'⌘ + Z',i18n:'sc_undo'},
-{win:'Ctrl + Y',mac:'⌘ + Y',i18n:'sc_redo'},
+{win:'Ctrl + Y / Ctrl + Shift + Z',mac:'⌘ + Y / ⌘ + Shift + Z',i18n:'sc_redo'},
 {win:'Ctrl + C',mac:'⌘ + C',i18n:'sc_copy'},
 {win:'Ctrl + V',mac:'⌘ + V',i18n:'sc_paste'},
 {win:'Delete / Backspace',mac:'Delete / Backspace',i18n:'sc_deleteLayer'},
@@ -296,7 +298,7 @@ var shortcutFocusTrap=null;
 var SC_ZH={
 sc_cat_file:'文件',sc_cat_edit:'编辑',sc_cat_view:'视图',sc_cat_object:'对象',sc_cat_other:'其他',
 sc_newPage:'新页',sc_prevPage:'上一页',sc_nextPage:'下一页',
-sc_projectSave:'保存项目',sc_projectLoad:'加载项目',sc_imageDownload:'下载图片',sc_settingsSave:'保存设置',
+sc_projectSave:'保存项目',sc_projectLoad:'打开项目',sc_imageDownload:'下载图片',sc_settingsSave:'保存设置',
 sc_undo:'撤销',sc_redo:'重做',sc_copy:'复制',sc_paste:'粘贴',sc_deleteLayer:'删除',
 sc_moveTool:'移动',sc_brushTool:'笔刷',sc_eraserTool:'橡皮',sc_marqueeTool:'框选图层',
 sc_cropTool:'裁剪 / 框选抠图',sc_knifeTool:'切割格子',sc_lassoTool:'套索',sc_gradientTool:'渐变',

@@ -9,19 +9,19 @@ Send NovelAI, simulator, and launcher changes **here**. Do not open those issues
 不要 `start index.html`。请双击 `一键启动.bat`，或：
 
 ```text
-powershell -NoProfile -ExecutionPolicy Bypass -File .\start_manga_editor_nai.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\start_manga_editor_nai.ps1
 ```
 
 打开 `http://127.0.0.1:8000/index.html`。改完前端请 Ctrl+F5。
 
-直接跑 `start_manga_editor_nai.ps1` 就是「附着 + 开浏览器 + 保持窗口」模式：服务在前台运行，
+直接跑 `scripts/windows/start_manga_editor_nai.ps1` 就是「附着 + 开浏览器 + 保持窗口」模式：服务在前台运行，
 就绪后自动打开 `http://127.0.0.1:8000/index.html#`，**关掉窗口即停止服务**（端口 8000 会释放）。
 可选开关：`-NoBrowser` 只起服务不开浏览器；`-NoPrompt` 失败时不弹提示框、只写日志。
-`start_manga_editor_nai.bat` 也可以照旧被其他脚本调用（参数会原样透传）。
+`scripts/windows/start_manga_editor_nai.bat` 也可以照旧被其他脚本调用（参数会原样透传）。
 
 注意：`一键启动.bat` 必须是纯 ASCII。它中途执行 `chcp 65001`，若文件里有非 ASCII 行，
 cmd.exe 会因为字节位移把后面的行拆坏并当成命令执行（会看到 "is not recognized as an
-internal or external command"）。中文界面文案统一放在 `start_manga_editor_nai.ps1`（UTF-8 with BOM）。
+internal or external command"）。中文界面文案统一放在 `scripts/windows/start_manga_editor_nai.ps1`（UTF-8 with BOM）。
 
 需要 Node 时：
 
@@ -59,3 +59,23 @@ npm run check:index
 3. 模拟器皮肤必须是通用界面，禁止真实站点商标。
 
 上游编辑器本体的通用缺陷，若与本魔改无关，可考虑向上游单独报告；请先确认原版也能复现。
+
+## Linux / macOS
+
+```bash
+./start.sh                       # 启动并打开浏览器（Ctrl+C 停止）
+bash scripts/install-ai.sh       # 可选：本机 AI 功能（CPU），装到 ./.venv
+```
+
+## 提交前检查（PR 必须全部通过）
+
+```bash
+npm test                         # 单测 + 隐私守卫（密钥 / 私有中转地址 / 本机路径）
+npx eslint js --max-warnings 0   # 0 警告
+node scripts/check-translations.cjs
+node scripts/novice-task-e2e.cjs # 新手 E2E（需要 Playwright Chromium；GPT 全部 mock）
+```
+
+- 每个修复附带回归测试；界面文字走 i18n（8 种语言键齐全）。
+- **不要提交**：API Key / Token、`.env`、模型权重（`*.onnx` / `*.pt`）、真实中转地址、生成的大图。验收截图放 PR 附件，不进仓库。
+- 新增第三方库、字体或模型时，同步更新 `THIRD_PARTY_NOTICES.md`（许可证 + 来源），且必须与 GPL-3.0 兼容。

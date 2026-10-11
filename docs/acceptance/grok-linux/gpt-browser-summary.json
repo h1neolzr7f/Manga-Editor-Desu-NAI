@@ -1,0 +1,681 @@
+{
+ "results": [
+  {
+   "name": "editor loads with A4 200dpi page",
+   "pass": true,
+   "detail": {
+    "w": 1654,
+    "h": 2339
+   }
+  },
+  {
+   "name": "left-drag selection 600x300 (±2px)",
+   "pass": true,
+   "detail": {
+    "status": "已选中原始画布区域：602 × 301 像素。"
+   }
+  },
+  {
+   "name": "right-button reversed drag gives same region",
+   "pass": true,
+   "detail": {
+    "status": "已选中原始画布区域：602 × 301 像素。"
+   }
+  },
+  {
+   "name": "drag beyond canvas edge is clamped to page",
+   "pass": true,
+   "detail": {
+    "status": "已选中原始画布区域：155 × 139 像素。"
+   }
+  },
+  {
+   "name": "Esc removes selection overlay",
+   "pass": true
+  },
+  {
+   "name": "20x open/cancel leaves no overlay",
+   "pass": true
+  },
+  {
+   "name": "window resize during selection aborts overlay",
+   "pass": true,
+   "detail": {
+    "status": "画布位置已变化（滚动/缩放/窗口大小），请重新点“框选区域”。"
+   }
+  },
+  {
+   "name": "identity edit wide 600x300: uniform scale, outside pixels untouched, inside matches",
+   "pass": true,
+   "detail": {
+    "applied": true,
+    "size": "1536x1024",
+    "info": {
+     "index": 1,
+     "total": 2,
+     "left": 239,
+     "top": 380,
+     "scaleX": 0.3919270833333333,
+     "scaleY": 0.3919270833333333,
+     "w": 602,
+     "h": 301,
+     "cropX": 0,
+     "cropY": 0,
+     "name": "GPT 局部改图",
+     "source": "openai-compatible-image",
+     "crop": {
+      "x": 0,
+      "y": 128,
+      "w": 1536,
+      "h": 768,
+      "resultWidth": 1536,
+      "resultHeight": 1024,
+      "feather": 9,
+      "toneOffset": [
+       0,
+       0,
+       0
+      ],
+      "keepAlpha": false
+     }
+    },
+    "diff": {
+     "outsideChanged": 0,
+     "insideMeanAbsDiff": 0.885439305729243,
+     "size": [
+      1654,
+      2339
+     ]
+    }
+   }
+  },
+  {
+   "name": "identity edit tall 300x900: uniform scale, outside pixels untouched, inside matches",
+   "pass": true,
+   "detail": {
+    "applied": true,
+    "size": "1024x1536",
+    "info": {
+     "index": 2,
+     "total": 3,
+     "left": 1100,
+     "top": 300,
+     "scaleX": 0.5867446393762183,
+     "scaleY": 0.5869706840390879,
+     "w": 301,
+     "h": 901,
+     "cropX": 0,
+     "cropY": 0,
+     "name": "GPT 局部改图",
+     "source": "openai-compatible-image",
+     "crop": {
+      "x": 255.57,
+      "y": 0.43,
+      "w": 512.85,
+      "h": 1535.15,
+      "resultWidth": 1024,
+      "resultHeight": 1536,
+      "feather": 9,
+      "toneOffset": [
+       0,
+       0,
+       0
+      ],
+      "keepAlpha": false
+     }
+    },
+    "diff": {
+     "outsideChanged": 0,
+     "insideMeanAbsDiff": 1.106681831319503,
+     "size": [
+      1654,
+      2339
+     ]
+    }
+   }
+  },
+  {
+   "name": "identity edit square 500x500: uniform scale, outside pixels untouched, inside matches",
+   "pass": true,
+   "detail": {
+    "applied": true,
+    "size": "1024x1024",
+    "info": {
+     "index": 3,
+     "total": 4,
+     "left": 199,
+     "top": 1299,
+     "scaleX": 0.490234375,
+     "scaleY": 0.490234375,
+     "w": 502,
+     "h": 502,
+     "cropX": 0,
+     "cropY": 0,
+     "name": "GPT 局部改图",
+     "source": "openai-compatible-image",
+     "crop": {
+      "x": 0,
+      "y": 0,
+      "w": 1024,
+      "h": 1024,
+      "resultWidth": 1024,
+      "resultHeight": 1024,
+      "feather": 15,
+      "toneOffset": [
+       0,
+       0,
+       0
+      ],
+      "keepAlpha": false
+     }
+    },
+    "diff": {
+     "outsideChanged": 0,
+     "insideMeanAbsDiff": 1.2900020429776007,
+     "size": [
+      1654,
+      2339
+     ]
+    }
+   }
+  },
+  {
+   "name": "model returns wrong aspect: uniform scale, exact region size",
+   "pass": true,
+   "detail": {
+    "index": 4,
+    "total": 5,
+    "left": 300,
+    "top": 1900,
+    "scaleX": 0.39184952978056425,
+    "scaleY": 0.3919843597262952,
+    "w": 500,
+    "h": 401,
+    "cropX": 0,
+    "cropY": 0,
+    "name": "GPT 局部改图",
+    "source": "openai-compatible-image",
+    "crop": {
+     "x": 130.13,
+     "y": 0.43,
+     "w": 1275.75,
+     "h": 1023.15,
+     "resultWidth": 1536,
+     "resultHeight": 1024,
+     "feather": 12,
+     "toneOffset": [
+      0,
+      0,
+      0
+     ],
+     "keepAlpha": false
+    }
+   }
+  },
+  {
+   "name": "letterbox padding uses page context (opt-out gives plain white)",
+   "pass": true,
+   "detail": {
+    "ctxPad": {
+     "size": [
+      601,
+      401
+     ],
+     "nonWhiteRatio": 1
+    },
+    "whitePad": {
+     "size": [
+      601,
+      401
+     ],
+     "nonWhiteRatio": 0
+    }
+   }
+  },
+  {
+   "name": "tone matching removes model colour drift measured on the context ring",
+   "pass": true,
+   "detail": {
+    "raw": {
+     "applied": true,
+     "inside": 27.57,
+     "outside": 0,
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    "matched": {
+     "applied": true,
+     "inside": 12.37,
+     "outside": 0,
+     "offset": [
+      -26,
+      -27,
+      -32
+     ]
+    }
+   }
+  },
+  {
+   "name": "tone matching is skipped when the model recomposed the surroundings",
+   "pass": true,
+   "detail": {
+    "offset": [
+     0,
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "name": "feathered edge reduces seam from colour drift, outside untouched",
+   "pass": true,
+   "detail": {
+    "hard": {
+     "applied": true,
+     "seam": 38.09,
+     "outside": 0,
+     "featherPx": 0
+    },
+    "feather": {
+     "applied": true,
+     "seam": 2.25,
+     "outside": 0,
+     "featherPx": 9
+    }
+   }
+  },
+  {
+   "name": "full-page edit blocked without \"allow upscale\"",
+   "pass": true,
+   "detail": {
+    "applied": false,
+    "status": "生成图片中对应选区的有效像素 (1023 × 1448) 小于选区 (1654 × 2339)。已阻止低清晰度放大，可重新生成、缩小选区或勾选允许放大。"
+   }
+  },
+  {
+   "name": "full-page edit applies with \"allow upscale\"",
+   "pass": true,
+   "detail": {
+    "applied": true,
+    "status": "已添加独立图层：取回选区对应部分并等比例缩放（不拉伸、不裁头）。原图和画布尺寸未改变，可撤销。"
+   }
+  },
+  {
+   "name": "editable vertical text stays above GPT patch",
+   "pass": true,
+   "detail": {
+    "text": 6,
+    "patch": 5
+   }
+  },
+  {
+   "name": "subtitle replace horizontal + vertical with undo/redo",
+   "pass": true,
+   "detail": {
+    "h": "中文新字幕",
+    "v": "新竖排",
+    "vType": "vertical-textbox",
+    "vUndo": "竖排台词",
+    "vRedo": "新竖排"
+   }
+  },
+  {
+   "name": "Ctrl+Shift+Z redoes (like Ctrl+Y), ignored while typing in a text field",
+   "pass": true,
+   "detail": {
+    "kUndo": "竖排台词",
+    "kRedo": "新竖排",
+    "kInField": "竖排台词",
+    "kCtrlY": "新竖排"
+   }
+  },
+  {
+   "name": "multi-step undo/redo restores GPT patches",
+   "pass": true,
+   "detail": {
+    "start": 5,
+    "mid": 4,
+    "end": 5,
+    "steps": 7
+   }
+  },
+  {
+   "name": "project save/reload keeps GPT patch name/source/crop and identical pixels",
+   "pass": true,
+   "detail": {
+    "saved": {
+     "before": [
+      [
+       "GPT 局部改图",
+       "openai-compatible-image",
+       0,
+       1536,
+       602,
+       239
+      ],
+      [
+       "GPT 局部改图",
+       "openai-compatible-image",
+       256,
+       513,
+       301,
+       1100
+      ],
+      [
+       "GPT 局部改图",
+       "openai-compatible-image",
+       0,
+       1024,
+       502,
+       199
+      ],
+      [
+       "GPT 局部改图",
+       "openai-compatible-image",
+       130,
+       1276,
+       500,
+       300
+      ],
+      [
+       "GPT 局部改图",
+       "openai-compatible-image",
+       0,
+       1024,
+       400,
+       1100
+      ]
+     ],
+     "after": [
+      [
+       "GPT 局部改图",
+       "openai-compatible-image",
+       0,
+       1536,
+       602,
+       239
+      ],
+      [
+       "GPT 局部改图",
+       "openai-compatible-image",
+       256,
+       513,
+       301,
+       1100
+      ],
+      [
+       "GPT 局部改图",
+       "openai-compatible-image",
+       0,
+       1024,
+       502,
+       199
+      ],
+      [
+       "GPT 局部改图",
+       "openai-compatible-image",
+       130,
+       1276,
+       500,
+       300
+      ],
+      [
+       "GPT 局部改图",
+       "openai-compatible-image",
+       0,
+       1024,
+       400,
+       1100
+      ]
+     ],
+     "bytes": 757044
+    },
+    "reloadDiff": {
+     "outsideChanged": 0,
+     "insideMeanAbsDiff": 0,
+     "size": [
+      1654,
+      2339
+     ]
+    }
+   }
+  },
+  {
+   "name": "PNG export keeps page resolution",
+   "pass": true,
+   "detail": [
+    1654,
+    2339
+   ]
+  },
+  {
+   "name": "upstream 429 surfaces readable error, apply stays disabled",
+   "pass": true,
+   "detail": {
+    "status": "上游 HTTP 429：rate limited"
+   }
+  },
+  {
+   "name": "cancel button aborts an in-flight request",
+   "pass": true,
+   "detail": {
+    "status": "已取消请求。"
+   }
+  },
+  {
+   "name": "10 consecutive mock generations, heap growth < 80 MB",
+   "pass": true,
+   "detail": {
+    "heapMB": [
+     23,
+     21
+    ]
+   }
+  },
+  {
+   "name": "page 2339x1654: edit applies with uniform scale, outside untouched",
+   "pass": true,
+   "detail": {
+    "info": {
+     "index": 6,
+     "total": 9,
+     "left": 399,
+     "top": 400,
+     "scaleX": 0.3919270833333333,
+     "scaleY": 0.39215686274509803,
+     "w": 602,
+     "h": 300,
+     "cropX": 0,
+     "cropY": 0,
+     "name": "GPT 局部改图",
+     "source": "openai-compatible-image",
+     "crop": {
+      "x": 0,
+      "y": 129.28,
+      "w": 1536,
+      "h": 765.45,
+      "resultWidth": 1536,
+      "resultHeight": 1024,
+      "feather": 9,
+      "toneOffset": [
+       0,
+       0,
+       0
+      ],
+      "keepAlpha": false
+     }
+    },
+    "diff": {
+     "outsideChanged": 0,
+     "insideMeanAbsDiff": 1.0702811925638713,
+     "size": [
+      2339,
+      1654
+     ]
+    }
+   }
+  },
+  {
+   "name": "page 2000x2000: edit applies with uniform scale, outside untouched",
+   "pass": true,
+   "detail": {
+    "info": {
+     "index": 7,
+     "total": 10,
+     "left": 399,
+     "top": 400,
+     "scaleX": 0.39153094462540716,
+     "scaleY": 0.391644908616188,
+     "w": 601,
+     "h": 300,
+     "cropX": 0,
+     "cropY": 0,
+     "name": "GPT 局部改图",
+     "source": "openai-compatible-image",
+     "crop": {
+      "x": 0.64,
+      "y": 128.96,
+      "w": 1534.72,
+      "h": 766.08,
+      "resultWidth": 1536,
+      "resultHeight": 1024,
+      "feather": 9,
+      "toneOffset": [
+       0,
+       0,
+       0
+      ],
+      "keepAlpha": false
+     }
+    },
+    "diff": {
+     "outsideChanged": 0,
+     "insideMeanAbsDiff": 0.7529105738904318,
+     "size": [
+      2000,
+      2000
+     ]
+    }
+   }
+  },
+  {
+   "name": "selection after zooming in maps to page pixels (±2px)",
+   "pass": true,
+   "detail": {
+    "status": "已选中原始画布区域：300 × 200 像素。"
+   }
+  },
+  {
+   "name": "extreme forced aspect (800x200 into 2:3) auto-switches to 3:2; opt-out keeps size and warns",
+   "pass": true,
+   "detail": {
+    "guardOn": {
+     "size": "1536x1024",
+     "status": "图像已生成，请检查预览后点击“作为新图层应用”。选区比例（802 × 200）与所选尺寸 1024x1536 相差过大，已自动改用 1536x1024，避免模型重新构图。"
+    },
+    "guardOff": {
+     "size": "1024x1536",
+     "status": "图像已生成，请检查预览后点击“作为新图层应用”。注意：所选尺寸与选区比例相差较大，模型容易重新构图（人物移位/裁头），建议尺寸选“自动”。"
+    }
+   }
+  },
+  {
+   "name": "selection cutting an object warns and expands to the whole object (450x300), then applies",
+   "pass": true,
+   "detail": {
+    "cutWarn": {
+     "status": "已选中原始画布区域：302 × 200 像素。注意：选区只框到了 1 个对象的一部分（如“hero”），模型只看到半个人物时容易接不上身体。可点“扩展到完整对象”。",
+     "expandVisible": true
+    },
+    "expanded": {
+     "status": "选区已扩展到完整对象：451 × 300 像素。",
+     "expandVisible": false
+    },
+    "info": {
+     "left": 249,
+     "top": 1000,
+     "w": 451,
+     "h": 300
+    }
+   }
+  },
+  {
+   "name": "region apply keeps the original transparency mask (opt-out fills it)",
+   "pass": true,
+   "detail": {
+    "keep": {
+     "applied": true,
+     "hole": 0,
+     "solid": 255,
+     "flag": true,
+     "status": "已添加独立图层：取回选区对应部分并等比例缩放（不拉伸、不裁头）。原图和画布尺寸未改变，可撤销。已按原选区的透明区域恢复透明。"
+    },
+    "off": {
+     "applied": true,
+     "hole": 255,
+     "solid": 255,
+     "flag": false,
+     "status": "已添加独立图层：取回选区对应部分并等比例缩放（不拉伸、不裁头）。原图和画布尺寸未改变，可撤销。"
+    }
+   }
+  },
+  {
+   "name": "second editor tab loads independently",
+   "pass": true,
+   "detail": {
+    "w": 1654,
+    "panel": true
+   }
+  },
+  {
+   "name": "mock model received the UI key, never a .env key",
+   "pass": true,
+   "detail": {
+    "calls": 33
+   }
+  },
+  {
+   "name": "no uncaught page errors",
+   "pass": true,
+   "detail": {
+    "pageErrors": []
+   }
+  }
+ ],
+ "consoleErrors": [
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+  "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+  "Failed to load resource: net::ERR_FAILED"
+ ],
+ "pageErrors": []
+}

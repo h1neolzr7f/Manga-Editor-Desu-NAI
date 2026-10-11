@@ -348,7 +348,7 @@ else if(ps==='bucket')hint='油漆桶 · 点图片上要换色的区域';
 else if(ps==='clone')hint='仿制图章 · Alt+点击取样，再拖着盖章';
 else if(ps==='guide')hint='参考线 · 点击放竖线，Shift+点击放横线';
 else if(ps==='shape')hint='形状 · 在画布上拖出大小';
-else hint='移动 · 拖图层对齐格子。Ctrl+滚轮缩放画布，工具栏右侧有 + −。空格拖画布，V移动 M框选 C裁剪 K刀';
+else hint='移动 · 拖图层对齐格子 · Ctrl+滚轮缩放，空格拖画布';
 html='<button type="button" data-visual-act="marquee">框选</button><button type="button" data-visual-act="crop">裁剪</button><button type="button" data-visual-act="brush">笔刷</button><button type="button" data-visual-act="eraser">橡皮</button><button type="button" data-visual-act="knife">刀</button>';
 }
 var info=inspectorText();

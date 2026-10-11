@@ -1,3 +1,4 @@
+/* exported switchTemplateOrientation */
 document.addEventListener("DOMContentLoaded",function () {
 bindSidebarMore();
 toggleVisibility("svg-container-template");

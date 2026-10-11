@@ -1,0 +1,20 @@
+{
+ "C": {
+  "original_page": 4.55,
+  "before_fix_1449": 9.03,
+  "mean_1512": 5.82,
+  "profile_1514": 5.6
+ },
+ "D": {
+  "original_page": 14.16,
+  "before_fix_1449": 22.22,
+  "mean_1512": 15.77,
+  "profile_1514": 16.07
+ },
+ "G": {
+  "original_page": 0.04,
+  "before_fix_1449": 5.92,
+  "mean_1512": 2.59,
+  "profile_1514": 2.19
+ }
+}

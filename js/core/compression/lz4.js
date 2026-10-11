@@ -149,7 +149,7 @@ return lz4Blob;
 async zipFileListToLz4Blob(files) {
 const fileBufferList=[];
 
-for (const [filename,fileEntry] of Object.entries(files)) {
+for (const fileEntry of Object.values(files)) {
 if (fileEntry._data&&fileEntry._data.compressedContent) {
 const name=fileEntry.name;
 const data=fileEntry._data.compressedContent;

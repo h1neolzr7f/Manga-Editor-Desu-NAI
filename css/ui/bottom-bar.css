@@ -384,3 +384,25 @@ background:rgba(0,0,0,0.06);
 .light-mode .btm-dialog-button:hover {
 background:rgba(0,0,0,0.12);
 }
+
+/* duplicate-page button, same look as delete, left of it */
+.btm-dup-btn {
+position:absolute;
+padding:0;
+width:22px;
+height:22px;
+border:none;
+border-radius:50%;
+background:rgba(0,0,0,0.6);
+backdrop-filter:blur(4px);
+color:rgba(255,255,255,0.85);
+top:6px;
+right:32px;
+font-size:12px;
+cursor:pointer;
+z-index:1;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+.btm-dup-btn:hover { background:rgba(40,110,160,0.85); }

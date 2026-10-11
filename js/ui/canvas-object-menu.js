@@ -1,5 +1,4 @@
 // Canvas object right-click context menu
-const languageSelector=$('fabricjs-language-selector');
 let lastClickType=null;
 let objectMenu=null;
 
@@ -16,9 +15,6 @@ var menuIconMap={
 "selectClear":"deselect",
 "generate":"auto_awesome",
 "rembg":"auto_fix_high",
-"upscale":"zoom_in",
-"inpaint":"brush",
-"angleGenerate":"view_in_ar",
 "flipHorizontal":"flip",
 "flipVertical":"flip",
 "cropImage":"crop",
@@ -37,9 +33,8 @@ var menuIconMap={
 "copyAndPast":"content_copy"
 };
 
-var menuAiActions=["generate","upscale","inpaint","angleGenerate"];
+var menuAiActions=["generate"];
 var menuLocalActions=["rembg","cutoutRegion"];
-var naiOnlyMode=true;
 
 function createObjectMenu(){
 if(objectMenu){
@@ -174,9 +169,6 @@ var panelInNotFit=createObjectMenuButton('panelInNotFit');
 var canvasFit=createObjectMenuButton('canvasFit');
 var selectClear=createObjectMenuButton('selectClear');
 var rembg=createObjectMenuButton('rembg');
-var upscale=createObjectMenuButton('upscale');
-var inpaint=createObjectMenuButton('inpaint');
-var angleGenerate=createObjectMenuButton('angleGenerate');
 var clearAllClipPaths=createObjectMenuButton('clearAllClipPaths');
 
 var clearTopClipPath=createObjectMenuButton('clearTopClipPath');
@@ -245,7 +237,7 @@ menuItems.push(createObjectMenuGroupHeader('menuGroupOperation'));
 menuItems.push(visible,movement,duplicate);
 menuItems.push(createObjectMenuGroupHeader('menuGroupCutout'));
 menuItems.push(rembg,cutoutRegion,cropImage);
-var aiItems=[];
+aiItems=[];
 if(hasRole(AI_ROLES.Image2Image))aiItems.push(generate);
 if(aiItems.length>0){
 menuItems.push(createObjectMenuGroupHeader('menuGroupAI'));
@@ -534,8 +526,8 @@ putImageInFrame(activeObject,canvasX,canvasY,true,true);
 updateLayerPanel();
 break;
 case 'panelInNotFit':
-var canvasX=activeObject.left+(activeObject.width*activeObject.scaleX)/2;
-var canvasY=activeObject.top+(activeObject.height*activeObject.scaleY)/2;
+canvasX=activeObject.left+(activeObject.width*activeObject.scaleX)/2;
+canvasY=activeObject.top+(activeObject.height*activeObject.scaleY)/2;
 putImageInFrame(activeObject,canvasX,canvasY,true,true,false);
 updateLayerPanel();
 break;
@@ -575,19 +567,6 @@ break;
 case 'confirmCrop':
 if(typeof completeCrop==="function")completeCrop();
 break;
-case 'upscale':
-if(naiOnlyMode)return;
-var spinner=createSpinner(getGUID(activeObject),'UP');
-aiUpscale(activeObject,spinner);
-break;
-case 'inpaint':
-if(naiOnlyMode)return;
-openInpaintEditor(activeObject);
-break;
-case 'angleGenerate':
-if(naiOnlyMode)return;
-openAngleEditor(activeObject);
-break;
 case 'generate':
 if(window.NaiBeginnerGuide&&typeof window.NaiBeginnerGuide.confirmSpend==='function'){
 if(!window.NaiBeginnerGuide.confirmSpend(isPanel(activeObject)?'生成这一格':'以这张图再生成'))return;
@@ -596,7 +575,7 @@ if(isPanel(activeObject)){
 var spinner=createSpinner(getGUID(activeObject),'T2I');
 T2I(activeObject,spinner);
 }else if(isImage(activeObject)){
-var spinner=createSpinner(getGUID(activeObject),'I2I');
+spinner=createSpinner(getGUID(activeObject),'I2I');
 I2I(activeObject,spinner);
 }
 break;
@@ -693,7 +672,6 @@ objectMenu.style.display='none';
 
 canvas.wrapperEl.addEventListener('contextmenu',function(e){
 e.preventDefault();
-const pointer=canvas.getPointer(e);
 const clickedObject=canvas.findTarget(e,false);
 if(clickedObject){
 canvas.setActiveObject(clickedObject);

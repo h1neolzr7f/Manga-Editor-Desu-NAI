@@ -1,3 +1,4 @@
+/* exported addRainToneEventListener, rainToneEnd, rainToneStart */
 var tmpCanvasRainTone=null;
 var tmpCtxRainTone=null;
 var isDrawingRainTone=false;

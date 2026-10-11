@@ -1,0 +1,362 @@
+[
+ {
+  "run": "run1",
+  "case": "A",
+  "title": "竖选区≈2:3 + 参考图（角色替换 A）",
+  "http": 200,
+  "elapsedS": 27.1,
+  "region": [
+   802,
+   1240
+  ],
+  "requestSize": "1024x1536",
+  "refs": 1,
+  "authHeaderFromBrowser": false,
+  "resultSize": [
+   1024,
+   1536
+  ],
+  "outsideChanged": 0,
+  "seamBefore": 0.24,
+  "seamAfter": 47.68,
+  "toneOffset": null,
+  "saveReloadPixelsEqual": true,
+  "pageErrors": []
+ },
+ {
+  "run": "run1",
+  "case": "B",
+  "title": "同 A 选区，无参考图，仅文字描述（A/B 对照）",
+  "http": 200,
+  "elapsedS": 27.3,
+  "region": [
+   802,
+   1240
+  ],
+  "requestSize": "1024x1536",
+  "refs": 0,
+  "authHeaderFromBrowser": false,
+  "resultSize": [
+   1023,
+   1537
+  ],
+  "outsideChanged": 0,
+  "seamBefore": 0.24,
+  "seamAfter": 5.09,
+  "toneOffset": null,
+  "saveReloadPixelsEqual": true,
+  "pageErrors": []
+ },
+ {
+  "run": "run1",
+  "case": "C",
+  "title": "横选区 1000×570 → 3:2 补白 + 参考图",
+  "http": 200,
+  "elapsedS": 26.8,
+  "region": [
+   1002,
+   571
+  ],
+  "requestSize": "1536x1024",
+  "refs": 1,
+  "authHeaderFromBrowser": false,
+  "resultSize": [
+   1536,
+   1024
+  ],
+  "outsideChanged": 0,
+  "seamBefore": 1.49,
+  "seamAfter": 17.54,
+  "toneOffset": null,
+  "saveReloadPixelsEqual": true,
+  "pageErrors": []
+ },
+ {
+  "run": "run1",
+  "case": "D",
+  "title": "方选区 450×450（脸部）→ 1:1 + 参考图",
+  "http": 200,
+  "elapsedS": 33.7,
+  "region": [
+   450,
+   452
+  ],
+  "requestSize": "1024x1024",
+  "refs": 1,
+  "authHeaderFromBrowser": false,
+  "resultSize": [
+   1254,
+   1254
+  ],
+  "outsideChanged": 0,
+  "seamBefore": 5.43,
+  "seamAfter": 43.98,
+  "toneOffset": null,
+  "saveReloadPixelsEqual": true,
+  "pageErrors": []
+ },
+ {
+  "run": "run1",
+  "case": "E",
+  "title": "竖选区 + 强制 1024×1024（交叉比例）+ 参考图",
+  "http": 200,
+  "elapsedS": 30,
+  "region": [
+   802,
+   1240
+  ],
+  "requestSize": "1024x1024",
+  "refs": 1,
+  "authHeaderFromBrowser": false,
+  "resultSize": [
+   1254,
+   1254
+  ],
+  "outsideChanged": 0,
+  "seamBefore": 0.24,
+  "seamAfter": 27.25,
+  "toneOffset": null,
+  "saveReloadPixelsEqual": true,
+  "pageErrors": []
+ },
+ {
+  "run": "run1",
+  "case": "F",
+  "title": "横选区 + 强制 1024×1536（极端交叉）+ 参考图",
+  "http": 200,
+  "elapsedS": 33.7,
+  "region": [
+   1002,
+   571
+  ],
+  "requestSize": "1024x1536",
+  "refs": 1,
+  "authHeaderFromBrowser": false,
+  "resultSize": [
+   1024,
+   1536
+  ],
+  "outsideChanged": 0,
+  "seamBefore": 1.49,
+  "seamAfter": 18.71,
+  "toneOffset": null,
+  "saveReloadPixelsEqual": true,
+  "pageErrors": []
+ },
+ {
+  "run": "run1",
+  "case": "G",
+  "title": "页角选区含可编辑竖排字（默认排除文字）",
+  "http": 200,
+  "elapsedS": 23,
+  "region": [
+   504,
+   1039
+  ],
+  "requestSize": "1024x1536",
+  "refs": 0,
+  "authHeaderFromBrowser": false,
+  "resultSize": [
+   1024,
+   1536
+  ],
+  "outsideChanged": 0,
+  "seamBefore": 0,
+  "seamAfter": 69.76,
+  "toneOffset": null,
+  "saveReloadPixelsEqual": true,
+  "pageErrors": []
+ },
+ {
+  "run": "run2",
+  "case": "A",
+  "title": "竖选区≈2:3 + 参考图（角色替换 A）",
+  "http": 200,
+  "elapsedS": 31.1,
+  "region": [
+   802,
+   1240
+  ],
+  "requestSize": "1024x1536",
+  "refs": 1,
+  "authHeaderFromBrowser": false,
+  "resultSize": [
+   1024,
+   1536
+  ],
+  "outsideChanged": 0,
+  "seamBefore": 0.24,
+  "seamAfter": 1.4,
+  "toneOffset": null,
+  "saveReloadPixelsEqual": true,
+  "pageErrors": []
+ },
+ {
+  "run": "run2",
+  "case": "C",
+  "title": "横选区 1000×570 → 3:2 补白 + 参考图",
+  "http": 200,
+  "elapsedS": 27.8,
+  "region": [
+   1002,
+   571
+  ],
+  "requestSize": "1536x1024",
+  "refs": 1,
+  "authHeaderFromBrowser": false,
+  "resultSize": [
+   1536,
+   1024
+  ],
+  "outsideChanged": 0,
+  "seamBefore": 1.49,
+  "seamAfter": 2.14,
+  "toneOffset": null,
+  "saveReloadPixelsEqual": true,
+  "pageErrors": []
+ },
+ {
+  "run": "run2",
+  "case": "D",
+  "title": "方选区 450×450（脸部）→ 1:1 + 参考图",
+  "http": 200,
+  "elapsedS": 34.5,
+  "region": [
+   450,
+   452
+  ],
+  "requestSize": "1024x1024",
+  "refs": 1,
+  "authHeaderFromBrowser": false,
+  "resultSize": [
+   1254,
+   1254
+  ],
+  "outsideChanged": 0,
+  "seamBefore": 5.43,
+  "seamAfter": 6.03,
+  "toneOffset": null,
+  "saveReloadPixelsEqual": true,
+  "pageErrors": []
+ },
+ {
+  "run": "run2",
+  "case": "F",
+  "title": "横选区 + 强制 1024×1536（极端交叉）+ 参考图",
+  "http": 200,
+  "elapsedS": 28.2,
+  "region": [
+   1002,
+   571
+  ],
+  "requestSize": "1024x1536",
+  "refs": 1,
+  "authHeaderFromBrowser": false,
+  "resultSize": [
+   1024,
+   1536
+  ],
+  "outsideChanged": 0,
+  "seamBefore": 1.49,
+  "seamAfter": 2.59,
+  "toneOffset": null,
+  "saveReloadPixelsEqual": true,
+  "pageErrors": []
+ },
+ {
+  "run": "run2",
+  "case": "G",
+  "title": "页角选区含可编辑竖排字（默认排除文字）",
+  "http": 200,
+  "elapsedS": 32.1,
+  "region": [
+   504,
+   1039
+  ],
+  "requestSize": "1024x1536",
+  "refs": 0,
+  "authHeaderFromBrowser": false,
+  "resultSize": [
+   1024,
+   1536
+  ],
+  "outsideChanged": 0,
+  "seamBefore": 0,
+  "seamAfter": 2,
+  "toneOffset": null,
+  "saveReloadPixelsEqual": true,
+  "pageErrors": []
+ },
+ {
+  "run": "run3",
+  "case": "A",
+  "title": "竖选区≈2:3 + 参考图（角色替换 A）",
+  "http": 200,
+  "elapsedS": 31.5,
+  "region": [
+   802,
+   1240
+  ],
+  "requestSize": "1024x1536",
+  "refs": 1,
+  "authHeaderFromBrowser": false,
+  "resultSize": [
+   1024,
+   1535
+  ],
+  "outsideChanged": 0,
+  "seamBefore": 0.24,
+  "seamAfter": 1.34,
+  "toneOffset": null,
+  "saveReloadPixelsEqual": true,
+  "pageErrors": []
+ },
+ {
+  "run": "run3",
+  "case": "F",
+  "title": "横选区 + 强制 1024×1536（极端交叉）+ 参考图",
+  "http": 200,
+  "elapsedS": 28.4,
+  "region": [
+   1002,
+   571
+  ],
+  "requestSize": "1024x1536",
+  "refs": 1,
+  "authHeaderFromBrowser": false,
+  "resultSize": [
+   1024,
+   1536
+  ],
+  "outsideChanged": 0,
+  "seamBefore": 1.49,
+  "seamAfter": 2.25,
+  "toneOffset": null,
+  "saveReloadPixelsEqual": true,
+  "pageErrors": []
+ },
+ {
+  "run": "run3",
+  "case": "G",
+  "title": "页角选区含可编辑竖排字（默认排除文字）",
+  "http": 200,
+  "elapsedS": 30.8,
+  "region": [
+   504,
+   1039
+  ],
+  "requestSize": "1024x1536",
+  "refs": 0,
+  "authHeaderFromBrowser": false,
+  "resultSize": [
+   1024,
+   1536
+  ],
+  "outsideChanged": 0,
+  "seamBefore": 0,
+  "seamAfter": 1.32,
+  "toneOffset": null,
+  "saveReloadPixelsEqual": true,
+  "pageErrors": []
+ }
+]

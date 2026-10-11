@@ -1,3 +1,4 @@
+/* exported blindSplitPanel, guidedSplitPanel */
 /**
  * knife-split-engine.js
  * パネル分割ロジック
@@ -61,7 +62,6 @@ return splitResult;
 }
 
 function blindSplitPanel(panel,isVertical) {
-const canvasArea=canvas.width*canvas.height;
 
 var centerX=getCenterXByFabricObject(panel);
 var centerY=getCenterYByFabricObject(panel);
@@ -202,9 +202,9 @@ polygonizer.add(union);
 
 polygons=polygonizer.getPolygons();
 resultLine=[];
-for (var i=polygons.iterator();i.hasNext();) {
-var polygonTemp=i.next();
-var coords=polygonTemp
+for (i=polygons.iterator();i.hasNext();) {
+polygonTemp=i.next();
+coords=polygonTemp
 .getCoordinates()
 .map((coord)=>({x: coord.x,y: coord.y}));
 resultLine.push(coords);
@@ -251,8 +251,8 @@ y: point.y-offsetY-minY,
 };
 });
 
-var minX=Math.min(...adjustedPolygon2Points.map((v)=>v.x));
-var minY=Math.min(...adjustedPolygon2Points.map((v)=>v.y));
+minX=Math.min(...adjustedPolygon2Points.map((v)=>v.x));
+minY=Math.min(...adjustedPolygon2Points.map((v)=>v.y));
 
 var adjustedPolygon2Points2=adjustedPolygon2Points.map(function (point) {
 return {
@@ -270,21 +270,17 @@ var polygon2MinY=Math.min(...newPolygon2Points.map((point)=>point.y));
 var left=0;
 var top=0;
 
-var scaleX=getScaleX();
-var scaleY=getScaleY();
-var scaleX2=getScaleX();
-var scaleY2=getScaleY();
+scaleX=getScaleX();
+scaleY=getScaleY();
 
 if (isSplit==KNIFE_CONSTANTS.DIRECTION.HORIZONTAL) {
 top=polygon2MinY;
 left=polygon2MinX;
 scaleY=1;
-scaleY2=1;
 } else if (isSplit==KNIFE_CONSTANTS.DIRECTION.VERTICAL) {
 top=polygon2MinY;
 left=polygon2MinX;
 scaleX=1;
-scaleX2=1;
 } else {
 stopKnifeLineAnimation();
 setNotSave(currentKnifeLine);
@@ -292,7 +288,6 @@ canvas.remove(currentKnifeLine);
 return {isSplit: false,polygon1: null,polygon2: null};
 }
 
-var strokeWidthScale=canvas.width/700;
 
 var tempLockMovementX=polygon.lockMovementX;
 var tempLockMovementY=polygon.lockMovementY;
@@ -452,7 +447,7 @@ return {dx: unitX*ratio,dy: moveDistance};
 if (Math.abs(unitX)<KNIFE_CONSTANTS.GEOMETRY.MIN_LENGTH) {
 return {dx: moveDistance,dy: 0};
 }
-var ratio=moveDistance/unitX;
+ratio=moveDistance/unitX;
 return {dx: moveDistance,dy: unitY*ratio};
 }
 }

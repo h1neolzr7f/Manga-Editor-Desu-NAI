@@ -1,3 +1,4 @@
+/* exported roleAssignmentUI */
 // Role Assignment: Role×プロバイダーのマトリクスUI
 var roleAssignmentUI=(function(){
 var PROVIDER_COLUMNS=[

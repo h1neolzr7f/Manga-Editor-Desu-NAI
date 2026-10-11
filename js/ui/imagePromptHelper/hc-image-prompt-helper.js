@@ -1,3 +1,4 @@
+/* exported iphHtmlContent */
 const iphHtmlContent=`
 <div class="iph-container">
 <div class="iph-top-bar">

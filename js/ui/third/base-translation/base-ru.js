@@ -393,6 +393,7 @@ const base_ru = {
 "imageDownload":"Скачать изображение",
 "imageCopy":"Копировать изображение",
 "allRemove":"Удалить все",
+"allRemoveConfirm":"Очистить всё на этой странице? Это нельзя отменить. Сначала сохраните проект (Ctrl+S), если хотите его оставить.",
 "prompt":"Запрос",
 "searchReplace":"Поиск и замена",
 "sdWebUI":"SD WebUI",

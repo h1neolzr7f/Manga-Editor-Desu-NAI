@@ -1,3 +1,4 @@
+/* exported enhanceBrush */
 fabric.DoubleOutlineBrush=fabric.util.createClass(fabric.BaseBrush,{
 type: "DoubleOutlineBrush",
 initialize: function(canvas){

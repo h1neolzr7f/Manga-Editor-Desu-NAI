@@ -1,3 +1,4 @@
+/* exported t2_thrill_updateAll */
 let t2_thrill_textSvg,t2_thrill_defs,t2_thrill_filter,t2_thrill_mainText,nowT2ThrillStr=null;
 function t2_thrill_deleteSvg(){
 [t2_thrill_textSvg,t2_thrill_defs,t2_thrill_filter,t2_thrill_mainText,nowT2ThrillStr]=[null,null,null,null,null];

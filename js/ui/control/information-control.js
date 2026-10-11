@@ -1,3 +1,4 @@
+/* exported updateCoordinates */
 var fpsCheckbox=$("InformationFPS");
 var coordCheckbox=$("InformationCoordinate");
 

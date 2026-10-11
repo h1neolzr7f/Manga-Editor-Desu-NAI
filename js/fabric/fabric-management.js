@@ -1,3 +1,4 @@
+/* exported lastActiveObjectState, moveSettings */
 var perfCounters={forcedAdjust:0,highlight:0,coords:0,updateTemp:0,objectAdded:0,objectRemoved:0};
 var skipForcedAdjust=false;
 setInterval(function(){
@@ -437,6 +438,17 @@ canvas.freeDrawingBrush.drawPreviewCircle(canvas.getPointer(options.e));
 
 
 
+function resolveSpeechBubbleAt(target,pointer){
+if(target&&target.isSpeechBubble)return target;
+if(target&&target.targetObject&&target.targetObject.isSpeechBubble)return target.targetObject;
+var objs=canvas.getObjects();
+for(var i=objs.length-1;i>=0;i--){
+var o=objs[i];
+if(o.isSpeechBubble&&o.visible!==false&&o.containsPoint(new fabric.Point(pointer.x,pointer.y),null,true))return o;
+}
+return null;
+}
+
 canvas.on("mouse:down",event=>{
 eventLogger.trace('25: mouse:down');
 isDrawing=true;
@@ -448,6 +460,12 @@ updateTemporaryShapes();
 points=[{x: pointer.x,y: pointer.y}];
 updateTemporaryShapes();
 } else if (currentMode==="movePoint"||currentMode==="deletePoint") {
+// The bubble's own text sits on top of its interior and the page image wins on the thin outline,
+// so a click on a free bubble almost never reached it: resolve the bubble under the pointer.
+if (!(event.target&&event.target.data&&event.target.data.index!==undefined)) {
+var hitBubble=resolveSpeechBubbleAt(event.target,pointer);
+if (hitBubble) event={target:hitBubble,e:event.e};
+}
 if (event.target&&event.target.isSpeechBubble) {
 selectedObject=event.target;
 createControlPoints(selectedObject);
@@ -526,17 +544,17 @@ updateObjectSelectability();
 updateTemporaryShapes();
 }
 } else if (currentMode==="freehand"&&points.length>=4) {
-var t0=performance.now();
+t0=performance.now();
 points.push({x: points[0].x,y: points[0].y});
 points=processPoints(points);
-var t1=performance.now();
+t1=performance.now();
 const geometry=createJSTSPolygon(points);
-var t2=performance.now();
+t2=performance.now();
 if (geometry&&geometry.isValid()) {
-var merged=mergeOverlappingShapes(geometry);
-var t3=performance.now();
+merged=mergeOverlappingShapes(geometry);
+t3=performance.now();
 createSpeechBubble(merged);
-var t4=performance.now();
+t4=performance.now();
 perfLogger.warn("[PERF:freehand mouse:up] processPoints:"+Math.round(t1-t0)+"ms JSTS:"+Math.round(t2-t1)+"ms merge:"+Math.round(t3-t2)+"ms createBubble:"+Math.round(t4-t3)+"ms total:"+Math.round(t4-t0)+"ms pts:"+points.length);
 points=[];
 } else {

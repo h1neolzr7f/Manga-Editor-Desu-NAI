@@ -1,3 +1,4 @@
+/* exported TaskQueue */
 class TaskQueue {
 constructor(concurrency) {
 this.concurrency=concurrency;

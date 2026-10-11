@@ -354,3 +354,19 @@ margin-left:2px;
 .ai-task-cancel:hover {
 color:#ff3333;
 }
+
+/* Layer header: keep page/up/down/undo/redo on one row on 1280px screens. */
+#layer-panel > .area-header{
+display:flex;
+align-items:center;
+flex-wrap:wrap;
+gap:2px;
+}
+#layer-panel > .area-header > button:not(.layer-header-page-btn){
+min-width:0;
+padding:2px 3px;
+}
+#layer-panel > .area-header > .layer-header-page-btn{
+margin-left:4px;
+white-space:nowrap;
+}

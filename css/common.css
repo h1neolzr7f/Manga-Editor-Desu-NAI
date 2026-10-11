@@ -146,27 +146,29 @@ textarea {
  border-bottom: 1px solid var(--border-color-A);
 }
 
- @font-face {
+ /* 851 fonts and Ohisama were removed (redistribution terms unclear). Their old family names stay as aliases of
+   bundled OFL fonts so existing projects still render with a similar look; they are no longer offered in the font lists. */
+@font-face {
   font-family: '851_YOWAKU';
-  src: url('../font/851CHIKARA-YOWAKU_002.ttf') format('truetype');
+  src: url('../font/Rampart_One/RampartOne-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
  }
  @font-face {
   font-family: '851_KAKUKAKU';
-  src: url('../font/851H-kktt_004.ttf') format('truetype');
+  src: url('../font/DotGothic16/DotGothic16-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
  }
 @font-face {
  font-family: '851_DZUYOKU';
- src: url('../font/851CHIKARA-DZUYOKU_kanaB_004.ttf') format('truetype');
+ src: url('../font/Rampart_One/RampartOne-Regular.ttf') format('truetype');
  font-weight: normal;
  font-style: normal;
 }
 @font-face {
  font-family: '851_MkPOP';
- src: url('../font/851MkPOP_101/851MkPOP_101.ttf') format('truetype');
+ src: url('../font/Train_One/TrainOne-Regular.ttf') format('truetype');
  font-weight: normal;
  font-style: normal;
 }
@@ -216,7 +218,7 @@ textarea {
 }
 @font-face {
  font-family: 'Ohisama';
- src: url('../font/OhisamaFont11/OhisamaFont11.ttf') format('truetype');
+ src: url('../font/Klee_One/KleeOne-Regular.ttf') format('truetype');
 }
 
 

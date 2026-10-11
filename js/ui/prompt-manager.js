@@ -1,3 +1,4 @@
+/* exported openPromptChangeFloatingWindow */
 function openPromptChangeFloatingWindow() {
 const floatingWindow=document.createElement("div");
 floatingWindow.className="floating-windowPromptClass";
@@ -61,3 +62,7 @@ function closePromptChangeFloatingWindow() {
 const window=document.querySelector('.floating-windowPromptClass');
 document.body.removeChild(window);
 }
+
+// The floating window's buttons call these through inline onclick="..." in the template above.
+window.applyChanges=applyChanges;
+window.closePromptChangeFloatingWindow=closePromptChangeFloatingWindow;

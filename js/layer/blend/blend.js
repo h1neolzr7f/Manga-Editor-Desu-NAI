@@ -1,3 +1,4 @@
+/* exported addFillLayer, addGradientLayer, handleBlend */
 // ブレンドモードUI - カテゴリ分類・プレビュー・適用処理
 const allBlendModes=['normal','add','screen','darken','lighten','color-dodge','color-burn','linear-burn','linear-dodge','linear-light','hard-light','soft-light','pin-light','difference','exclusion','overlay','saturation','color','luminosity','add-npm','subtract','divide','vivid-light','hard-mix','negation'];
 
@@ -40,7 +41,6 @@ const blendCategories=[
 const layerDisplaySize=150;
 const blendDisplaySize=200;
 
-var selectedBlendMode=null;
 var selectedBlendCanvas=null;
 var blendResultMap={};
 var blendCheckedSet=new Set();
@@ -115,14 +115,6 @@ floatingWindow.appendChild(controls);
 floatingWindow.appendChild(mainContent);
 document.body.appendChild(floatingWindow);
 setupInteractJS(floatingWindow);
-}
-
-function recreateFloatingWindow() {
-const existingWindow=$("blendFloatingWindow");
-if(existingWindow){
-existingWindow.remove();
-}
-createFloatingWindow();
 }
 
 function setupInteractJS(element) {
@@ -210,7 +202,7 @@ function selectBlendMode(mode,blendedCanvas,containerEl) {
 var prev=document.querySelector(".blend-mode-selected");
 if(prev)prev.classList.remove("blend-mode-selected");
 containerEl.classList.add("blend-mode-selected");
-selectedBlendMode=mode;
+
 selectedBlendCanvas=blendedCanvas;
 var info=$("blendSelectedInfo");
 if(info){
@@ -234,7 +226,7 @@ async function updateBlendModes(imageLayerList) {
 var currentSession=++blendSessionId;
 const blendModesContainer=$("blendModes");
 blendModesContainer.innerHTML="";
-selectedBlendMode=null;
+
 selectedBlendCanvas=null;
 blendResultMap={};
 var applyBtn=$("blendApplyButton");
@@ -312,20 +304,6 @@ function createScaledCanvas(sourceCanvas,maxWidth,maxHeight){
 return HtmlCanvasUtil.createScaledCanvas(sourceCanvas,maxWidth,maxHeight);
 }
 
-function isBlendChecked(layer) {
-var id=getGUID(layer);
-return blendCheckedSet.has(id);
-}
-
-function updateLayerPreviewStyle(layer,previewContainer) {
-if(isBlendChecked(layer)){
-previewContainer.classList.remove("unchecked");
-previewContainer.classList.add("checked");
-}else{
-previewContainer.classList.add("unchecked");
-previewContainer.classList.remove("checked");
-}
-}
 
 var blendDragState=null;
 

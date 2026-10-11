@@ -1,0 +1,31 @@
+name: Manga page structure acceptance
+
+on:
+  pull_request:
+    paths:
+      - "js/ai/manga-page-structure*.js"
+      - "js/ai/manga-smart-text-editor.js"
+      - "js/ai/gpt-region-editor.js"
+      - "scripts/manga-page-structure-test.cjs"
+      - "scripts/gpt-browser-acceptance.cjs"
+      - "package.json"
+      - ".github/workflows/manga-page-structure.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  structure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Test reading order, gutter detection, OCR associations
+        run: |
+          node scripts/manga-page-structure-test.cjs
+          npm run test:smart-text
+          npm test

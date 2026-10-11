@@ -1,3 +1,4 @@
+/* exported createGrid, findLargestRectangle */
 function createGrid(svgData,pixelRatio=1) {
 imageLogger.debug("createGrid start");
 

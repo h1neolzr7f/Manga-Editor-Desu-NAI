@@ -142,3 +142,19 @@ display:none;
 min-width:0;
 }
 }
+
+/* Short screens (1440x900 / 1366x768 laptops): the sidebar column was ~1050px tall, so 文字 sat under
+   the sticky 「更多」 toggle and 网点 / 形状 / 抠图 were below the fold. Compact the icons, keep labels. */
+@media (max-height:1000px){
+#sidebar .icon-wrapper{padding:2px 0;margin:0;min-height:0;}
+#sidebar .icon-wrapper i{font-size:20px;margin-bottom:0;}
+#sidebar .icon-label{font-size:10px;line-height:1.1;}
+#sidebar .sidebar-group-label{padding:3px 0 1px;}
+#sidebar .sidebar-more-toggle{padding:5px 2px 6px;}
+}
+@media (max-height:820px){
+#sidebar .icon-wrapper{padding:1px 0;}
+#sidebar .icon-wrapper i{font-size:18px;}
+#sidebar .icon-label{font-size:9px;}
+#sidebar .sidebar-group-label{display:none;}
+}

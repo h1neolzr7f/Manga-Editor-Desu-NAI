@@ -1,3 +1,4 @@
+/* exported addSnowToneEventListener, snowToneEnd, snowToneStart */
 var tmpCanvasSnowTone=null;
 var tmpCtxSnowTone=null;
 var isDrawingSnowTone=false;
@@ -141,10 +142,10 @@ updateSnowTone();
 }
 
 
-var tmpCanvasSnowTone=null;
-var tmpCtxSnowTone=null;
-var isDrawingSnowTone=false;
-var nowSnowTone=null;
+tmpCanvasSnowTone=null;
+tmpCtxSnowTone=null;
+isDrawingSnowTone=false;
+nowSnowTone=null;
 
 function updateSnowTone() {
 if (isDrawingSnowTone) {

@@ -78,15 +78,20 @@ async function resolveCredentials() {
     process.env.NAI_API_KEY?.trim() ||
     local?.novelaiApiKey?.trim() ||
     "";
-  const director =
-    process.env.TOKENDANCE_API_KEY?.trim() ||
+  // Never fall back to the NovelAI token: the Director is a different (third-party) service,
+  // and sending the NovelAI token there would leak it.
+  let director =
     process.env.DIRECTOR_API_KEY?.trim() ||
     local?.naiDirectorApiKey?.trim() ||
-    nai;
+    "";
+  if (director && (director === nai || /^(Bearer\s+)?pst-/i.test(director))) director = "";
+  // No built-in third-party gateway: the Director step only runs against a URL the
+  // user configured (DIRECTOR_API_URL or the app's Director URL field).
   const directorUrl =
     process.env.DIRECTOR_API_URL?.trim() ||
     local?.naiDirectorApiUrl?.trim() ||
-    "https://tokendance.space/gateway/v1/chat/completions";
+    "";
+  if (!directorUrl) director = "";
   const directorModel =
     process.env.DIRECTOR_MODEL?.trim() ||
     local?.naiDirectorModel?.trim() ||
@@ -280,6 +285,10 @@ const creds = await resolveCredentials();
 console.log("NovelAI token:", mask(creds.nai));
 console.log("Director token:", mask(creds.director));
 console.log("Director model:", creds.directorModel);
+if (process.env.NAI_PIPELINE_RESOLVE_ONLY === "1") {
+  console.log(JSON.stringify({ nai: Boolean(creds.nai), director: Boolean(creds.director), directorUrl: creds.directorUrl }));
+  process.exit(0);
+}
 
 if (!creds.nai) {
   console.error("No NovelAI token. Save novelaiApiKey in app settings or set NOVELAI_API_KEY.");
@@ -289,8 +298,9 @@ if (!creds.nai) {
 await runStep("NAI subscription health", () => testNaiHealth(creds.nai));
 
 let directorPrompt = null;
-await runStep("Director armor-first JSON", async () => {
-  if (!creds.director) throw new Error("No director token");
+if (!creds.director) {
+  console.log("[SKIP] Director armor-first JSON (no Director key/URL configured; the NovelAI token is never sent to the Director)");
+} else await runStep("Director armor-first JSON", async () => {
   directorPrompt = await testDirectorArmorFirst(creds);
   return {
     promptPreview: directorPrompt.prompt.slice(0, 160),

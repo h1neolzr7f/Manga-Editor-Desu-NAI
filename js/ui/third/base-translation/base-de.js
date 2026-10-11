@@ -367,6 +367,7 @@ const base_de = {
 "B4-H-Scale":"B4 Hochformat Seite",
 "B4-V-Scale":"B4 Querformat Seite",
 "allRemove":"Alles entfernen",
+"allRemoveConfirm":"Alles auf dieser Seite löschen? Das kann nicht rückgängig gemacht werden. Speichere vorher das Projekt (Strg+S), wenn du es behalten willst.",
 "allRunT2I":"Alle T2I ausführen",
 "apiHost":"API-Host",
 "apiPort":"API-Port",

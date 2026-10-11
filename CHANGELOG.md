@@ -2,7 +2,18 @@
 
 Version numbers apply to **this fork only**, not to upstream Manga Editor Desu.
 
-## Unreleased
+## 1.0.0 — 2026-10-11 · first public release as **Manga-NAI-GPT**
+
+- New name and repository: https://github.com/h1neolzr7f/Manga-NAI-GPT (fork of Manga Editor Desu by new-sankaku, GPL-3.0).
+- Beginner home with task wizards: 换角色 (character swap), 改字幕 (caption editing), 修瑕疵 / 去杂物 (fix / remove), 分层 (layers), 自定义修改 (free edit), 画一页漫画 (draw a page), AI 生图 (NovelAI). 专业模式 keeps every original tool.
+- 服务设置 (Service settings): every address / key / token in one place, a test button per service, no built-in relay; models listed from your service.
+- Local CPU AI, downloaded on first use with consent + SHA-256: Tesseract / manga-ocr, comic-text-detector, LaMa, SAM 2.1 tiny click-select, isnet-anime, anime face detection, CCIP; automatic panel detection.
+- GPT character swap that redraws the whole figure in place with seam / tone matching and propagation to the same character on other panels.
+- Model download progress, OCR cached per page, export of all pages as one ZIP, undoable layer visibility / page deletion, CJK line-breaking rules.
+- Licence clean-up: intro.js (AGPL) replaced by an own tour; unlicensed fonts removed; prompt-helper example images download on first use (release asset).
+- Linux / macOS `start.sh` + `scripts/install-ai.sh`; Windows launchers consolidated (`一键启动.bat`, `安装AI功能.bat`, others in `scripts/windows/`).
+
+## Before 1.0.0 (fork development)
 
 - Document the local backend. New `llm_doc/backend-and-offline.md` explains the two Python stdlib servers (`99_server.py` on :8000 for static files + AI proxying, the optional cutout sidecar on :8765), how to stop them, and why the page still opens after the server is closed: the service worker caches `index.html` and js/css for offline/PWA use, so it is not a stray process. Also records that the cutout sidecar cannot start on Python 3.13+ because `local_tools/server.py` imports the removed `cgi` module.
 - Fix 画布: clicking an already-focused text object no longer shifts the whole view. fabric parks a 1px hidden `<textarea>` under `document.body` in document coordinates, so `enterEditing()` scrolled the page to reveal it and left `canvas._offset` stale. The new `js/core/util/fabric-text-focus.js` focuses that textarea with `preventScroll:true` while keeping its original coordinates, so IME candidate placement is unchanged.

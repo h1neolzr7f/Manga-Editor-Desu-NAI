@@ -1,3 +1,4 @@
+/* exported t2_cloud_updateAll */
 let t2_cloud_textSvg,t2_cloud_defs,t2_cloud_filter,t2_cloud_mainText,nowT2CloudStr=null;
 function t2_cloud_deleteSvg(){
 [t2_cloud_textSvg,t2_cloud_defs,t2_cloud_filter,t2_cloud_mainText,nowT2CloudStr]=[null,null,null,null,null];

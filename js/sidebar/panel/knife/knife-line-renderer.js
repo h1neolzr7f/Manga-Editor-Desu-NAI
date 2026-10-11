@@ -1,3 +1,4 @@
+/* exported drawLine */
 /**
  * knife-line-renderer.js
  * ナイフツールの線描画とアニメーション

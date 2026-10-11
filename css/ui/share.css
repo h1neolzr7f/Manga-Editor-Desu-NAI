@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Space+Grotesk:wght@400;700&display=swap');
+/* Decorative web fonts are no longer fetched from Google at startup (blocked in some regions, adds a failed request); the system sans-serif fallback is used. */
 
 #mangaEditorDesu_custom-popup {
     display: none;

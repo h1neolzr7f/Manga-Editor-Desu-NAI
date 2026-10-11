@@ -1,0 +1,37 @@
+/* Local OCR / editable manga text panel; no external visual framework. */
+#mangaSmartOpen { margin-left: 6px; font-size: 12px; }
+.manga-smart-panel {
+  position: fixed; z-index: 12001; top: 68px; right: 18px;
+  width: min(395px, calc(100vw - 28px)); max-height: calc(100vh - 88px);
+  overflow-y: auto; border-radius: 12px; padding: 14px;
+  background: #20232b; color: #f5f5f5; border: 1px solid #50545e;
+  box-shadow: 0 14px 45px rgba(0,0,0,.45); font: 13px/1.5 Arial,sans-serif;
+}
+.manga-smart-panel[hidden] { display:none!important; }
+.manga-smart-panel header,.manga-smart-line { display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+.manga-smart-panel header { justify-content:space-between; margin-bottom:9px; }
+.manga-smart-panel p { margin:8px 0; color:#c5cbd3; }
+.manga-smart-panel button { border:1px solid #6d7480; background:#3c4656; color:white;
+  padding:6px 9px; cursor:pointer; border-radius:6px; }
+.manga-smart-panel button:hover { background:#52617a; }
+.manga-smart-panel button:disabled { cursor:default; opacity:.55; }
+.manga-smart-panel textarea,.manga-smart-panel select {
+  background:#111820; color:#fff; border:1px solid #637083; border-radius:5px; padding:7px;
+}
+.manga-smart-panel textarea { width:100%; min-height:52px; resize:vertical; }
+.manga-smart-panel label { display:inline-flex; align-items:center; gap:4px; }
+.manga-smart-regions { display:grid; gap:9px; margin:12px 0; }
+.manga-smart-item { display:grid; gap:8px; padding:10px; background:#303743;
+  border:1px solid #47515f; border-radius:8px; }
+.manga-smart-item .manga-smart-line { justify-content:space-between; font-size:11px; }
+.manga-smart-item label { font-size:11px; }
+.manga-smart-panel .manga-smart-small { padding:3px 6px; }
+.manga-smart-hint { font-size:11px; }
+#mangaSmartStatus { margin-top:10px; color:#a4d8ff; }
+#mangaSmartStatus[data-error="true"] { color:#ffaeae; }
+.manga-smart-overlay { position:fixed; z-index:12002; cursor:crosshair;
+  border:1px dashed #62d0ff; background:rgba(25,135,255,.04); touch-action:none; }
+.manga-smart-rectangle { position:absolute; border:2px solid #39bcff; background:rgba(55,169,245,.22); }
+@media(max-width:550px) {
+  .manga-smart-panel { top:38px; right:8px; max-height:calc(100vh - 46px); }
+}

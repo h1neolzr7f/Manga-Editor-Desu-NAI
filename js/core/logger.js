@@ -1,3 +1,4 @@
+/* exported _dbgFabric, _dbgLogger, autoSaveLogger, canvasLogger, compressionLogger, dashboardLogger, dashboardPerfLogger, dashboardTagLogger, dbLogger, delegatorLogger, effectLogger, errorHandlerLogger, eventLogger, focusTrapLogger, fontLogger, freehandBubbleLogger, generationTaskLogger, imageLogger, layerLogger, logger, panelLogger, perfLogger, projectLogger, raLogger, registryLogger, serviceLogger, simulatorStudioLogger, spinnerLogger, textLogger, tutorialLogger, uiLogger, workflowLogger */
 // ログ出力ユーティリティ（SimpleLogger）
 const LogLevel={
 TRACE:0,
@@ -166,8 +167,6 @@ default:return 'unknown';
 const logger=SimpleLogger('main',LogLevel.WARN);
 const workflowLogger=SimpleLogger('workflow',LogLevel.WARN);
 const eventLogger=SimpleLogger('event',LogLevel.WARN);
-const comfyuiLogger=SimpleLogger('comfyui',LogLevel.DEBUG);
-const sdwebuiLogger=SimpleLogger('sdwebui',LogLevel.WARN);
 const dbLogger=SimpleLogger('db',LogLevel.WARN);
 const canvasLogger=SimpleLogger('canvas',LogLevel.WARN);
 const projectLogger=SimpleLogger('project',LogLevel.WARN);
@@ -190,17 +189,10 @@ const _dbgFabric=SimpleLogger('DBG-fabric',LogLevel.WARN);
 const dashboardTagLogger=SimpleLogger('dashboard-tag',LogLevel.WARN);
 const dashboardPerfLogger=SimpleLogger('dashboard-perf',LogLevel.WARN);
 const dashboardLogger=SimpleLogger('dashboard',LogLevel.WARN);
-const usLogger=SimpleLogger('unifiedSettings',LogLevel.WARN);
-const msLogger=SimpleLogger('modelSettings',LogLevel.WARN);
 const raLogger=SimpleLogger('roleAssignUI',LogLevel.WARN);
 const spinnerLogger=SimpleLogger('spinner',LogLevel.WARN);
 const generationTaskLogger=SimpleLogger('generationTask',LogLevel.WARN);
 const errorHandlerLogger=SimpleLogger('errorHandler',LogLevel.WARN);
 const registryLogger=SimpleLogger('providerRegistry',LogLevel.WARN);
-const cameraWidgetLogger=SimpleLogger('cameraWidget',LogLevel.WARN);
-const angleLogger=SimpleLogger('angle',LogLevel.WARN);
-const inpaintLogger=SimpleLogger('inpaint',LogLevel.WARN);
-const inpaintMaskLogger=SimpleLogger('inpaintMask',LogLevel.WARN);
-const inpaintWorkflowLogger=SimpleLogger('inpaintWorkflow',LogLevel.WARN);
 const _dbgLogger=SimpleLogger('DBG-panel',LogLevel.WARN);
 const simulatorStudioLogger=SimpleLogger('simulatorStudio',LogLevel.WARN);

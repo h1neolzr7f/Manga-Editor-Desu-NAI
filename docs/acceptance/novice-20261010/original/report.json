@@ -1,0 +1,136 @@
+{
+  "when": "2026-10-10T02:51:13.120Z",
+  "gpt": "MOCK",
+  "flows": [
+    {
+      "name": "1 首次启动并导入 2 页漫画",
+      "pass": false,
+      "keyOps": 5,
+      "ops": [
+        "skip tutorial",
+        "File menu",
+        "Import image",
+        "展开页面",
+        "page 1"
+      ],
+      "seconds": 107.9,
+      "screenshot": "artifacts/novice-baseline/01-1_首次启动并导入_2_页漫画.png",
+      "notes": [],
+      "detail": {
+        "tutorialShown": true,
+        "pages": 1,
+        "size1": [
+          1200,
+          1700
+        ],
+        "size2": [
+          1200,
+          1700
+        ],
+        "page1VsFile": 0,
+        "page2VsFile": 988934
+      }
+    },
+    {
+      "name": "2 框选人物+参考图+描述→生成→预览→应用",
+      "pass": false,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 0.1,
+      "screenshot": "artifacts/novice-baseline/02-2_框选人物_参考图_描述_生成_预览_应用.png",
+      "notes": [],
+      "detail": {
+        "unavailable": "no GPT region edit in this version"
+      }
+    },
+    {
+      "name": "3 识别日文气泡→修正→去字→替换中文字幕",
+      "pass": false,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 0.2,
+      "screenshot": "artifacts/novice-baseline/03-3_识别日文气泡_修正_去字_替换中文字幕.png",
+      "notes": [],
+      "detail": {
+        "unavailable": "no OCR / smart captions in this version"
+      }
+    },
+    {
+      "name": "4 撤销/重做/切页/保存/关闭/重开",
+      "pass": false,
+      "keyOps": 3,
+      "ops": [
+        "Ctrl+Z",
+        "Ctrl+Y",
+        "展开页面"
+      ],
+      "seconds": 17.5,
+      "screenshot": "artifacts/novice-baseline/04-4_撤销_重做_切页_保存_关闭_重开.png",
+      "notes": [
+        "cover-check error: locator.evaluate: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator('#btm-image-container .btm-image').nth(1)\n"
+      ],
+      "detail": {
+        "error": "cannot click \"page 2\": {\"missing\":true}"
+      }
+    },
+    {
+      "name": "5 错误 API/失败后再试/超长提示词/空选区",
+      "pass": false,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 0.1,
+      "screenshot": "artifacts/novice-baseline/05-5_错误_API_失败后再试_超长提示词_空选区.png",
+      "notes": [],
+      "detail": {
+        "unavailable": "no GPT image API in this version"
+      }
+    },
+    {
+      "name": "6 小窗口 1024×700 与 1.5x 缩放下的布局",
+      "pass": true,
+      "keyOps": 0,
+      "ops": [],
+      "seconds": 6.5,
+      "screenshot": "artifacts/novice-baseline/06-6_小窗口_1024_700_与_1_5x_缩放下的布局.png",
+      "notes": [],
+      "detail": {
+        "1024x700@1": {
+          "hScroll": false,
+          "gptOpen": "n/a",
+          "file": true,
+          "generateReachable": "n/a"
+        },
+        "1280x800@1.5": {
+          "hScroll": false,
+          "gptOpen": "n/a",
+          "file": true,
+          "generateReachable": "n/a"
+        }
+      }
+    }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "dialogs": []
+}

@@ -1,5 +1,5 @@
+/* exported basePrompt, commonProperties, i2iInit, jsColorSetById, minCanvasSizeHeight, minCanvasSizeWidth, svgPagging, syncJsColorFromInputs, t2iInit, webpQuality */
 //FabricCanvas2HtmlCanvas Scale
-const blendScale=3;
 var webpQuality=0.98;
 
 fabric.Object.NUM_FRACTION_DIGITS=100;
@@ -30,12 +30,6 @@ svgPagging=$('marginFromPanel').value;
 });
 
 
-
-var sdWebUIPort=7860;
-var sdWebUIHost="127.0.0.1";
-
-var comfyuiPort=8188;
-var comfyuiHost="127.0.0.1";
 
 const basePrompt={
 text2img_prompt         :"masterpiece, best quality, 1girl, simple background, ",
@@ -77,6 +71,8 @@ i2i_scale : 1.05,
 
 const commonProperties=[
 'excludeFromLayerPanel',
+'autoSwap',
+'panelLayer',
 'isPanel',
 'isIcon',
 'text2img_prompt',
@@ -94,7 +90,7 @@ const commonProperties=[
 ,"baseScaleX","baseScaleY","lastLeft","lastTop","targetObject","originalSvg","naiDirectorDraft"
 ,"simulatorType","simulatorSchemaVersion","simulatorTemplateId","simulatorEditable","simulatorScene","simulatorStory","simulatorMessageId","simulatorMessageIndex","simulatorParentGuid"
 ,"simulatorPlaybackIndex","simulatorPageId","simulatorExplode","simulatorPartIndex","simulatorRole","simulatorExploded","assetId","assetHash","backgroundRemovalResult","backgroundRemovalModel","backgroundRemovalSourceGuid","backgroundRemovalAction"
-,"scenePlanId","scenePlanPanelIndex","scenePlanApplyId"
+,"scenePlanId","scenePlanPanelIndex","scenePlanApplyId","mangaGptSource", "mangaGptCrop", "mangaSmartText"
 ,"simulatorSourceGuid","pageStudioKind","pageStudioPreset","pageStudioEffect","pageStudioPrevFill","pageStudioGridSize","strokeDashArray"
 ];
 

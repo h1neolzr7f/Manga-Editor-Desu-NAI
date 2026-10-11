@@ -1,3 +1,4 @@
+/* exported markPanelAutoOk */
 /**
  * 分镜流水线状态 + 生图后人工审阅
  */
@@ -9,7 +10,7 @@ PROMPT_OK:'批量词OK',
 PROMPT_FALLBACK:'批量词兜底',
 GEN_OK:'生图完成',
 GEN_FAIL:'生图失败',
-AUTO_OK:'自动审查通过',
+AUTO_OK:'生图完成（旧版未审阅）',
 AUTO_FLAGGED:'自动标记待改',
 MANUAL_REVIEW:'待人工改',
 MANUAL_OK:'人工已确认'
@@ -53,27 +54,19 @@ if(typeof updateLayerPanel==='function')updateLayerPanel();
 
 function markPanelAutoOk(panel,detail){
 if(!panel)return;
-setPanelPipelineStatusSafe(panel,'AUTO_OK',detail||'自动审查通过（生成成功，提示词符合导演规划）');
-if(typeof updateLayerPanel==='function')updateLayerPanel();
-}
-
-function markPanelAutoFlagged(panel,detail){
-if(!panel)return;
-setPanelPipelineStatusSafe(panel,'AUTO_FLAGGED',detail||'自动审查标记：建议检查或重生成');
+// 兼容旧调用：当前没有检查生成画面的自动审查器。
+setPanelPipelineStatusSafe(panel,'GEN_OK',detail||'生图完成，尚未审阅');
 if(typeof updateLayerPanel==='function')updateLayerPanel();
 }
 
 function onPanelGenerationSuccess(panel,type){
 if(!panel)return;
-setPanelPipelineStatusSafe(panel,'GEN_OK',(type||'T2I')+' 完成');
-// 优先自动审查：成功即自动通过，减少人工负担，成品更快
-markPanelAutoOk(panel,'自动审查通过 - 可选：仍可手调或点图层确认');
-// 保留原有手动审阅作为额外选项（用户可勾选）
+// 返回图片只证明生图成功，不能代替画面质量检查。
 if(isManualReviewAfterGenEnabled()){
-// 额外标记待人工，作为双保险
-// 但默认不覆盖 AUTO_OK 状态，层级显示两者
-panel.naiPipelineStatus=panel.naiPipelineStatus||'AUTO_OK';// 保持自动
-// 如需同时显示待改，可在此额外处理
+markPanelForManualReview(panel,(type||'T2I')+' 完成，请检查后可手调/I2I/重生成');
+}else{
+setPanelPipelineStatusSafe(panel,'GEN_OK',(type||'T2I')+' 完成，尚未审阅');
+if(typeof updateLayerPanel==='function')updateLayerPanel();
 }
 }
 
@@ -83,64 +76,21 @@ setPanelPipelineStatusSafe(panel,'GEN_FAIL',message||'生图失败');
 if(typeof updateLayerPanel==='function')updateLayerPanel();
 }
 
-function countPanelsByStatus(statusList){
-var counts={};
-(statusList||[]).forEach(function(panel){
-var key=panel.naiPipelineStatus||'UNKNOWN';
-counts[key]=(counts[key]||0)+1;
-});
-return counts;
-}
-
-function summarizeProjectPipelineReview(){
-var guids=typeof btmGetGuids==='function'?btmGetGuids():[];
-var totalPanels=0;
-var review=0;
-var ok=0;
-var genOk=0;
-var fail=0;
-guids.forEach(function(guid){
-var data=typeof btmProjectsMap!=='undefined'?btmProjectsMap.get(guid):null;
-if(!data||!data.panelSnapshots)return;
-(data.panelSnapshots||[]).forEach(function(snap){
-totalPanels+=1;
-if(snap.status==='MANUAL_REVIEW')review+=1;
-else if(snap.status==='MANUAL_OK')ok+=1;
-else if(snap.status==='GEN_OK')genOk+=1;
-else if(snap.status==='GEN_FAIL')fail+=1;
-});
-});
-return {pages:guids.length,totalPanels:totalPanels,review:review,ok:ok,genOk:genOk,fail:fail};
-}
-
-function collectPanelSnapshotsOnCanvas(){
-return getPanelObjectList().map(function(panel,index){
-return {
-guid:getGUID(panel),
-name:panel.name||('panel '+(index+1)),
-status:panel.naiPipelineStatus||'',
-detail:panel.naiPipelineStatusDetail||''
-};
-});
-}
-
 async function finishBatchGenerationReview(){
 var list=getPanelObjectList();
 var reviewCount=0;
-var autoOkCount=0;
+var genOkCount=0;
 list.forEach(function(panel){
-if(panel.naiPipelineStatus==='GEN_OK'){
-// 自动审查主流程
-markPanelAutoOk(panel);
-autoOkCount++;
+if(panel.naiPipelineStatus==='GEN_OK'||panel.naiPipelineStatus==='AUTO_OK'){
+genOkCount++;
 }
 if(panel.naiPipelineStatus==='MANUAL_REVIEW'||panel.naiPipelineStatus==='AUTO_FLAGGED') reviewCount+=1;
 });
 if(typeof updateLayerPanel==='function')updateLayerPanel();
-var msg=autoOkCount>0
-? ('全书生图结束：'+autoOkCount+' 格已自动审查通过。'+(reviewCount>0 ? (reviewCount+' 格仍需人工确认。') : '大部分为成品，可直接导出或微调。'))
-: (reviewCount>0 ? '全书生图结束：'+reviewCount+' 格标记待改。' : '全书生图结束。');
-createToast('自动审查',msg,8000);
+var msg='全书生图结束。';
+if(genOkCount>0)msg+=' '+genOkCount+' 格生图完成，尚未审阅。';
+if(reviewCount>0)msg+=' '+reviewCount+' 格仍需人工确认。';
+createToast('生图与审阅',msg,8000);
 }
 
 function findNextManualReviewPanel(afterPanel){
@@ -152,10 +102,10 @@ var idx=list.indexOf(afterPanel);
 start=idx>=0?idx+1:0;
 }
 for(var i=start;i<list.length;i++){
-if(list[i].naiPipelineStatus==='MANUAL_REVIEW')return list[i];
+if(list[i].naiPipelineStatus==='MANUAL_REVIEW'||list[i].naiPipelineStatus==='AUTO_FLAGGED')return list[i];
 }
 for(var j=0;j<start;j++){
-if(list[j].naiPipelineStatus==='MANUAL_REVIEW')return list[j];
+if(list[j].naiPipelineStatus==='MANUAL_REVIEW'||list[j].naiPipelineStatus==='AUTO_FLAGGED')return list[j];
 }
 return null;
 }
@@ -221,14 +171,14 @@ for(var i=0;i<guids.length;i++){
 if(loading&&typeof OP_updateLoadingState==='function'){
 OP_updateLoadingState(loading,{icon:'process',step:'导出 PNG',substep:'第 '+(i+1)+' / '+guids.length+' 页',progress:Math.round((i/guids.length)*100)});
 }
-await chengeCanvasByGuid(guids[i]);
+if(await chengeCanvasByGuid(guids[i])===false)throw new Error('页面正在切换或不可用，请等待后重试。');
 await new Promise(function(r){requestAnimationFrame(r);});
 var dataUrl=canvas.toDataURL({format:'png',multiplier:1});
 var link=getLinkDownload(dataUrl,'manga-page-'+(String(i+1).padStart(2,'0'))+'.png');
 link.click();
 await new Promise(function(r){setTimeout(r,180);});
 }
-if(homeGuid)await chengeCanvasByGuid(homeGuid);
+if(homeGuid)if(await chengeCanvasByGuid(homeGuid)===false)throw new Error('页面正在切换或不可用，请等待后重试。');
 createToast('导出','已触发 '+guids.length+' 页 PNG 下载（浏览器可能需允许多文件）。',6000);
 } catch(error){
 createToastError('导出',error.message||'导出失败',6000);

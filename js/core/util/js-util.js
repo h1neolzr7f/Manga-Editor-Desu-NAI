@@ -1,3 +1,4 @@
+/* exported generateRandomInt, getRandomNumber */
 function generateRandomInt(maxValue) {
 if(maxValue==0){
 return 0;

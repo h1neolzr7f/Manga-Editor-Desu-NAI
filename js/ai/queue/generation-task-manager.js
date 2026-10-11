@@ -1,3 +1,4 @@
+/* exported applyGeneratedImageToOriginalPage, getAiTask, getAiTasksForLayer, isPageChanged, registerAiTask, registerGenerationTask, removeAiTask, updateAiTaskCancelInfo, updateAiTaskStatus */
 var generationTaskMap=new Map();
 
 var aiTaskMap=new Map();
@@ -54,29 +55,10 @@ tasks[i].order=i+1;
 aiTaskOrderCounter=tasks.length;
 }
 
-function getAiTaskDisplayOrder(taskId){
-var task=aiTaskMap.get(taskId);
-if(!task)return 0;
-var tasks=getAiTasksForLayer(task.layerGuid,task.canvasGuid);
-for(var i=0;i<tasks.length;i++){
-if(tasks[i].taskId===taskId)return i+1;
-}
-return task.order;
-}
-
 function updateAiTaskStatus(taskId,status){
 var task=aiTaskMap.get(taskId);
 if(task){
 task.status=status;
-refreshAiTaskIndicator(taskId);
-}
-}
-
-function updateAiTaskProgress(taskId,value,max){
-var task=aiTaskMap.get(taskId);
-if(task){
-task.stepValue=value;
-task.stepMax=max;
 refreshAiTaskIndicator(taskId);
 }
 }
@@ -90,12 +72,6 @@ tasks.push(task);
 });
 tasks.sort(function(a,b){return a.order-b.order;});
 return tasks;
-}
-
-function clearAllAiTasks(){
-aiTaskMap.clear();
-aiTaskOrderCounter=0;
-updateLayerPanel();
 }
 
 function refreshAiTaskIndicator(taskId){
@@ -132,10 +108,6 @@ targetLayerGuid:taskInfo.targetLayerGuid||null
 generationTaskMap.set(canvasGuid,info);
 generationTaskLogger.debug("registerGenerationTask",canvasGuid,info);
 return info;
-}
-
-function getGenerationTask(canvasGuid){
-return generationTaskMap.get(canvasGuid);
 }
 
 function removeGenerationTask(canvasGuid){
@@ -200,12 +172,12 @@ var numA=a.name.match(/(\d+)/)?parseInt(a.name.match(/(\d+)/)[0]):-1;
 var numB=b.name.match(/(\d+)/)?parseInt(b.name.match(/(\d+)/)[0]):-1;
 return numA===numB?a.name.localeCompare(b.name):numA-numB;
 });
-for(var file of sortedFiles){
+for(const file of sortedFiles){
 if(file.name.endsWith(".img")){
 localImageMap.set(file.name.split('.')[0],ArrayBufferUtils.fromArrayBufferToString(file.data));
 }
 }
-for(var file of sortedFiles){
+for(const file of sortedFiles){
 if(file.name.endsWith(".json")&&file.name!=="text2img_basePrompt.json"&&file.name!=="canvas_info.json"){
 localStateStack.push(JSON.parse(ArrayBufferUtils.fromArrayBufferToString(file.data)));
 }
@@ -213,7 +185,8 @@ localStateStack.push(JSON.parse(ArrayBufferUtils.fromArrayBufferToString(file.da
 if(localStateStack.length===0){
 throw new Error("No state found");
 }
-var lastState=localStateStack[localStateStack.length-1];
+var savedIndex=Number.isInteger(canvasInfo.historyIndex)&&canvasInfo.historyIndex>=0&&canvasInfo.historyIndex<localStateStack.length?canvasInfo.historyIndex:localStateStack.length-1;
+var lastState=localStateStack[savedIndex];
 var restored=restoreImageLocal(lastState,localImageMap);
 await new Promise(resolve=>{
 offCanvas.loadFromJSON(restored,function(){
@@ -225,7 +198,9 @@ var targetLayer=task.targetLayerGuid?offCanvas.getObjects().find(obj=>obj.guid==
 placeImageLocal(offCanvas,fabricImage,task,targetLayer);
 offCanvas.renderAll();
 var newState=customToJSONLocal(offCanvas,localImageMap);
+localStateStack.splice(savedIndex+1);
 localStateStack.push(JSON.stringify(newState));
+canvasInfo.historyIndex=localStateStack.length-1;
 var previewDataUrl=offCanvas.toDataURL({format:'jpeg',quality:0.8});
 var fileBufferList=await generateProjectFileBufferListCore(localStateStack,localImageMap,canvasInfo,basePromptData,previewDataUrl);
 var newBlob=await lz4Compressor.buffersToLz4Blob(fileBufferList);
@@ -269,7 +244,7 @@ obj.src=hash;
 }
 if(obj.speechBubbleGrid&&typeof obj.speechBubbleGrid==='object'){
 var gridStr=JSON.stringify(obj.speechBubbleGrid);
-var hash=generateHash(gridStr);
+hash=generateHash(gridStr);
 if(!localImageMap.has(hash)){
 localImageMap.set(hash,gridStr);
 }

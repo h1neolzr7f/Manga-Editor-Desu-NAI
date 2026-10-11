@@ -1,3 +1,4 @@
+/* exported Edit, changePanelFillColor, changePanelOpacity, changePanelStrokeColor, changePanelStrokeWidth, initialPutImage, isWithin, loadSVGPlusReset, panelAllChange, replaceImageObject, setPanelValue */
 // function handleSelection(e) {
 //   var selectedObject = e.target;
 //   updateControls(selectedObject);
@@ -26,7 +27,7 @@ var reader=new FileReader();
 reader.onload=function(event) {
 var svgText=event.target.result;
 panelLogger.info("[drop SVG] stateStack.length="+stateStack.length+" objectCount="+getObjectCount()+" canvasGUID="+getCanvasGUID());
-if (stateStack.length>=2&&getObjectCount()>0) {
+if (pageHasUserContent()) {
 panelLogger.info("[drop SVG] putImageInFrame branch");
 var canvasX=x/canvasContinerScale;
 var canvasY=y/canvasContinerScale;
@@ -53,13 +54,13 @@ panelLogger.error("Failed to convert to WebP",error);
 return;
 }
 
-var reader=new FileReader();
+reader=new FileReader();
 reader.onload=function (f) {
 var data=f.target.result;
 
 fabric.Image.fromURL(data,function (img) {
 panelLogger.info("[drop] stateStack.length="+stateStack.length+" objectCount="+getObjectCount()+" canvasGUID="+getCanvasGUID()+" btmProjectsMap.size="+btmProjectsMap.size);
-if (stateStack.length>=2&&getObjectCount()>0) {
+if (pageHasUserContent()) {
 panelLogger.info("[drop] putImageInFrame branch (existing content)");
 var canvasX=x/canvasContinerScale;
 var canvasY=y/canvasContinerScale;
@@ -98,34 +99,30 @@ saveStateByManual();
 return img;
 }
 
-function replaceImageObject(oldImageObject,newImageObject,Type){
-oldImageObject.visible;
-
-if (Type=='Upscaler') {
+function replaceImageObject(oldImageObject,newImageObject,Type,layerIndex=null){
 const oldDisplayWidth=oldImageObject.width*oldImageObject.scaleX;
 const oldDisplayHeight=oldImageObject.height*oldImageObject.scaleY;
-
-newImageObject.set({
-left: oldImageObject.left,
-top: oldImageObject.top,
-scaleX: oldDisplayWidth/newImageObject.width,
-scaleY: oldDisplayHeight/newImageObject.height,
+const placement={
+left:oldImageObject.left,
+top:oldImageObject.top,
+scaleX:oldDisplayWidth/newImageObject.width,
+scaleY:oldDisplayHeight/newImageObject.height,
+};
+['angle','originX','originY','skewX','skewY','flipX','flipY'].forEach(property=>{
+if(oldImageObject[property]!==undefined)placement[property]=oldImageObject[property];
 });
-
-panelLogger.debug("newImageObject,",newImageObject);
-}else{
-newImageObject.set({
-left: oldImageObject.left,
-top: oldImageObject.top,
-scaleX: oldImageObject.scaleX,
-scaleY: oldImageObject.scaleY,
-});
-}
-
+newImageObject.set(placement);
 saveInitialState(newImageObject);
+setNotSave(newImageObject);
 canvas.add(newImageObject);
+if(Number.isInteger(layerIndex)&&layerIndex>=0)canvas.moveTo(newImageObject,layerIndex);
+setSave(newImageObject);
+newImageObject.setCoords();
 avtive(newImageObject);
 updateLayerPanel();
+// Record after restoring the stack position; object:added fires before moveTo.
+saveStateByManual();
+return newImageObject;
 }
 
 
@@ -135,7 +132,7 @@ let obj;
 if (typeof imgOrSvg==='string'&&imgOrSvg.startsWith('<svg')) {
 fabric.loadSVGFromString(imgOrSvg,function(objects,options) {
 obj=fabric.util.groupSVGElements(objects,options);
-placeObject(obj,x,y,isNotActive,true,isFit,targetLayer);
+placeObject(obj,x,y,isNotActive,notReplace,isFit,targetLayer);
 });
 } else {
 obj=imgOrSvg;
@@ -248,22 +245,6 @@ frameBounds.top+frameBounds.height;
 return within;
 }
 
-function adjustImageToFitFrame(image,frame) {
-let frameBounds=frame.getBoundingRect();
-let scale=Math.min(
-frameBounds.width/image.getScaledWidth(),
-frameBounds.height/image.getScaledHeight()
-);
-image.set({
-left: frameBounds.left+(frameBounds.width-image.width*scale)/2,
-top: frameBounds.top+(frameBounds.height-image.height*scale)/2,
-scaleX: scale,
-scaleY: scale,
-});
-}
-
-
-
 /** Load SVG(Verfical, Landscope) */
 function loadSVGPlusReset(svgString,isLand=false,addOnly=false) {
 if(!addOnly){
@@ -327,8 +308,8 @@ if (xDiff<threshold&&yDiff<threshold) {
 return false;
 }
 
-var xDiff=Math.abs(point.x-startX);
-var yDiff=Math.abs(point.y-startY);
+xDiff=Math.abs(point.x-startX);
+yDiff=Math.abs(point.y-startY);
 if (xDiff<threshold&&yDiff<threshold) {
 return false;
 }
@@ -434,14 +415,6 @@ false
 });
 
 
-function canvasInScale(originalWidth,originalHeight){
-const canvasWidth=canvas.width;
-const canvasHeight=canvas.height;
-const scaleX=(canvasWidth*0.4)/originalWidth;
-const scaleY=(canvasHeight*0.4)/originalHeight;
-const scale=Math.min(scaleX,scaleY);
-return scale;
-}
 
 
 function Edit() {
@@ -646,7 +619,7 @@ y: fabricObject.points[anchorIndex].y-fabricObject.pathOffset.y,
 fabricObject.calcTransformMatrix()
 ),
 actionPerformed=fn(eventData,transform,x,y),
-newDim=fabricObject._setPositionDimensions({}),
+_setDims=fabricObject._setPositionDimensions({}), // eslint-disable-line no-unused-vars -- called for its side effect (recomputes the polygon box)
 polygonBaseSize=getObjectSizeWithStroke(fabricObject),
 newX=
 (fabricObject.points[anchorIndex].x-fabricObject.pathOffset.x)/

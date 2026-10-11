@@ -1,0 +1,318 @@
+{
+ "realGpt": true,
+ "summary": "25 PASS / 0 FAIL",
+ "steps": [
+  {
+   "name": "first run: tutorial shown, no failed requests or console errors",
+   "kind": "UI",
+   "pass": true,
+   "seconds": 5.8,
+   "detail": {
+    "tutorial": true,
+    "failedRequests": [],
+    "consoleErrors": [],
+    "pageErrors": []
+   }
+  },
+  {
+   "name": "template: first template on a fresh page applies without a scary confirm",
+   "kind": "UI",
+   "pass": true,
+   "seconds": 0.4,
+   "detail": {
+    "panels": [
+     [
+      10,
+      706,
+      1634,
+      1618
+     ],
+     [
+      10,
+      13,
+      1634,
+      673
+     ]
+    ],
+    "dialogs": []
+   }
+  },
+  {
+   "name": "import image via File menu into the page",
+   "kind": "UI",
+   "pass": true,
+   "seconds": 0.7,
+   "detail": {
+    "before": 2,
+    "after": 3,
+    "types": "polygon,polygon,image"
+   }
+  },
+  {
+   "name": "speech bubble template adds a bubble",
+   "kind": "UI",
+   "pass": true,
+   "seconds": 0.9,
+   "detail": {
+    "before": 3,
+    "after": 5
+   }
+  },
+  {
+   "name": "horizontal text box: add and type Japanese text",
+   "kind": "UI",
+   "pass": true,
+   "seconds": 1,
+   "detail": {
+    "type": "textbox",
+    "value": "こんにちは世界"
+   }
+  },
+  {
+   "name": "vertical text box",
+   "kind": "UI",
+   "pass": true,
+   "seconds": 0.6,
+   "detail": {
+    "type": "vertical-textbox"
+   }
+  },
+  {
+   "name": "shape: star (pick tool, drag on the page)",
+   "kind": "UI",
+   "pass": true,
+   "seconds": 1.9,
+   "detail": {
+    "before": 7,
+    "after": 8,
+    "last": {
+     "type": "polygon",
+     "w": 136,
+     "h": 252
+    }
+   }
+  },
+  {
+   "name": "layers panel: eye button hides and shows one layer",
+   "kind": "UI",
+   "pass": true,
+   "seconds": 1.4,
+   "detail": {
+    "hiddenIdx": [
+     8
+    ],
+    "restored": true,
+    "layers": 8
+   }
+  },
+  {
+   "name": "undo / redo toolbar buttons",
+   "kind": "UI",
+   "pass": true,
+   "seconds": 3.5,
+   "detail": {
+    "n0": 8,
+    "afterUndo": 7,
+    "afterRedo": 8
+   }
+  },
+  {
+   "name": "save project via File menu (download)",
+   "kind": "UI",
+   "pass": true,
+   "seconds": 1,
+   "detail": {
+    "file": "artifacts/e2e/project-DESU-nai学长魔改.lz4",
+    "bytes": 1551717
+   }
+  },
+  {
+   "name": "clear canvas, then load project via File menu restores identical pixels",
+   "kind": "UI",
+   "pass": true,
+   "seconds": 4.8,
+   "detail": {
+    "cleared": 0,
+    "size": [
+     1654,
+     2339
+    ],
+    "changed": 0,
+    "outside": 0
+   }
+  },
+  {
+   "name": "export PNG via File menu (Ctrl+D path): page resolution, not blank",
+   "kind": "UI",
+   "pass": true,
+   "seconds": 1,
+   "detail": {
+    "file": "artifacts/e2e/export-DESU-nai学长魔改-20261009_213040_493.png",
+    "w": 2481,
+    "h": 3508,
+    "bytes": 3403327
+   }
+  },
+  {
+   "name": "export SVG via File menu",
+   "kind": "UI",
+   "pass": true,
+   "seconds": 0.4,
+   "detail": {
+    "file": "artifacts/e2e/export-canvas.svg",
+    "bytes": 508127
+   }
+  },
+  {
+   "name": "screentone on the selected panel",
+   "kind": "UI",
+   "pass": true,
+   "seconds": 6.2,
+   "detail": {
+    "objects": [
+     8,
+     9
+    ],
+    "changedPixels": 935267,
+    "toneClipTop": 710,
+    "panelTop": 706
+   }
+  },
+  {
+   "name": "page structure: detects panels in reading order",
+   "kind": "UI",
+   "pass": true,
+   "seconds": 0.8,
+   "detail": {
+    "entries": 2,
+    "status": "已按画布上的分镜格排序：识别到 2 个候选分镜、0 个气泡候选（封闭浅色区域 0 个、其余为文字框外扩）；有 0 条文字归属不明确。都需要人工核对。"
+   }
+  },
+  {
+   "name": "smart subtitles: REAL Tesseract finds the bubble text (inside a closed outline)",
+   "kind": "REAL",
+   "pass": true,
+   "seconds": 3,
+   "detail": {
+    "texts": [
+     "の",
+     "ありがとう"
+    ]
+   }
+  },
+  {
+   "name": "Manga OCR refine (REAL model)",
+   "kind": "REAL",
+   "pass": true,
+   "seconds": 0.5,
+   "detail": {
+    "value": "ありがとう"
+   }
+  },
+  {
+   "name": "ink mask candidate + REAL LaMa preview + apply as layer",
+   "kind": "REAL",
+   "pass": true,
+   "seconds": 19.8,
+   "detail": {
+    "ink": "已生成深色文字候选蒙版（占文字框 22%）。仅是未验证候选，请检查红色区域，必要时用画笔纠错，再手动生成修复预览。",
+    "status": "修复预览已生成。只有点击「确认」才应用图层；原始漫画尚未变化。",
+    "patch": {
+     "left": 241,
+     "top": 1195,
+     "width": 516,
+     "height": 164
+    },
+    "size": [
+     1654,
+     2339
+    ],
+    "changed": 3419,
+    "outside": 0
+   }
+  },
+  {
+   "name": "smart subtitle: replace text as an editable Fabric textbox",
+   "kind": "UI",
+   "pass": true,
+   "seconds": 1.8,
+   "detail": {
+    "text": "どうもありがとう",
+    "subtitles": [
+     "の",
+     "どうもありがとう"
+    ]
+   }
+  },
+  {
+   "name": "character bible: save a character with a reference picture (local only)",
+   "kind": "UI",
+   "pass": true,
+   "seconds": 0.5,
+   "detail": {
+    "prompt": "【角色参考档案：雨衣少女】\n必须尽量保持这些识别特征：红色短发、绿色眼睛、黄色连帽雨衣、星形发卡\n参考备注：保持原动作和构图\n以提供的参考图为角色外形依据，尽量保持脸、发型、瞳色、服装等可见特征；保留所选原画动作、画风、构图和未选中部分。",
+    "list": "角色档案：雨衣少女 · 1 张参考图（本机读取）"
+   }
+  },
+  {
+   "name": "GPT region edit: character swap with the character card (REAL)",
+   "kind": "REAL",
+   "pass": true,
+   "seconds": 56,
+   "detail": {
+    "status": "图像已生成，请检查预览后点击“作为新图层应用”。",
+    "size": [
+     1654,
+     2339
+    ],
+    "changed": 679713,
+    "outside": 0,
+    "panelBorderKeptRatio": 1,
+    "keepLines": true
+   }
+  },
+  {
+   "name": "GPT text-to-image as a new layer (REAL)",
+   "kind": "REAL",
+   "pass": true,
+   "seconds": 39,
+   "detail": {
+    "status": "图像已生成，请检查预览后点击“作为新图层应用”。",
+    "name": "GPT 生图",
+    "w": 1254,
+    "h": 1254
+   }
+  },
+  {
+   "name": "GPT error is readable (unreachable API address, no charge)",
+   "kind": "UI",
+   "pass": true,
+   "seconds": 0.4,
+   "detail": {
+    "isError": "true",
+    "status": "API 地址必须是公开 HTTPS URL，不得包含凭据、查询参数或自定义端口。"
+   }
+  },
+  {
+   "name": "final page export (evidence)",
+   "kind": "UI",
+   "pass": true,
+   "seconds": 0.5,
+   "detail": {
+    "file": "artifacts/e2e/final-page.png"
+   }
+  },
+  {
+   "name": "no uncaught page errors during the whole run",
+   "kind": "UI",
+   "pass": true,
+   "seconds": 0.2,
+   "detail": {
+    "pageErrors": [],
+    "consoleErrors": [
+     "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+    ]
+   }
+  }
+ ]
+}

@@ -1,3 +1,4 @@
+/* exported isNotVisibleFloatingWindow, makeDraggable */
 function makeDraggable(element) {
 let posX=0,posY=0,posInitX=0,posInitY=0;
 let isDragging=false;

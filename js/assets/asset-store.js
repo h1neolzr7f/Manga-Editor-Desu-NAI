@@ -2,7 +2,6 @@
 "use strict";
 
 var manifest=root.NaiComicAssetManifest;
-var IMPORTED_PREFIX='user_data/asset_packs/imported/';
 
 function safeStorage(){
 try{return typeof localStorage!=='undefined'?localStorage:null;}catch(error){return null;}
@@ -150,26 +149,30 @@ method:'POST',
 headers:{'Content-Type':'application/json'},
 body:JSON.stringify({id:asset.id,name:file.name||asset.name,type:file.type||asset.mime,data:base64})
 }).then(function(response){return response.ok?response.json():null;}).then(function(payload){
-resolve(payload&&payload.path?payload.path:'');
+resolve(payload&&isPersistentPath(payload.path)&&!isBundledPath(payload.path)?payload.path:'');
 }).catch(function(){resolve('');});
 };
 reader.onerror=function(){resolve('');};
-reader.readAsDataURL(file);
+reader.onabort=function(){resolve('');};
+try{reader.readAsDataURL(file);}catch(error){resolve('');}
 });
 }
 
-AssetStore.prototype.persistImported=function(asset,file){
+AssetStore.prototype.persistFile=function(asset,file,options){
 var self=this;
-if(!asset||!file)return Promise.resolve(asset);
+var opts=options||{};
+if(!asset||!file)return opts.required?Promise.reject(new Error('素材文件为空。')):Promise.resolve(asset);
 var blobStore=root.NaiComicAssetBlobStore;
-var idb=blobStore?blobStore.put(asset.id,file,{name:file.name||asset.name,type:file.type}):Promise.resolve(false);
+var idb=Promise.resolve().then(function(){return blobStore?blobStore.put(asset.id,file,{name:file.name||asset.name,type:file.type||asset.mime}):false;}).catch(function(){return false;});
 return Promise.all([idb,persistToServer(asset,file)]).then(function(result){
 var path=result[1];
-if(!path)return asset;
+if(opts.required&&!result[0]&&!path)throw new Error('素材持久化失败。');
 var current=self.assets.find(function(item){return item.id===asset.id;});
 if(current){
+if(path){
 current.path=path;
 current.relativePath=path;
+}
 current.missing=false;
 self.save();
 self.emit();
@@ -177,6 +180,9 @@ self.emit();
 return self.get(asset.id)||asset;
 });
 };
+
+AssetStore.prototype.persistImported=function(asset,file){return this.persistFile(asset,file);};
+AssetStore.prototype.persistGenerated=function(asset,file){return this.persistFile(asset,file,{required:true});};
 
 AssetStore.prototype.addFile=function(file,options){
 var self=this;

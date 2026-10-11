@@ -1,8 +1,18 @@
+/* exported unifiedSettingsWindow */
 var unifiedSettingsWindow=(function(){
 var overlayEl=null;
+// Esc closes the window (it covers the whole editor; before this a beginner who pressed Esc stayed stuck)
+function onKey(e){
+if(e.key!=='Escape'||!overlayEl||!overlayEl.classList.contains('active'))return;
+e.preventDefault();
+close();
+}
 function open(){
 if(!overlayEl)overlayEl=$('unifiedSettingsOverlay');
 overlayEl.classList.add('active');
+overlayEl.setAttribute('role','dialog');
+overlayEl.setAttribute('aria-modal','true');
+document.addEventListener('keydown',onKey);
 if(typeof enforceNovelAIOnlyMode==='function'){
 enforceNovelAIOnlyMode();
 }
@@ -15,6 +25,7 @@ apiHeartbeat();
 function close(){
 if(!overlayEl)return;
 overlayEl.classList.remove('active');
+document.removeEventListener('keydown',onKey);
 }
 function apply(){
 close();

@@ -1,3 +1,4 @@
+/* exported iconList, initialIcons */
 
 const initialIcons=[
 "mood","mood_bad","sentiment_dissatisfied",

@@ -503,82 +503,9 @@ const DEFAULT_COMIC_PAGES = [
   }
 ];
 
-const COMIC_STORY_PRESETS = {
-  "arknights-theresa-doctor": {
-    outputDir: "arknights-theresa-doctor-romance-5p",
-    title: "Theresa and Doctor - five page romance manga sample",
-    seriesPrompt: [
-      "Arknights inspired fan manga page",
-      "Theresa from Arknights",
-      "the Doctor from Arknights",
-      "Theresa: tall elegant Sarkaz woman, long white hair, delicate horns, regal black dress, gentle melancholy smile, lavender eyes, white veil-like hair ornaments",
-      "Doctor: hooded Rhodes Island tactical coat, black hood, face partly hidden by mask and shadow, calm body language, protective posture",
-      "romantic tension, restrained tenderness, bittersweet atmosphere, cinematic manga paneling",
-      "consistent character design, consistent outfits, no speech text"
-    ].join(", "),
-    pages: [
-      {
-        file: "page-01.png",
-        prompt: "full manga page, 4 panels, Rhodes Island infirmary at midnight, blue medical monitors, Theresa wakes beside the Doctor after a dangerous mission, close-up of her hand touching the Doctor's gloved fingers, quiet romantic tension, soft rim light, clean thick panel borders, establishing wide shot then intimate close-up"
-      },
-      {
-        file: "page-02.png",
-        prompt: "full manga page, 5 panels, greenhouse garden inside Rhodes Island, Theresa and the Doctor walk between glowing white flowers, alternating close-up eyes and over-the-shoulder shots, the Doctor silently offers a repaired crown-shaped hair ornament, Theresa smiles sadly, diagonal panel rhythm, cinematic depth of field"
-      },
-      {
-        file: "page-03.png",
-        prompt: "full manga page, 5 panels, sudden Catastrophe alarm, red warning light, enemies silhouettes outside glass, Doctor shields Theresa with one arm, Theresa steps forward with royal calm, dramatic dutch angle, speed lines, impact panel, strong black gutters, romantic protection scene with high tension"
-      },
-      {
-        file: "page-04.png",
-        prompt: "full manga page, 4 panels, battlefield rooftop under violet sky, Theresa uses gentle Sarkaz arts to stop the attack, Doctor reaches for her as wind tears through her long white hair, huge vertical splash panel in the center, close-up of their almost touching hands, emotional climax, powerful composition, glowing particles"
-      },
-      {
-        file: "page-05.png",
-        prompt: "full manga page, 4 panels, dawn after battle, quiet Rhodes Island deck above clouds, Theresa leans against the Doctor's shoulder, the Doctor removes one glove to hold her hand, final wide panel with sunrise and flying papers, bittersweet hopeful romance ending, soft warm light, elegant manga page, complete story resolution"
-      }
-    ]
-  },
-  "arknights-theresa-doctor-mature": {
-    outputDir: "arknights-theresa-doctor-mature-5p",
-    title: "Theresa and Doctor - five page mature R18 romance manga (Pixiv top quality)",
-    seriesPrompt: [
-      "Arknights inspired fan manga page",
-      "nsfw",
-      "r18",
-      "Theresa from Arknights",
-      "the Doctor from Arknights",
-      "Theresa: tall elegant Sarkaz woman, long flowing white hair with detailed strands, delicate curved horns, regal black dress or semi-transparent silk nightrobe slipping from shoulder, gentle melancholy yet loving smile, lavender eyes with beautiful detailed highlights, pale skin, elegant posture",
-      "Doctor: hooded Rhodes Island tactical coat open or removed, face partly hidden by mask or shadow, protective tender body language, bare hand gently holding hers",
-      "mature romantic intimacy, sensual tension, passionate but tasteful elegant composition, emotional depth, bittersweet hopeful",
-      "strategic shadow and fabric censorship, no visible genitals, no explicit intercourse depiction, focus on clasped hands, tangled white hair, eyes contact, fabric texture",
-      "consistent character design across all pages and panels: exact same Theresa face/hair/horns/eyes/expression style, same Doctor silhouette and coat details",
-      "pixiv masterpiece, best quality, ultra detailed, professional manga page layout, dynamic yet readable panel composition, soft dramatic rim lighting, volumetric god rays, high aesthetic, clean elegant linework"
-    ].join(", "),
-    pages: [
-      {
-        file: "page-01.png",
-        prompt: "full manga page, 4 panels, Rhodes Island private infirmary at midnight, soft blue moonlight, Theresa in loose silk nightrobe slipping from one shoulder revealing elegant collarbone, the Doctor sits on the bed edge tenderly holding her hand, flushed faces with loving eye contact, heavy romantic atmosphere, soft rim light and subtle god rays, thick clean panel borders, intimate establishing shot, perfect consistent Theresa white hair horns lavender eyes, Doctor hooded figure protective, masterpiece pixiv level composition, emotional storytelling"
-      },
-      {
-        file: "page-02.png",
-        prompt: "full manga page, 5 panels, same room, Theresa and the Doctor in close embrace deep kiss, his hands on her waist over silk, her nightrobe loosened but tastefully covering, alternating beautiful face close-ups (Theresa eyes closed in bliss, Doctor mask shadow) and over-the-shoulder shots, sensual elegant mood, cinematic depth of field, soft lighting on hair and fabric, no nudity below waist, 100% character consistency"
-      },
-      {
-        file: "page-03.png",
-        prompt: "full manga page, 4 panels, dim warm bedroom, silhouettes of two adults intertwined under rumpled silk sheets behind sheer curtain, implied mature passion aftermath, warm amber lamp light, tasteful strategic shadow and fabric censorship, emotional focus on clasped hands, tangled long white hair spilling, foreheads almost touching, elegant professional manga layout, high detail textures"
-      },
-      {
-        file: "page-04.png",
-        prompt: "full manga page, 5 panels, quiet aftermath, Theresa and the Doctor lying side by side under blanket covering bodies, messy beautiful white hair, teary relieved loving smiles, close-up of foreheads touching gently, fingers intertwined, violet night sky through window with soft stars, bittersweet tender mood, no explicit anatomy, focus on emotion and intimacy, pixiv quality rendering"
-      },
-      {
-        file: "page-05.png",
-        prompt: "full manga page, 4 panels, dawn golden light on Rhodes Island deck above clouds, Theresa wrapped in sheet over nightrobe leaning on the Doctor's shoulder, he holds her bare hand without glove, quiet satisfied peaceful expressions, wide final panel with sunrise and flying papers symbolizing hope, hopeful mature romance ending, soft warm volumetric light, elegant resolution, consistent characters, masterpiece"
-      }
-    ]
-  }
-};
+// Named story presets for NAI_COMIC_STORY. The two fan-fiction presets that only a
+// personal .bat selected were removed; unknown names fall back to the default pages.
+const COMIC_STORY_PRESETS = {};
 
 function getComicPreset() {
   const key = requestedComicStory.trim().toLowerCase();

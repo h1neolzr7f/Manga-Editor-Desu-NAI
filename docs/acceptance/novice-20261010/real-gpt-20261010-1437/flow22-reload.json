@@ -1,0 +1,9 @@
+{
+ "busyAt4s": true,
+ "panelOpens": true,
+ "generateEnabled": true,
+ "stuckLoading": false,
+ "ok": true,
+ "seconds": 11,
+ "errors": []
+}

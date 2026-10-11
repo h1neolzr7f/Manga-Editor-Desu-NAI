@@ -355,3 +355,18 @@ display:flex;
 justify-content:space-between;
 align-items:center;
 }
+
+/* Numbered steps read left-aligned; the centred title and buttons stay centred. */
+.tutorial-beginner-steps{
+text-align:left;
+margin:0 0 12px;
+padding-left:1.4em;
+}
+.tutorial-beginner-steps li{
+margin-bottom:6px;
+}
+.tutorial-prompt{
+max-width:min(460px,calc(100vw - 32px));
+max-height:calc(100vh - 32px);
+overflow:auto;
+}

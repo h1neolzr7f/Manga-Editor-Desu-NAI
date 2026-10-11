@@ -1,10 +1,14 @@
+/* exported addHeart, addHexagon, addPentagon, addSquare, addStar, addTallRect, addTriangle, addWideRect, ensurePanelForKnife */
 
 async function loadBookSize(width,height,addPanel,newPage=false) {
+if(window.NaiPageLoading||window.NaiHistoryLoading)return false;
 panelLogger.info("[loadBookSize] START w="+width+" h="+height+" addPanel="+addPanel+" newPage="+newPage);
 panelLogger.info("[loadBookSize] stateStack.length="+stateStack.length+" btmProjectsMap.size="+btmProjectsMap.size+" canvasGUID="+getCanvasGUID()+" objectCount="+getObjectCount());
 const loading=OP_showLoading({
 icon: 'process',step: '正在新建页面',substep: '准备',progress: 0
 });
+window.NaiPageLoading=true;
+const wasSaving=isSaveHistory;
 try{
 var shouldSave=(addPanel||newPage)&&stateStack.length>=2;
 panelLogger.info("[loadBookSize] shouldSave="+shouldSave+" (addPanel||newPage)="+(addPanel||newPage)+" stateStack.length>=2="+(stateStack.length>=2));
@@ -48,7 +52,10 @@ saveState();
 changeDoSaveHistory();
 panelLogger.info("[loadBookSize] ELSE branch done. stateStack.length="+stateStack.length);
 }
+return true;
 }finally{
+isSaveHistory=wasSaving;
+window.NaiPageLoading=false;
 OP_hideLoading(loading);
 if(window.NaiBeginnerGuide&&typeof window.NaiBeginnerGuide.updateHud==='function')window.NaiBeginnerGuide.updateHud();
 }
@@ -243,33 +250,6 @@ window.resetFlexGenSizeForPanels=resetFlexGenSizeForPanels;
 
 
 
-function addArRect() {
-var width=parseFloat($("ar_width").value);
-var height=parseFloat($("ar_height").value);
-
-if (isNaN(width)||isNaN(height)||width<=0||height<=0) {
-return;
-}
-var canvasWidth=canvas.getWidth();
-var canvasHeight=canvas.getHeight();
-var canvasSize=Math.min(canvasWidth,canvasHeight)*0.25;
-var aspectRatio=width/height;
-if (width>height) {
-width=canvasSize;
-height=canvasSize/aspectRatio;
-} else {
-height=canvasSize;
-width=canvasSize*aspectRatio;
-}
-var points=[
-{x: 0,y: 0},
-{x: width,y: 0},
-{x: width,y: height},
-{x: 0,y: height},
-];
-addShape(points);
-}
-
 function addShape(points,options={}) {
 var canvasWidth=canvas.width;
 var canvasHeight=canvas.height;
@@ -349,16 +329,6 @@ var points=[
 addShape(points);
 }
 
-function addTallTrap() {
-var points=[
-{x: 50,y: 0},
-{x: 150,y: 0},
-{x: 100,y: 400},
-{x: 0,y: 400},
-];
-addShape(points);
-}
-
 function addWideRect() {
 if(window.NaiPsTools&&typeof window.NaiPsTools.beginShape==='function'){
 window.NaiPsTools.beginShape('wide');
@@ -368,26 +338,6 @@ var points=[
 {x: 0,y: 0},
 {x: 400,y: 0},
 {x: 400,y: 100},
-{x: 0,y: 100},
-];
-addShape(points);
-}
-
-function addWideTrap() {
-var points=[
-{x: 0,y: 0},
-{x: 400,y: 0},
-{x: 350,y: 100},
-{x: 50,y: 100},
-];
-addShape(points);
-}
-
-function addTrapezoid() {
-var points=[
-{x: 50,y: 0},
-{x: 200,y: 0},
-{x: 150,y: 100},
 {x: 0,y: 100},
 ];
 addShape(points);
@@ -406,25 +356,6 @@ var points=[
 addShape(points);
 }
 
-function addCircle() {
-var circle=new fabric.Circle({
-radius: 100,
-left: 50,
-top: 50,
-strokeWidth: (canvas.width/700)*2,
-strokeUniform: true,
-stroke: "black",
-objectCaching: false,
-transparentCorners: false,
-cornerColor: "Blue",
-isPanel: true,
-});
-setText2ImageInitPrompt(circle);
-setPanelValue(circle);
-canvas.add(circle);
-updateLayerPanel();
-}
-
 function addHexagon() {
 if(window.NaiPsTools&&typeof window.NaiPsTools.beginShape==='function'){
 window.NaiPsTools.beginShape('hexagon');
@@ -437,36 +368,6 @@ var x=side*Math.cos((Math.PI/180)*(60*i));
 var y=side*Math.sin((Math.PI/180)*(60*i));
 points.push({x: x,y: y});
 }
-addShape(points);
-}
-
-function addEllipse() {
-var ellipse=new fabric.Ellipse({
-rx: 100,
-ry: 50,
-left: 50,
-top: 50,
-strokeWidth: (canvas.width/700)*2,
-strokeUniform: true,
-stroke: "black",
-objectCaching: false,
-transparentCorners: false,
-cornerColor: "Blue",
-isPanel: true,
-});
-setText2ImageInitPrompt(ellipse);
-setPanelValue(ellipse);
-canvas.add(ellipse);
-updateLayerPanel();
-}
-
-function addRhombus() {
-var points=[
-{x: 0,y: 100},
-{x: 100,y: 0},
-{x: 200,y: 100},
-{x: 100,y: 200},
-];
 addShape(points);
 }
 
@@ -508,105 +409,3 @@ addShape(points);
 
 
 
-function addSmartphone() {
-const canvasWidth=canvas.width;
-const canvasHeight=canvas.height;
-
-const originalWidth=300;
-const originalHeight=600;
-
-const scale=canvasInScale(originalWidth,originalHeight);
-
-const frame=new fabric.Rect({
-width: originalWidth,
-height: originalHeight,
-rx: 30,
-ry: 30,
-fill: '#333333',
-stroke: '#222222',
-strokeWidth: 2
-});
-
-const screen=new fabric.Rect({
-width: originalWidth-20,
-height: originalHeight-100,// 画面の高さを調整
-fill: '#000000',
-left: 10,
-top: 40
-});
-
-const homeButtonOuter=new fabric.Circle({
-radius: 25,
-fill: 'transparent',
-stroke: '#FFFFFF',
-strokeWidth: 2,
-left: originalWidth/2-25,
-top: originalHeight-55  // 位置を調整
-});
-
-const homeButtonInner=new fabric.Circle({
-radius: 23,
-fill: 'rgba(100, 100, 100, 0.5)',
-left: originalWidth/2-23,
-top: originalHeight-53  // 外側の円に合わせて調整
-});
-
-const camera=new fabric.Circle({
-radius: 5,
-fill: '#666666',
-left: originalWidth/2-5,
-top: 20
-});
-
-const speaker=new fabric.Rect({
-width: 50,
-height: 5,
-rx: 2,
-ry: 2,
-fill: '#666666',
-left: originalWidth/2-25,
-top: 10
-});
-
-const smartphone=new fabric.Group([
-frame,screen,homeButtonOuter,homeButtonInner,camera,speaker
-],{
-left: (canvasWidth-originalWidth*scale)/2,
-top: (canvasHeight-originalHeight*scale)/2,
-scaleX: scale,
-scaleY: scale
-});
-
-canvas.add(smartphone);
-}
-
-function addOctagon() {
-var side=100;
-var points=[];
-for (var i=0;i<8;i++) {
-var x=side*Math.cos((Math.PI/180)*(45*i));
-var y=side*Math.sin((Math.PI/180)*(45*i));
-points.push({x: x,y: y});
-}
-addShape(points);
-}
-
-function addTallRightLeaningTrapezoid() {
-var points=[
-{x: 0,y: 0},
-{x: 100,y: 50},
-{x: 100,y: 300},
-{x: 0,y: 300},
-];
-addShape(points);
-}
-
-function addRightSlantingTrapezoid() {
-var points=[
-{x: 0,y: 0},
-{x: 300,y: 0},
-{x: 350,y: 100},
-{x: 0,y: 100},
-];
-addShape(points);
-}

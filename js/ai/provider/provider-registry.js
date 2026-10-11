@@ -1,3 +1,4 @@
+/* exported providerRegistry */
 // プロバイダーレジストリ: プロバイダー登録とRole→プロバイダーのルーティング管理
 var providerRegistry=(function(){
 var providers={};
