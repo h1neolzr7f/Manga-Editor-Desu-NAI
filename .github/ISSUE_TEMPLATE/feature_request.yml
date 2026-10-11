@@ -1,0 +1,16 @@
+name: 功能建议 / Feature request
+description: 想要一个新功能或改进 / Suggest an improvement
+labels: [enhancement]
+body:
+  - type: textarea
+    id: task
+    attributes:
+      label: 你想完成什么事 / What are you trying to do
+      description: 从任务说起（例如「把整本漫画的对白翻成中文」），而不是具体按钮。/ Describe the task, not the button.
+    validations: { required: true }
+  - type: textarea
+    id: now
+    attributes: { label: 现在要点多少步、卡在哪里 / How it goes today }
+  - type: textarea
+    id: idea
+    attributes: { label: 你的想法 / Proposal }

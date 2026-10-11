@@ -59,3 +59,23 @@ npm run check:index
 3. 模拟器皮肤必须是通用界面，禁止真实站点商标。
 
 上游编辑器本体的通用缺陷，若与本魔改无关，可考虑向上游单独报告；请先确认原版也能复现。
+
+## Linux / macOS
+
+```bash
+./start.sh                       # 启动并打开浏览器（Ctrl+C 停止）
+bash scripts/install-ai.sh       # 可选：本机 AI 功能（CPU），装到 ./.venv
+```
+
+## 提交前检查（PR 必须全部通过）
+
+```bash
+npm test                         # 单测 + 隐私守卫（密钥 / 私有中转地址 / 本机路径）
+npx eslint js --max-warnings 0   # 0 警告
+node scripts/check-translations.cjs
+node scripts/novice-task-e2e.cjs # 新手 E2E（需要 Playwright Chromium；GPT 全部 mock）
+```
+
+- 每个修复附带回归测试；界面文字走 i18n（8 种语言键齐全）。
+- **不要提交**：API Key / Token、`.env`、模型权重（`*.onnx` / `*.pt`）、真实中转地址、生成的大图。验收截图放 PR 附件，不进仓库。
+- 新增第三方库、字体或模型时，同步更新 `THIRD_PARTY_NOTICES.md`（许可证 + 来源），且必须与 GPL-3.0 兼容。

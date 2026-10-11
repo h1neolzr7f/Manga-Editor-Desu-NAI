@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 安全问题（私密报告）/ Security report (private)
+    url: https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/security/advisories/new
+    about: 漏洞或泄露的密钥请私密报告 / Report vulnerabilities or leaked keys privately

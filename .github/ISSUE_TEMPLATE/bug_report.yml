@@ -1,0 +1,38 @@
+name: 问题反馈 / Bug report
+description: 某个功能不正常 / Something does not work
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "⚠️ 不要贴 API Key、Token 或私有中转地址。截图前请先打码。/ Never paste API keys, tokens or private relay URLs."
+  - type: dropdown
+    id: feature
+    attributes:
+      label: 哪个功能 / Feature
+      options: [换角色, 改字幕, 修瑕疵/去杂物, 分层, 自定义修改, 画一页漫画, AI 生图 (NovelAI), 导入/导出/保存, 安装/启动, 其他 / other]
+    validations: { required: true }
+  - type: textarea
+    id: steps
+    attributes:
+      label: 怎么出现的 / Steps
+      placeholder: "1. 导入… 2. 点… 3. 看到…"
+    validations: { required: true }
+  - type: textarea
+    id: expected
+    attributes: { label: 期望 vs 实际 / Expected vs actual }
+    validations: { required: true }
+  - type: dropdown
+    id: os
+    attributes:
+      label: 系统 / OS
+      options: [Windows 10/11, macOS, Linux]
+    validations: { required: true }
+  - type: input
+    id: browser
+    attributes: { label: 浏览器 / Browser, placeholder: "Chrome 140 / Edge / Firefox" }
+  - type: textarea
+    id: log
+    attributes:
+      label: 日志 / Log
+      description: "user_data/start.log 的最后几十行，以及浏览器控制台（F12）里的红色报错。/ Tail of user_data/start.log and red errors from the browser console."
+      render: text
