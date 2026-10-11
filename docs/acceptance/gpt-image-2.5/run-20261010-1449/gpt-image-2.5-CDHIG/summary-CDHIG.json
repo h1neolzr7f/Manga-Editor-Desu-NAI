@@ -19,7 +19,7 @@
       "operation": "edit",
       "model": "gpt-image-2.5",
       "size": "1536x1024",
-      "baseUrl": "https://litangking.12gg.workers.dev/v1",
+      "baseUrl": "https://<your-relay>/v1",
       "references": 1,
       "authorizationHeader": false
     },
@@ -94,7 +94,7 @@
       "operation": "edit",
       "model": "gpt-image-2.5",
       "size": "1024x1024",
-      "baseUrl": "https://litangking.12gg.workers.dev/v1",
+      "baseUrl": "https://<your-relay>/v1",
       "references": 1,
       "authorizationHeader": false
     },
@@ -172,7 +172,7 @@
       "operation": "edit",
       "model": "gpt-image-2.5",
       "size": "1024x1024",
-      "baseUrl": "https://litangking.12gg.workers.dev/v1",
+      "baseUrl": "https://<your-relay>/v1",
       "references": 0,
       "authorizationHeader": false
     },
@@ -247,7 +247,7 @@
       "operation": "edit",
       "model": "gpt-image-2.5",
       "size": "1024x1536",
-      "baseUrl": "https://litangking.12gg.workers.dev/v1",
+      "baseUrl": "https://<your-relay>/v1",
       "references": 0,
       "authorizationHeader": false
     },
@@ -327,7 +327,7 @@
       "operation": "edit",
       "model": "gpt-image-2.5",
       "size": "1024x1536",
-      "baseUrl": "https://litangking.12gg.workers.dev/v1",
+      "baseUrl": "https://<your-relay>/v1",
       "references": 0,
       "authorizationHeader": false
     },

@@ -107,7 +107,7 @@ dogfood 中发现并修复（均带回归测试）：单格画成整页小漫画
 证据：`/workspace/shots-20261010/seam/real-gpt-image-2.5-{R,C,D,G}-orig-off-on.jpg`、`real-gpt-image-2.5-R-sky-zoom-orig-off-on.png`；原始结果在 `real-64ad40b/`。
 
 ## 14. 智能点选原型（SAM 2.1 tiny，本机 CPU）
-- 运行环境：torch 2.14.1+cpu（从 PyTorch 的 CPU 源安装，没有 CUDA 或 nvidia 包）加 sam2，装在 `/home/box/mnai-venv`。权重约 149MB，Apache-2.0；首次使用会询问是否下载，下载后校验 SHA-256（7402e0d8…），不符就删除、不加载。
+- 运行环境：torch 2.14.1+cpu（从 PyTorch 的 CPU 源安装，没有 CUDA 或 nvidia 包）加 sam2，装在 `~/mnai-venv`。权重约 149MB，Apache-2.0；首次使用会询问是否下载，下载后校验 SHA-256（7402e0d8…），不符就删除、不加载。
 - 本地接口：`POST /manga-smart/sam-click`，和其他本地模型走同一套「只允许本机编辑器页面调用」检查以及请求大小、JSON 检查。每页的特征最多缓存 2 页，后续点击只发点的坐标；服务器忘了这一页时返回 409，前端自动补发一次。
 - 界面：「换角色」「修瑕疵」「自定义」「分层」向导里有「智能点选」按钮（本机装了模型运行环境才显示，否则照旧用框选）；高级里的「选区形状」也多了「智能点选」。用法：
   1. 点一下要选的东西，出现 3 个候选，从小到大：只选这一块 / 中等 / 整个，数字键 1–3 也能切换。

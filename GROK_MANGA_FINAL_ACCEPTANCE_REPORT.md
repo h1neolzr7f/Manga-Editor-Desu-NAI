@@ -206,7 +206,7 @@ NAI_REAL_API=1 NAI_TEST_ENV_FILE=<仓库外> NAI_REAL_MAX_CALLS=1 node scripts/n
 | 6bfc661 | 删除 13 个零引用全局/函数（splitUserPrompt、updateAiTaskProgress、applyInnerShadow、knife isHorizontalInt/isVerticalInt/isErrorInt、neonIntensity、isNeonEnabled、IMPORTED_PREFIX、languageSelector、editModeClear、updateClearButton、isDarkMode 变量）；每个名字 `git grep -w` 仓库内只出现在自身声明 | npm test PASS；full-feature-e2e 25/25 PASS（PYTHON=mnai-venv，真实 LaMa）；gpt-browser 74/74 |
 | （本次） | ESLint：translation 数据文件 overrides；报告更新 | lint 0 错误 / 51 警告 |
 
-- 推送前密钥扫描：重建 `/home/box/mnai_keyscan.sh`（仓库外）：sk-/ghp_/github_pat_/pst- 通用模式 + 600 权限文件中的 3 个已知密钥的精确匹配；自测植入已知密钥时返回 1（命中）。
+- 推送前密钥扫描：重建 `~/mnai_keyscan.sh`（仓库外）：sk-/ghp_/github_pat_/pst- 通用模式 + 600 权限文件中的 3 个已知密钥的精确匹配；自测植入已知密钥时返回 1（命中）。
 - image-2.5 模型：GPT 中继 /v1/models 返回 HTTP 530（Cloudflare Origin DNS error），按用户指示跳过，未做任何改动，NOT TESTED。
 
 ### 8.y gpt-image-2.5（2026-10-10 10:00 前后）
@@ -269,7 +269,7 @@ NAI_REAL_API=1 NAI_TEST_ENV_FILE=<仓库外> NAI_REAL_MAX_CALLS=1 node scripts/n
 - 第一版是每条边只取一个平均值，实测会在头发处留下青色或蓝色带（`run-seam-1512/seam-compare.jpg`），所以改成按位置算的轮廓版。
 - 预览新增「对比原图」按钮（生成后出现，`aria-pressed`，8 语言），可在原选区和生成结果之间来回切换。
 - 测试：`gpt-region-editor-smoke-test` 新增接缝单测（只校正内侧边、边缘贴合原图、中心不动、角落不过度校正、透明区不校正、内容变化处不上色）；novice flow 2 断言对比按钮能切换，并且图层上有 `seamMatch` 记录；gpt-browser 78/78。
-- 真实 GPT 复测（gpt-image-2.5，中转 litangking.12gg.workers.dev，15:12 和 15:14 两轮，共 6 次，全部 HTTP 200）。接缝强度指标 = 选区内外各取 2px、跨边界的平均色阶差，越接近原图越好：
+- 真实 GPT 复测（gpt-image-2.5，中转 <your-relay>，15:12 和 15:14 两轮，共 6 次，全部 HTTP 200）。接缝强度指标 = 选区内外各取 2px、跨边界的平均色阶差，越接近原图越好：
 
 | 案例 | 原图 | 无校正（14:49） | 每边平均值（已弃用） | 按位置轮廓（最终） |
 |---|---|---|---|---|

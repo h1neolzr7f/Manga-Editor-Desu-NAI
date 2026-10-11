@@ -11,14 +11,14 @@
   "cutWarning": null,
   "httpStatus": 502,
   "elapsedS": 30.8,
-  "error": "上游 HTTP 530：图像服务（或其网关）暂时不可用，本次没有生成图片，请稍后重试。（Cloudflare Tunnel error | departmental-implemented-toll-hydraulic.trycloudflare.）",
-  "uiStatus": "上游 HTTP 530：图像服务（或其网关）暂时不可用，本次没有生成图片，请稍后重试。（Cloudflare Tunnel error | departmental-implemented-toll-hydraulic.trycloudflare.）",
+  "error": "上游 HTTP 530：图像服务（或其网关）暂时不可用，本次没有生成图片，请稍后重试。（Cloudflare Tunnel error | <tunnel-host>）",
+  "uiStatus": "上游 HTTP 530：图像服务（或其网关）暂时不可用，本次没有生成图片，请稍后重试。（Cloudflare Tunnel error | <tunnel-host>）",
   "requests": 1,
   "request": {
     "operation": "edit",
     "model": "gpt-image-2.5",
     "size": "1024x1536",
-    "baseUrl": "https://litangking.12gg.workers.dev/v1",
+    "baseUrl": "https://<your-relay>/v1",
     "references": 0,
     "authorizationHeader": false
   },

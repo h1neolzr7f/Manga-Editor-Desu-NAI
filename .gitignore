@@ -186,3 +186,26 @@ local_tools/*.log
 
 # Local test artifacts (Playwright screenshots / traces)
 artifacts/
+
+# ---- secrets / local config (never commit) ----
+.env.*
+!.env.example
+*.env
+!*.env.example
+*_test_env
+*test_env*
+.mnai_*
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+*token*.txt
+secrets/
+# local model downloads (fetched on demand, never committed)
+models/
+*.onnx
+*.pt
+*.safetensors
+# local test output
+artifacts/
