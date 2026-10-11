@@ -59,3 +59,4 @@ jobs:
           python scripts/manga-text-detector-test.py
           python scripts/manga-sam-select-test.py
           python scripts/manga-character-detect-test.py
+          python scripts/prompt-helper-images-test.py

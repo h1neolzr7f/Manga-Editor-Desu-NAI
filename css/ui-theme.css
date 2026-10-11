@@ -139,3 +139,5 @@
 #mangaPlannerPreview { color: var(--ui-text) !important; }
 #mangaPlannerStatus, .manga-page-entry-head span { color: var(--ui-text-muted) !important; }
 #mangaPageStatus[data-error=true], #mangaPlannerStatus[data-error=true], #mangaCharacterStatus[data-error=true] { color: var(--ui-danger) !important; }
+.iph-images-banner { display: grid; gap: 6px; margin: 0 0 10px; padding: 10px 12px; }
+.iph-images-row { display: flex; align-items: center; gap: 10px; justify-content: space-between; font-size: 13px; }

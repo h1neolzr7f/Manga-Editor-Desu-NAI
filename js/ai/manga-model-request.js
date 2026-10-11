@@ -81,5 +81,5 @@
       return {ok:false,error:'连不上本机服务 http://127.0.0.1:8000：请先运行「一键启动」，并用 http://127.0.0.1:8000 打开编辑器，然后再试。（'+((error&&error.message)||error)+'）'};
     }
   }
-  root.MangaModelRequest={post,progressText};
+  root.MangaModelRequest={post,progressText,showProgress};
 })(typeof window!=='undefined'?window:globalThis);

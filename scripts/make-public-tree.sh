@@ -11,6 +11,8 @@ git archive --format=tar HEAD | tar -x -C "$OUT"
 # internal development evidence and agent reports (stay in the private repo)
 rm -rf "$OUT/docs/acceptance" "$OUT/docs/screenshots" \
        "$OUT"/GROK_*.md "$OUT"/docs/GROK_*.md "$OUT/docs/MANGA_GPT_DEVELOPMENT_HANDOFF.md" "$OUT/docs/VALIDATION.md"
+# prompt-helper example images (~167 MB) are downloaded on first use (json_js/prompt-helper-images.json)
+rm -rf "$OUT/03_images/imgPromptHelper"
 # safety net: refuse if anything private slipped in (example.workers.dev in a test fixture is fine)
 PAT='sk-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|pst-[A-Za-z0-9]{30,}|[a-z0-9-]+\.workers\.dev|trycloudflare\.com'
 hits=$(grep -rIoE "$PAT" "$OUT" | grep -v 'example\.workers\.dev' | grep -vE '/scripts/(privacy-guard-test\.cjs|make-public-tree\.sh):' || true)

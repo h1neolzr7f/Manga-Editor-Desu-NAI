@@ -1129,6 +1129,13 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
             self.send_error(403, 'Forbidden')
             return
         self.directory = os.getcwd()
+        # prompt-helper example images are downloaded on first use into user_data/prompt-helper/ (same layout)
+        if parsed.path.startswith('/03_images/imgPromptHelper/'):
+            rel = urllib.parse.unquote(parsed.path).lstrip('/')
+            if not os.path.isfile(os.path.join(os.getcwd(), *rel.split('/'))):
+                store = os.path.join(os.getcwd(), 'user_data', 'prompt-helper')
+                if os.path.isfile(os.path.join(store, *rel.split('/'))):
+                    self.directory = store
         return SimpleHTTPRequestHandler.do_GET(self)
         
     def handle_one_request(self):

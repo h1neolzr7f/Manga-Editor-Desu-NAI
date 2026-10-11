@@ -310,7 +310,7 @@ def local_model_status():
 
 def handle_smart_ocr_post(handler):
     route = handler.path.split("?", 1)[0]
-    if route not in ("/manga-smart/ocr", "/manga-smart/manga-ocr", "/manga-smart/lama-inpaint", "/manga-smart/status", "/manga-smart/text-mask", "/manga-smart/sam-click", "/manga-smart/characters", "/manga-smart/download-progress"):
+    if route not in ("/manga-smart/ocr", "/manga-smart/manga-ocr", "/manga-smart/lama-inpaint", "/manga-smart/status", "/manga-smart/text-mask", "/manga-smart/sam-click", "/manga-smart/characters", "/manga-smart/download-progress", "/manga-smart/prompt-helper-status", "/manga-smart/prompt-helper-download"):
         return False
     if not _authorized_local_request(handler):
         handler.close_connection = True
@@ -336,6 +336,12 @@ def handle_smart_ocr_post(handler):
                 pass
         if route == "/manga-smart/status":
             result = local_model_status()
+        elif route in ("/manga-smart/prompt-helper-status", "/manga-smart/prompt-helper-download"):
+            import prompt_helper_images as phi
+            try:
+                result = phi.status() if route.endswith("status") else phi.download(str(data.get("pack") or ""))
+            except phi.PromptHelperError as error:
+                raise SmartOcrError(str(error), error.status)
         elif route == "/manga-smart/download-progress":
             from manga_model_guard import progress_snapshot
             result = {"ok": True, "downloads": progress_snapshot()}
