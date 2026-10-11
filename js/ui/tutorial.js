@@ -153,8 +153,9 @@ showStepHighlight:function(step,current,total,onNext){
 var self=this;
 this.removeActiveHint();
 var targetEl=document.querySelector(step.element);
+if(targetEl&&!targetEl.getClientRects().length){targetEl=null;}
 if(!targetEl){
-tutorialLogger.warn('Tutorial target not found:',step.element);
+tutorialLogger.warn('Tutorial target not found or hidden:',step.element);
 onNext();
 return;
 }
@@ -201,6 +202,10 @@ tooltip.innerHTML='<div class="tutorial-tooltip-header">'+
 overlay.appendChild(highlight);
 overlay.appendChild(tooltip);
 document.body.appendChild(overlay);
+// keep the whole tooltip (and its buttons) on screen, whatever side it was placed on
+var tr=tooltip.getBoundingClientRect();
+tooltip.style.left=Math.max(10,Math.min(tr.left,window.innerWidth-tr.width-10))+'px';
+tooltip.style.top=Math.max(10,Math.min(tr.top,window.innerHeight-tr.height-10))+'px';
 this.activeHint=overlay;
 document.getElementById('tutorialNextBtn').addEventListener('click',function(){
 self.removeActiveHint();

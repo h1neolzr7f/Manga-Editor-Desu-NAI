@@ -95,16 +95,11 @@ let fmFontData = {
     { name: "DFKai-SB", scripts: "cjk" },
     { name: "Klee One", bundled: true, scripts: "cjk" },
     { name: "DotGothic16", bundled: true, scripts: "cjk" },
-    { name: "851_MkPOP", bundled: true, scripts: "cjk" },
     { name: "Chalk", bundled: true, scripts: "cjk" },
-    { name: "Ohisama", bundled: true, scripts: "cjk" },
     { name: "DokiDokiFantasia", bundled: true, scripts: "cjk" },
     { name: "Rampart One", bundled: true, scripts: "cjk" },
     { name: "Stick", bundled: true, scripts: "cjk" },
-    { name: "Train One", bundled: true, scripts: "cjk" },
-    { name: "851_YOWAKU", bundled: true, scripts: "cjk" },
-    { name: "851_KAKUKAKU", bundled: true, scripts: "cjk" },
-    { name: "851_DZUYOKU", bundled: true, scripts: "cjk" }
+    { name: "Train One", bundled: true, scripts: "cjk" }
    ],
   },
   QuoteFont: {
@@ -220,10 +215,6 @@ let fmFontData = {
    fonts: [
     { name: "Bangers", bundled: true, scripts: "latin" },
     { name: "Impact", scripts: "latin" },
-    { name: "851_DZUYOKU", bundled: true, scripts: "cjk" },
-    { name: "851_YOWAKU", bundled: true, scripts: "cjk" },
-    { name: "851_KAKUKAKU", bundled: true, scripts: "cjk" },
-    { name: "851_MkPOP", bundled: true, scripts: "cjk" },
     { name: "Arial Black" },
     { name: "HGGothicE" },
     { name: "HGGyoshotai" },
@@ -265,7 +256,6 @@ let fmFontData = {
     { name: "Train One", bundled: true, scripts: "cjk" },
     { name: "Kalam", bundled: true, scripts: "latin" },
     { name: "DokiDokiFantasia", bundled: true, scripts: "cjk" },
-    { name: "Ohisama", bundled: true, scripts: "cjk" },
     { name: "Bungee Shade" },
     { name: "Rubik Mono One" },
     { name: "Permanent Marker" },

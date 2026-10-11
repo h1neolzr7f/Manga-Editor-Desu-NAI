@@ -20,17 +20,17 @@
 
 | 種別 | 件数 |
 |------|------|
-| .bat | 9 |
-| .cjs | 59 |
-| .css | 41 |
+| .bat | 10 |
+| .cjs | 70 |
+| .css | 42 |
 | .html | 9 |
-| .js | 214 |
+| .js | 221 |
 | .mjs | 2 |
-| .ps1 | 3 |
-| .py | 34 |
-| シンボル | 10173 |
+| .ps1 | 4 |
+| .py | 40 |
+| シンボル | 10560 |
 | DOM id 定義 | 634 |
-| script 読み込み | 229 |
+| script 読み込み | 235 |
 | stylesheet 読み込み | 43 |
 
 ## 除外ディレクトリ
@@ -41,23 +41,25 @@
 
 | グローバル | 定義 |
 |-----------|------|
+| `AutoSwap` | js/ai/auto-swap.js:611 |
 | `ComfyUIGuide` | js/ai/novelai-only-mode.js:121 |
+| `FilePick` | js/ui/file-pick.js:29 |
 | `MangaBubbleDetector` | js/ai/manga-bubble-detector.js:80 |
 | `MangaCharacterBibleCore` | js/ai/manga-character-bible-core.js:60 |
 | `MangaCharacterBibleUI` | js/ai/manga-character-bible-ui.js:220 |
 | `MangaEditPlanner` | js/ai/manga-edit-planner.js:78 |
 | `MangaEditPlannerUI` | js/ai/manga-edit-planner-ui.js:125 |
-| `MangaGPTRegionEditor` | js/ai/gpt-region-editor.js:1465 |
+| `MangaGPTRegionEditor` | js/ai/gpt-region-editor.js:1680 |
 | `MangaImporter` | js/ai/manga-importer.js:2518 |
-| `MangaLamaInpaintUI` | js/ai/manga-lama-inpaint-ui.js:343 |
-| `MangaModelRequest` | js/ai/manga-model-request.js:52 |
+| `MangaLamaInpaintUI` | js/ai/manga-lama-inpaint-ui.js:408 |
+| `MangaModelRequest` | js/ai/manga-model-request.js:84 |
 | `MangaPageStructure` | js/ai/manga-page-structure.js:273 |
 | `MangaPageStructureUI` | js/ai/manga-page-structure-ui.js:390 |
 | `MangaSmartTextCore` | js/ai/manga-smart-text-core.js:118 |
-| `MangaSmartTextEditor` | js/ai/manga-smart-text-editor.js:511 |
+| `MangaSmartTextEditor` | js/ai/manga-smart-text-editor.js:573 |
 | `MangaTextInkMask` | js/ai/manga-text-ink-mask.js:105 |
 | `NaiBackgroundRemovalClient` | js/local-tools/background-removal-client.js:531 |
-| `NaiBeginnerGuide` | js/ui/beginner-guide.js:503 |
+| `NaiBeginnerGuide` | js/ui/beginner-guide.js:507 |
 | `NaiBrushPresets` | js/sidebar/pen/brush-presets.js:127 |
 | `NaiCanvasView` | js/canvas-manager.js:962 |
 | `NaiCharacterCards` | js/ai/prompt/auto/character-card-manager.js:535 |
@@ -117,7 +119,10 @@
 | `NaiVisualStudio` | js/ui/visual-studio.js:485 |
 | `NovelAICompositionDirector` | js/ai/prompt/novelai-composition-director.js:1206 |
 | `PANEL_LAYOUT_TEMPLATES` | js/panel/layout-templates.js:385 |
+| `PanelAuto` | js/ai/panel-auto.js:155 |
+| `SamClickSelect` | js/ai/sam-click-select.js:241 |
 | `TestRunner` | js/core/debug.js:403 |
+| `__autoSwapPrefetch` | js/ai/auto-swap.js:604, js/ai/auto-swap.js:606 |
 | `__naiBrushEvt` | js/ui/visual-studio.js:142 |
 | `__naiBrushRaf` | js/ui/visual-studio.js:144, js/ui/visual-studio.js:145 |
 | `_clipboard` | js/shortcut.js:102 |
@@ -138,6 +143,7 @@
 | `getBatchDirectorUserPrompt` | js/ai/prompt/auto/auto-prompt-util.js:809 |
 | `getBatchPanelSignature` | js/ai/prompt/auto/auto-prompt-util.js:811 |
 | `getNaiCharacterCardsForDirector` | js/ai/prompt/auto/character-card-manager.js:541 |
+| `hidden` | js/ui/service-settings.js:220, js/ui/service-settings.js:231 |
 | `isBatchAcceptanceGateEnabled` | js/ai/prompt/auto/auto-prompt-util.js:806 |
 | `isBatchAcceptancePassed` | js/ai/prompt/auto/auto-prompt-util.js:807 |
 | `isBatchDirectorEnabled` | js/ai/prompt/auto/auto-prompt-util.js:805 |
@@ -158,7 +164,7 @@
 | `naiLastBatchAcceptanceSignature` | js/ai/prompt/auto/auto-prompt-util.js:203 |
 | `naiLastBatchDirectorSignature` | js/ai/prompt/auto/auto-prompt-util.js:732 |
 | `naiPsTool` | js/ui/visual-ps-tools.js:91 |
-| `naiSpacePan` | js/ui/beginner-guide.js:439, js/ui/beginner-guide.js:445 |
+| `naiSpacePan` | js/ui/beginner-guide.js:443, js/ui/beginner-guide.js:449 |
 | `noShowPrompt` | js/ui/ai/auto-prompt-ui.js:169 |
 | `onerror` | js/core/global-error-handler.js:3 |
 | `recommendPanelLayouts` | js/panel/layout-templates.js:386 |
@@ -173,15 +179,15 @@
 
 | ファイル | 行数 | 用途 |
 |---------|------|------|
-| js/ui/third/i18next.js | 5895 | exported changeLanguage, getText, getTranslation |
-| index.html | 3078 |  |
+| js/ui/third/i18next.js | 6031 | exported changeLanguage, getText, getTranslation |
+| index.html | 3084 |  |
 | js/ai/manga-importer.js | 2524 |  |
-| js/ai/gpt-region-editor.js | 1469 | Manga-NAI-GPT: isolated, non-destructive image editing surface. |
-| scripts/gpt-browser-acceptance.cjs | 1283 | Real headless Chromium acceptance test against the actual HTML/Fabric runtime. |
+| scripts/novice-task-e2e.cjs | 1732 | Novice full-task acceptance (docs/GROK_BOT_FINAL_DELIVERY.md §4): a new user, no docs, real Chromium, |
+| js/ai/gpt-region-editor.js | 1684 | Manga-NAI-GPT: isolated, non-destructive image editing surface. |
+| scripts/gpt-browser-acceptance.cjs | 1311 | Real headless Chromium acceptance test against the actual HTML/Fabric runtime. |
 | js/ai/prompt/novelai-composition-director.js | 1207 |  |
 | 99_server.py | 1176 |  |
 | js/simulator/simulator-studio.js | 1110 | 模拟器启动页与各类型单开工作区 |
-| scripts/novice-task-e2e.cjs | 1083 | Novice full-task acceptance (docs/GROK_BOT_FINAL_DELIVERY.md §4): a new user, no docs, real Chromium, |
 | js/canvas-manager.js | 1066 | exported aspectRatio, changeView, forcedAdjustCanvasSize, initResizeCanvas, inputImageFile, resizeCanvas, resizeCanvasToObject |
 | js/dashboard/dashboard-ui.js | 1058 | exported openDashboardModal |
 | js/sidebar/speechBubble/speech-bubble-freehand.js | 894 | exported activePoint, clearJSTSGeometry, createJSTSPolygon, createSpeechBubble, deletePoint, freehandBubbleTextChanged, isDrawing, isNearStartPoint, lastRenderTime, mergeOverlappingShapes, processPoints, sbFreehandTextChange, selectedObject, updateFreehandBubblePositions, updateJSTSGeometry, updateShape, updateTemporaryShapes |
@@ -191,8 +197,8 @@
 | js/core/util/fabric-util.js | 832 | exported avtive, copy, createGUIDMap, deepCopy, fitImageToCanvas, getCanvasGUID, getCenterXByFabricObject, getCenterYByFabricObject, getImageObjectList, getLastObject, getObjectCount, getObjectList, getPointAtDistance, getRandomPanel, haveClipPath, initMessage, initMessageText, isGroup, isHorizontalText, isLayerPreview, isLine, isPanelType, isPath, isShapes, isSpeechBubbleSVG, isSpeechBubbleText, isText, isVerticalText, removeClipPath, removeGUID, replaceGuids, setGUID |
 | js/ai/prompt/auto/auto-prompt-util.js | 817 | generatePageList(btmGetGuidsSize()); |
 | css/simulator-chat.css | 790 | simulator-chat-area .simulator-chat-panel{ |
-| js/core/font/font-manager-core.js | 751 | exported fontClassName, fontInit |
 | js/sidebar/panel/panel-manager.js | 742 | exported Edit, changePanelFillColor, changePanelOpacity, changePanelStrokeColor, changePanelStrokeWidth, initialPutImage, isWithin, loadSVGPlusReset, panelAllChange, replaceImageObject, setPanelValue |
+| js/core/font/font-manager-core.js | 741 | exported fontClassName, fontInit |
 | js/project-management.js | 731 | exported findCanvasGuid, getDataByName, localSettingsData, resetAllSettings |
 | scripts/gen-project-index.cjs | 722 | プロジェクト索引の自動生成。 |
 | js/ui/imagePromptHelper/image-prompt-helper.js | 716 | exported iphGetSelectedTagsText, iphInitializeUI |

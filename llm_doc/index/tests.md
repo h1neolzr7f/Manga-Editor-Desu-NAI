@@ -318,6 +318,6 @@
 - `npm run format` → `node scripts/remove-spaces.cjs`
 - `npm run generate:site-ui` → `node scripts/generate-site-ui-svgs.cjs`
 - `npm run index` → `node scripts/gen-project-index.cjs`
-- `npm run lint` → `eslint js/ --ext .js`
+- `npm run lint` → `eslint js --max-warnings 0`
 - `npm run lint:fix` → `eslint js/ --ext .js --fix`
 - `npm run vendor:free-assets` → `node scripts/vendor-free-public-assets.cjs`
