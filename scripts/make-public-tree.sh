@@ -15,6 +15,7 @@ rm -rf "$OUT/docs/acceptance" "$OUT/docs/screenshots" \
 rm -rf "$OUT/03_images/imgPromptHelper"
 # internal process reports (audit / open-source prep) stay private
 rm -f "$OUT"/docs/NOVICE_AUDIT_*.md "$OUT/docs/OPEN_SOURCE_PREP.md"
+rm -rf "$OUT/.claude"  # agent prompt snippets, development only
 # public repo: CI runs on pushes to main; the installer build is manual only
 python3 - "$OUT/.github/workflows" <<'PY'
 import glob, os, re, sys
