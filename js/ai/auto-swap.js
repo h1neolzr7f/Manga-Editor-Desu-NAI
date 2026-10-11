@@ -167,7 +167,7 @@
 
   async function gptEdit(image, prompt, size, references, signal) {
     const key = (($('mangaGptKey') || {}).value || '').trim().replace(/^Bearer\s+/i, '');
-    const payload = { baseUrl: (($('mangaGptUrl') || {}).value || '').trim(), model: (($('mangaGptModel') || {}).value || '').trim() || 'gpt-image-2.5',
+    const payload = { baseUrl: (($('mangaGptUrl') || {}).value || '').trim(), model: (($('mangaGptModel') || {}).value || '').trim() || 'gpt-image-1',
       operation: 'edit', prompt, size, image, references: references || [] };
     const base = location.protocol === 'file:' ? 'http://127.0.0.1:8000' : location.origin;
     // own deadline on top of the user's 取消: a hung relay must never leave the wizard spinning forever

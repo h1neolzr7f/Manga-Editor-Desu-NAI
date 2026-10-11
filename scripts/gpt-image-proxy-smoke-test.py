@@ -130,6 +130,44 @@ class ImageRelayTest(unittest.TestCase):
         with self.assertRaises(proxy.ImageProxyError):
             proxy._env_key_for_destination({"baseUrl": "https://attacker.example/v1"}, env)
 
+    @mock.patch.object(proxy.socket, "getaddrinfo", side_effect=public_dns)
+    def test_settings_saved_url_is_the_only_destination_for_env_key(self, _dns):
+        import tempfile, os
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "services.json")
+            env = {"GPT_IMAGE_API_KEY": "env-secret"}
+            # nothing saved: only the official API may receive the env key
+            self.assertEqual(proxy.trusted_base_url(env, path), proxy.OFFICIAL_API)
+            with self.assertRaises(proxy.ImageProxyError):
+                proxy._env_key_for_destination({"baseUrl": "https://relay.example.com/v1"}, env, path)
+            proxy.save_trusted_base_url("https://relay.example.com/v1/", path)
+            self.assertEqual(proxy._env_key_for_destination({"baseUrl": "https://relay.example.com/v1"}, env, path), "env-secret")
+            with self.assertRaises(proxy.ImageProxyError):
+                proxy._env_key_for_destination({"baseUrl": "https://attacker.example/v1"}, env, path)
+            # explicit env override still wins
+            self.assertEqual(proxy.trusted_base_url(dict(env, GPT_IMAGE_TRUSTED_BASE_URL="https://other.example/v1"), path), "https://other.example/v1")
+            cfg = proxy.proxy_config(env, path)
+            self.assertEqual((cfg["envKey"], cfg["trustedBaseUrl"]), (True, "https://relay.example.com/v1"))
+            self.assertNotIn("env-secret", json.dumps(cfg))
+
+    def test_trust_refuses_private_or_unsafe_urls(self):
+        import tempfile, os
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "services.json")
+            for bad in ("http://relay.example.com/v1", "https://127.0.0.1/v1", "https://169.254.169.254/v1", "https://localhost/v1",
+                        "https://router.local/v1", "https://user:pw@relay.example.com/v1", "https://relay.example.com:8443/v1"):
+                with self.assertRaises(proxy.ImageProxyError, msg=bad):
+                    proxy.save_trusted_base_url(bad, path)
+            self.assertFalse(os.path.exists(path))
+
+    def test_no_default_relay_in_code(self):
+        import os
+        root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+        for f in ("gpt_image_proxy.py", "js/ai/gpt-region-editor.js", "js/ui/service-settings.js", "start_manga_editor_nai.ps1"):
+            with open(os.path.join(root, f), encoding="utf-8-sig") as fh:
+                text = fh.read()
+            self.assertNotRegex(text, r"https://(?!api\.openai\.com|image\.novelai\.net|your-|relay\.example|example)[a-z0-9.-]+\.(workers\.dev|[a-z]{2,})/v1", f)
+
     def test_local_post_rejects_cross_origin_null_origin_and_dns_rebinding(self):
         def allowed(headers, address="127.0.0.1"):
             return proxy._authorized_local_request(SimpleNamespace(

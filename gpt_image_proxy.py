@@ -379,16 +379,63 @@ def _authorized_local_request(handler):
         return False
 
 
-def _env_key_for_destination(payload, environ=None):
-    """Only use a server-side key with its configured destination, never arbitrary URLs."""
+SERVICES_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "user_data", "services.json")
+
+
+def _norm_base(url):
+    return str(url or "").strip().rstrip("/")
+
+
+def saved_base_url(path=None):
+    """The GPT base URL the user saved in 服务设置 (stored locally by the 'trust' operation)."""
+    try:
+        with open(path or SERVICES_FILE, encoding="utf-8") as f:
+            return _norm_base((json.load(f).get("gpt") or {}).get("baseUrl"))
+    except (OSError, ValueError, AttributeError):
+        return ""
+
+
+def save_trusted_base_url(url, path=None):
+    """Record the URL from 服务设置 as the only destination for the server-side .env key.
+    Same checks as every request: public HTTPS host, no IPs / private names / credentials / custom ports."""
+    url = _norm_base(url)
+    _valid_public_url(url)
+    path = path or SERVICES_FILE
+    data = {}
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f) or {}
+    except (OSError, ValueError):
+        data = {}
+    data["gpt"] = {"baseUrl": url}
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path + ".tmp", "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    os.replace(path + ".tmp", path)
+    return url
+
+
+def trusted_base_url(environ=None, path=None):
     env = os.environ if environ is None else environ
-    url = str(payload.get("baseUrl") or "").strip().rstrip("/")
-    trusted = str(env.get("GPT_IMAGE_TRUSTED_BASE_URL") or OFFICIAL_API).strip().rstrip("/")
-    if url != trusted:
+    return _norm_base(env.get("GPT_IMAGE_TRUSTED_BASE_URL")) or saved_base_url(path) or OFFICIAL_API
+
+
+def _env_key_for_destination(payload, environ=None, path=None):
+    """Only use a server-side key with the URL saved in 服务设置 (or the explicit env override), never others."""
+    env = os.environ if environ is None else environ
+    url = _norm_base(payload.get("baseUrl"))
+    if url != trusted_base_url(env, path):
         raise ImageProxyError(
-            "此地址不是本地环境密钥信任的 API 地址。请在界面填写 Key，"
-            "或在 .env 中设置 GPT_IMAGE_TRUSTED_BASE_URL。", 403)
+            "本机 .env 里的 Key 只会发给「服务设置」里保存的地址。请在服务设置里保存这个地址，或直接填写 Key。", 403)
     return str(env.get("GPT_IMAGE_API_KEY") or "").strip()
+
+
+def proxy_config(environ=None, path=None):
+    """What the settings page needs to know; never returns the key itself."""
+    env = os.environ if environ is None else environ
+    return {"ok": True, "envKey": bool(str(env.get("GPT_IMAGE_API_KEY") or "").strip()),
+            "trustedBaseUrl": trusted_base_url(env, path),
+            "envOverride": bool(_norm_base(env.get("GPT_IMAGE_TRUSTED_BASE_URL")))}
 
 
 def handle_gpt_image_post(handler):
@@ -407,6 +454,12 @@ def handle_gpt_image_post(handler):
         payload = json.loads(handler.rfile.read(length))
         if not isinstance(payload, dict):
             raise ImageProxyError("请求必须是 JSON 对象。")
+        if payload.get("operation") == "config":
+            handler._send_json(proxy_config())
+            return True
+        if payload.get("operation") == "trust":
+            handler._send_json({"ok": True, "trustedBaseUrl": save_trusted_base_url(payload.get("baseUrl"))})
+            return True
         header = handler.headers.get("Authorization", "").strip()
         if header and not header.lower().startswith("bearer "):
             raise ImageProxyError("Authorization 必须使用 Bearer Key。", 401)

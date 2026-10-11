@@ -227,7 +227,18 @@ return body;
 }
 
 // ---------- start / stop ----------
+// GPT tasks need a configured service; without one, 服务设置 opens with a short hint instead of a failing wizard.
+// (修瑕疵 can run on local LaMa; AI 生图 has its own token step.)
+var NEEDS_GPT={swap:1,page:1,custom:1};
 function start(id){
+var t=task(id);if(!t)return;
+if(NEEDS_GPT[id]&&window.ServiceSettings&&ServiceSettings.ensureReady&&(t.kind==='page'||hasPage())){
+ServiceSettings.ensureReady('gpt').then(function(ok){if(ok)startNow(id);});
+return;
+}
+startNow(id);
+}
+function startNow(id){
 var t=task(id);if(!t)return;
 stop(false);
 if(t.kind!=='nai'&&t.kind!=='page'&&!hasPage()){

@@ -25,7 +25,9 @@
   const REQUEST_TIMEOUT_MS = 330000;
   // Image model presets (ids from the relay's /v1/models, 2026-10-10). First entry is the default.
   // The text box stays editable, so any other compatible model id can still be typed in.
-  const GPT_MODEL_PRESETS = ['gpt-image-2.5', 'gpt-image-2.5-flare', 'gpt-image-2.5-sunburst', 'gpt-image-2', 'gpt-image-1'];
+  // Built-in choice is only OpenAI's official image model; 服务设置 → 测试连接 replaces the list with the models the
+  // configured service actually lists (and suggests gpt-image-2.5 only when it is listed).
+  const GPT_MODEL_PRESETS = ['gpt-image-1'];
   const GPT_DEFAULT_MODEL = GPT_MODEL_PRESETS[0];
   function modelPresetFor(id) { return GPT_MODEL_PRESETS.includes(id) ? id : 'custom'; }
   // Mean |residual| (0-255) on the context ring above which the model is considered to have
@@ -1514,8 +1516,8 @@
       '<button type="button" id="mangaGptSelect">' + t('mgpt_select_btn', '框选区域') + '</button>',
       '<button type="button" id="mangaGptExpand" hidden>' + t('mgpt_expand_btn', '扩展到完整对象') + '</button></div>',
       '<label>' + t('mgpt_api_url', '兼容 API 地址') + '<input id="mangaGptUrl" type="url" placeholder="https://api.openai.com/v1" value="https://api.openai.com/v1" autocomplete="off"></label>',
-      '<div class="manga-gpt-row"><label>' + t('mgpt_model', '图像模型') + '<select id="mangaGptModelPreset" title="' + t('mgpt_model_tip', 'gpt-image-2.5 效果最好（默认）；选“自定义”可在右侧输入任意兼容模型 ID') + '">' +
-        GPT_MODEL_PRESETS.map((id, i) => '<option value="' + id + '">' + id + (i === 0 ? t('mgpt_model_default', '（默认，推荐）') : '') + '</option>').join('') +
+      '<div class="manga-gpt-row"><label>' + t('mgpt_model', '图像模型') + '<select id="mangaGptModelPreset" title="' + t('mgpt_model_tip', '测试连接后会列出服务支持的图像模型；也可选“自定义”输入任意模型 ID') + '">' +
+        GPT_MODEL_PRESETS.map((id, i) => '<option value="' + id + '">' + id + (i === 0 ? t('mgpt_model_default', '（推荐）') : '') + '</option>').join('') +
         '<option value="custom">' + t('mgpt_model_custom', '自定义…') + '</option></select>' +
         '<input id="mangaGptModel" type="text" value="' + GPT_DEFAULT_MODEL + '" placeholder="' + t('mgpt_model_ph', '模型 ID') + '" aria-label="' + t('mgpt_model_ph', '模型 ID') + '"></label>',
       '<label>' + t('mgpt_size', '尺寸') + '<select id="mangaGptSize"><option value="auto">' + t('mgpt_size_auto', '自动') +

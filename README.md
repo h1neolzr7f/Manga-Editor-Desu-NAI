@@ -45,7 +45,22 @@
 浏览器会自动打开 `http://127.0.0.1:8000/index.html`。关掉启动窗口（或 Ctrl+C）即停止。
 
 3. 第一次用到某个 AI 功能时，编辑器会说明要下载哪个模型、多大、什么许可证，**你确认后才下载**（校验 SHA-256，存在用户目录 `~/.cache/manga-editor/`，Windows 为 `%USERPROFILE%\.cache\manga-editor\`；LaMa 和 manga-ocr 用 PyTorch / Hugging Face 自己的缓存目录）。
-4. 用 GPT 或 NovelAI 的功能：点右上角 **服务设置**，填你的 API 地址 / Key 或 NovelAI Token，点「测试连接」。
+4. 用 GPT 或 NovelAI 的功能：点右上角 `⋯` → **服务设置**，填你的 API 地址 / Key 或 NovelAI Token，点「测试连接」（见下一节）。
+
+### 服务设置：所有地址和 Key 只在这一个地方
+
+| 服务 | 填什么 | 测试连接 |
+|---|---|---|
+| GPT 图像（换角色、修瑕疵、自定义、画一页） | 服务：**OpenAI 官方** 或 **自定义**（任意 OpenAI Images 兼容服务，填以 `/v1` 结尾的地址）；API Key；模型 | 只读模型列表、不生成、不花钱；测试后模型下拉框换成该服务实际列出的图像模型 |
+| NovelAI（AI 生图） | 访问令牌 Token（高级里可改 API 地址/本地代理） | 只读订阅信息，不花 Anlas |
+| AI 导演（可选） | 任意 OpenAI 兼容聊天服务的地址、模型、Key | 发一次极短的测试请求 |
+| 导入漫画打标签（可选） | 本机 Tagger 地址 | 发一张 8×8 白图 |
+| 本机文字识别 / 去字、本机抠图 | 不需要 Key | 检查本机服务状态 |
+
+- **没有内置中转站**：默认只有 OpenAI 官方地址。用别的兼容服务时自己填地址；`gpt-image-2.5` 只在该服务的模型列表里有时才会被推荐。
+- 所有值只保存在这台电脑（浏览器本地存储；可取消「本机记住 Key」只保留到关闭页面）。
+- 想用 `.env` 里的 `GPT_IMAGE_API_KEY` 而不在页面填 Key 时：本机服务只会把这个 Key 发给**服务设置里保存的那个地址**（保存时登记在 `user_data/services.json`；内网 / IP / 非 HTTPS / 带端口的地址会被拒绝，不跟随重定向）。
+- 没设置就点「换角色」「画一页」「自定义修改」时，会直接打开服务设置并提示要填什么；「修瑕疵」可用本机 LaMa，不需要 Key。
 
 > Windows 支持目前只经过代码审查和 GitHub Actions 的 `windows-latest` 离线测试，**尚未在真实 Windows 电脑上完整验证**，详见 [docs/WINDOWS_READINESS.md](docs/WINDOWS_READINESS.md)。遇到问题欢迎反馈。
 
@@ -58,7 +73,7 @@
 - **换角色在复杂多人画格里不稳定**：GPT 偶尔会改到同格的另一个人，或把头身比例画得不自然。务必先看「对比原图」再应用；不满意可以把范围框大一点重试。
 - **自动找格子需要白色格间留白**：无边框、出血满版或黑底分格识别不出来，此时用手动框选。
 - **本机 AI 只用 CPU**：人物识别首次 20–60 秒，智能点选几秒，LaMa 去字数秒；空闲 10 分钟后自动释放内存。低内存电脑（<8 GB）可能偏慢。
-- GPT 生成质量取决于你使用的模型和服务；默认模型名 `gpt-image-2.5`，可在服务设置里改。
+- GPT 生成质量取决于你使用的模型和服务；默认只有 OpenAI 官方的 `gpt-image-1`，测试连接后可从服务列出的模型里选。
 - 文字识别以日文漫画为主（Tesseract + 可选 manga-ocr）；手写体、艺术字、拟声词识别率较低（「保留拟声词」默认开启）。
 
 ## 隐私与安全
@@ -108,7 +123,7 @@ Python 3.10+ and a modern browser. Download ZIP (or clone), then:
 - **Windows**: double-click `一键启动.bat` (start) and optionally `安装AI功能.bat` (local AI, CPU) + `winget install UB-Mannheim.TesseractOCR`.
 - **macOS / Linux**: `./start.sh`; optionally `bash scripts/install-ai.sh` + Tesseract from brew/apt.
 
-The browser opens `http://127.0.0.1:8000/index.html`. Models are downloaded only after you confirm (size, license, SHA-256 shown). Enter API keys under **服务设置 (Service settings)**.
+The browser opens `http://127.0.0.1:8000/index.html`. Models are downloaded only after you confirm (size, license, SHA-256 shown). All endpoints and keys live in one place, **服务设置 (Service settings)** (`⋯` menu): GPT image service (preset *OpenAI official* or *custom* OpenAI-compatible base URL ending in `/v1`, key, model — after *Test connection* the model list comes from the service; `gpt-image-2.5` is suggested only if listed), NovelAI token, optional AI Director and local tagger, local OCR/LaMa/cutout status. Each has its own test button; nothing is stored outside this computer. There is **no built-in relay**. A server-side `GPT_IMAGE_API_KEY` from `.env` is only sent to the base URL saved in Service settings (private/IP/non-HTTPS URLs and redirects are refused). GPT tasks open Service settings with a hint when nothing is configured.
 Windows is statically reviewed and CI-tested on `windows-latest` but **not yet verified on a real Windows PC**.
 
 ### Known limitations

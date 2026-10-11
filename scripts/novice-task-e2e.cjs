@@ -171,6 +171,7 @@ async function newSession(viewport) {
   await page.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort());
   if (!REAL_GPT) {
     await page.route('**/gpt-image-proxy', async route => {
+      if (['config', 'trust'].includes((route.request().postDataJSON() || {}).operation)) return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, envKey: true, trustedBaseUrl: 'https://api.openai.com/v1' }) });
       const p = route.request().postDataJSON();
       mock.calls.push({ op: p.operation, model: p.model, refs: (p.references || []).length, promptLen: (p.prompt || '').length });
       if (mock.delayMs) await new Promise(res => setTimeout(res, mock.delayMs));
@@ -1110,6 +1111,7 @@ async function main() {
     p.on('dialog', d => d.accept());
     await p.route(/https?:\/\/(?!127\.0\.0\.1:8000)/, r => r.abort());
     if (!REAL_GPT || opts.mock) await p.route('**/gpt-image-proxy', async route => {
+      if (['config', 'trust'].includes((route.request().postDataJSON() || {}).operation)) return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, envKey: true, trustedBaseUrl: 'https://api.openai.com/v1' }) });
       const body = route.request().postDataJSON();
       wizCalls.push({ op: body.operation, prompt: (body.prompt || '').slice(0, 80), refs: (body.references || []).length, model: body.model });
       if (opts.fail) return route.fulfill({ status: opts.fail.status, contentType: 'application/json', body: JSON.stringify({ ok: false, error: opts.fail.error }) });
@@ -1545,6 +1547,7 @@ async function main() {
     const calls = [];
     let hangOnce = true;   // the first call never answers (hung relay) → timeout message + 重试
     await p.route('**/gpt-image-proxy', async route => {
+      if (['config', 'trust'].includes((route.request().postDataJSON() || {}).operation)) return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, envKey: true, trustedBaseUrl: 'https://api.openai.com/v1' }) });
       const body = route.request().postDataJSON();
       if (hangOnce) { hangOnce = false; return; }
       const kind = /Replace the main person/.test(body.prompt) ? 'swap' : 'other';
@@ -1717,6 +1720,56 @@ async function main() {
       await snap('caption-page-cache');
       return { pass: prefetched >= 1 && openReq === 0 && openMs < 1500 && g2 !== g1 && B !== A && backReq === 0 && backMs < 3000 && !errors.length,
         detail: { prefetched, openReq, openMs, A: A.slice(0, 60), B: B.slice(0, 60), backReq, backMs, errors } };
+    } finally { await ctx.close(); }
+  });
+
+  await flow('38 一处设置：所有地址/Key/Token 只在服务设置；无默认中转；未配置时换角色直接打开服务设置并提示；测试后按服务列表选模型（列出才建议 gpt-image-2.5）；保存地址会登记为可信', async () => {
+    const { ctx, p, errors } = await beginnerEditor();
+    const ops = []; let envKey = false, models = ['gpt-image-1', 'dall-e-3'];
+    await p.route('**/gpt-image-proxy', async route => {
+      const b = route.request().postDataJSON() || {}; ops.push({ op: b.operation || 'edit', baseUrl: b.baseUrl, auth: !!route.request().headers().authorization });
+      if (b.operation === 'config') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, envKey, trustedBaseUrl: 'https://api.openai.com/v1' }) });
+      if (b.operation === 'trust') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, trustedBaseUrl: b.baseUrl }) });
+      if (b.operation === 'models') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, models, imageModels: models.filter(m => /image|dall/.test(m)) }) });
+      return route.fulfill({ status: 500, contentType: 'application/json', body: '{"ok":false,"error":"no image calls expected"}' });
+    });
+    try {
+      // 1) single location: every user endpoint/key/token input sits inside 服务设置, nowhere else
+      const ids = ['mangaGptUrl', 'mangaGptKey', 'mangaGptModel', 'novelaiApiKey', 'novelaiApiUrl', 'naiDirectorApiUrl', 'naiDirectorApiKey', 'mangaImportTaggerUrl', 'cutoutServiceUrl'];
+      const placement = await p.evaluate(ids => ids.map(id => { const all = document.querySelectorAll('#' + id); return id + ':' + all.length + ':' + (all[0] && !!all[0].closest('#serviceSettings')); }), ids);
+      const single = placement.every(x => /:1:true$/.test(x));
+      const defaults = await p.evaluate(() => ({ url: document.getElementById('mangaGptUrl').value, preset: document.getElementById('svcGptUrlPreset').value,
+        models: Array.from(document.getElementById('mangaGptModelPreset').options).map(o => o.value).join(',') }));
+      // 2) 换角色 without any key: 服务设置 opens with the hint, no image request, no wizard
+      await op.click(p.locator('#taskBtn-swap'), '换角色（未配置）');
+      await p.waitForSelector('#serviceSettings:not([hidden]) #svcHint', { timeout: 5000 });
+      const hint = await p.locator('#svcHint').innerText();
+      const wizardOpened = await p.locator('#taskWizardCard').count();
+      // 3) custom service: pick 自定义, type URL + key, test → models from the service, 2.5 not suggested when not listed
+      await p.selectOption('#svcGptUrlPreset', 'custom');
+      await p.locator('#mangaGptUrl').fill('https://relay.example.com/v1'); await p.locator('#mangaGptUrl').dispatchEvent('change');
+      await p.locator('#mangaGptKey').fill('sk-test-only-for-mock'); await p.locator('#mangaGptKey').dispatchEvent('change');
+      await op.click(p.locator('#svcGptTest'), '测试连接');
+      await p.waitForFunction(() => /已连接/.test(document.getElementById('svcGptStatus').textContent), null, { timeout: 8000 });
+      const pick1 = await p.locator('#mangaGptModel').inputValue();
+      models = ['gpt-image-2', 'gpt-image-2.5', 'gpt-4o'];
+      await p.locator('#mangaGptModel').fill(''); await op.click(p.locator('#svcGptTest'), '再测一次（列表含 2.5）');
+      await p.waitForFunction(() => document.getElementById('mangaGptModel').value === 'gpt-image-2.5', null, { timeout: 8000 });
+      const options = await p.evaluate(() => Array.from(document.getElementById('mangaGptModelPreset').options).map(o => o.value).join(','));
+      const trusted = ops.some(o => o.op === 'trust' && o.baseUrl === 'https://relay.example.com/v1');
+      const keyOnlyToTest = ops.filter(o => o.auth).every(o => o.op === 'models');
+      // 4) each optional service has its own test button + status
+      const tests = await p.evaluate(() => ['svcGptTest', 'svcNaiTest', 'svcDirectorTest', 'svcTaggerTest', 'svcLocalTest', 'svcCutoutTest'].every(id => !!document.getElementById(id)) &&
+        ['svcDirectorStatus', 'svcTaggerStatus'].every(id => !!document.getElementById(id)));
+      await op.click(p.locator('#svcDone'), '完成');
+      // 5) configured now: 换角色 opens its wizard
+      await op.click(p.locator('#taskBtn-swap'), '换角色（已配置）');
+      const wizardNow = await p.locator('#taskWizardCard').waitFor({ timeout: 5000 }).then(() => true, () => false);
+      const stored = await p.evaluate(() => JSON.parse(localStorage.getItem('mnai.services.gpt') || '{}').baseUrl);
+      const pass = single && defaults.url === 'https://api.openai.com/v1' && defaults.preset === 'official' && defaults.models === 'gpt-image-1,custom' &&
+        /GPT 图像服务/.test(hint) && !wizardOpened && pick1 === 'gpt-image-1' && /gpt-image-2\.5/.test(options) && !/dall-e-3/.test(options) &&
+        trusted && keyOnlyToTest && tests && wizardNow && stored === 'https://relay.example.com/v1' && !ops.some(o => o.op === 'edit') && !errors.length;
+      return { pass, detail: { placement, defaults, hint, wizardOpened, pick1, options, trusted, keyOnlyToTest, tests, wizardNow, stored, ops: ops.map(o => o.op), errors } };
     } finally { await ctx.close(); }
   });
 
