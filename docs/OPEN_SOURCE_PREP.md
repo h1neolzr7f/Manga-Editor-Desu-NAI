@@ -32,3 +32,35 @@
 | C 用 git-filter-repo 改写历史 | 替换掉地址后强推所有分支 | 保留历史又去掉地址 | 需要强推（违反“不强推”规则），所有 PR/克隆失效；不建议 |
 
 无论选哪个：**如果中转地址本身不想被滥用，建议在中转侧换一个地址或加访问控制**（它出现过在私有仓库历史里）。
+
+## 2. 第三方许可证
+
+见 [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)。8 个按需下载的模型、28 个打包前端库、12 套字体逐一核对（GitHub license API / Hugging Face 模型卡 / 文件头）。模型全部不进 Git（`.gitignore` 也排除了 `*.onnx/*.pt/*.safetensors`）。删除了未加载的上游 Google Analytics 脚本（含上游跟踪 ID）。
+
+## 3. README
+
+新 `README.md`（中文为主 + English 段落），截图压缩后放在 `docs/images/`（6 张，共约 0.9 MB）。
+
+## 4. Windows
+
+见 [WINDOWS_READINESS.md](WINDOWS_READINESS.md)。新增 `windows-latest` CI；发现并修复 3 个真实问题：Windows 检出时 JS 被转成 CRLF 导致测试失败（`.gitattributes` 统一 LF）、两个 ps1 缺 BOM（含日文/中文字符）、`tesseract --list-langs` 输出未指定编码。新增一键安装本机 AI：`安装AI功能.bat` / `scripts/install-ai.sh`，Linux/macOS 启动 `start.sh`。
+
+## 5. 仓库卫生
+
+- 已有：`LICENSE`（GPL-3.0）、`CONTRIBUTING.md`（补了 Linux/macOS 与提交前检查）。新增：`SECURITY.md`、Issue 表单（问题 / 建议，含「不要贴密钥」提示）、PR 模板。
+- 体积：受版本管理文件约 291 MB，git 包 244 MB。大头是上游的提示词助手示例图 `03_images/imgPromptHelper`（899 张，167 MB，NovelAI 提示词助手在用）、`assets/public`（22 MB）、`docs/acceptance` 验收证据（19 MB）、字体（约 50 MB）。
+- `scripts/make-public-tree.sh`：按方案 A 导出干净的公开目录（去掉验收证据与内部报告，并做私密字符串检查），当前约 270 MB；不会创建或推送任何仓库。
+
+## 6. 打磨
+
+- 首次下载模型时显示进度卡片（百分比、MB、剩余时间；LaMa / manga-ocr 由库下载，显示已用时间）。
+- 漫画分镜结构、角色档案面板、新手工具提示条、首次引导按钮、intro 提示框统一到主题变量，浅色模式下不再是深色面板 / 淡蓝字。
+
+## 需要你决定
+
+1. **公开方式**：A（推荐）新仓库单提交 / B 原仓库直接公开 / C 改写历史（需强推，不建议）。
+2. **中转地址**：它在私有仓库历史里出现过；公开前（尤其选 B 时）建议在中转侧换地址或加访问控制。
+3. **intro.js（AGPL-3.0）**：保留，或换成 MIT 的引导实现（约半天）。
+4. **おひさまフォント**：公开前告知作者，或移除。**851 字体**：补许可证文本，或移除。
+5. **验收证据去处**：`docs/acceptance`（19 MB）在方案 A 中不进入公开仓库；是否还要整理到别处（例如 Release 附件，需要你允许创建 Release）。
+6. **提示词助手示例图（167 MB）**：保留（功能完整）或改为首次使用时下载（公开仓库可缩小到约 100 MB）。
