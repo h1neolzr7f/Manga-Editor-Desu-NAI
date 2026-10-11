@@ -1,5 +1,9 @@
 # Manga Editor Desu · NovelAI Edition
 
+> **当前主线已迁移**：新手友好的漫画修图 / 嵌字（换角色、改字幕、去字、分层、GPT 改图）请使用公开仓库 **[Manga-NAI-GPT](https://github.com/h1neolzr7f/Manga-NAI-GPT)**。  
+> 本仓库保留 NovelAI 工作流与历史 Windows 发行线，适合仍需要原 NAI 改版功能的用户；新功能与文档优先在 Manga-NAI-GPT 维护。
+
+
 这是 [new-sankaku/manga-editor-desu](https://github.com/new-sankaku/manga-editor-desu) 的非官方 GPL-3.0 修改发行版。分镜、气泡、图层、刀具、网点、画笔和多页工程等编辑器基础能力来自上游；本仓库维护 NovelAI 接入、本地启动器、模拟器工作区与中文入门流程。
 
 [English](README_EN.md) · [下载 Releases](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest) · [相对上游的改动](CHANGELOG.md) · [参与贡献](CONTRIBUTING.md)
