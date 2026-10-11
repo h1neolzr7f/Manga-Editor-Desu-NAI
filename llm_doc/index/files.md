@@ -7,10 +7,7 @@
 
 | ファイル | 行数 | 用途 |
 |---------|------|------|
-| 99_generate_nai_assets.bat | 6 |  |
-| 99_server.bat | 4 |  |
-| 99_server.py | 1176 |  |
-| 99_test_nai_pipeline.bat | 16 |  |
+| 99_server.py | 1183 |  |
 | css/common.css | 224 |  |
 | css/components.css | 350 |  |
 | css/controls-mini.css | 568 |  |
@@ -35,7 +32,7 @@
 | css/task-launcher.css | 146 | 新手任务: task bar, home card, wizard heads/cards and 服务设置. Uses only css/ui-theme.css tokens. |
 | css/tippy.css | 31 |  |
 | css/toast.css | 131 |  |
-| css/ui-theme.css | 141 | One theme for the whole editor. Every new surface (task bar, wizards, 服务设置) and the main |
+| css/ui-theme.css | 143 | One theme for the whole editor. Every new surface (task bar, wizards, 服务设置) and the main |
 | css/ui/blend.css | 430 | blendFloatingWindow { |
 | css/ui/bottom-bar.css | 408 |  |
 | css/ui/custom-html-components.css | 110 | input, select, textarea { |
@@ -52,7 +49,7 @@
 | css/ui/tutorial.css | 372 |  |
 | css/ui/unified-settings.css | 82 |  |
 | css/visual-studio.css | 399 |  |
-| gpt_image_proxy.py | 422 |  |
+| gpt_image_proxy.py | 475 |  |
 | html/Minual/03_xxx2webp.bat | 20 |  |
 | html/Minual/03_xxx2webp_50%.bat | 17 |  |
 | html/Minual/SB/st/03_xxx2webp.bat | 20 |  |
@@ -65,14 +62,14 @@
 | html/TermsOfService/terms-of-service.html | 120 |  |
 | html/common.css | 343 |  |
 | html/functionList.html | 321 |  |
-| index.html | 3084 |  |
+| index.html | 3085 |  |
 | js/ai/ai-management.js | 115 | exported I2I, T2I, apiHeartbeat, clearAllQueues, existsWaitQueue |
 | js/ai/ai-settings.js | 428 |  |
 | js/ai/auto-swap.js | 614 | 换角色 — character swap in place. |
 | js/ai/director/scene-plan-controller.js | 66 |  |
 | js/ai/director/scene-plan-schema.js | 19 |  |
 | js/ai/director/scene-plan-service.js | 70 |  |
-| js/ai/gpt-region-editor.js | 1684 | Manga-NAI-GPT: isolated, non-destructive image editing surface. |
+| js/ai/gpt-region-editor.js | 1686 | Manga-NAI-GPT: isolated, non-destructive image editing surface. |
 | js/ai/manga-bubble-detector.js | 81 | Conservative local bubble-candidate detector. |
 | js/ai/manga-character-bible-core.js | 64 | Character Bible data contract (own implementation). |
 | js/ai/manga-character-bible-ui.js | 224 | Private, browser-local character reference cards. |
@@ -260,11 +257,12 @@
 | js/ui/glfx-ui.js | 237 | exported gpifHTML, setGlfxI18NextLabel |
 | js/ui/imagePromptHelper/hc-image-prompt-helper.js | 37 | exported iphHtmlContent |
 | js/ui/imagePromptHelper/image-prompt-helper.js | 716 | exported iphGetSelectedTagsText, iphInitializeUI |
-| js/ui/imagePromptHelper/prompt-helper.js | 220 | exported createImagePromptHelperFlotingWindow |
+| js/ui/imagePromptHelper/prompt-helper.js | 221 | exported createImagePromptHelperFlotingWindow |
 | js/ui/overlay-progress.js | 86 | exported OP_hideLoading, OP_isCancelled, OP_showLoading |
+| js/ui/prompt-helper-images.js | 54 | Prompt-helper example images are not in the repository; they are downloaded on first use |
 | js/ui/prompt-manager.js | 68 | exported openPromptChangeFloatingWindow |
-| js/ui/service-settings.js | 249 | exported ServiceSettings |
-| js/ui/task-launcher.js | 620 | exported TaskLauncher |
+| js/ui/service-settings.js | 371 | exported ServiceSettings |
+| js/ui/task-launcher.js | 631 | exported TaskLauncher |
 | js/ui/third/base-translation/base-de.js | 563 |  |
 | js/ui/third/base-translation/base-en.js | 578 |  |
 | js/ui/third/base-translation/base-es.js | 555 |  |
@@ -276,7 +274,7 @@
 | js/ui/third/i18next.js | 6031 | exported changeLanguage, getText, getTranslation |
 | js/ui/third/tippy.js | 95 | exported addTooltipByElement, setLanguage |
 | js/ui/toast.js | 119 | exported checkActiveImage, createToast |
-| js/ui/tutorial.js | 440 |  |
+| js/ui/tutorial.js | 445 |  |
 | js/ui/util/cjk-break.js | 30 | exported CjkBreak |
 | js/ui/util/event-delegator.js | 94 | event-delegator.js - document-level event delegation utility |
 | js/ui/util/focus-trap.js | 85 | focus-trap.js - モーダル用フォーカストラップユーティリティ |
@@ -297,8 +295,9 @@
 | manga_ocr_preclean.py | 139 |  |
 | manga_ocr_refiner.py | 88 |  |
 | manga_sam_select.py | 191 |  |
-| manga_smart_ocr.py | 369 |  |
+| manga_smart_ocr.py | 375 |  |
 | manga_text_detector.py | 133 |  |
+| prompt_helper_images.py | 165 |  |
 | scripts/MangaMakerUI.py | 64 |  |
 | scripts/asset-library-smoke-test.cjs | 113 |  |
 | scripts/auto-swap-real.cjs | 97 | 换角色 v2 evidence run: page-4 → auto-detect → click a character → reference → 生成 → 应用 (+ optional propagation). |
@@ -317,7 +316,7 @@
 | scripts/generate-site-ui-svgs.cjs | 391 |  |
 | scripts/gpt-browser-acceptance.cjs | 1311 | Real headless Chromium acceptance test against the actual HTML/Fabric runtime. |
 | scripts/gpt-http-integration-test.py | 205 |  |
-| scripts/gpt-image-proxy-smoke-test.py | 219 |  |
+| scripts/gpt-image-proxy-smoke-test.py | 257 |  |
 | scripts/gpt-panel-i18n-test.cjs | 53 | Regression: every mgpt_* key used by the GPT region editor exists in all 8 i18next |
 | scripts/gpt-panel-line-protect-test.cjs | 58 | Regression: GPT region edits must not erase panel borders / gutters inside the selection. |
 | scripts/gpt-proxy-network-guard-test.py | 160 |  |
@@ -330,8 +329,9 @@
 | scripts/image2-persistence-regression-test.cjs | 159 |  |
 | scripts/import-image-keeps-page-test.cjs | 25 | Regression: File > Import image on a page that only had a manga template resized the |
 | scripts/install-ai.ps1 | 51 |  |
-| scripts/layout-smoke-test.cjs | 201 |  |
+| scripts/layout-smoke-test.cjs | 196 |  |
 | scripts/lib-top-level-functions.cjs | 56 | Dependency-free: names of top-level `function name(` declarations in a classic script. |
+| scripts/license-guard-test.cjs | 20 | Open-source licence guard: no AGPL bundle, no fonts with unclear redistribution terms, font aliases resolve, |
 | scripts/local-secret-guard-test.py | 261 |  |
 | scripts/local-tools-origin-test.py | 179 |  |
 | scripts/make-one-click-zip.ps1 | 63 | Build a beginner zip without git history, secrets, or machine caches. |
@@ -357,7 +357,7 @@
 | scripts/manga-smart-text-test.cjs | 103 |  |
 | scripts/manga-text-detector-test.py | 96 |  |
 | scripts/manga-text-ink-mask-test.cjs | 77 |  |
-| scripts/model-progress-test.cjs | 14 | First-use model download card text (js/ai/manga-model-request.js progressText). |
+| scripts/model-progress-test.cjs | 24 | First-use model download card text (js/ai/manga-model-request.js progressText). |
 | scripts/nai-error-readable-test.py | 164 |  |
 | scripts/nai-pipeline-credentials-test.cjs | 24 | Regression: the NAI pipeline smoke test must never reuse the NovelAI token as the |
 | scripts/nai-pipeline-smoke-test.mjs | 324 | NAI-only pipeline smoke test (NovelAI + Director proxy). |
@@ -369,7 +369,7 @@
 | scripts/novelai-page-result-test.cjs | 9 |  |
 | scripts/novelai-readable-error-test.cjs | 39 | Regression: NovelAI errors shown to the user are readable (JSON from the local proxy, |
 | scripts/novice-audit-shots.cjs | 64 | Self-review walkthrough: a fresh novice opens the app at 1440x900 and 1280x800, screenshots every state |
-| scripts/novice-task-e2e.cjs | 1732 | Novice full-task acceptance (docs/GROK_BOT_FINAL_DELIVERY.md §4): a new user, no docs, real Chromium, |
+| scripts/novice-task-e2e.cjs | 1787 | Novice full-task acceptance (docs/GROK_BOT_FINAL_DELIVERY.md §4): a new user, no docs, real Chromium, |
 | scripts/offline-icon-fonts-test.cjs | 23 | Regression: icon fonts came only from fonts.gstatic.com, so offline (or where Google |
 | scripts/page-studio-smoke-test.cjs | 106 |  |
 | scripts/panel-auto-test.cjs | 23 | Automatic panel detection core: XY-cut (MangaPageStructure) + tighten to ink, mapped to page pixels. |
@@ -379,6 +379,7 @@
 | scripts/prepare-installer.ps1 | 118 |  |
 | scripts/privacy-guard-test.cjs | 19 | Open-source guard: no tracked text file may contain API keys, tokens, private relay/tunnel hosts or personal |
 | scripts/project-load-open-page-test.cjs | 43 | Regression: "Load project" only added page thumbnails; when the canvas was empty |
+| scripts/prompt-helper-images-test.py | 132 |  |
 | scripts/proxy-chain-negative-test.py | 269 |  |
 | scripts/proxy-guard-smoke-test.py | 66 |  |
 | scripts/remove-dead-functions.cjs | 36 | Usage: node scripts/remove-dead-functions.cjs list.tsv  (file<TAB>line<TAB>name per row). |
@@ -399,9 +400,12 @@
 | scripts/ux-shots-v3.cjs | 72 | v3 layout before/after shots (TAG=before\|after) at 1440x900 and 1280x800, Chinese, mock GPT. |
 | scripts/validate-manga-split-samples.py | 546 |  |
 | scripts/vendor-free-public-assets.cjs | 274 | Download clearly licensed free assets into assets/public/. |
+| scripts/windows/99_generate_nai_assets.bat | 6 |  |
+| scripts/windows/99_server.bat | 4 |  |
+| scripts/windows/99_test_nai_pipeline.bat | 16 |  |
+| scripts/windows/start_local_tools.bat | 4 |  |
+| scripts/windows/start_manga_editor_nai.bat | 23 |  |
+| scripts/windows/start_manga_editor_nai.ps1 | 570 |  |
 | service-worker.js | 93 | Service Worker: Cache management for HTTP/HTTPS deployment |
-| start_local_tools.bat | 4 |  |
-| start_manga_editor_nai.bat | 23 |  |
-| start_manga_editor_nai.ps1 | 569 |  |
 | 一键启动.bat | 29 |  |
 | 安装AI功能.bat | 11 |  |

@@ -43,7 +43,7 @@
 
 ## 4. Windows
 
-见 [WINDOWS_READINESS.md](WINDOWS_READINESS.md)。新增 `windows-latest` CI；发现并修复 3 个真实问题：Windows 检出时 JS 被转成 CRLF 导致测试失败（`.gitattributes` 统一 LF）、两个 ps1 缺 BOM（含日文/中文字符）、`tesseract --list-langs` 输出未指定编码。新增一键安装本机 AI：`安装AI功能.bat` / `scripts/install-ai.sh`，Linux/macOS 启动 `start.sh`。
+见 [WINDOWS_READINESS.md](dev/WINDOWS_READINESS.md)。新增 `windows-latest` CI；发现并修复 3 个真实问题：Windows 检出时 JS 被转成 CRLF 导致测试失败（`.gitattributes` 统一 LF）、两个 ps1 缺 BOM（含日文/中文字符）、`tesseract --list-langs` 输出未指定编码。新增一键安装本机 AI：`安装AI功能.bat` / `scripts/install-ai.sh`，Linux/macOS 启动 `start.sh`。
 
 ## 5. 仓库卫生
 

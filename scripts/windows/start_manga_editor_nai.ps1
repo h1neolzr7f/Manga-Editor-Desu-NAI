@@ -19,7 +19,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$Root = Split-Path -Parent $MyInvocation.MyCommand.Path
+# this script lives in scripts\windows\; the application root is two levels up
+$Root = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path))
 $Port = 8000
 $ProbeUrl = "http://127.0.0.1:$Port/index.html"
 $BrowserUrl = "http://127.0.0.1:$Port/index.html#"

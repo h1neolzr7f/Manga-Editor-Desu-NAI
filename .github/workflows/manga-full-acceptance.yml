@@ -11,7 +11,7 @@ on:
       - "js/**"
       - "css/**"
       - "scripts/**"
-      - "start_manga_editor_nai.ps1"
+      - "scripts/windows/**"
       - ".github/workflows/manga-full-acceptance.yml"
   push:
     branches: ["feat/manga-nai-gpt-region-editor"]
@@ -20,7 +20,7 @@ on:
       - "gpt_image_proxy.py"
       - "js/ai/gpt-region-editor.js"
       - "scripts/gpt-*"
-      - "start_manga_editor_nai.ps1"
+      - "scripts/windows/**"
       - ".github/workflows/manga-full-acceptance.yml"
 
 permissions:
@@ -156,9 +156,9 @@ jobs:
         run: |
           $errorItems = $null
           [void][System.Management.Automation.Language.Parser]::ParseFile(
-            (Join-Path $PWD "start_manga_editor_nai.ps1"), [ref]$null, [ref]$errorItems)
+            (Join-Path $PWD "scripts/windows/start_manga_editor_nai.ps1"), [ref]$null, [ref]$errorItems)
           if ($errorItems.Count -gt 0) { throw ($errorItems | Out-String) }
-          $content = Get-Content "start_manga_editor_nai.ps1" -Raw
+          $content = Get-Content "scripts/windows/start_manga_editor_nai.ps1" -Raw
           if (-not $content.Contains('Get-EnvValue "GPT_IMAGE_TRUSTED_BASE_URL"')) {
             throw "Trusted endpoint is not loaded"
           }
@@ -185,7 +185,7 @@ jobs:
             $names = @($zip.Entries | ForEach-Object { $_.FullName.Replace('\','/') })
             foreach ($suffix in @('/gpt_image_proxy.py','/99_server.py',
                                   '/js/ai/gpt-region-editor.js','/css/gpt-region-editor.css',
-                                  '/start_manga_editor_nai.ps1','/index.html')) {
+                                  '/scripts/windows/start_manga_editor_nai.ps1','/index.html')) {
               if (-not ($names | Where-Object { $_.EndsWith($suffix) })) {
                 throw "Missing packaged component: $suffix"
               }

@@ -77,6 +77,7 @@
 | `npm run test:page-size` | `js/core/manga-page-size.js` |
 | `npm run test:page-studio` | `js/panel/layout-templates.js`, `js/sidebar/page/page-studio.js`, `js/sidebar/pen/brush-presets.js`, `js/sidebar/text/sfx-palette.js` |
 | `npm run test:png-bit-depth` | `js/core/util/png-bit-depth.js` |
+| `npm run test:portability` | `scripts/windows/99_server.bat` |
 | `npm run test:scene-plan` | `js/ai/director/scene-plan-schema.js` |
 | `npm run test:simulator` | `js/local-tools/local-tools-client.js`, `js/simulator/chat-scene.js`, `js/simulator/template-registry.js` |
 | `npm run test:simulator-extra` | `js/simulator/extra-renderer-factory.js`, `js/simulator/renderers/danmaku-player-renderer.js`, `js/simulator/renderers/forum-renderer.js`, `js/simulator/renderers/image-board-renderer.js`, `js/simulator/renderers/livestream-renderer.js`, `js/simulator/renderers/phone-renderer.js`, `js/simulator/renderers/social-feed-renderer.js`, `js/simulator/renderers/video-tube-renderer.js`, `js/simulator/renderers/visual-novel-renderer.js`, `js/simulator/scene-serializer.js`, `js/simulator/template-registry.js` |

@@ -18,5 +18,5 @@ for (const file of fs.readdirSync(root).filter(f => f.toLowerCase().endsWith('.b
   const text = fs.readFileSync(path.join(root, file), 'utf8');
   assert(/^[\x00-\x7f]*$/.test(text), `${file} must be ASCII-only (Chinese text belongs in .ps1)`);
 }
-assert.match(fs.readFileSync(path.join(root, '99_server.bat'), 'utf8'), /cd \/d "%~dp0"/, '99_server.bat must cd to its folder');
+assert.match(fs.readFileSync(path.join(root, 'scripts/windows/99_server.bat'), 'utf8'), /cd \/d "%~dp0\.\.\\\.\."/, '99_server.bat must cd to its folder');
 console.log('PASS portability: python launcher, ASCII batch files, CRLF attributes');

@@ -19,7 +19,7 @@
 | 本地参考图片管理和持久化 | `js/ai/manga-character-bible-ui.js` | 专业漫画编辑器的角色素材库工作流，原生浏览器 IndexedDB 与 Canvas API 新实现 |
 | 连接 GPT 改图 | `js/ai/gpt-region-editor.js` | 复用本仓已实现的 GPT Image 多参考图接口，图像仅在用户点击生成后发送 |
 | 字幕/分镜/角色三类编辑计划 | `js/ai/manga-edit-planner.js` | 参考 AI Manga Factory 的“先计划、再确认、最后执行”产品逻辑 |
-| 来源索引 | `docs/UPSTREAM_BORROWING_LEDGER.md` | 记录每一个借鉴来源、具体模块和是否使用第三方源代码 |
+| 来源索引 | `docs/dev/UPSTREAM_BORROWING_LEDGER.md` | 记录每一个借鉴来源、具体模块和是否使用第三方源代码 |
 
 ## 严格限制
 

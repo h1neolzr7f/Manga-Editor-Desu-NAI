@@ -201,7 +201,7 @@ class ShippedDefaultsTest(unittest.TestCase):
         self.assertRegex(self.read("index.html"), r'id="naiDirectorApiUrl" value=""')
         self.assertIn("naiDirectorApiUrl:{id:'naiDirectorApiUrl',default:''}", self.read("js/project-management.js"))
         self.assertRegex(self.read(".env.example"), r"(?m)^DIRECTOR_API_URL=\s*$")
-        self.assertRegex(self.read("start_manga_editor_nai.ps1"), r'(?m)^Get-EnvValue "DIRECTOR_API_URL"\s*$')
+        self.assertRegex(self.read("scripts/windows/start_manga_editor_nai.ps1"), r'(?m)^Get-EnvValue "DIRECTOR_API_URL"\s*$')
         self.assertRegex(self.read("scripts/nai-pipeline-smoke-test.mjs"), r'naiDirectorApiUrl\?\.trim\(\) \|\|\s*""')
         self.assertIn("getInputValue('naiDirectorApiUrl','')", self.read("js/ai/prompt/novelai-composition-director.js"))
         self.assertIn("input.value.trim():'';", self.read("js/ai/ai-settings.js"))

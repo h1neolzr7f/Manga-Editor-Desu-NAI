@@ -1,7 +1,7 @@
 @echo off
 setlocal EnableExtensions
 
-cd /d "%~dp0" || (
+cd /d "%~dp0..\.." || (
   echo Failed to enter the application directory.
   exit /b 1
 )

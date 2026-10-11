@@ -1,5 +1,5 @@
 /* Manga page structure v1: deterministic, low-cost XY-cut candidates.
- * Own implementation; conceptual inspiration listed in docs/UPSTREAM_BORROWING_LEDGER.md.
+ * Own implementation; conceptual inspiration listed in docs/dev/UPSTREAM_BORROWING_LEDGER.md.
  * This is NOT semantic panel/bubble detection; every result is user-reviewable.
  */
 (function (root) {

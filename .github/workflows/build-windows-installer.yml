@@ -20,13 +20,11 @@ on:
       - ".github/workflows/build-windows-installer.yml"
       - "installer/**"
       - "scripts/prepare-installer.ps1"
-      - "start_manga_editor_nai.ps1"
-      - "start_manga_editor_nai.bat"
+      - "scripts/windows/**"
       - "一键启动.bat"
       - "package.json"
       - "CHANGELOG.md"
-      - "使用说明.txt"
-      - "先看我.txt"
+      - "installer/**"
 
 permissions:
   contents: write
@@ -169,13 +167,13 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             $notes = "release-notes.md"
             if (Test-Path $notes) {
-              gh release create $tag --verify-tag --title "Manga Editor Desu · nai学长魔改版 $tag" --notes-file $notes
+              gh release create $tag --verify-tag --title "Manga-NAI-GPT $tag" --notes-file $notes
             } else {
-              gh release create $tag --verify-tag --generate-notes --title "Manga Editor Desu · nai学长魔改版 $tag"
+              gh release create $tag --verify-tag --generate-notes --title "Manga-NAI-GPT $tag"
             }
             if ($LASTEXITCODE -ne 0) { throw "Could not create release $tag. Make sure the tag exists." }
           } elseif (Test-Path "release-notes.md") {
-            gh release edit $tag --notes-file release-notes.md --title "Manga Editor Desu · nai学长魔改版 $tag"
+            gh release edit $tag --notes-file release-notes.md --title "Manga-NAI-GPT $tag"
           }
           $setup = Get-ChildItem .\dist\Manga-Editor-Desu-NAI-Setup-*.exe | Select-Object -First 1
           gh release upload $tag $setup.FullName --clobber

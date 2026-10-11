@@ -21,16 +21,16 @@
 | 種別 | 件数 |
 |------|------|
 | .bat | 10 |
-| .cjs | 70 |
+| .cjs | 71 |
 | .css | 42 |
 | .html | 9 |
-| .js | 221 |
+| .js | 222 |
 | .mjs | 2 |
 | .ps1 | 4 |
-| .py | 40 |
-| シンボル | 10560 |
+| .py | 42 |
+| シンボル | 10610 |
 | DOM id 定義 | 634 |
-| script 読み込み | 235 |
+| script 読み込み | 236 |
 | stylesheet 読み込み | 43 |
 
 ## 除外ディレクトリ
@@ -49,7 +49,7 @@
 | `MangaCharacterBibleUI` | js/ai/manga-character-bible-ui.js:220 |
 | `MangaEditPlanner` | js/ai/manga-edit-planner.js:78 |
 | `MangaEditPlannerUI` | js/ai/manga-edit-planner-ui.js:125 |
-| `MangaGPTRegionEditor` | js/ai/gpt-region-editor.js:1680 |
+| `MangaGPTRegionEditor` | js/ai/gpt-region-editor.js:1682 |
 | `MangaImporter` | js/ai/manga-importer.js:2518 |
 | `MangaLamaInpaintUI` | js/ai/manga-lama-inpaint-ui.js:408 |
 | `MangaModelRequest` | js/ai/manga-model-request.js:84 |
@@ -120,6 +120,7 @@
 | `NovelAICompositionDirector` | js/ai/prompt/novelai-composition-director.js:1206 |
 | `PANEL_LAYOUT_TEMPLATES` | js/panel/layout-templates.js:385 |
 | `PanelAuto` | js/ai/panel-auto.js:155 |
+| `PromptHelperImages` | js/ui/prompt-helper-images.js:53 |
 | `SamClickSelect` | js/ai/sam-click-select.js:241 |
 | `TestRunner` | js/core/debug.js:403 |
 | `__autoSwapPrefetch` | js/ai/auto-swap.js:604, js/ai/auto-swap.js:606 |
@@ -143,7 +144,7 @@
 | `getBatchDirectorUserPrompt` | js/ai/prompt/auto/auto-prompt-util.js:809 |
 | `getBatchPanelSignature` | js/ai/prompt/auto/auto-prompt-util.js:811 |
 | `getNaiCharacterCardsForDirector` | js/ai/prompt/auto/character-card-manager.js:541 |
-| `hidden` | js/ui/service-settings.js:220, js/ui/service-settings.js:231 |
+| `hidden` | js/ui/service-settings.js:340, js/ui/service-settings.js:351 |
 | `isBatchAcceptanceGateEnabled` | js/ai/prompt/auto/auto-prompt-util.js:806 |
 | `isBatchAcceptancePassed` | js/ai/prompt/auto/auto-prompt-util.js:807 |
 | `isBatchDirectorEnabled` | js/ai/prompt/auto/auto-prompt-util.js:805 |
@@ -180,13 +181,13 @@
 | ファイル | 行数 | 用途 |
 |---------|------|------|
 | js/ui/third/i18next.js | 6031 | exported changeLanguage, getText, getTranslation |
-| index.html | 3084 |  |
+| index.html | 3085 |  |
 | js/ai/manga-importer.js | 2524 |  |
-| scripts/novice-task-e2e.cjs | 1732 | Novice full-task acceptance (docs/GROK_BOT_FINAL_DELIVERY.md §4): a new user, no docs, real Chromium, |
-| js/ai/gpt-region-editor.js | 1684 | Manga-NAI-GPT: isolated, non-destructive image editing surface. |
+| scripts/novice-task-e2e.cjs | 1787 | Novice full-task acceptance (docs/GROK_BOT_FINAL_DELIVERY.md §4): a new user, no docs, real Chromium, |
+| js/ai/gpt-region-editor.js | 1686 | Manga-NAI-GPT: isolated, non-destructive image editing surface. |
 | scripts/gpt-browser-acceptance.cjs | 1311 | Real headless Chromium acceptance test against the actual HTML/Fabric runtime. |
 | js/ai/prompt/novelai-composition-director.js | 1207 |  |
-| 99_server.py | 1176 |  |
+| 99_server.py | 1183 |  |
 | js/simulator/simulator-studio.js | 1110 | 模拟器启动页与各类型单开工作区 |
 | js/canvas-manager.js | 1066 | exported aspectRatio, changeView, forcedAdjustCanvasSize, initResizeCanvas, inputImageFile, resizeCanvas, resizeCanvasToObject |
 | js/dashboard/dashboard-ui.js | 1058 | exported openDashboardModal |

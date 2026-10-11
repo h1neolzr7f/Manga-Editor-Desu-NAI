@@ -4,7 +4,7 @@
 
 ## 使用方式
 
-1. 运行原来的 `一键启动.bat` 或 `start_manga_editor_nai.ps1`，打开本地编辑器（推荐 `http://127.0.0.1:8000`）。
+1. 运行原来的 `一键启动.bat` 或 `scripts/windows/start_manga_editor_nai.ps1`，打开本地编辑器（推荐 `http://127.0.0.1:8000`）。
 2. 在画布上方点 **GPT 改图**。默认操作是“局部改图 / 角色替换”，点 **框选区域** 后在画布上按住鼠标左键或右键拖动；Esc 取消。
 3. 填写 **HTTPS 兼容 API 基础地址** 和真实的模型 ID。官方示例：`https://api.openai.com/v1` / `gpt-image-1`。第三方中转站示例：`https://<your-relay>/v1`，模型名必须以服务商实际支持的为准。
 4. 输入 API Key、修改描述，按需上传最多 3 张 PNG/JPEG/WebP 参考图；点击 **生成预览**。API 请求可能计费。

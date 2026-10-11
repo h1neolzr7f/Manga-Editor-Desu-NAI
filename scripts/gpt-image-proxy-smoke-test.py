@@ -163,7 +163,7 @@ class ImageRelayTest(unittest.TestCase):
     def test_no_default_relay_in_code(self):
         import os
         root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-        for f in ("gpt_image_proxy.py", "js/ai/gpt-region-editor.js", "js/ui/service-settings.js", "start_manga_editor_nai.ps1"):
+        for f in ("gpt_image_proxy.py", "js/ai/gpt-region-editor.js", "js/ui/service-settings.js", "scripts/windows/start_manga_editor_nai.ps1"):
             with open(os.path.join(root, f), encoding="utf-8-sig") as fh:
                 text = fh.read()
             self.assertNotRegex(text, r"https://(?!api\.openai\.com|image\.novelai\.net|your-|relay\.example|example)[a-z0-9.-]+\.(workers\.dev|[a-z]{2,})/v1", f)

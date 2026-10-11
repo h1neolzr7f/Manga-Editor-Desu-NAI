@@ -1,0 +1,13 @@
+Manga-NAI-GPT
+=============
+
+新手友好的漫画编辑器（基于 new-sankaku 的 Manga Editor Desu，GPL-3.0）。
+本项目：https://github.com/h1neolzr7f/Manga-NAI-GPT
+上游：  https://github.com/new-sankaku/manga-editor-desu
+
+安装后从开始菜单或桌面快捷方式打开即可，不用另装 Python 或 Node.js。
+启动后会留一个命令行窗口，那是本机服务；关掉它就等于停止服务。
+不要双击 index.html，地址应是 http://127.0.0.1:8000/index.html
+
+用 AI 功能前：右上角 ⋯ → 「服务设置」，填你自己的服务地址 / Key 或 NovelAI Token，点「测试连接」。
+新手教程：docs\QUICK_START_BEGINNER.md

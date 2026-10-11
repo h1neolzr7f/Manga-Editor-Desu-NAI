@@ -4,7 +4,7 @@
 
 | 项目 | 结论 | 处理 |
 |---|---|---|
-| 启动器 `一键启动.bat` → `start_manga_editor_nai.bat` → `start_manga_editor_nai.ps1` | bat 只含 ASCII（避免 chcp 后 cmd 按错位字节读中文）；ps1 带 UTF-8 BOM（Windows PowerShell 5.1 必须）；`-ExecutionPolicy Bypass`；8000 端口被占用时给出占用进程且不误杀；Job Object 保证关窗口即停服务 | 已有，审查通过 |
+| 启动器 `一键启动.bat` → `scripts/windows/start_manga_editor_nai.bat` → `scripts/windows/start_manga_editor_nai.ps1` | bat 只含 ASCII（避免 chcp 后 cmd 按错位字节读中文）；ps1 带 UTF-8 BOM（Windows PowerShell 5.1 必须）；`-ExecutionPolicy Bypass`；8000 端口被占用时给出占用进程且不误杀；Job Object 保证关窗口即停服务 | 已有，审查通过 |
 | 行尾 | `.gitattributes` 规定 bat/cmd/ps1/iss 为 CRLF；`git archive`（GitHub ZIP 下载）也遵循 | CI 解压 ZIP 逐个检查：不得有裸 LF |
 | **两个 ps1 缺 BOM** | `scripts/prepare-installer.ps1`（含日文目录名字符串，PS 5.1 会读成乱码导致排除规则失效）、`scripts/make-one-click-zip.ps1` | **已补 BOM**；CI 检查所有 ps1 必须有 BOM |
 | Python 定位 | 依次找 `.venv\Scripts\python.exe`（新增）→ 内置 runtime → `%LOCALAPPDATA%\Programs\Python\Python31x` → `py -3` → PATH（排除 WindowsApps 商店占位程序） | `.venv` 优先，便于本机 AI |

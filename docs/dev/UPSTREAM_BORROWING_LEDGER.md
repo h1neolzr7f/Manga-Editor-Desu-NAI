@@ -48,7 +48,7 @@
 - `manga_ocr_refiner.py` 原创轻量适配器，延迟加载并调用上游 `MangaOcr()`，输入 PIL.Image，返回文字，不移植其代码。
 - `manga_smart_ocr.py` 新增严格本机同源路由 `/manga-smart/manga-ocr`；GPU/CPU 模型仅由用户显式点击触发加载。
 - `js/ai/manga-smart-text-editor.js` 每条文字候选可按需精修；Tesseract OCR 负责检测框，Manga OCR 不输出伪造检测框。
-- `docs/MANGA_OCR_REFINEMENT_V1.md` 写明约 400MB 的首用模型下载与无模型 CI 的局限。
+- `docs/dev/MANGA_OCR_REFINEMENT_V1.md` 写明约 400MB 的首用模型下载与无模型 CI 的局限。
 
 ## LaMa 去字引用记录（PR #11）
 

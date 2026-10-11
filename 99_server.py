@@ -26,7 +26,7 @@ except ImportError:
 mimetypes.add_type('application/javascript', '.js')
 
 # 启动器会设 NAI_QUIET=1，把每个请求的访问日志静音，让一键启动的控制台只留启动信息。
-# 不设该变量时保持原样，99_server.bat / 直接跑 ps1 的调试流程不受影响。
+# 不设该变量时保持原样，scripts/windows/99_server.bat / 直接跑 ps1 的调试流程不受影响。
 QUIET_REQUESTS = (os.environ.get('NAI_QUIET') or '').strip().lower() in ('1', 'true', 'yes', 'on')
 
 TOOL_JOBS = {}

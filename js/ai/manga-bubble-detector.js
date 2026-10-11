@@ -1,6 +1,6 @@
 /* Conservative local bubble-candidate detector.
  * Original implementation: connected enclosed near-white regions + OCR association.
- * Inspired by modular OCR/detection pipelines (see UPSTREAM_BORROWING_LEDGER.md).
+ * Inspired by modular OCR/detection pipelines (see docs/dev/UPSTREAM_BORROWING_LEDGER.md).
  * A detected light component is NOT a verified speech bubble.
  */
 (function (root) {
