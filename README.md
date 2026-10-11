@@ -1,77 +1,121 @@
+# Manga Editor Desu · NAI 版
 
-> **Manga-NAI-GPT 正在独立开发分支迭代，尚未合并主线或达到发布验收门禁。** 开发交接、功能完成度、测试范围和最新分支见 [Manga-NAI-GPT 开发交接](docs/MANGA_GPT_DEVELOPMENT_HANDOFF.md)。
+**给新手的漫画修图 / 嵌字工具**：换角色、改对白、去杂物、拆图层、画一整页，大多数事情 2–4 次点击完成。
+基于 [Manga Editor Desu](https://github.com/new-sankaku/manga-editor-desu) 的非官方 GPL-3.0 修改版。全部在你自己的电脑上运行，浏览器里使用。
 
-# Manga Editor Desu · NovelAI Edition
+[English](#english) · [5 分钟上手](docs/QUICK_START_BEGINNER.md) · [第三方声明](THIRD_PARTY_NOTICES.md) · [安全](SECURITY.md) · [参与开发](CONTRIBUTING.md)
 
-这是 [new-sankaku/manga-editor-desu](https://github.com/new-sankaku/manga-editor-desu) 的非官方 GPL-3.0 修改发行版。分镜、气泡、图层、刀具、网点、画笔和多页工程等编辑器基础能力来自上游；本仓库维护 NovelAI 接入、本地启动器、模拟器工作区与中文入门流程。
+![新手首页：按任务开始](docs/images/home.jpg)
 
-[English](README_EN.md) · [下载 Releases](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest) · [相对上游的改动](CHANGELOG.md) · [参与贡献](CONTRIBUTING.md)
+## 能做什么
 
-![当前源码的编辑器界面](docs/screenshots/editor-home.png)
+| 任务 | 怎么做 | 用到 |
+|---|---|---|
+| **换角色** | 自动找出页面上的人物 → 点一下要换的人 → 上传参考图 → 生成 → 应用。可把同一角色在其他格一起换（按脸部识别） | GPT 图像（你的 API） + 本机人物识别 |
+| **改字幕** | 导入后自动识别本页文字 → 直接改台词 → 应用：原字自动擦掉、新字按气泡排版（中文避头尾） | 本机 OCR + 文字检测 + LaMa |
+| **修瑕疵 / 去杂物** | 框一下 → 生成预览 → 对比原图 → 应用；接缝和色调自动对齐 | 本机 LaMa 或 GPT |
+| **分层** | 点人物（智能点选，3 个候选）或「按格子拆成图层」 | 本机 SAM 2 / 自动找格子 |
+| **画一页漫画** | 选 3/4 格或照本页格子 → 每格写一句画面和对白 → 一键生成整页 | GPT 图像 |
+| **AI 生图** | NovelAI 文生图 / 图生图 | NovelAI（你的 Token） |
+| 专业模式 | 上游完整编辑器：分镜、气泡、图层、网点、画笔、多页、导出 | — |
 
-> 截图由本仓库当前 `main` 源码在本地 HTTP 服务中启动后采集，画布使用内置空白模板；没有调用 NovelAI，也没有使用私人作品或访问令牌。
+所有 AI 结果都放在**新图层**上，原图不动，Ctrl+Z 一步撤销。
 
-## 这个版本维护什么
+| 换角色（左：原图，右：换成参考角色） | 一页完成稿 |
+|---|---|
+| ![换角色前后](docs/images/swap-before-after.jpg) | ![完成稿](docs/images/comic-page.jpg) |
 
-| 范围 | 归属与说明 |
-| --- | --- |
-| 分镜、气泡、图层、刀具、网点、画笔、多页工程 | 上游 Manga Editor Desu 的核心编辑能力 |
-| NovelAI 文生图与图生图 | 本修改版接入；需要用户自己的访问令牌，会消耗相应服务额度 |
-| Windows 本地启动 | 通过批处理或安装器启动本地 HTTP 服务，避免 `file://` 限制 |
-| 模拟器工作区 | 通用聊天、网页和界面组件，用于漫画中的屏幕场景 |
-| 中文入门流程 | 设置分组、工具提示、空画布引导、自定义页面切格子和 Token 状态 |
-| 本地抠图 | 可选 rembg sidecar；不可用时保留颜色键回退 |
+| 改字幕：每页的文字识别结果各自保存，切页即时出现 | 按格子拆成图层：点一格可以取消 |
+|---|---|
+| ![改字幕](docs/images/caption.jpg) | ![按格子拆成图层](docs/images/panel-split.jpg) |
 
-修改边界和版本记录分别见 [NOTICE.md](NOTICE.md) 与 [CHANGELOG.md](CHANGELOG.md)。本仓库的问题请提交到本仓库；只有在未修改的上游版本中也能复现时，才适合反馈给上游。
+## 安装与启动
 
-## 快速开始
+需要：**Python 3.10+**（[下载](https://www.python.org/downloads/)）和一个现代浏览器（Chrome / Edge / Firefox）。不需要 Node。
 
-### 使用 Release
+1. 下载：GitHub 页面 **Code → Download ZIP** 后解压（放在路径短的文件夹，例如 `D:\MangaEditor`），或 `git clone`。
+2. 启动：
 
-1. 从 [Releases](https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI/releases/latest) 下载安装器或完整便携包。
-2. 完整解压后运行 `一键启动.bat`，或从已安装的快捷方式启动。
-3. 浏览器会打开 `http://127.0.0.1:8000/index.html`。
-4. 只有使用出图功能时才需要在设置中填写自己的 NovelAI 访问令牌。
+| 系统 | 启动编辑器 | 可选：安装本机 AI 功能（OCR、去字、换角色识别、智能点选，仅 CPU，约 1.5 GB） |
+|---|---|---|
+| **Windows 10/11** | 双击 `一键启动.bat` | 双击 `安装AI功能.bat`，再按提示 `winget install UB-Mannheim.TesseractOCR` |
+| **macOS** | 终端里 `./start.sh` | `bash scripts/install-ai.sh`，再 `brew install tesseract tesseract-lang` |
+| **Linux** | `./start.sh` | `bash scripts/install-ai.sh`，再 `sudo apt install tesseract-ocr tesseract-ocr-jpn tesseract-ocr-jpn-vert tesseract-ocr-chi-sim` |
 
-不要直接双击 `index.html`。本地服务负责静态文件、代理保护和可选本地工具。
+浏览器会自动打开 `http://127.0.0.1:8000/index.html`。关掉启动窗口（或 Ctrl+C）即停止。
 
-### 从源码启动
+3. 第一次用到某个 AI 功能时，编辑器会说明要下载哪个模型、多大、什么许可证，**你确认后才下载**（校验 SHA-256，存在用户目录 `~/.cache/manga-editor/`，Windows 为 `%USERPROFILE%\.cache\manga-editor\`；LaMa 和 manga-ocr 用 PyTorch / Hugging Face 自己的缓存目录）。
+4. 用 GPT 或 NovelAI 的功能：点右上角 **服务设置**，填你的 API 地址 / Key 或 NovelAI Token，点「测试连接」。
 
-环境：Windows 10/11、Python 3、Chrome 或 Edge。部分批量素材工具还需要 Node.js。
+> Windows 支持目前只经过代码审查和 GitHub Actions 的 `windows-latest` 离线测试，**尚未在真实 Windows 电脑上完整验证**，详见 [docs/WINDOWS_READINESS.md](docs/WINDOWS_READINESS.md)。遇到问题欢迎反馈。
 
-```powershell
-git clone https://github.com/h1neolzr7f/Manga-Editor-Desu-NAI.git
-cd Manga-Editor-Desu-NAI
-.\一键启动.bat
-```
+## 上手
 
-## 开发与验证
+看 **[docs/QUICK_START_BEGINNER.md](docs/QUICK_START_BEGINNER.md)**（5 分钟）。简单说：打开 → 导入漫画页 → 点首页上的任务 → 按卡片上的 1、2、3 做。想要全部参数时打开「高级」，或切换到「专业模式」。
 
-```powershell
-npm test
-npm run test:simulator
-npm run test:story-engine
-npm run test:cutout
-npm run test:proxy-guards
-```
+## 已知限制
 
-上述离线检查覆盖布局、模拟器聊天、故事流程、抠图预设和代理保护。本次文档整理的实际结果见 [docs/VALIDATION.md](docs/VALIDATION.md)。需要真实 NovelAI 账号、积分或第三方网关的测试不属于默认测试范围。
+- **换角色在复杂多人画格里不稳定**：GPT 偶尔会改到同格的另一个人，或把头身比例画得不自然。务必先看「对比原图」再应用；不满意可以把范围框大一点重试。
+- **自动找格子需要白色格间留白**：无边框、出血满版或黑底分格识别不出来，此时用手动框选。
+- **本机 AI 只用 CPU**：人物识别首次 20–60 秒，智能点选几秒，LaMa 去字数秒；空闲 10 分钟后自动释放内存。低内存电脑（<8 GB）可能偏慢。
+- GPT 生成质量取决于你使用的模型和服务；默认模型名 `gpt-image-2.5`，可在服务设置里改。
+- 文字识别以日文漫画为主（Tesseract + 可选 manga-ocr）；手写体、艺术字、拟声词识别率较低（「保留拟声词」默认开启）。
 
-发布工作流位于 [.github/workflows/build-windows-installer.yml](.github/workflows/build-windows-installer.yml)，负责 Windows 安装器、已安装运行时冒烟和 Release 附件。构建产物与源码的版本号应保持一致。
+## 隐私与安全
 
-## 数据与凭据
+- 服务只在本机 `127.0.0.1` 上运行，所有本机接口检查来源（同源），其他网页无法调用。
+- API Key / Token 只保存在你的浏览器本地存储或本机 `.env`，不会写进项目文件、日志或导出图片。
+- 图片只发送到**你自己设置的** GPT / NovelAI 服务；本机 AI 功能完全离线。
+- 不包含任何统计或跟踪代码。漏洞请按 [SECURITY.md](SECURITY.md) 私密报告。
 
-- 不要提交 `.env`、访问令牌、`user_data/` 或私人漫画工程。
-- 出图前会显示额度提示；是否产生费用由所使用的外部服务决定。
-- 本地服务默认只面向当前电脑，不能当作公网多用户服务。
+## 常见问题
 
-## 许可证与致谢
+**双击 `index.html` 打不开？** 必须通过启动脚本运行（浏览器禁止 `file://` 下的大部分功能）。
 
-本修改版继续使用 [GNU GPL v3.0](LICENSE)。上游作者保留原编辑器相应版权；重新分发修改版时须保留许可证、修改说明与对应源码。第三方素材许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+**提示 8000 端口被占用？** 已经开着一个编辑器窗口时会直接打开浏览器；如果是别的程序占用，关掉它再启动。
 
-感谢 [new-sankaku/manga-editor-desu](https://github.com/new-sankaku/manga-editor-desu) 提供编辑器基础。
+**一定要 GPT / NovelAI 吗？** 不需要。编辑、嵌字、改字幕、去字、分层都可以完全离线；换角色、画一页、自定义修改需要 GPT 图像服务。
 
+**模型很大，能放到别处吗？** 设置环境变量 `XDG_CACHE_HOME` 指向别的磁盘即可（模型会放在其下的 `manga-editor/`）；也可以把 `~/.cache/manga-editor/` 整个拷到另一台电脑。
 
-## Manga-NAI-GPT（开发中）
+**要显卡吗？** 不需要，全部 CPU 可用；有 NVIDIA 显卡也不会自动使用（为了安装简单）。
 
-独立的 GPT 局部改图面板、参考图与兼容第三方 HTTPS 中转站的图像代理，使用方式及限制见 [Manga-NAI-GPT 第一阶段指南](docs/MANGA_NAI_GPT_PHASE1.md)。原有 NovelAI 功能保持不变；该功能处于测试阶段。
+## 参与开发
+
+见 [CONTRIBUTING.md](CONTRIBUTING.md)。提交前：`npm test`（含隐私守卫）、`npx eslint js --max-warnings 0`、新手 E2E（`node scripts/novice-task-e2e.cjs`，GPT 全部 mock）。
+
+## 许可证
+
+**GPL-3.0**（见 [LICENSE](LICENSE)），沿用上游。打包的库与字体、按需下载的模型及其许可证见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+
+---
+
+## English
+
+**A beginner-friendly manga editing and lettering tool**: swap a character, rewrite dialogue, remove objects, split into layers or draw a whole page, mostly in 2–4 clicks. Unofficial GPL-3.0 fork of [Manga Editor Desu](https://github.com/new-sankaku/manga-editor-desu). Runs entirely on your computer, used in the browser. The UI is Chinese-first, with English, Japanese, Korean, French, Russian, Spanish and German translations.
+
+### Features
+- **Character swap**: detects characters, click the one to replace, upload a reference, generate, compare, apply; optionally the same character in other panels (face matching). Needs a GPT image API.
+- **Rewrite captions**: text is read automatically on import (per page), edit lines, apply: old text erased (comic-text-detector + LaMa), new text typeset in the bubble.
+- **Fix / remove objects** with LaMa (local) or GPT, with automatic seam and tone matching.
+- **Layers**: smart click-select (SAM 2.1 tiny, 3 candidates) or split the page by panels automatically.
+- **Draw a page**: pick a layout (or reuse the current page's panels), one line per panel, generate.
+- **NovelAI** text-to-image / image-to-image with your own token.
+- Full upstream editor in **Pro mode**. Every AI result lands on a new layer; one Ctrl+Z undoes it.
+
+### Install
+Python 3.10+ and a modern browser. Download ZIP (or clone), then:
+- **Windows**: double-click `一键启动.bat` (start) and optionally `安装AI功能.bat` (local AI, CPU) + `winget install UB-Mannheim.TesseractOCR`.
+- **macOS / Linux**: `./start.sh`; optionally `bash scripts/install-ai.sh` + Tesseract from brew/apt.
+
+The browser opens `http://127.0.0.1:8000/index.html`. Models are downloaded only after you confirm (size, license, SHA-256 shown). Enter API keys under **服务设置 (Service settings)**.
+Windows is statically reviewed and CI-tested on `windows-latest` but **not yet verified on a real Windows PC**.
+
+### Known limitations
+Character swap is unstable in complex multi-person panels (always check the before/after compare); automatic panel detection needs white gutters; local AI is CPU-only (first character detection 20–60 s); OCR targets Japanese manga.
+
+### Privacy
+Local server on `127.0.0.1` with same-origin checks on every endpoint; keys stay in your browser storage or local `.env` and never enter project files, logs or exports; images go only to the services you configure; no analytics.
+
+### License
+GPL-3.0. Bundled libraries/fonts and on-demand models: see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
